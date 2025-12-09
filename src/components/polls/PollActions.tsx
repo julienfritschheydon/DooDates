@@ -24,7 +24,7 @@ import {
   getLastSimulation,
 } from "@/lib/simulation/SimulationComparison";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
-import { deleteVotesByPollId } from "@/lib/pollStorage";
+import { anonymizeVotesForPoll, deleteVotesByPollId } from "@/lib/pollStorage";
 import { createConversationForPoll } from "@/lib/ConversationPollLink";
 
 export type PollActionsVariant = "compact" | "full";
@@ -73,6 +73,44 @@ export const PollActions: React.FC<PollActionsProps> = ({
       toast({
         title: "Erreur",
         description: "Impossible de copier le lien.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAnonymizeVotes = () => {
+    if (
+      poll.type !== "date" ||
+      !window.confirm(
+        "Anonymiser les votes va supprimer les noms et emails associés aux participations, tout en conservant les résultats agrégés.\n\n" +
+          "Cette opération est irréversible. Continuer ?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const { anonymizedCount } = anonymizeVotesForPoll(poll.id);
+
+      if (anonymizedCount > 0) {
+        toast({
+          title: "Votes anonymisés",
+          description: `${anonymizedCount} participation(s) ont été anonymisées.`,
+        });
+      } else {
+        toast({
+          title: "Rien à anonymiser",
+          description: "Aucun nom ou email n'a été trouvé dans les votes de ce sondage.",
+        });
+      }
+    } catch (error) {
+      logError(error, { component: "PollActions", operation: "anonymizeVotes" });
+      toast({
+        title: "Erreur",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Impossible d'anonymiser les votes de ce sondage.",
         variant: "destructive",
       });
     }
@@ -480,6 +518,24 @@ export const PollActions: React.FC<PollActionsProps> = ({
             </TooltipTrigger>
             <TooltipContent>
               <p>Terminer le sondage (fermer aux nouveaux votes)</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {poll.type === "date" && poll.status !== "archived" && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleAnonymizeVotes}
+                className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+                data-testid="poll-action-anonymize-votes"
+              >
+                <Lock className="w-4 h-4" />
+                {variant === "full" && <span className="hidden sm:inline">Anonymiser</span>}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Anonymiser les participants (supprimer noms/emails)</p>
             </TooltipContent>
           </Tooltip>
         )}

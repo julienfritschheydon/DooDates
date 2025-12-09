@@ -121,6 +121,7 @@ const Recent = lazy(() => import("./pages/Recent"));
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Theme = lazy(() => import("./pages/Theme"));
+const AdminQuotaDashboard = lazy(() => import("./pages/AdminQuotaDashboard"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -495,7 +496,6 @@ const App = () => {
                                 <Route path="/" element={<MainLanding />} />
 
                                 {/* Workspace IA - Uses AICreator */}
-                                <Route path="/workspace" element={<AICreator />} />
                                 <Route path="/workspace/date" element={<AICreator />} />
                                 <Route path="/workspace/form" element={<AICreator />} />
                                 <Route path="/workspace/availability" element={<AICreator />} />
@@ -709,6 +709,7 @@ const App = () => {
                                 {/* Dashboard */}
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
+                                <Route path="/admin/quotas" element={<AdminQuotaDashboard />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
                                 {/* Navigation */}

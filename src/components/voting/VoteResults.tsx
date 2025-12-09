@@ -4,6 +4,7 @@ import { triggerHaptic } from "./utils/voteUtils";
 import { logger } from "@/lib/logger";
 import { ArrowLeft, Users, Calendar, Clock, Trophy, Share2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 interface Poll {
   id: string;
@@ -24,6 +25,10 @@ interface PollOption {
     duration?: number;
   }> | null;
   display_order?: number;
+  // Champs pour les groupes de dates (week-ends, semaines, quinzaines)
+  date_group?: string[];
+  date_group_label?: string;
+  date_group_type?: "weekend" | "week" | "fortnight" | "custom";
 }
 
 interface Vote {
@@ -84,7 +89,7 @@ const OptionResult: React.FC<{
 
   votes.forEach((vote) => {
     const selection = vote.selections[option.id];
-    if (selection && Object.hasOwn(voteCounts, selection)) {
+    if (selection) {
       voteCounts[selection]++;
       if (selection === "yes") {
         voterNames.push(vote.voter_name);
@@ -236,7 +241,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
     const voteCounts = { yes: 0, no: 0, maybe: 0 };
     votes.forEach((vote) => {
       const selection = vote.selections[option.id];
-      if (selection && Object.hasOwn(voteCounts, selection)) {
+      if (selection) {
         voteCounts[selection]++;
       }
     });
@@ -290,12 +295,15 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
           <div className="flex items-center justify-between mb-4">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={onBack}
                   className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
                 >
                   <ArrowLeft className="h-6 w-6 text-gray-300" />
-                </button>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Retour au vote</p>
@@ -306,12 +314,15 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={handleShare}
                   className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
                 >
                   <Share2 className="h-6 w-6 text-gray-300" />
-                </button>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Partager les résultats</p>

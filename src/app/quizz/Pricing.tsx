@@ -1,46 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Check, Brain, Sparkles } from "lucide-react";
+import { ProductButton } from "@/components/products/ProductButton";
+import { Check, Sparkles } from "lucide-react";
 
 export default function QuizzPricing() {
   return (
     <div className="min-h-screen bg-[#030712]">
-      {/* Navigation Header */}
-      <header className="border-b border-amber-900/20 bg-[#030712]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <Link to="/quizz" className="text-xl font-bold text-amber-400">
-                Quiz
-              </Link>
-            </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link
-                to="/quizz/dashboard"
-                className="text-gray-400 hover:text-amber-400 transition-colors"
-              >
-                Tableau de bord
-              </Link>
-              <Link
-                to="/quizz/documentation"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                Documentation
-              </Link>
-              <Link to="/quizz/pricing" className="text-amber-400 font-medium">
-                Tarifs
-              </Link>
-              <Link to="/" className="text-gray-400 hover:text-white transition-colors">
-                ← DooDates
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       {/* Pricing Section */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,9 +94,14 @@ export default function QuizzPricing() {
                   <span className="text-gray-300">Support prioritaire</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-yellow-500 text-black rounded-xl font-medium hover:from-amber-400 hover:to-yellow-400 transition-colors">
+              <ProductButton
+                product="quizz"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-yellow-500 text-black rounded-xl font-medium hover:from-amber-400 hover:to-yellow-400 transition-colors"
+              >
                 Passer à Famille
-              </button>
+              </ProductButton>
             </div>
 
             {/* School Plan */}
@@ -165,9 +135,14 @@ export default function QuizzPricing() {
                   <span className="text-gray-300">Formation incluse</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-amber-900/30 text-amber-400 rounded-xl font-medium hover:bg-amber-900/50 transition-colors">
+              <ProductButton
+                product="quizz"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-amber-900/30 text-amber-400 rounded-xl font-medium hover:bg-amber-900/50 transition-colors"
+              >
                 Nous contacter
-              </button>
+              </ProductButton>
             </div>
           </div>
 

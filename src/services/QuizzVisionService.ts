@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * QuizzVisionService - Extraction de quiz depuis une image de devoir
+ * QuizzVisionService - Extraction de quiz depuis un fichier de devoir (photo ou PDF scanné)
  * Utilise Gemini via Supabase Edge Function pour générer des questions/réponses
- * Pour les images: utilise l'API directe (fallback) car Edge Function ne supporte pas les images
+ * Pour les fichiers avec contenu visuel (images/PDF scannés) : utilise l'API directe (fallback)
+ * car l'Edge Function ne supporte pas encore ces payloads binaires.
  */
 
 import { secureGeminiService } from "./SecureGeminiService";
@@ -26,9 +27,9 @@ export interface QuizzVisionResult {
 }
 
 /**
- * Prompt pour extraire un quiz d'une image de devoir
+ * Prompt pour extraire un quiz depuis un fichier de devoir (photo ou PDF scanné)
  */
-const QUIZZ_EXTRACTION_PROMPT = `Tu es un assistant éducatif expert. Analyse cette image de devoir/exercice scolaire.
+const QUIZZ_EXTRACTION_PROMPT = `Tu es un assistant éducatif expert. Analyse ce fichier de devoir/exercice scolaire (photo ou PDF scanné).
 
 OBJECTIF: TRANSFORMER l'exercice en VRAIES QUESTIONS de quiz interactif pour aider l'enfant à réviser.
 
@@ -79,7 +80,7 @@ FORMAT JSON REQUIS:
 }
 
 NOTES:
-- Si l'image est floue, retourne confidence < 50
+- Si le contenu du fichier est flou ou illisible, retourne confidence < 50
 - Génère au moins 3-5 questions par exercice
 - Les options doivent correspondre exactement à ce qui est visible
 
@@ -129,22 +130,22 @@ class QuizzVisionService {
   }
 
   /**
-   * Extrait un quiz d'une image de devoir
-   * Utilise l'API directe Gemini (car Edge Function ne supporte pas les images)
+   * Extrait un quiz depuis un fichier de devoir (photo ou PDF scanné)
+   * Utilise l'API directe Gemini (car l'Edge Function ne supporte pas ces fichiers binaires)
    */
   async extractFromImage(imageBase64: string, mimeType: string): Promise<QuizzVisionResult> {
     // Vérifier si l'API directe est disponible
     const apiKey = getEnv("VITE_GEMINI_API_KEY");
     if (!apiKey) {
-      logger.warn("🔍 Extraction image - Clé API Gemini non configurée", "api");
+      logger.warn("🔍 Extraction fichier (vision) - Clé API Gemini non configurée", "api");
       return {
         success: false,
-        error: "Pour analyser une photo, configurez VITE_GEMINI_API_KEY dans .env.local",
+        error: "Pour analyser un fichier (photo ou PDF), configurez VITE_GEMINI_API_KEY dans .env.local",
       };
     }
 
     try {
-      logger.info("🔍 Extraction quiz depuis image (API directe)", "api", { mimeType });
+      logger.info("🔍 Extraction quiz depuis fichier (API directe)", "api", { mimeType });
 
       const response = await directGeminiService.generateContentWithImage(
         imageBase64,
@@ -153,10 +154,10 @@ class QuizzVisionService {
       );
 
       if (!response.success || !response.data) {
-        logger.error("Échec extraction image", "api", { error: response.error });
+        logger.error("Échec extraction fichier (vision)", "api", { error: response.error });
         return {
           success: false,
-          error: response.message || response.error || "Échec de l'analyse de l'image",
+          error: response.message || response.error || "Échec de l'analyse du fichier",
         };
       }
 
@@ -181,10 +182,10 @@ class QuizzVisionService {
         rawResponse: response.data,
       };
     } catch (error: any) {
-      logger.error("Erreur extraction quiz", "api", error);
+      logger.error("Erreur extraction quiz depuis fichier (vision)", "api", error);
       return {
         success: false,
-        error: error?.message || "Erreur lors de l'analyse de l'image",
+        error: error?.message || "Erreur lors de l'analyse du fichier",
       };
     }
   }

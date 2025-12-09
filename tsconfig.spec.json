@@ -1,6 +1,8 @@
 {
     "extends": "./tsconfig.app.json",
     "include": [
+        "src/hooks/useQuota.ts",
+        "src/components/GeminiChatInterface.tsx",
         "src/**/*.test.ts",
         "src/**/*.test.tsx",
         "src/**/__tests__/*"

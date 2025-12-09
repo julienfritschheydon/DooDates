@@ -10,7 +10,7 @@ import {
   Clock,
   MousePointer,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
 
 // Animation staggered pour les éléments
@@ -134,7 +134,9 @@ export const LandingPage: React.FC = () => {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
+              <ProductButton
+                product="date"
+                variantRole="primary"
                 size="lg"
                 onClick={() => navigate("/create/date")}
                 className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
@@ -143,11 +145,7 @@ export const LandingPage: React.FC = () => {
                   Créer un sondage
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
-              </Button>
-              <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                <MousePointer className="w-4 h-4" />
-                Voir une démo
-              </button>
+              </ProductButton>
             </div>
           </div>
 
@@ -342,13 +340,15 @@ export const LandingPage: React.FC = () => {
           <p className="text-gray-400 mb-10 text-lg">
             Rejoignez des milliers d'équipes qui ont dit adieu aux emails interminables.
           </p>
-          <Button
+          <ProductButton
+            product="date"
+            variantRole="primary"
             size="lg"
             onClick={() => navigate("/create/date")}
             className="px-10 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-blue-500/25"
           >
             Créer mon premier sondage — Gratuit
-          </Button>
+          </ProductButton>
         </div>
       </section>
 

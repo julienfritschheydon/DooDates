@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ProductButton } from "@/components/products/ProductButton";
 import { Check } from "lucide-react";
 
 export default function AvailabilityPollsPricing() {
@@ -68,9 +69,14 @@ export default function AvailabilityPollsPricing() {
                   <span className="text-gray-300">Vue semaine</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-emerald-900/30 text-emerald-400 rounded-lg font-medium hover:bg-emerald-900/50 transition-colors">
+              <ProductButton
+                product="availability"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-emerald-900/30 text-emerald-400 rounded-lg font-medium hover:bg-emerald-900/50 transition-colors"
+              >
                 Commencer gratuitement
-              </button>
+              </ProductButton>
             </div>
 
             {/* Pro Plan */}
@@ -105,9 +111,14 @@ export default function AvailabilityPollsPricing() {
                   <span className="text-gray-300">Notifications auto</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors">
+              <ProductButton
+                product="availability"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+              >
                 Passer à Pro
-              </button>
+              </ProductButton>
             </div>
 
             {/* Enterprise Plan */}
@@ -134,9 +145,14 @@ export default function AvailabilityPollsPricing() {
                   <span className="text-gray-300">SLA garanti</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-emerald-900/30 text-emerald-400 rounded-lg font-medium hover:bg-emerald-900/50 transition-colors">
+              <ProductButton
+                product="availability"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-emerald-900/30 text-emerald-400 rounded-lg font-medium hover:bg-emerald-900/50 transition-colors"
+              >
                 Nous contacter
-              </button>
+              </ProductButton>
             </div>
           </div>
         </div>

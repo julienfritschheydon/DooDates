@@ -122,7 +122,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     emptyStateTitle: "Aucun quiz pour le moment",
     emptyStateDescription: "Créez votre premier quiz pour aider vos enfants",
     emptyStateButtonLabel: "Créer un quiz",
-    dashboardTitle: "Tableau de bord Quiz",
+    dashboardTitle: "Vos Quiz",
     dashboardDescription: "Gérez vos quiz et suivez les résultats de vos élèves.",
     listLabel: "Landing Page",
   },

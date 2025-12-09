@@ -402,6 +402,17 @@ export async function addPoll(poll: Poll): Promise<void> {
 
 export function deletePollById(id: string): void {
   logger.debug(`Deleting poll with id: ${id}`, "poll");
+  // Nettoyer aussi les réponses de formulaire associées si besoin
+  try {
+    deleteFormResponsesForPoll(id);
+  } catch (error) {
+    // Ne pas bloquer la suppression du poll si le nettoyage des réponses échoue
+    logError(error, {
+      component: "pollStorage",
+      operation: "deletePollById:deleteFormResponsesForPoll",
+      pollId: id,
+    });
+  }
   // Supprimer dans l'ensemble unifié
   const polls = getAllPolls();
   logger.debug(`Found ${polls.length} polls before deletion`, "poll");
@@ -781,6 +792,47 @@ function writeAllResponses(resps: FormResponse[]): void {
   // Update memory cache first (write-through)
   memoryResponses = resps.slice();
   writeToStorage(FORM_RESPONSES_KEY, resps, memoryResponsesCache);
+}
+
+export function deleteFormResponsesForPoll(pollId: string): void {
+  if (!pollId) {
+    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour supprimer les réponses du formulaire");
+  }
+
+  try {
+    const all = readAllResponses();
+    const remaining = all.filter((r) => r.pollId !== pollId);
+
+    if (remaining.length !== all.length) {
+      writeAllResponses(remaining);
+      logger.info("Réponses de formulaire supprimées pour le sondage", "poll", {
+        pollId,
+        removedCount: all.length - remaining.length,
+      });
+    } else {
+      logger.info("Aucune réponse de formulaire à supprimer pour ce sondage", "poll", {
+        pollId,
+      });
+    }
+  } catch (error) {
+    const processed = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "deleteFormResponsesForPoll",
+        pollId,
+      },
+      "Erreur lors de la suppression des réponses du formulaire",
+    );
+
+    logError(processed, {
+      component: "pollStorage",
+      operation: "deleteFormResponsesForPoll",
+      pollId,
+    });
+
+    throw processed;
+  }
 }
 
 function getFormPollById(pollId: string): Poll | null {
@@ -1173,9 +1225,70 @@ export function getFormResults(pollId: string): FormResults {
   };
 }
 
-// Expose raw form responses for a poll (used for dashboard stats and per-respondent views)
 export function getFormResponses(pollId: string): FormResponse[] {
   return readAllResponses().filter((r) => r.pollId === pollId);
+}
+
+// --- Anonymisation RGPD des réponses de formulaires ---
+/**
+ * Anonymise les réponses d'un sondage formulaire donné en supprimant
+ * respondentName et respondentEmail tout en conservant les réponses
+ * et les métadonnées techniques (deviceId, created_at).
+ */
+export function anonymizeFormResponsesForPoll(pollId: string): { anonymizedCount: number } {
+  if (!pollId) {
+    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour l'anonymisation");
+  }
+
+  try {
+    const all = readAllResponses();
+    let anonymizedCount = 0;
+
+    const updated = all.map((response) => {
+      if (response.pollId !== pollId) return response;
+
+      if (!response.respondentName && !response.respondentEmail) {
+        return response;
+      }
+
+      anonymizedCount += 1;
+      return {
+        ...response,
+        respondentName: undefined,
+        respondentEmail: undefined,
+      };
+    });
+
+    if (anonymizedCount > 0) {
+      writeAllResponses(updated);
+      logger.info(`Anonymisation RGPD appliquée à ${anonymizedCount} réponses`, "poll", {
+        pollId,
+        anonymizedCount,
+      });
+    } else {
+      logger.info("Aucune réponse à anonymiser pour ce sondage", "poll", { pollId });
+    }
+
+    return { anonymizedCount };
+  } catch (error) {
+    const processed = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "anonymizeFormResponsesForPoll",
+        pollId,
+      },
+      "Erreur lors de l'anonymisation des réponses du formulaire",
+    );
+
+    logError(processed, {
+      component: "pollStorage",
+      operation: "anonymizeFormResponsesForPoll",
+      pollId,
+    });
+
+    throw processed;
+  }
 }
 
 // --- Unicity helpers (simple, centralized) ---
@@ -1267,6 +1380,62 @@ export function getVotesByPollId(pollId: string): Vote[] {
   return getAllVotes().filter((vote) => vote.poll_id === pollId);
 }
 
+export function anonymizeVotesForPoll(pollId: string): { anonymizedCount: number } {
+  if (!pollId) {
+    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour l'anonymisation des votes");
+  }
+
+  try {
+    const allVotes = getAllVotes();
+    let anonymizedCount = 0;
+
+    const updatedVotes = allVotes.map((vote) => {
+      if (vote.poll_id !== pollId) return vote;
+
+      if (!vote.voter_name && !vote.voter_email) {
+        return vote;
+      }
+
+      anonymizedCount += 1;
+      return {
+        ...vote,
+        voter_name: undefined,
+        voter_email: undefined,
+      };
+    });
+
+    if (anonymizedCount > 0) {
+      saveVotes(updatedVotes);
+      logger.info(`Anonymisation RGPD appliquée à ${anonymizedCount} votes`, "poll", {
+        pollId,
+        anonymizedCount,
+      });
+    } else {
+      logger.info("Aucun vote à anonymiser pour ce sondage", "poll", { pollId });
+    }
+
+    return { anonymizedCount };
+  } catch (error) {
+    const processed = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "anonymizeVotesForPoll",
+        pollId,
+      },
+      "Erreur lors de l'anonymisation des votes du sondage",
+    );
+
+    logError(processed, {
+      component: "pollStorage",
+      operation: "anonymizeVotesForPoll",
+      pollId,
+    });
+
+    throw processed;
+  }
+}
+
 export function deleteVotesByPollId(pollId: string): void {
   const allVotes = getAllVotes();
   const filteredVotes = allVotes.filter((vote) => vote.poll_id !== pollId);
@@ -1351,3 +1520,4 @@ export function updatePollConversationLink(pollId: string, conversationId: strin
 
   addPoll(updatedPoll); // addPoll fait aussi la mise à jour si le poll existe déjà
 }
+

@@ -6,6 +6,7 @@
 import { logger } from "../lib/logger";
 import { getEnv } from "../lib/env";
 import { GEMINI_CONFIG, getGeminiApiUrl } from "../config/gemini";
+import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
 
 export interface DirectGeminiResponse {
   success: boolean;
@@ -84,6 +85,7 @@ export class DirectGeminiService {
   async generateContent(
     userInput: string,
     prompt?: string,
+    attachedFile?: GeminiAttachedFile,
     config?: { temperature?: number; topK?: number; topP?: number },
   ): Promise<DirectGeminiResponse> {
     try {
@@ -110,14 +112,28 @@ export class DirectGeminiService {
 
       const apiUrl = getGeminiApiUrl(this.apiKey);
 
+      const parts = attachedFile
+        ? [
+            {
+              inlineData: {
+                mimeType: attachedFile.mimeType,
+                data: attachedFile.contentBase64,
+              },
+            },
+            {
+              text: textToSend,
+            },
+          ]
+        : [
+            {
+              text: textToSend,
+            },
+          ];
+
       const requestBody = {
         contents: [
           {
-            parts: [
-              {
-                text: textToSend,
-              },
-            ],
+            parts,
           },
         ],
         generationConfig: {

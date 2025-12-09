@@ -165,6 +165,16 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           hoverBg: "hover:bg-emerald-700",
           bg: "bg-emerald-600",
         };
+      case "quizz":
+        return {
+          activeBg: "bg-amber-500",
+          activeBorder: "border-amber-400",
+          shadow: "shadow-amber-500/30",
+          text: "text-amber-500",
+          border: "border-amber-500",
+          hoverBg: "hover:bg-amber-700",
+          bg: "bg-amber-600",
+        };
       default: // date, all, conversations
         return {
           activeBg: "bg-blue-500",

@@ -6,6 +6,7 @@ import { formatDateLocal, getTodayLocal } from "../date-utils";
 // import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
+import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
 import { getEnv, isDev } from "../env";
 // ARCHIVÉ 2025-12-06: ParsedTemporalInput plus utilisé après simplification
 import type { ParsedTemporalInput } from "../temporalParser";
@@ -193,6 +194,7 @@ export class GeminiService {
   async generatePollFromText(
     userInput: string,
     pollTypeOverride?: "date" | "form",
+    attachedFile?: GeminiAttachedFile,
   ): Promise<GeminiResponse> {
     const requestId = crypto.randomUUID();
 
@@ -377,7 +379,7 @@ export class GeminiService {
         });
       }
       const startTime = Date.now();
-      const secureResponse = await geminiBackend.generateContent(userInput, prompt);
+      const secureResponse = await geminiBackend.generateContent(userInput, prompt, attachedFile);
       const responseTime = Date.now() - startTime;
 
       // ÉTAPE 5: Log de la réponse brute

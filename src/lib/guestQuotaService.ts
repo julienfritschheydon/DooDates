@@ -76,18 +76,19 @@ export interface GuestQuotaJournalEntry {
 // ============================================================================
 
 const GUEST_LIMITS = {
-  CONVERSATIONS: 5,
-  POLLS: 5, // Maintenu pour affichage uniquement (somme des 4 compteurs séparés)
-  // Limites par type de poll (valeurs temporaires, seront définies dans planning décembre)
+  TOTAL_CREDITS: 100, // Crédit global pour toutes les actions combinées
+  CONVERSATIONS: 10,
   DATE_POLLS: 5,
   FORM_POLLS: 5,
   QUIZZ: 5,
   AVAILABILITY_POLLS: 5,
-  AI_MESSAGES: 20,
-  ANALYTICS_QUERIES: 10,
-  SIMULATIONS: 2,
-  TOTAL_CREDITS: 50,
+  AI_MESSAGES: 100,
+  ANALYTICS_QUERIES: 50,
+  SIMULATIONS: 20,
 } as const;
+
+// Exposé pour l'UI afin d'aligner l'affichage global des crédits invités
+export const GUEST_TOTAL_CREDITS_LIMIT = GUEST_LIMITS.TOTAL_CREDITS;
 
 const GUEST_QUOTA_TABLE = "guest_quotas";
 const GUEST_QUOTA_JOURNAL_TABLE = "guest_quota_journal";

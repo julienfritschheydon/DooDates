@@ -31,6 +31,7 @@ import { secureGeminiService } from "../../services/SecureGeminiService";
 import { cn } from "../../lib/utils";
 import { logError, ErrorFactory } from "../../lib/error-handling";
 import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
+import { Button } from "@/components/ui/button";
 
 // Configuration du timer (en secondes)
 const DEFAULT_TIME_PER_QUESTION = 30; // 30 secondes par question par défaut
@@ -513,7 +514,7 @@ Réponds UNIQUEMENT en JSON:
           )}
 
           <div className="space-y-3">
-            <button
+            <Button
               onClick={() => {
                 setAnswers({});
                 setCurrentStep(0);
@@ -522,15 +523,17 @@ Réponds UNIQUEMENT en JSON:
                 setTimeLeft(timerDuration);
                 setEarnedBadges([]);
               }}
+              size="lg"
               className="w-full flex items-center justify-center gap-2 bg-amber-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-amber-700 transition-colors active:scale-[0.98]"
             >
               <RefreshCw className="w-5 h-5" />
               Recommencer
-            </button>
+            </Button>
 
             {/* Bouton Partager */}
-            <button
+            <Button
               onClick={copyQuizLink}
+              size="lg"
               className="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors active:scale-[0.98]"
             >
               {linkCopied ? (
@@ -544,23 +547,26 @@ Réponds UNIQUEMENT en JSON:
                   Partager ce quiz
                 </>
               )}
-            </button>
+            </Button>
 
             {/* Lien vers les résultats détaillés */}
-            <button
+            <Button
               onClick={() => navigate(`/quizz/${slug}/results`)}
+              size="lg"
               className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 px-6 rounded-xl font-medium hover:bg-blue-100 transition-colors"
             >
               <BarChart3 className="w-5 h-5" />
               Voir les statistiques
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => navigate("/quizz")}
+              size="sm"
+              variant="ghost"
               className="w-full text-gray-600 py-3 hover:text-gray-800 transition-colors"
             >
               Retour aux quiz
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -659,13 +665,14 @@ Réponds UNIQUEMENT en JSON:
               )}
             </div>
 
-            <button
+            <Button
               onClick={() => setHasStarted(true)}
+              size="lg"
               className="w-full bg-amber-600 text-white py-4 sm:py-5 px-6 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               Commencer le quiz
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>

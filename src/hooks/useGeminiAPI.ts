@@ -15,6 +15,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { geminiService } from "../lib/ai/gemini";
+import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
 import type { PollSuggestion } from "../types/poll-suggestions";
 import { handleError, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
@@ -36,7 +37,11 @@ export interface UseGeminiAPIOptions {
 
 export interface UseGeminiAPIReturn {
   isLoading: boolean;
-  generatePoll: (userMessage: string, pollType?: "date" | "form") => Promise<GeminiAPIResponse>;
+  generatePoll: (
+    userMessage: string,
+    pollType?: "date" | "form",
+    attachedFile?: GeminiAttachedFile | null,
+  ) => Promise<GeminiAPIResponse>;
   error: string | null;
   clearError: () => void;
 }
@@ -63,7 +68,11 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
    * Génère un sondage à partir d'un message utilisateur
    */
   const generatePoll = useCallback(
-    async (userMessage: string, pollTypeOverride?: "date" | "form"): Promise<GeminiAPIResponse> => {
+    async (
+      userMessage: string,
+      pollTypeOverride?: "date" | "form",
+      attachedFile?: GeminiAttachedFile | null,
+    ): Promise<GeminiAPIResponse> => {
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
       const trimmedMessage = userMessage.trim();
@@ -101,7 +110,11 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
           },
         );
         // Appel à l'API Gemini avec pollType si fourni
-        const pollResponse = await geminiService.generatePollFromText(trimmedMessage, pollType);
+        const pollResponse = await geminiService.generatePollFromText(
+          trimmedMessage,
+          pollType,
+          attachedFile ?? undefined,
+        );
         console.log(`[${timestamp}] [${requestId}] 🟡 Réponse geminiService reçue`, {
           success: pollResponse.success,
           hasData: !!pollResponse.data,

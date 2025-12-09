@@ -63,6 +63,34 @@ export interface FormResponse {
   created_at: string;
   items: FormResponseItem[];
 }
+// Résultats agrégés pour une question de type "date"
+export type DateVoteValue = Array<{
+  date: string;
+  timeSlots: Array<{ hour: number; minute: number }>;
+  vote: "yes" | "no" | "maybe";
+}>;
+
+export interface DateQuestionResults {
+  votesByDate: Record<
+    string,
+    {
+      yes: number;
+      no: number;
+      maybe: number;
+      total: number;
+    }
+  >;
+  votesByTimeSlot: Record<
+    string,
+    {
+      yes: number;
+      no: number;
+      maybe: number;
+      total: number;
+    }
+  >;
+  totalResponses: number;
+}
 export interface FormResults {
   pollId: string;
   countsByQuestion: Record<string, Record<string, number>>;
@@ -128,6 +156,9 @@ export declare function saveVotes(votes: Vote[]): void;
 export declare function getVotesByPollId(pollId: string): Vote[];
 export declare function deleteVotesByPollId(pollId: string): void;
 export declare function getRespondentId(resp: FormResponse): string;
+export declare function anonymizeFormResponsesForPoll(
+  pollId: string,
+): { anonymizedCount: number };
 /**
  * Récupère l'ID de l'utilisateur actuel (device ID ou user ID si authentifié)
  *

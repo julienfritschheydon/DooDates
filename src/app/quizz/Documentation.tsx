@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  Brain,
   Camera,
   Mic,
   Trophy,
@@ -17,42 +16,6 @@ import {
 export default function QuizzDocumentation() {
   return (
     <div className="min-h-screen bg-[#030712] text-white">
-      {/* Navigation Header */}
-      <header className="border-b border-amber-900/20 bg-[#030712]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <Link to="/quizz" className="text-xl font-bold text-amber-400">
-                Quiz
-              </Link>
-            </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link
-                to="/quizz/dashboard"
-                className="text-gray-400 hover:text-amber-400 transition-colors"
-              >
-                Tableau de bord
-              </Link>
-              <Link to="/quizz/documentation" className="text-amber-400 font-medium">
-                Documentation
-              </Link>
-              <Link
-                to="/quizz/pricing"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                Tarifs
-              </Link>
-              <Link to="/" className="text-gray-400 hover:text-white transition-colors">
-                ← DooDates
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12 text-center">
@@ -83,8 +46,8 @@ export default function QuizzDocumentation() {
                 <h3 className="font-semibold">Créer un quiz</h3>
               </div>
               <p className="text-sm text-gray-400">
-                Allez sur "Créer un Quiz" et choisissez votre méthode : photo d'exercice ou
-                description textuelle.
+                Allez sur "Créer un Quiz" et choisissez votre méthode : fichier de devoir (photo ou
+                PDF) ou description textuelle.
               </p>
             </div>
 
@@ -147,11 +110,11 @@ export default function QuizzDocumentation() {
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Photo → Quiz</h3>
+                <h3 className="font-semibold mb-1">Fichier → Quiz</h3>
                 <p className="text-sm text-gray-400">
-                  Prenez en photo un exercice scolaire. L'IA extrait automatiquement les questions
-                  et les transforme en quiz interactif. Fonctionne avec les maths, le français, les
-                  sciences et plus encore.
+                  Importez une photo ou un PDF d'exercice scolaire. L'IA extrait automatiquement les
+                  questions et les transforme en quiz interactif. Fonctionne avec les maths, le
+                  français, les sciences et plus encore.
                 </p>
               </div>
             </div>
@@ -236,10 +199,11 @@ export default function QuizzDocumentation() {
           </h2>
           <div className="space-y-6">
             <div>
-              <h4 className="font-medium mb-2">Comment fonctionne l'extraction depuis photo ?</h4>
+              <h4 className="font-medium mb-2">Comment fonctionne l'extraction depuis un fichier ?</h4>
               <p className="text-sm text-gray-400">
-                L'IA Gemini Vision analyse l'image et extrait le texte visible. Elle identifie les
-                exercices et les transforme en questions pédagogiques adaptées.
+                L'IA Gemini Vision analyse votre fichier (photo ou PDF scanné) et en extrait le texte
+                visible. Elle identifie les exercices et les transforme en questions pédagogiques
+                adaptées.
               </p>
             </div>
             <div>

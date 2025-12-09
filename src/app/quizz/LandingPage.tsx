@@ -11,7 +11,7 @@ import {
   MousePointer,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
 
 // Animation staggered pour les éléments
@@ -120,7 +120,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Headline */}
             <h1 className="text-center text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Photo → Quiz
+              Fichier → Quiz
               <br />
               <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 bg-clip-text text-transparent">
                 en 3 secondes
@@ -128,30 +128,23 @@ export const LandingPage: React.FC = () => {
             </h1>
 
             <p className="text-center text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Prenez en photo un exercice, l'IA génère un quiz interactif. Votre enfant répond,
+              Importez une photo ou un PDF de devoir, l'IA génère un quiz interactif. Votre enfant répond,
               reçoit un feedback immédiat et un score encourageant.
             </p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
+              <ProductButton
+                product="quizz"
+                variantRole="primary"
                 size="lg"
                 onClick={() => navigate("/quizz/create")}
                 className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all duration-300 text-black"
               >
-                <span className="flex items-center gap-2">
-                  <Camera className="w-5 h-5" />
-                  Créer un quiz
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
-              <button
-                onClick={() => navigate("/quizz/dashboard")}
-                className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-              >
-                <MousePointer className="w-4 h-4" />
-                Tableau de bord
-              </button>
+                <Camera className="w-5 h-5" />
+                Créer un quiz
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </ProductButton>
             </div>
           </div>
 
@@ -176,7 +169,7 @@ export const LandingPage: React.FC = () => {
                   <h3 className="text-xl font-semibold mb-2">
                     Combien font 2 dizaines et 3 unités ?
                   </h3>
-                  <p className="text-sm text-gray-400">📸 Extrait automatiquement de la photo</p>
+                  <p className="text-sm text-gray-400">Importé automatiquement du fichier</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
@@ -220,8 +213,8 @@ export const LandingPage: React.FC = () => {
             {[
               {
                 icon: Camera,
-                title: "Photo → Questions",
-                desc: "Prenez en photo un exercice. L'IA extrait et transforme en questions interactives.",
+                title: "Fichier → Questions",
+                desc: "Importez une photo ou un PDF de devoir. L'IA extrait et transforme en questions interactives.",
                 gradient: "from-amber-500 to-amber-600",
               },
               {
@@ -270,9 +263,9 @@ export const LandingPage: React.FC = () => {
             {[
               {
                 num: "1",
-                emoji: "📷",
-                title: "Photographiez",
-                desc: "Prenez en photo l'exercice ou la leçon à réviser.",
+                emoji: "📄",
+                title: "Importez un devoir",
+                desc: "Ajoutez une photo ou un fichier PDF de l'exercice à réviser.",
               },
               {
                 num: "2",
@@ -333,15 +326,15 @@ export const LandingPage: React.FC = () => {
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-400" />
-                    <span className="text-sm">Combien font 7 × 8 ? → 56 ✓</span>
+                    <span className="text-sm">Combien font 7 × 8 ? → 56 </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-400" />
-                    <span className="text-sm">45 + 27 = ? → 72 ✓</span>
+                    <span className="text-sm">45 + 27 = ? → 72 </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-400" />
-                    <span className="text-sm">100 - 36 = ? → 64 ✓</span>
+                    <span className="text-sm">100 - 36 = ? → 64 </span>
                   </div>
                 </div>
 
@@ -364,7 +357,7 @@ export const LandingPage: React.FC = () => {
               </p>
               <div className="space-y-4">
                 {[
-                  "Création en 30 secondes depuis une photo",
+                  "Création en 30 secondes depuis un fichier de devoir",
                   "Feedback immédiat après chaque réponse",
                   "Validation IA pour les réponses complexes",
                   "Fonctionne sur téléphone et tablette",
@@ -389,16 +382,18 @@ export const LandingPage: React.FC = () => {
             Prêt à révolutionner les devoirs ?
           </h2>
           <p className="text-gray-400 mb-10 text-lg">
-            Photographiez, générez, faites jouer. C'est aussi simple que ça.
+            Importez, générez, faites jouer. C'est aussi simple que ça.
           </p>
-          <Button
+          <ProductButton
+            product="quizz"
+            variantRole="primary"
             size="lg"
             onClick={() => navigate("/quizz/create")}
             className="px-10 py-6 text-base font-medium bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 rounded-xl shadow-lg shadow-amber-500/25 text-black"
           >
             <Camera className="w-5 h-5 mr-2" />
-            Créer mon premier quiz — Gratuit
-          </Button>
+            Créer mon premier quiz  — Gratuit
+          </ProductButton>
         </div>
       </section>
 

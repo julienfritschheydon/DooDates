@@ -21,27 +21,12 @@ const LoadingSpinner = () => (
 const QuizzApp: React.FC = () => {
   const location = useLocation();
 
-  // Pages avec leur propre layout (pages marketing)
+  // Page landing avec son propre layout (page marketing principale)
   if (location.pathname === "/quizz" || location.pathname === "/quizz/") {
     return <LandingPage />;
   }
 
-  if (location.pathname === "/quizz/documentation") {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <QuizzDocumentation />
-      </Suspense>
-    );
-  }
-
-  if (location.pathname === "/quizz/pricing") {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <QuizzPricing />
-      </Suspense>
-    );
-  }
-
+  // Toutes les autres pages utilisent le layout avec sidebar
   return (
     <QuizzLayout>
       <Suspense fallback={<LoadingSpinner />}>
@@ -50,6 +35,8 @@ const QuizzApp: React.FC = () => {
           <Route path="/create" element={<QuizzCreate />} />
           <Route path="/history" element={<ChildHistory />} />
           <Route path="/history/:childName" element={<ChildHistory />} />
+          <Route path="/documentation" element={<QuizzDocumentation />} />
+          <Route path="/pricing" element={<QuizzPricing />} />
           <Route path="/:slug/results" element={<QuizzResults />} />
         </Routes>
       </Suspense>

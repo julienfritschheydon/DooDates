@@ -17,6 +17,8 @@ import {
 import {
   getQuizzBySlugOrId,
   getQuizzResults,
+  deleteQuizzResponsesByPollId,
+  deleteQuizzResponsesForChild,
   type Quizz,
   type QuizzResults as QuizzResultsType,
 } from "../../lib/products/quizz/quizz-service";
@@ -49,6 +51,7 @@ export default function QuizzResults() {
   const [loading, setLoading] = useState(true);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [selectedChild, setSelectedChild] = useState<string>("");
 
   // Charger le quiz et les résultats
   useEffect(() => {
@@ -81,6 +84,56 @@ export default function QuizzResults() {
     if (quizz) {
       const r = getQuizzResults(quizz.id);
       setResults(r);
+    }
+  };
+
+  // Participants uniques (noms) pour reset ciblé
+  const participantNames = useMemo(() => {
+    if (!results) return [] as string[];
+    const names = new Set<string>();
+    for (const r of results.responses) {
+      const name = r.respondentName?.trim();
+      if (name) names.add(name);
+    }
+    return Array.from(names).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+  }, [results]);
+
+  const handleResetAllScores = () => {
+    if (!quizz) return;
+
+    const confirmed = window.confirm(
+      "Réinitialiser tous les scores de ce quiz ?\n\n" +
+        "Toutes les réponses enregistrées seront supprimées (scores, historiques, badges). Cette opération est irréversible.",
+    );
+    if (!confirmed) return;
+
+    try {
+      deleteQuizzResponsesByPollId(quizz.id);
+      refreshResults();
+    } catch (error) {
+      // Fallback simple : alerte utilisateur
+      // (les erreurs sont déjà loguées côté service)
+      // eslint-disable-next-line no-alert
+      alert("Impossible de réinitialiser les scores du quiz. Veuillez réessayer.");
+    }
+  };
+
+  const handleResetChildScores = () => {
+    if (!quizz || !selectedChild) return;
+
+    const confirmed = window.confirm(
+      `Réinitialiser les scores de ${selectedChild} pour ce quiz ?\n\n` +
+        "Toutes ses réponses enregistrées pour ce quiz seront supprimées, mais les autres participants ne seront pas affectés.",
+    );
+    if (!confirmed) return;
+
+    try {
+      deleteQuizzResponsesForChild(selectedChild, quizz.id);
+      refreshResults();
+      setSelectedChild("");
+    } catch (error) {
+      // eslint-disable-next-line no-alert
+      alert("Impossible de réinitialiser les scores de cet enfant. Veuillez réessayer.");
     }
   };
 
@@ -128,6 +181,8 @@ export default function QuizzResults() {
       totalResponses: responses.length,
     };
   }, [results, quizz]);
+
+  const hasResponses = !!results && results.responses.length > 0;
 
   if (loading) {
     return (

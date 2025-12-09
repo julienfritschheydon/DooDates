@@ -1,5 +1,5 @@
-import React from "react";
-import { Send, Mic, MicOff, Loader2 } from "lucide-react";
+import React, { useRef } from "react";
+import { Send, Mic, MicOff, Loader2, Paperclip } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,8 @@ interface ChatInputProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>;
   pollType?: "date" | "form" | "availability";
   className?: string;
+  attachedFile?: File | null;
+  onAttachFile?: (file: File | null) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -36,7 +38,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   textareaRef,
   pollType = "date",
   className,
+  attachedFile,
+  onAttachFile,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   return (
     <div
       className={cn(
@@ -51,6 +57,39 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             darkTheme ? "bg-[#0a0a0a] border-gray-800" : "bg-white border-gray-200 shadow-lg"
           }`}
         >
+          {/* Bouton pièce jointe (fichier) */}
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                if (onAttachFile) {
+                  onAttachFile(file);
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (isLoading) return;
+                fileInputRef.current?.click();
+              }}
+              className={`rounded-full p-2 transition-all flex-shrink-0 ${
+                isLoading
+                  ? "bg-transparent text-gray-500 cursor-not-allowed"
+                  : darkTheme
+                    ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                    : "bg-transparent text-gray-600 hover:bg-gray-100"
+              }`}
+              aria-label="Joindre un fichier"
+              title="Joindre un fichier"
+              disabled={isLoading}
+            >
+              <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          </>
           <textarea
             ref={textareaRef}
             data-testid="chat-input"
@@ -139,6 +178,27 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             )}
           </button>
         </div>
+
+        {/* Affichage du fichier sélectionné */}
+        {attachedFile && (
+          <div className="mt-2 flex items-center justify-between rounded-lg border border-dashed border-gray-500/60 bg-black/10 px-3 py-2 text-xs text-gray-300">
+            <div className="flex items-center gap-2 min-w-0">
+              <Paperclip className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate" title={attachedFile.name}>
+                {attachedFile.name} ({Math.round(attachedFile.size / 1024)} Ko)
+              </span>
+            </div>
+            {onAttachFile && (
+              <button
+                type="button"
+                onClick={() => onAttachFile(null)}
+                className="ml-2 text-gray-400 hover:text-gray-200"
+              >
+                Retirer
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

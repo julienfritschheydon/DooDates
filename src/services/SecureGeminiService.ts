@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { handleError, ErrorFactory, logError } from "@/lib/error-handling";
 import { getEnv } from "@/lib/env";
 import { getSupabaseSessionWithTimeout } from "@/lib/supabaseApi";
+import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
 
 export interface SecureGeminiResponse {
   success: boolean;
@@ -71,7 +72,11 @@ export class SecureGeminiService {
    * @param prompt Prompt optionnel (si déjà formaté)
    * @returns Réponse Gemini ou erreur
    */
-  async generateContent(userInput: string, prompt?: string): Promise<SecureGeminiResponse> {
+  async generateContent(
+    userInput: string,
+    prompt?: string,
+    attachedFile?: GeminiAttachedFile,
+  ): Promise<SecureGeminiResponse> {
     try {
       if (!this.supabaseUrl) {
         return {
@@ -160,6 +165,7 @@ export class SecureGeminiService {
         const requestBody = {
           userInput,
           prompt,
+          attachedFile,
         };
         const serializedBody = JSON.stringify(requestBody);
 

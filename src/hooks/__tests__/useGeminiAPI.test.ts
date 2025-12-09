@@ -162,10 +162,9 @@ describe("useGeminiAPI", () => {
         response = await result.current.generatePoll("  Organise une réunion demain  ");
       });
 
-      expect(mockGeminiService.generatePollFromText).toHaveBeenCalledWith(
-        "Organise une réunion demain",
-        undefined,
-      );
+      expect(mockGeminiService.generatePollFromText).toHaveBeenCalledTimes(1);
+      const firstCall = mockGeminiService.generatePollFromText.mock.calls[0];
+      expect(firstCall[0]).toBe("Organise une réunion demain");
       expect(response?.success).toBe(true);
     });
 

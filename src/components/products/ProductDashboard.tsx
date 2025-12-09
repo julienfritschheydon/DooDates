@@ -86,7 +86,10 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
         const data = getQuizz();
         setQuizzList(data);
       } catch (error) {
-        logError("Erreur chargement quiz", "quizz", error);
+        logError(error as Error, {
+          operation: "loadQuizz",
+          component: "ProductDashboard",
+        });
       } finally {
         setQuizzLoading(false);
       }
@@ -316,24 +319,12 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
 
   const renderHeader = () => (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div className="flex items-center gap-3">
-        {isQuizz && <Brain className="w-8 h-8 text-amber-400" />}
-        <div>
-          <h1 role="heading" className="text-3xl font-bold tracking-tight text-white">
-            {config.dashboardTitle}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-400">{config.dashboardDescription}</p>
-        </div>
+      <div>
+        <h1 role="heading" className="text-3xl font-bold tracking-tight text-white">
+          {config.dashboardTitle}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-gray-400">{config.dashboardDescription}</p>
       </div>
-      {isQuizz && (
-        <Link
-          to="/quizz/create"
-          className="inline-flex items-center gap-2 px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-amber-500/20"
-        >
-          <Brain className="w-5 h-5" />
-          Nouveau Quiz
-        </Link>
-      )}
     </div>
   );
 

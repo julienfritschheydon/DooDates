@@ -382,6 +382,89 @@ function writeAllQuizzResponses(responses: QuizzResponse[]): void {
   }
 }
 
+// --- Fonctions RGPD : reset / anonymisation des réponses de quizz ---
+
+/**
+ * Supprime toutes les réponses associées à un quizz donné (reset complet des scores).
+ */
+export function deleteQuizzResponsesByPollId(pollId: string): { removedCount: number } {
+  if (!pollId) {
+    throw ErrorFactory.validation(
+      "pollId is required",
+      "ID du quizz requis pour supprimer les réponses",
+      { pollId },
+    );
+  }
+
+  try {
+    const all = readAllQuizzResponses();
+    const remaining = all.filter((r) => r.pollId !== pollId);
+
+    if (remaining.length !== all.length) {
+      writeAllQuizzResponses(remaining);
+      const removedCount = all.length - remaining.length;
+      logger.info("Quizz responses deleted for poll", "api", { pollId, removedCount });
+      return { removedCount };
+    }
+
+    logger.info("No quizz responses to delete for poll", "api", { pollId });
+    return { removedCount: 0 };
+  } catch (error) {
+    logError(error, { operation: "deleteQuizzResponsesByPollId", pollId });
+    throw error;
+  }
+}
+
+/**
+ * Supprime les réponses d'un enfant donné, éventuellement limitées à un quizz.
+ * Utile pour le reset des scores par participant.
+ */
+export function deleteQuizzResponsesForChild(
+  childName: string,
+  pollId?: string,
+): { removedCount: number } {
+  const normalizedName = childName?.trim().toLowerCase();
+  if (!normalizedName) {
+    throw ErrorFactory.validation(
+      "childName is required",
+      "Nom de l'enfant requis pour supprimer les réponses",
+      { childName },
+    );
+  }
+
+  try {
+    const all = readAllQuizzResponses();
+    const remaining = all.filter((r) => {
+      const sameChild = r.respondentName?.trim().toLowerCase() === normalizedName;
+      const samePoll = pollId ? r.pollId === pollId : true;
+      return !(sameChild && samePoll);
+    });
+
+    if (remaining.length !== all.length) {
+      writeAllQuizzResponses(remaining);
+      const removedCount = all.length - remaining.length;
+      logger.info("Quizz responses deleted for child", "api", {
+        childName: normalizedName,
+        pollId,
+        removedCount,
+      });
+      return { removedCount };
+    }
+
+    logger.info("No quizz responses to delete for child", "api", {
+      childName: normalizedName,
+      pollId,
+    });
+    return { removedCount: 0 };
+  } catch (error) {
+    logError(error, {
+      operation: "deleteQuizzResponsesForChild",
+      metadata: { childName: normalizedName, pollId },
+    });
+    throw error;
+  }
+}
+
 export function getQuizzById(pollId: string): Quizz | null {
   const poll = getQuizz().find((p) => p.id === pollId) || null;
   if (!poll) {
@@ -562,6 +645,26 @@ export function getQuizzResults(pollId: string): QuizzResults {
     averagePercentage,
     responses,
     questionStats,
+  };
+}
+
+/**
+ * Version anonymisée des résultats d'un quizz :
+ * - mêmes statistiques agrégées que getQuizzResults
+ * - mais noms/emails supprimés dans le tableau responses.
+ * À utiliser pour exports/statistiques partagés en dehors du foyer.
+ */
+export function getQuizzResultsAnonymized(pollId: string): QuizzResults {
+  const base = getQuizzResults(pollId);
+  const anonymizedResponses = base.responses.map((r) => ({
+    ...r,
+    respondentName: undefined,
+    respondentEmail: undefined,
+  }));
+
+  return {
+    ...base,
+    responses: anonymizedResponses,
   };
 }
 

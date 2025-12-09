@@ -41,6 +41,7 @@ import type { AiMessageQuota } from "./useAiMessageQuota";
 import type { UseGeminiAPIReturn } from "./useGeminiAPI";
 import type { UseAutoSaveReturn } from "./useAutoSave";
 import { SurveyRequestAggregator } from "../services/SurveyRequestAggregator";
+import { fileToGeminiAttachment, type GeminiAttachedFile } from "@/services/FileAttachmentService";
 
 interface Message {
   id: string;
@@ -50,6 +51,13 @@ interface Message {
   pollSuggestion?: import("../lib/gemini").PollSuggestion;
   isGenerating?: boolean;
 }
+
+// Limites et formats supportés pour les fichiers joints envoyés à Gemini
+const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
+const ALLOWED_ATTACHMENT_MIME_PREFIXES = ["application/pdf", "text/plain", "image/"];
+const ALLOWED_ATTACHMENT_MIME_EXACT = [
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
+];
 
 import { isDatePollSuggestion, isFormPollSuggestion } from "../types/poll-suggestions";
 
@@ -157,7 +165,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
   }, [onUserMessage, onStartNewChat]);
 
   const sendMessage = useCallback(
-    async (text: string, notifyParent: boolean) => {
+    async (text: string, notifyParent: boolean, attachedFile?: File | null) => {
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
 
@@ -229,7 +237,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
           // Rappeler sendMessage avec le message original
           // Mais cette fois sans le poll actuel, donc il sera traité comme une nouvelle création
-          return sendMessage(intentResult.originalMessage || trimmedText, false);
+          return sendMessage(intentResult.originalMessage || trimmedText, false, attachedFile);
         }
 
         // Ajouter le message utilisateur si présent
@@ -256,6 +264,82 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       }
 
       console.log(`[${timestamp}] [${requestId}] ✅ Intent non géré - continuation vers Gemini`);
+
+      let geminiAttachment: GeminiAttachedFile | undefined;
+      if (attachedFile) {
+        // Validation côté front avant lecture du fichier
+        const { size, type, name } = attachedFile;
+
+        if (size > MAX_ATTACHMENT_SIZE_BYTES) {
+          const processedError = ErrorFactory.validation(
+            "Fichier joint trop volumineux",
+            "Le fichier joint dépasse la taille maximale autorisée (10 Mo).",
+            { size, name, limit: MAX_ATTACHMENT_SIZE_BYTES },
+          );
+          logError(processedError, {
+            component: "useMessageSender",
+            operation: "validateAttachmentSize",
+          });
+          toast.toast({
+            title: "Fichier trop volumineux",
+            description: "Le fichier dépasse 10 Mo. Essayez avec un fichier plus léger.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const isAllowedMime =
+          !type ||
+          ALLOWED_ATTACHMENT_MIME_EXACT.includes(type) ||
+          ALLOWED_ATTACHMENT_MIME_PREFIXES.some((prefix) => type.startsWith(prefix));
+
+        if (!isAllowedMime) {
+          const processedError = ErrorFactory.validation(
+            "Type de fichier joint non supporté",
+            "Ce type de fichier n'est pas encore supporté pour l'analyse automatique.",
+            { mimeType: type, name },
+          );
+          logError(processedError, {
+            component: "useMessageSender",
+            operation: "validateAttachmentMimeType",
+          });
+          toast.toast({
+            title: "Type de fichier non supporté",
+            description: "Formats conseillés : PDF, DOCX, TXT ou image.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        try {
+          geminiAttachment = await fileToGeminiAttachment(attachedFile);
+          console.log(
+            `[${timestamp}] [${requestId}] 📎 Fichier attaché préparé pour Gemini`,
+            {
+              name: geminiAttachment.name,
+              mimeType: geminiAttachment.mimeType,
+              size: geminiAttachment.size,
+            },
+          );
+        } catch (error) {
+          const processedError = ErrorFactory.validation(
+            "Erreur conversion fichier pour Gemini",
+            "Impossible de lire le fichier joint. Réessayez ou utilisez un autre fichier.",
+            { originalError: error },
+          );
+          logError(processedError, {
+            component: "useMessageSender",
+            operation: "fileToGeminiAttachment",
+          });
+          toast.toast({
+            title: "Erreur fichier joint",
+            description:
+              "Impossible de lire le fichier joint. Veuillez vérifier le format et la taille.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
 
       // 🎯 NOUVEAU: Agréger les demandes de modification avant création du sondage
       const processedMessage = SurveyRequestAggregator.processMessage(trimmedText, hasCurrentPoll);
@@ -458,7 +542,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
       let pollResponse;
       try {
-        pollResponse = await geminiAPI.generatePoll(trimmedInput, pollTypeForAPI);
+        pollResponse = await geminiAPI.generatePoll(trimmedInput, pollTypeForAPI, geminiAttachment);
         console.log(
           `[${new Date().toISOString()}] [${requestId}] 🟣 useMessageSender: Réponse reçue`,
           {

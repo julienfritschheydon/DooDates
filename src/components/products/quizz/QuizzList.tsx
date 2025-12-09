@@ -8,7 +8,8 @@ import {
   type Quizz,
 } from "@/lib/products/quizz/quizz-service";
 import { useToast } from "@/hooks/use-toast";
-import { logError } from "@/lib/error-handling";
+import { ErrorFactory, logError } from "@/lib/error-handling";
+import { Button } from "@/components/ui/button";
 
 export const QuizzList: React.FC = () => {
   const [quizzList, setQuizzList] = useState<Quizz[]>([]);
@@ -25,7 +26,15 @@ export const QuizzList: React.FC = () => {
       const data = getQuizz();
       setQuizzList(data);
     } catch (error) {
-      logError("Erreur chargement quiz", "quizz", error);
+      const processedError = ErrorFactory.api(
+        "Erreur chargement quiz",
+        "Erreur lors du chargement des quiz",
+        {
+          originalError: error as unknown,
+          source: "QuizzList.loadQuizz",
+        },
+      );
+      logError(processedError, { component: "QuizzList", operation: "loadQuizz" });
     } finally {
       setLoading(false);
     }
@@ -119,34 +128,38 @@ export const QuizzList: React.FC = () => {
                 )}
 
                 <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                  <button
+                  <Button
                     onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}
+                    size="sm"
                     className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors"
                   >
                     <Eye className="h-4 w-4" />
                     Tester
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}
+                    size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
                     title="Voir les résultats"
                   >
                     <BarChart3 className="h-4 w-4" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleCopyLink(quiz.slug || quiz.id)}
+                    size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                     title="Copier le lien"
                   >
                     <Copy className="h-4 w-4" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleDelete(quiz.id)}
+                    size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                     title="Supprimer"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             );

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ProductButton } from "@/components/products/ProductButton";
 import { Check } from "lucide-react";
 
 export default function DatePollsPricing() {
@@ -68,9 +69,14 @@ export default function DatePollsPricing() {
                   <span className="text-gray-300">Créneaux horaires basiques</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-blue-900/30 text-blue-400 rounded-lg font-medium hover:bg-blue-900/50 transition-colors">
+              <ProductButton
+                product="date"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-blue-900/30 text-blue-400 rounded-lg font-medium hover:bg-blue-900/50 transition-colors"
+              >
                 Commencer gratuitement
-              </button>
+              </ProductButton>
             </div>
 
             {/* Pro Plan */}
@@ -105,9 +111,14 @@ export default function DatePollsPricing() {
                   <span className="text-gray-300">Support prioritaire</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              <ProductButton
+                product="date"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
                 Passer à Pro
-              </button>
+              </ProductButton>
             </div>
 
             {/* Enterprise Plan */}
@@ -134,9 +145,14 @@ export default function DatePollsPricing() {
                   <span className="text-gray-300">Support 24/7</span>
                 </li>
               </ul>
-              <button className="w-full py-3 px-6 bg-blue-900/30 text-blue-400 rounded-lg font-medium hover:bg-blue-900/50 transition-colors">
+              <ProductButton
+                product="date"
+                variantRole="primary"
+                size="lg"
+                className="w-full py-3 px-6 bg-blue-900/30 text-blue-400 rounded-lg font-medium hover:bg-blue-900/50 transition-colors"
+              >
                 Nous contacter
-              </button>
+              </ProductButton>
             </div>
           </div>
         </div>

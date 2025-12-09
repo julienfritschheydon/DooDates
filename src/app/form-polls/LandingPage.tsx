@@ -10,7 +10,7 @@ import {
   Palette,
   MousePointer,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
 
 // Animation staggered pour les éléments
@@ -137,20 +137,18 @@ export const LandingPage: React.FC = () => {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
+              <ProductButton
+                product="form"
+                variantRole="primary"
                 size="lg"
                 onClick={() => navigate("/create/form")}
-                className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
+                className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all durée-300"
               >
                 <span className="flex items-center gap-2">
                   Créer un formulaire
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
-              </Button>
-              <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                <MousePointer className="w-4 h-4" />
-                Voir une démo
-              </button>
+              </ProductButton>
             </div>
           </div>
 
@@ -336,13 +334,15 @@ export const LandingPage: React.FC = () => {
           <p className="text-gray-400 mb-10 text-lg">
             Créez votre premier formulaire en moins de 60 secondes grâce à l'IA.
           </p>
-          <Button
+          <ProductButton
+            product="form"
+            variantRole="primary"
             size="lg"
             onClick={() => navigate("/create/form")}
             className="px-10 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25"
           >
             Créer mon formulaire — Gratuit
-          </Button>
+          </ProductButton>
         </div>
       </section>
 

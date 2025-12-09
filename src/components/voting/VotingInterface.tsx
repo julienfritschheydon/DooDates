@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { triggerHaptic } from "./utils/voteUtils";
 import { logger } from "@/lib/logger";
 import { useVoting } from "@/hooks/useVoting";
@@ -66,12 +67,9 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
             {error || "Ce sondage n'existe pas ou n'est plus actif."}
           </p>
           {onBack && (
-            <button
-              onClick={onBack}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
+            <Button onClick={onBack} size="sm" className="px-6 py-2">
               Retour
-            </button>
+            </Button>
           )}
         </motion.div>
       </div>

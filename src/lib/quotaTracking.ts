@@ -423,6 +423,17 @@ export async function getQuotaConsumed(
 }
 
 /**
+ * Helper UI: obtenir uniquement le total de crédits consommés pour un utilisateur
+ * Réutilise getQuotaConsumed pour respecter toute la logique existante (Edge Function, fallback, reset)
+ */
+export async function getTotalCreditsConsumed(
+  userId: string | null | undefined,
+): Promise<number> {
+  const quota = await getQuotaConsumed(userId);
+  return quota.totalCreditsConsumed;
+}
+
+/**
  * Ajouter une entrée au journal de consommation
  */
 function addJournalEntry(entry: Omit<CreditJournalEntry, "id" | "timestamp">): void {

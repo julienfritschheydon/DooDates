@@ -22,16 +22,7 @@ interface ChatMessageListProps {
   hasLinkedPoll: boolean;
   linkedPollId: string | null;
   currentPoll: Poll | null;
-  lastAIProposal: {
-    userRequest: string;
-    generatedContent: unknown;
-    pollContext?: {
-      pollId?: string;
-      pollTitle?: string;
-      pollType?: string;
-      action?: string;
-    };
-  } | null;
+  lastAIProposal: PollSuggestion | null;
   onUsePollSuggestion: (suggestion: PollSuggestion) => void;
   onOpenEditor: () => void;
   onSetCurrentPoll: (poll: Poll) => void;
@@ -494,11 +485,19 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
           </>
         )}
 
-        {/* Composant de feedback IA */}
+        {/* Composant de feedback IA global (dernière proposition connue) */}
         {lastAIProposal && (
           <div className="mt-2">
             <AIProposalFeedback
-              proposal={lastAIProposal}
+              proposal={{
+                userRequest:
+                  messages.find((m) => !m.isAI)?.content || "Demande de création",
+                generatedContent: lastAIProposal,
+                pollContext: {
+                  pollType: (lastAIProposal as FormPollSuggestion | DatePollSuggestion).type,
+                  action: "create",
+                },
+              }}
               onFeedbackSent={() => {
                 // Optionnel : cacher après feedback
                 onFeedbackSent();

@@ -19,6 +19,7 @@ import { getThemeById, applyTheme, resetTheme } from "../../lib/themes";
 import { useThemeColor } from "../../hooks/useThemeColor";
 import MultiStepFormVote from "./MultiStepFormVote";
 import VoteCompletionScreen from "../voting/VoteCompletionScreen";
+import { Button } from "@/components/ui/button";
 import "./themed-inputs.css";
 
 type AnswerValue = string | string[] | Record<string, string | string[]> | number | DateVoteValue;
@@ -37,6 +38,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [voterEmail, setVoterEmail] = useState("");
   const [wantsEmailCopy, setWantsEmailCopy] = useState(false);
+  const [showDataInfo, setShowDataInfo] = useState(false);
 
   useEffect(() => {
     const p = getPollBySlugOrId(idOrSlug);
@@ -326,6 +328,54 @@ export default function FormPollVote({ idOrSlug }: Props) {
             >
               {poll.description}
             </p>
+          )}
+        </div>
+
+        {/* Informations sur l'utilisation des données avant envoi */}
+        <div className="text-[11px] text-slate-500">
+          <button
+            type="button"
+            className="w-full flex items-center justify-between gap-2 rounded-md bg-slate-50 border border-slate-200 px-3 py-2 hover:bg-slate-100 transition-colors text-left"
+            onClick={() => setShowDataInfo((prev) => !prev)}
+            data-testid="rgpd-formpoll-info-toggle"
+          >
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[11px] font-medium text-slate-700">Vos données pour ce questionnaire</span>
+              {showDataInfo && (
+                <span className="text-[10px] text-slate-500">
+                  Nom, email et réponses sont utilisés pour analyser les résultats et permettre au créateur de ce formulaire d'y répondre.
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-500">
+              {showDataInfo ? "Masquer les détails" : "Voir les détails"}
+            </span>
+          </button>
+
+          {showDataInfo && (
+            <div
+              className="mt-2 rounded-md bg-slate-50 border border-slate-200 px-3 py-2 text-[11px] text-slate-600"
+              data-testid="rgpd-formpoll-info"
+            >
+              <p className="mb-1">
+                Vos nom, email et réponses à ce formulaire sont stockés pour permettre au créateur de consulter et analyser les résultats.
+              </p>
+              <p className="mb-1">
+                Vous pouvez demander la suppression de vos données en contactant le créateur de ce formulaire.
+              </p>
+              <p>
+                Pour en savoir plus, consultez la{" "}
+                <a
+                  href="/DooDates/docs"
+                  className="text-blue-600 hover:text-blue-500 underline underline-offset-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Politique de confidentialité de DooDates
+                </a>
+                .
+              </p>
+            </div>
           )}
         </div>
 
@@ -804,11 +854,13 @@ export default function FormPollVote({ idOrSlug }: Props) {
         </div>
 
         <div className="flex justify-end">
-          <button
+          <Button
             type="submit"
+            size="lg"
             className="text-white px-4 py-2 rounded transition-colors"
             style={{
               backgroundColor: "var(--theme-primary, #3B82F6)",
+              borderColor: "var(--theme-primary, #3B82F6)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
@@ -819,7 +871,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
             data-testid="form-submit"
           >
             Envoyer mes réponses
-          </button>
+          </Button>
         </div>
       </form>
     </div>

@@ -16,12 +16,25 @@ export async function navigateToWorkspace(
   page: Page,
   browserName: string
 ) {
-  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
-  
-  // Attendre que le chat input soit visible
+
+  // Attendre que le chat soit prêt
+  await waitForChatInput(page);
+}
+
+/**
+ * Attend que le champ de saisie du chat soit visible
+ *
+ * @param page - La page Playwright
+ * @param timeout - Timeout en ms (défaut: 10000)
+ */
+export async function waitForChatInput(
+  page: Page,
+  timeout: number = 10000
+) {
   const messageInput = page.locator('[data-testid="chat-input"]');
-  await expect(messageInput).toBeVisible({ timeout: 10000 });
+  await expect(messageInput).toBeVisible({ timeout });
 }
 
 /**

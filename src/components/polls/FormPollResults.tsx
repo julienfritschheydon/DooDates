@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import CloseButton from "@/components/ui/CloseButton";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
@@ -14,11 +15,13 @@ import {
   getRespondentId,
   getCurrentUserId,
   checkIfUserHasVoted,
+  anonymizeFormResponsesForPoll,
 } from "@/lib/pollStorage";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Poll, FormQuestionShape, FormQuestionOption, FormResponse } from "@/lib/pollStorage";
 import { getComparisonByPollId } from "@/lib/simulation/SimulationComparison";
 import { Target, TrendingUp, Clock, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   idOrSlug: string;
@@ -27,6 +30,7 @@ interface Props {
 export default function FormPollResults({ idOrSlug }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth(); // Récupérer l'utilisateur authentifié
+  const { toast } = useToast();
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -79,6 +83,9 @@ export default function FormPollResults({ idOrSlug }: Props) {
     return false;
   }, [poll, user?.id]);
 
+  const currentUserId = getCurrentUserId(user?.id);
+  const isCreator = poll?.creator_id === currentUserId;
+
   // Deduplicate responses by stable respondent id
   const uniqueResponses = useMemo(() => {
     const map = new Map<string, FormResponse>();
@@ -119,6 +126,41 @@ export default function FormPollResults({ idOrSlug }: Props) {
     }
     return null;
   }, [poll]);
+
+  const handleAnonymizeResponses = () => {
+    if (!poll) return;
+
+    try {
+      const { anonymizedCount } = anonymizeFormResponsesForPoll(poll.id);
+
+      if (anonymizedCount > 0) {
+        const res = getFormResults(poll.id);
+        setCountsByQuestion(res.countsByQuestion);
+        setTextAnswers(res.textAnswers);
+        setDateResults(res.dateResults || {});
+        setTotal(res.totalResponses);
+        setResponses(getFormResponses(poll.id));
+
+        toast({
+          title: "Données anonymisées",
+          description: `${anonymizedCount} réponse${anonymizedCount > 1 ? "s" : ""} anonymisée${
+            anonymizedCount > 1 ? "s" : ""
+          } avec succès.`,
+        });
+      } else {
+        toast({
+          title: "Aucune donnée nominative",
+          description: "Toutes les réponses étaient déjà anonymes.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur lors de l'anonymisation",
+        description: "Veuillez réessayer plus tard.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -183,6 +225,18 @@ export default function FormPollResults({ idOrSlug }: Props) {
       }
       actions={
         <div className="w-full flex items-center gap-2 justify-end">
+          {isCreator && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleAnonymizeResponses}
+              className="px-3 py-1.5 text-xs"
+              data-testid="anonymize-form-responses-button"
+            >
+              Anonymiser les réponses
+            </Button>
+          )}
           <PollActions poll={poll} showVoteButton onAfterDelete={() => navigate("/dashboard")} />
         </div>
       }
@@ -228,12 +282,15 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 </div>
               </div>
 
-              <button
+              <Button
+                type="button"
+                size="sm"
+                variant="link"
                 onClick={() => setShowComparisonDetails(!showComparisonDetails)}
-                className="text-sm font-medium underline hover:no-underline mb-3"
+                className="text-sm font-medium mb-3"
               >
                 {showComparisonDetails ? "Masquer les détails" : "Voir les détails"}
-              </button>
+              </Button>
 
               {showComparisonDetails && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-current/20">
@@ -483,9 +540,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           ))}
                           {all.length > (stats?.samples?.length || 0) && (
                             <div>
-                              <button
+                              <Button
                                 type="button"
-                                className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                                size="sm"
+                                variant="link"
+                                className="mt-2 text-sm text-blue-600 dark:text-blue-400"
                                 aria-expanded={isExpanded}
                                 aria-controls={`text-q-${qid}`}
                                 onClick={() =>
@@ -497,7 +556,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                                 data-testid="expand-text-answers-button"
                               >
                                 {isExpanded ? "Voir moins" : `Voir tout (${all.length})`}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </>

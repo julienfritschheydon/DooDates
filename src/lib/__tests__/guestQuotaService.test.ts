@@ -195,8 +195,8 @@ describe("guestQuotaService", () => {
     });
 
     it("should deny consumption when total credits limit reached", async () => {
-      // 50 crédits = limite atteinte (GUEST_LIMITS.TOTAL_CREDITS = 50)
-      const mockQuota = createMockQuota({ totalCreditsConsumed: 50 });
+      // 100 crédits = limite atteinte (GUEST_LIMITS.TOTAL_CREDITS = 100)
+      const mockQuota = createMockQuota({ totalCreditsConsumed: 100 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);
@@ -206,12 +206,12 @@ describe("guestQuotaService", () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain("Total credit limit");
       expect(result.currentQuota).toBeDefined();
-      expect(result.currentQuota?.totalCreditsConsumed).toBe(50);
+      expect(result.currentQuota?.totalCreditsConsumed).toBe(100);
     });
 
     it("should deny consumption when conversation limit reached", async () => {
-      // 5 conversations = limite atteinte (GUEST_LIMITS.CONVERSATIONS = 5)
-      const mockQuota = createMockQuota({ conversationsCreated: 5 });
+      // 10 conversations = limite atteinte (GUEST_LIMITS.CONVERSATIONS = 10)
+      const mockQuota = createMockQuota({ conversationsCreated: 10 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);
@@ -221,12 +221,12 @@ describe("guestQuotaService", () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain("Conversation limit");
       expect(result.currentQuota).toBeDefined();
-      expect(result.currentQuota?.conversationsCreated).toBe(5);
+      expect(result.currentQuota?.conversationsCreated).toBe(10);
     });
 
     it("should deny consumption when AI message limit reached", async () => {
-      // 20 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 20)
-      const mockQuota = createMockQuota({ aiMessages: 20 });
+      // 100 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 100)
+      const mockQuota = createMockQuota({ aiMessages: 100 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);
@@ -236,7 +236,7 @@ describe("guestQuotaService", () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain("AI message limit");
       expect(result.currentQuota).toBeDefined();
-      expect(result.currentQuota?.aiMessages).toBe(20);
+      expect(result.currentQuota?.aiMessages).toBe(100);
     });
 
     it("should allow bypass in E2E environment", async () => {
@@ -290,8 +290,8 @@ describe("guestQuotaService", () => {
     });
 
     it("should deny consumption when limit reached", async () => {
-      // 20 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 20)
-      const mockQuota = createMockQuota({ aiMessages: 20 });
+      // 100 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 100)
+      const mockQuota = createMockQuota({ aiMessages: 100 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);

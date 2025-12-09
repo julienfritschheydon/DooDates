@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback } from "react";
-import { Check, X, HelpCircle } from "lucide-react";
+import { Check, X, HelpCircle, ChevronDown, ChevronUp, Shield } from "lucide-react";
 
 // Import components
 import VoteCompletionScreen from "./VoteCompletionScreen";
@@ -59,6 +59,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isVoteComplete, setIsVoteComplete] = useState(false);
+  const [showDataInfo, setShowDataInfo] = useState(false);
 
   const showVoterForm = () => setShowForm(true);
   const hideVoterForm = () => setShowForm(false);
@@ -211,6 +212,66 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         remainingVotes={remainingVotes}
         progressPercent={progressPercent}
       />
+
+      {/* Informations sur l'utilisation des données avant le vote */}
+      <div className="px-4 pt-2">
+        <div className="max-w-3xl mx-auto text-[11px] text-gray-400">
+          <button
+            type="button"
+            className="w-full flex items-center justify-between gap-2 rounded-md bg-[#111111] border border-gray-800 px-3 py-2 hover:bg-[#151515] transition-colors"
+            onClick={() => setShowDataInfo((prev) => !prev)}
+            data-testid="rgpd-datepoll-info-toggle"
+          >
+            <div className="flex items-center gap-2 text-left">
+              <Shield className="w-3.5 h-3.5 text-blue-400" />
+              <div>
+                <p className="text-[11px] font-medium text-gray-200">Vos données pour ce sondage</p>
+                {showDataInfo && (
+                  <p className="text-[10px] text-gray-400">
+                    Nom, email et réponses sont utilisés pour organiser l'événement et afficher les résultats.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-gray-400">
+              <span>{showDataInfo ? "Masquer les détails" : "Voir les détails"}</span>
+              {showDataInfo ? (
+                <ChevronUp className="w-3 h-3" />
+              ) : (
+                <ChevronDown className="w-3 h-3" />
+              )}
+            </div>
+          </button>
+
+          {showDataInfo && (
+            <div
+              className="mt-2 rounded-md bg-[#0d0d0d] border border-gray-800 px-3 py-2 text-[11px] text-gray-300"
+              data-testid="rgpd-datepoll-info"
+            >
+              <p className="font-medium text-gray-200 mb-1">Détails sur vos données</p>
+              <p className="mb-1">
+                Vos nom, email et réponses à ce sondage sont stockés pour permettre à l'organisateur
+                d'organiser l'événement et consulter les résultats.
+              </p>
+              <p className="mb-1">
+                Vous pouvez demander la suppression de vos données en contactant l'organisateur du sondage.
+              </p>
+              <p>
+                Pour en savoir plus, consultez la{" "}
+                <a
+                  href="/DooDates/docs"
+                  className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Politique de confidentialité de DooDates
+                </a>
+                .
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Contenu principal */}
       <div className="flex-1 overflow-y-auto">

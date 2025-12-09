@@ -16,7 +16,7 @@ export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProp
   const navigate = useNavigate();
   const { createPollFromChat } = useConversation();
 
-  // Quand un sondage est créé, créer dans le Context et naviguer vers /workspace
+  // Quand un sondage est créé, créer dans le Context et naviguer vers le nouveau workspace IA
   const handlePollCreated = (poll: import("../lib/pollStorage").Poll) => {
     // Créer le sondage dans le Context (ouvre l'éditeur)
     createPollFromChat(poll);
@@ -24,8 +24,8 @@ export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProp
     // Appeler le callback parent si fourni
     onPollCreated?.(poll);
 
-    // Naviguer vers workspace pour afficher le layout avec éditeur
-    navigate("/workspace");
+    // Naviguer vers le workspace IA date-polls pour afficher le layout avec éditeur
+    navigate("/date-polls/workspace/date");
   };
 
   // Layout pleine page pour le chat

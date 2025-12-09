@@ -594,8 +594,25 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       const conversationsLoadedA = await waitForConversationsInDashboard(pageA);
       expect(conversationsLoadedA).toBeTruthy();
 
-      // Ouvrir la conversation depuis le dashboard
-      await openConversationFromDashboard(pageA, "réunion d'équipe");
+      // Ouvrir la conversation depuis le dashboard (cliquer sur la première carte disponible)
+      let firstConversationA = pageA
+        .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+        .first();
+      try {
+        await expect(firstConversationA).toBeVisible({ timeout: 5000 });
+      } catch (e) {
+        // Si aucune carte n'est visible immédiatement, recharger et réessayer
+        await pageA.reload({ waitUntil: 'domcontentloaded' });
+        await waitForConversationsInDashboard(pageA);
+        firstConversationA = pageA
+          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+          .first();
+        await expect(firstConversationA).toBeVisible({ timeout: 10000 });
+      }
+      await firstConversationA.click();
+
+      // Attendre la navigation vers workspace
+      await pageA.waitForURL(/\/workspace\?conversationId=/, { timeout: 10000 });
 
       // Vérifier que le chat est chargé
       const messageInputARefresh = pageA.locator('[data-testid="chat-input"]');

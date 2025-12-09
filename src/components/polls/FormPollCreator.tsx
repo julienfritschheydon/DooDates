@@ -34,6 +34,7 @@ import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 import { useFormPollCreation } from "../../hooks/useFormPollCreation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType =
@@ -604,7 +605,8 @@ export default function FormPollCreator({
           questions: mappedQuestions,
           settings: {
             allowAnonymousResponses: true,
-            expiresAt: undefined,
+            // Durée de conservation par défaut : ~12 mois après la création
+            expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           },
           slug: draftSlug, // Conserver le slug du draft lors de la publication
         });
@@ -733,7 +735,10 @@ export default function FormPollCreator({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Option 1 : Classique */}
-                          <button
+                          <Button
+                            type="button"
+                            size="default"
+                            variant="outline"
                             onClick={() => setDisplayMode("all-at-once")}
                             className={`p-4 rounded-lg border-2 text-left transition-all ${
                               displayMode === "all-at-once"
@@ -756,10 +761,13 @@ export default function FormPollCreator({
                               <p>✓ Vue d'ensemble</p>
                               <p>⚠ Peut intimider si &gt;5 questions</p>
                             </div>
-                          </button>
+                          </Button>
 
                           {/* Option 2 : Multi-step */}
-                          <button
+                          <Button
+                            type="button"
+                            size="default"
+                            variant="outline"
                             onClick={() => setDisplayMode("multi-step")}
                             className={`p-4 rounded-lg border-2 text-left transition-all ${
                               displayMode === "multi-step"
@@ -785,7 +793,7 @@ export default function FormPollCreator({
                               <p>✓ Moins intimidant</p>
                               <p>✓ Parfait mobile</p>
                             </div>
-                          </button>
+                          </Button>
                         </div>
 
                         {/* Suggestion IA */}
@@ -799,12 +807,15 @@ export default function FormPollCreator({
                                   ? `Votre formulaire a ${questions.length} questions. Nous recommandons le mode "Une par une" pour maximiser le taux de complétion (+25%).`
                                   : "Le mode Classique est recommandé pour les formulaires courts."}
                               </p>
-                              <button
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="link"
                                 onClick={() => setDisplayMode(suggestedDisplayMode)}
-                                className="mt-2 text-yellow-400 hover:text-yellow-300 underline"
+                                className="mt-2 text-yellow-400 hover:text-yellow-300"
                               >
                                 Utiliser la suggestion
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         )}

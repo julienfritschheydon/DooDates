@@ -35,7 +35,7 @@ async function withConsoleGuard(page: any, testFn: () => Promise<void>) {
 test.describe("Navigation Intelligente - E2E", () => {
   test.beforeEach(async ({ page }) => {
     // Activer les logs de navigation
-    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
+    await page.goto("/DooDates/date-polls/dashboard");
     await page.evaluate(() => {
       localStorage.setItem("debug_smart_navigation", "true");
     });
@@ -43,10 +43,10 @@ test.describe("Navigation Intelligente - E2E", () => {
 
   test("Nouvelle création - Full reset", async ({ page }) => {
     // 1. Aller au dashboard
-    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
+    await page.goto("/DooDates/date-polls/dashboard");
 
     // 2. Créer une conversation avec du contenu
-    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/date-polls/workspace/date");
     await page.fill(
       '[data-testid="chat-input"]',
       "Crée-moi un sondage pour le déjeuner d'équipe",
@@ -102,7 +102,7 @@ test.describe("Navigation Intelligente - E2E", () => {
 
       // 2. Cliquer sur "Créer un nouveau formulaire"
       // Note: On est sur le dashboard date-polls par défaut (beforeEach), donc on doit aller sur form-polls pour voir ce bouton
-      await page.goto("http://localhost:8080/DooDates/form-polls/dashboard");
+      await page.goto("/DooDates/form-polls/dashboard");
       await page.getByTestId('create-form-poll').click();
 
       // 3. Vérifier qu'on arrive dans le workspace
@@ -128,13 +128,13 @@ test.describe("Navigation Intelligente - E2E", () => {
 
   test("Changement de type - Context reset", async ({ page }) => {
     // 1. Commencer avec un sondage de dates
-    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/date-polls/workspace/date");
     await page.fill('[data-testid="chat-input"]', "Organise une réunion pour la semaine prochaine");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Changer vers formulaire
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form-polls/workspace/form");
 
     // 3. Vérifier que la conversation est préservée mais l'éditeur est vide
     await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
@@ -156,16 +156,16 @@ test.describe("Navigation Intelligente - E2E", () => {
 
   test("Navigation temporaire - No reset", async ({ page }) => {
     // 1. Créer du contenu dans workspace
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Test de contenu à préserver");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Naviguer vers docs (temporaire)
-    await page.goto("http://localhost:8080/DooDates/date-polls/docs");
+    await page.goto("/DooDates/date-polls/docs");
 
     // 3. Retourner au workspace
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form-polls/workspace/form");
 
     // 4. Vérifier que tout est préservé
     await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
@@ -186,7 +186,7 @@ test.describe("Navigation Intelligente - E2E", () => {
 
   test("Mode édition - Preserve", async ({ page }) => {
     // 1. Créer un sondage
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Crée un sondage sur la satisfaction client");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
@@ -195,7 +195,7 @@ test.describe("Navigation Intelligente - E2E", () => {
     const pollId = "test-poll-" + Date.now();
 
     // 3. Naviguer en mode édition
-    await page.goto(`http://localhost:8080/DooDates/form-polls/workspace/form?edit=${pollId}`);
+    await page.goto(`/DooDates/form-polls/workspace/form?edit=${pollId}`);
 
     // 4. Vérifier que le contexte est préservé
     await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
@@ -256,10 +256,10 @@ test.describe("Navigation Intelligente - E2E", () => {
     });
 
     // Effectuer plusieurs navigations
-    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
-    await page.goto("http://localhost:8080/DooDates/date-polls/docs");
-    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
+    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/date-polls/docs");
+    await page.goto("/DooDates/date-polls/dashboard");
 
     // Attendre un peu pour les logs
     await page.waitForTimeout(1000);
@@ -279,9 +279,9 @@ test.describe("Navigation Intelligente - E2E", () => {
 test.describe("Navigation Intelligente - Cas limites", () => {
   test("Navigation rapide successive", async ({ page }) => {
     // 1. Navigation rapide
-    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
-    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/date-polls/workspace/date");
 
     // 2. Vérifier qu'il n'y a pas de crash
     await expect(page.locator("body")).toBeVisible();
@@ -300,7 +300,7 @@ test.describe("Navigation Intelligente - Cas limites", () => {
 
   test("URL invalide - Comportement par défaut", async ({ page }) => {
     // 1. Navigation vers URL invalide
-    await page.goto("http://localhost:8080/DooDates/workspace/invalid");
+    await page.goto("/DooDates/workspace/invalid");
 
     // 2. Ne doit pas crasher
     await expect(page.locator("body")).toBeVisible();
@@ -323,7 +323,7 @@ test.describe("Navigation Intelligente - Cas limites", () => {
 
   test("Refresh page - Pas de reset", async ({ page }) => {
     // 1. Créer du contenu
-    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Contenu à préserver au refresh");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });

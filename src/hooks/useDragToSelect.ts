@@ -26,6 +26,11 @@ export interface UseDragToSelectOptions<T> {
    * Désactiver le drag sur mobile
    */
   disableOnMobile?: boolean;
+
+  /**
+   * Callback optionnel appelé lorsqu'un simple clic (sans drag) est détecté
+   */
+  onClickItem?: (item: T) => void;
 }
 
 export interface UseDragToSelectReturn {
@@ -63,6 +68,7 @@ export function useDragToSelect<T>({
   getItemsInRange,
   canDragItem,
   disableOnMobile = false,
+  onClickItem,
 }: UseDragToSelectOptions<T>): UseDragToSelectReturn {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartItem, setDragStartItem] = useState<T | null>(null);
@@ -97,15 +103,15 @@ export function useDragToSelect<T>({
         setDragStartPos({ x: e.clientX, y: e.clientY });
         setDragDirection(null);
         setIsLongPressActivated(false);
+        setDragStartItem(item);
+        setHasMoved(false);
 
         // Démarrer le timer de long press (500ms)
         const timer = setTimeout(() => {
           const itemKey = getItemKey(item);
           setIsLongPressActivated(true);
           setIsDragging(true);
-          setDragStartItem(item);
           setDraggedItems(new Set([itemKey]));
-          setHasMoved(false);
 
           // Feedback haptique si disponible
           if (navigator.vibrate) {
@@ -117,8 +123,8 @@ export function useDragToSelect<T>({
         return;
       }
 
-      // Desktop : comportement normal
-      e.preventDefault();
+      // Desktop : ne pas appeler preventDefault pour laisser les clics fonctionner normalement
+      // On se contente de marquer le début du drag et de stopper la propagation pour éviter les effets de bord
       e.stopPropagation();
 
       setIsDragging(true);
@@ -193,16 +199,13 @@ export function useDragToSelect<T>({
       setLongPressTimer(null);
     }
 
-    if (!isDragging) {
-      // Reset des états même si pas de drag actif
-      setDragStartPos(null);
-      setIsLongPressActivated(false);
-      return;
-    }
-
-    // Si on n'a pas bougé, c'est un simple clic, ne pas appeler onDragEnd
-    // SAUF si c'est un long press mobile (dans ce cas, on veut sélectionner la case initiale)
-    if (draggedItems.size > 0 && (hasMoved || isLongPressActivated)) {
+    // Si on n'a pas bougé et que ce n'est pas un long press, c'est un simple clic
+    if (!hasMoved && !isLongPressActivated && dragStartItem) {
+      if (onClickItem) {
+        onClickItem(dragStartItem);
+      }
+    } else if (draggedItems.size > 0 && (hasMoved || isLongPressActivated)) {
+      // Sinon, c'est un drag (ou long press) et on appelle onDragEnd
       onDragEnd(draggedItems, dragStartItem);
     }
 
@@ -221,6 +224,7 @@ export function useDragToSelect<T>({
     onDragEnd,
     longPressTimer,
     isLongPressActivated,
+    onClickItem,
   ]);
 
   // Vérifier si un item est survolé pendant le drag

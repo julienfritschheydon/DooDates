@@ -6,7 +6,6 @@ import {
   Trash2,
   Camera,
   Sparkles,
-  ArrowLeft,
   Save,
   Loader2,
   ChevronDown,
@@ -16,7 +15,16 @@ import { addQuizz, type Quizz, type QuizzQuestion } from "@/lib/products/quizz/q
 import { quizzVisionService } from "@/services/QuizzVisionService";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { logError } from "@/lib/error-handling";
+import { ErrorFactory, logError } from "@/lib/error-handling";
+import { Button } from "@/components/ui/button";
+import { fileToGeminiAttachment } from "@/services/FileAttachmentService";
+
+// Limites et formats supportés pour les fichiers utilisés en génération de quizz
+const MAX_QUIZZ_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
+// Préfixes MIME autorisés : images (PNG/JPEG, etc.) et PDF pour les devoirs scannés
+const ALLOWED_QUIZZ_ATTACHMENT_MIME_PREFIXES = ["image/", "application/pdf"];
+// Liste de types exacts éventuellement supportés à l'avenir (DOCX, etc.)
+const ALLOWED_QUIZZ_ATTACHMENT_MIME_EXACT: string[] = [];
 
 // Génère un slug simple à partir du titre
 const generateSlug = (title: string): string => {
@@ -93,7 +101,15 @@ export const QuizzCreate: React.FC = () => {
         setQuestions(result.data.questions);
         toast({ title: `✅ ${result.data.questions.length} questions générées !` });
       } else {
-        logError("Erreur génération quiz", "quizz", result.error);
+        const error = ErrorFactory.api(
+          "Erreur génération quiz",
+          "Erreur lors de la génération du quiz",
+          {
+            originalError: result.error,
+            source: "QuizzCreate.handleGenerateFromText",
+          },
+        );
+        logError(error, { component: "QuizzCreate", operation: "generateFromText" });
         toast({
           title: "Erreur de génération",
           description: result.error || "Vérifiez que VITE_GEMINI_API_KEY est configurée",
@@ -101,7 +117,15 @@ export const QuizzCreate: React.FC = () => {
         });
       }
     } catch (error: any) {
-      logError("Exception génération quiz", "quizz", error);
+      const processedError = ErrorFactory.api(
+        "Exception génération quiz",
+        "Erreur lors de la génération du quiz",
+        {
+          originalError: error,
+          source: "QuizzCreate.handleGenerateFromText",
+        },
+      );
+      logError(processedError, { component: "QuizzCreate", operation: "generateFromText" });
       toast({
         title: "Erreur",
         description: error?.message || "Erreur inconnue",
@@ -112,7 +136,7 @@ export const QuizzCreate: React.FC = () => {
     }
   };
 
-  // Génération depuis image
+  // Génération depuis fichier (image, PDF, ...)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("[QuizzCreate] handleImageUpload appelé");
     const file = e.target.files?.[0];
@@ -122,13 +146,57 @@ export const QuizzCreate: React.FC = () => {
     }
 
     console.log("[QuizzCreate] Fichier sélectionné:", file.name, file.type);
+    // Validation de base sur le fichier avant de lancer la génération
+    const { size, type, name } = file;
+
+    if (size > MAX_QUIZZ_ATTACHMENT_SIZE_BYTES) {
+      const processedError = ErrorFactory.validation(
+        "Fichier trop volumineux pour le quizz",
+        "Le fichier dépasse la taille maximale autorisée (10 Mo).",
+        { size, name, limit: MAX_QUIZZ_ATTACHMENT_SIZE_BYTES },
+      );
+      logError(processedError, {
+        component: "QuizzCreate",
+        operation: "validateImageAttachmentSize",
+      });
+      toast({
+        title: "Fichier trop volumineux",
+        description: "Le fichier dépasse 10 Mo. Essayez avec un fichier plus léger.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const isAllowedMime =
+      !type ||
+      ALLOWED_QUIZZ_ATTACHMENT_MIME_EXACT.includes(type) ||
+      ALLOWED_QUIZZ_ATTACHMENT_MIME_PREFIXES.some((prefix) => type.startsWith(prefix));
+
+    if (!isAllowedMime) {
+      const processedError = ErrorFactory.validation(
+        "Type de fichier non supporté pour le quizz",
+        "Ce type de fichier n'est pas encore supporté pour l'analyse automatique.",
+        { mimeType: type, name },
+      );
+      logError(processedError, {
+        component: "QuizzCreate",
+        operation: "validateImageAttachmentMimeType",
+      });
+      toast({
+        title: "Type de fichier non supporté",
+        description: "Formats conseillés : image (PNG/JPEG) ou PDF.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     toast({ title: "Analyse en cours...", description: "Gemini analyse votre photo" });
 
     try {
       console.log("[QuizzCreate] Analyse image:", file.name, file.type);
-      const base64 = await fileToBase64(file);
-      const result = await quizzVisionService.extractFromImage(base64, file.type);
+      const attachment = await fileToGeminiAttachment(file);
+      const result = await quizzVisionService.extractFromImage(attachment.contentBase64, attachment.mimeType);
       console.log("[QuizzCreate] Résultat:", result);
 
       if (result.success && result.data) {
@@ -145,7 +213,15 @@ export const QuizzCreate: React.FC = () => {
           toast({ title: `✅ ${result.data.questions.length} questions extraites !` });
         }
       } else {
-        logError("Erreur extraction quiz depuis image", "quizz", result.error);
+        const error = ErrorFactory.api(
+          "Erreur extraction quiz depuis image",
+          "Erreur lors de l'extraction du quiz depuis l'image",
+          {
+            originalError: result.error,
+            source: "QuizzCreate.handleImageUpload",
+          },
+        );
+        logError(error, { component: "QuizzCreate", operation: "extractFromImage" });
         toast({
           title: "Erreur d'extraction",
           description: result.error || "Vérifiez que VITE_GEMINI_API_KEY est configurée",
@@ -153,7 +229,15 @@ export const QuizzCreate: React.FC = () => {
         });
       }
     } catch (error: any) {
-      logError("Exception extraction quiz depuis image", "quizz", error);
+      const processedError = ErrorFactory.api(
+        "Exception extraction quiz depuis image",
+        "Erreur lors de l'extraction du quiz depuis l'image",
+        {
+          originalError: error,
+          source: "QuizzCreate.handleImageUpload",
+        },
+      );
+      logError(processedError, { component: "QuizzCreate", operation: "extractFromImage" });
       toast({
         title: "Erreur",
         description: error?.message || "Erreur inconnue",
@@ -162,20 +246,6 @@ export const QuizzCreate: React.FC = () => {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  // Convertir fichier en base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        // Enlever le préfixe data:image/...;base64,
-        resolve(result.split(",")[1]);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   };
 
   // Ajouter une question manuellement
@@ -243,19 +313,11 @@ export const QuizzCreate: React.FC = () => {
     <div className="min-h-screen bg-[#0a0a0a] py-6 sm:py-8 px-3 sm:px-4">
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <button
-            onClick={() => navigate("/quizz")}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white flex-shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-white truncate">Créer un Quiz</h1>
-            <p className="text-sm text-gray-400 hidden sm:block">
-              Générez un quiz depuis une photo ou du texte
-            </p>
-          </div>
+        <div className="text-center sm:text-left">
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Créer un Quiz</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Générez un quiz depuis un fichier (photo, PDF...) ou du texte
+          </p>
         </div>
 
         {/* Génération IA */}
@@ -265,13 +327,13 @@ export const QuizzCreate: React.FC = () => {
             Génération IA
           </h2>
 
-          {/* Option 1: Photo */}
+          {/* Option 1: Fichier (photo, PDF, ...) */}
           <div className="mb-3 sm:mb-4">
             {/* Input pour sélectionner depuis la galerie */}
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf"
               onChange={handleImageUpload}
               className="hidden"
             />
@@ -279,31 +341,33 @@ export const QuizzCreate: React.FC = () => {
             <input
               ref={cameraInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf"
               capture="environment"
               onChange={handleImageUpload}
               className="hidden"
             />
             <div className="grid grid-cols-2 gap-2">
-              <button
+              <Button
                 onClick={() => cameraInputRef.current?.click()}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-800/50 border-2 border-dashed border-amber-600/50 rounded-lg hover:border-amber-500 hover:bg-gray-800 transition-colors disabled:opacity-50"
+                variant="outline"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 border-amber-600/50 hover:border-amber-500 hover:bg-gray-800 bg-gray-800/50"
               >
                 <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 flex-shrink-0" />
                 <span className="font-medium text-amber-300 text-xs sm:text-sm truncate">
-                  Photo
+                  Prendre une photo
                 </span>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-800 transition-colors disabled:opacity-50"
+                variant="outline"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 border-gray-600 hover:border-gray-500 hover:bg-gray-800 bg-gray-800/50"
               >
                 <span className="font-medium text-gray-300 text-xs sm:text-sm truncate">
-                  🖼️ Galerie
+                  📎 Fichier (photo/PDF)
                 </span>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -317,10 +381,11 @@ export const QuizzCreate: React.FC = () => {
               className="flex-1 px-3 sm:px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               disabled={isGenerating}
             />
-            <button
+            <Button
               onClick={handleGenerateFromText}
               disabled={isGenerating || !textPrompt.trim()}
-              className="px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm font-medium flex-shrink-0"
+              size="lg"
+              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 flex items-center justify-center gap-2 text-sm font-medium flex-shrink-0"
             >
               {isGenerating ? (
                 <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
@@ -328,7 +393,7 @@ export const QuizzCreate: React.FC = () => {
                 <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
               <span>Générer</span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -373,13 +438,15 @@ export const QuizzCreate: React.FC = () => {
                   {expandedQuestions.size === questions.length ? "Tout replier" : "Tout déplier"}
                 </button>
               )}
-              <button
+              <Button
                 onClick={addQuestion}
-                className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
+                size="sm"
+                variant="outline"
+                className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors border-gray-700"
               >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Ajouter</span>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -476,15 +543,17 @@ export const QuizzCreate: React.FC = () => {
                             )}
                           />
                         ))}
-                        <button
+                        <Button
                           onClick={() => {
                             const newOpts = [...(q.options || []), ""];
                             updateQuestion(idx, { options: newOpts });
                           }}
-                          className="text-xs sm:text-sm text-amber-400 hover:text-amber-300"
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto px-0 text-xs sm:text-sm text-amber-400 hover:text-amber-300 hover:bg-transparent"
                         >
                           + Ajouter une option
-                        </button>
+                        </Button>
                       </div>
                     )}
 

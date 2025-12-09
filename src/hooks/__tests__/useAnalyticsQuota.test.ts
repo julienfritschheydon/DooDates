@@ -201,6 +201,13 @@ describe("useAnalyticsQuota", () => {
     mockUseAuth.mockImplementation(() => createAuthMock(null));
   });
 
+  const getTodayString = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+      now.getDate(),
+    ).padStart(2, "0")}`;
+  };
+
   describe("Initialisation", () => {
     it(`initialise avec quota anonyme par défaut (${ANALYTICS_QUOTAS.ANONYMOUS} queries)`, () => {
       // S'assurer que le mock retourne un utilisateur null
@@ -233,7 +240,7 @@ describe("useAnalyticsQuota", () => {
     });
 
     it(" charge le quota depuis localStorage si présent", async () => {
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayString();
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 3, date: today }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
@@ -248,7 +255,10 @@ describe("useAnalyticsQuota", () => {
     it(" reset le quota si date différente dans localStorage", async () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(
+        2,
+        "0",
+      )}-${String(yesterday.getDate()).padStart(2, "0")}`;
 
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
 
@@ -260,7 +270,7 @@ describe("useAnalyticsQuota", () => {
 
         // Vérifier que localStorage a été mis à jour avec la date d'aujourd'hui
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
-        expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
+        expect(stored.date).toBe(getTodayString());
       });
     });
 
@@ -274,7 +284,7 @@ describe("useAnalyticsQuota", () => {
         // Vérifier que localStorage a été initialisé
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.count).toBe(0);
-        expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
+        expect(stored.date).toBe(getTodayString());
       });
     });
   });
@@ -365,7 +375,7 @@ describe("useAnalyticsQuota", () => {
       });
 
       // Préparer localStorage avec une valeur existante
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayString();
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 0, date: today }));
 
       // Utiliser vi.spyOn pour intercepter setItem et lancer l'erreur seulement lors de l'incrémentation

@@ -69,6 +69,23 @@ const Calendar: React.FC<CalendarProps> = ({
     isDraggedOver,
     isLongPressActive,
   } = useDragToSelect<Date>({
+    // Clic simple sur une date (sans drag)
+    onClickItem: (date) => {
+      const dateStr = formatDateStr(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const isPastDay = date < today;
+
+      logger.info("Calendar - day clicked", "calendar", {
+        date: dateStr,
+        isPastDay,
+      });
+
+      if (!isPastDay) {
+        onDateToggle(date);
+      }
+    },
+    // Drag de sélection de plage
     onDragEnd: (draggedItems, startDate) => {
       if (!startDate || draggedItems.size === 0) return;
 
@@ -172,7 +189,10 @@ const Calendar: React.FC<CalendarProps> = ({
         </div>
 
         {/* Grille du calendrier */}
-        <div className="grid grid-cols-7 gap-1 place-items-center" style={{ touchAction: "none" }}>
+        <div
+          className="grid grid-cols-7 gap-1 place-items-center"
+          style={isMobile ? { touchAction: "none" } : undefined}
+        >
           {days.map(({ date, isCurrentMonth, isEmpty }, index) => {
             // Si c'est une case vide, on affiche juste un espace
             if (isEmpty || !date) {
@@ -222,12 +242,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isPastDay) {
-                    onDateToggle(date);
-                  }
-                }}
+                // Drag-to-select + clic unifiés via useDragToSelect
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   handleDragStart(date, e);
@@ -259,7 +274,7 @@ const Calendar: React.FC<CalendarProps> = ({
                       ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
                       : "text-gray-300 hover:bg-[#2a2a2a]"
                   }`}
-                style={{ touchAction: "none" }}
+                style={isMobile ? { touchAction: "none" } : undefined}
               >
                 {date.getDate()}
               </motion.button>
@@ -296,6 +311,22 @@ const Calendar: React.FC<CalendarProps> = ({
       if (newMonths.length > 0 && onMonthsChange) {
         onMonthsChange([...visibleMonths, ...newMonths]);
       }
+    }
+  };
+
+  const handleDesktopMonthNav = (direction: "prev" | "next") => {
+    onMonthChange(direction);
+
+    const container = calendarRef.current;
+    if (!container) return;
+
+    const step = container.clientWidth / 2; // environ un mois si deux sont visibles
+
+    if (direction === "prev") {
+      container.scrollLeft = Math.max(0, container.scrollLeft - step);
+    } else {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      container.scrollLeft = Math.min(maxScroll, container.scrollLeft + step);
     }
   };
 
@@ -367,31 +398,11 @@ const Calendar: React.FC<CalendarProps> = ({
               </div>
             </TooltipProvider>
 
-            {/* Calendrier avec swipe - SOLUTION CRITIQUE */}
+            {/* Calendrier mobile sans swipe horizontal - navigation via les boutons seulement */}
             <div className="relative">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={visibleMonths[0]?.getTime()}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.3}
-                  dragMomentum={false}
-                  onDragEnd={(_, info) => {
-                    const threshold = 75; // Seuil plus élevé pour éviter les swipes accidentels
-                    const velocity = Math.abs(info.velocity.x);
-
-                    // Prendre en compte la vélocité ET la distance
-                    if ((info.offset.x > threshold && velocity > 100) || info.offset.x > 120) {
-                      // Swipe vers la droite = mois précédent
-                      onMonthChange("prev");
-                    } else if (
-                      (info.offset.x < -threshold && velocity > 100) ||
-                      info.offset.x < -120
-                    ) {
-                      // Swipe vers la gauche = mois suivant
-                      onMonthChange("next");
-                    }
-                  }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -399,11 +410,7 @@ const Calendar: React.FC<CalendarProps> = ({
                     duration: 0.3,
                     ease: "easeInOut",
                   }}
-                  className="select-none touch-pan-x"
-                  style={{
-                    // Empêcher le scroll vertical pendant le drag horizontal
-                    touchAction: "pan-x",
-                  }}
+                  className="select-none"
                 >
                   {renderCalendarGrid(visibleMonths[0], true)}
                 </motion.div>
@@ -423,12 +430,12 @@ const Calendar: React.FC<CalendarProps> = ({
 
       {/* Desktop: Scroll avec navigation par flèches */}
       <TooltipProvider>
-        <div className="hidden md:block relative">
+        <div className="hidden md:block relative max-w-[720px] mx-auto">
           {/* Flèche gauche - positionnée au niveau des titres des mois */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => onMonthChange("prev")}
+                onClick={() => handleDesktopMonthNav("prev")}
                 className="absolute left-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
                 aria-label="Mois précédent"
               >
@@ -444,7 +451,7 @@ const Calendar: React.FC<CalendarProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => onMonthChange("next")}
+                onClick={() => handleDesktopMonthNav("next")}
                 className="absolute right-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
                 aria-label="Mois suivant"
               >

@@ -7,9 +7,13 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import GeminiChatInterface from "../GeminiChatInterface";
+import { ConversationStateProvider } from "../prototype/ConversationStateProvider";
+import { EditorStateProvider } from "../prototype/EditorStateProvider";
+import { UIStateProvider } from "../prototype/UIStateProvider";
 
-// Mock all dependencies
+// Mock all dependencies (hors providers de conversation/éditeur/UI que l'on utilise réellement)
 vi.mock("../../contexts/AuthContext");
 vi.mock("../../hooks/useConversations");
 vi.mock("../../hooks/useAutoSave");
@@ -18,23 +22,33 @@ vi.mock("../../hooks/useFreemiumQuota");
 vi.mock("../../hooks/usePollConversationLink");
 
 // Mock components
-vi.mock("../../components/modals/AuthIncentiveModal", () => ({
-  AuthIncentiveModal: ({ isOpen, onClose, trigger }: any) =>
+vi.mock("../../components/modals/AuthIncentiveModal", () => {
+  const MockAuthIncentiveModal = ({ isOpen, onClose, trigger }: any) =>
     isOpen ? (
       <div data-testid="auth-incentive-modal">
         <div>Modal: {trigger}</div>
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null,
-}));
+    ) : null;
 
-vi.mock("../../components/ui/QuotaIndicator", () => ({
-  QuotaIndicator: ({ usage, limits }: any) => (
+  return {
+    __esModule: true,
+    default: MockAuthIncentiveModal,
+  };
+});
+
+vi.mock("../../components/ui/QuotaIndicator", () => {
+  const MockQuotaIndicator = ({ usage, limits }: any) => (
     <div data-testid="quota-indicator">
       {usage.conversations}/{limits.conversations} conversations
     </div>
-  ),
-}));
+  );
+
+  return {
+    __esModule: true,
+    default: MockQuotaIndicator,
+  };
+});
 
 vi.mock("../../components/PollCreator", () => ({
   PollCreator: ({ onClose }: any) => (
@@ -63,7 +77,7 @@ const mockUsePollConversationLink = usePollConversationLink as jest.MockedFuncti
   typeof usePollConversationLink
 >;
 
-describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
+describe("GeminiChatInterface - Freemium Workflow Integration", () => {
   let queryClient: QueryClient;
 
   const defaultMocks = {
@@ -79,6 +93,7 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       currentConversation: null,
       saveMessage: vi.fn(),
       createNewConversation: vi.fn(),
+      getRealConversationId: vi.fn(() => null),
     },
     useConversationResume: {
       resumedConversation: null,
@@ -119,18 +134,28 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
 
   const renderComponent = () => {
     return render(
-      <QueryClientProvider client={queryClient}>
-        <GeminiChatInterface />
-      </QueryClientProvider>,
+      <MemoryRouter initialEntries={['/workspace/date']}>
+        <QueryClientProvider client={queryClient}>
+          <ConversationStateProvider>
+            <EditorStateProvider>
+              <UIStateProvider>
+                <GeminiChatInterface />
+              </UIStateProvider>
+            </EditorStateProvider>
+          </ConversationStateProvider>
+        </QueryClientProvider>
+      </MemoryRouter>,
     );
   };
 
-  describe.skip("guest user workflow", () => {
-    it.skip("should show quota indicator for guest users", () => {
+  describe("guest user workflow", () => {
+    it("should render chat interface for guest users without auth modal", () => {
       renderComponent();
 
-      expect(screen.getByTestId("quota-indicator")).toBeInTheDocument();
-      expect(screen.getByText("0/3 conversations")).toBeInTheDocument();
+      // L'interface doit s'afficher correctement pour un invité
+      // On vérifie la présence de l'input de chat et l'absence de modal d'auth incitative.
+      expect(screen.getByTestId("chat-input")).toBeInTheDocument();
+      expect(screen.queryByTestId("auth-incentive-modal")).not.toBeInTheDocument();
     });
 
     it.skip("should allow conversation creation within quota", async () => {

@@ -325,7 +325,7 @@ serve(async (req) => {
       );
     }
 
-    const { userInput, prompt } = body;
+    const { userInput, prompt, attachedFile } = body;
 
     if (!userInput && !prompt) {
       return new Response(
@@ -364,13 +364,97 @@ serve(async (req) => {
       );
     }
 
+    // Validation de base sur le fichier joint (taille et type) avant appel Gemini
+    if (attachedFile) {
+      const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
+      const ALLOWED_ATTACHMENT_MIME_PREFIXES = ["application/pdf", "text/plain", "image/"];
+      const ALLOWED_ATTACHMENT_MIME_EXACT = [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
+      ];
+
+      const { size, mimeType, name } = attachedFile;
+
+      if (typeof size === "number" && size > MAX_ATTACHMENT_SIZE_BYTES) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Fichier joint trop volumineux`, {
+          name,
+          mimeType,
+          size,
+          limit: MAX_ATTACHMENT_SIZE_BYTES,
+        });
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "FILE_TOO_LARGE",
+            message: "Le fichier joint dépasse la taille maximale autorisée (10 Mo).",
+          }),
+          {
+            status: 400,
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders,
+            },
+          },
+        );
+      }
+
+      const isAllowedMime =
+        !mimeType ||
+        ALLOWED_ATTACHMENT_MIME_EXACT.includes(mimeType) ||
+        ALLOWED_ATTACHMENT_MIME_PREFIXES.some((prefix) => mimeType.startsWith(prefix));
+
+      if (!isAllowedMime) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Type de fichier joint non supporté`, {
+          name,
+          mimeType,
+          size,
+        });
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "UNSUPPORTED_FILE_TYPE",
+            message: "Ce type de fichier n'est pas encore supporté pour l'analyse automatique.",
+          }),
+          {
+            status: 400,
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders,
+            },
+          },
+        );
+      }
+    }
+
     // Appeler Gemini API
     const geminiPrompt = prompt || userInput;
     console.log(`[${timestamp}] [${requestId}] 🤖 Appel Gemini API...`, {
-      promptLength: geminiPrompt?.length || 0
+      promptLength: geminiPrompt?.length || 0,
+      hasAttachment: !!attachedFile,
+      attachmentMimeType: attachedFile?.mimeType,
+      attachmentSize: attachedFile?.size,
     });
 
     const geminiStartTime = Date.now();
+    const parts = attachedFile
+      ? [
+          {
+            inlineData: {
+              mimeType: attachedFile.mimeType,
+              data: attachedFile.contentBase64,
+            },
+          },
+          {
+            text: geminiPrompt,
+          },
+        ]
+      : [
+          {
+            text: geminiPrompt,
+          },
+        ];
+
     const geminiResponse = await fetch(
       `${GEMINI_API_URL}?key=${geminiApiKey}`,
       {
@@ -379,11 +463,11 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: geminiPrompt,
-            }],
-          }],
+          contents: [
+            {
+              parts,
+            },
+          ],
         }),
       },
     );

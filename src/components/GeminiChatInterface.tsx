@@ -8,6 +8,7 @@ import React, {
   lazy,
   Suspense,
 } from "react";
+import { Shield, ChevronDown, ChevronUp } from "lucide-react";
 // Lazy load Plus pour réduire le bundle initial
 import { createLazyIcon } from "../lib/lazy-icons";
 const PlusLazy = createLazyIcon("Plus");
@@ -23,8 +24,7 @@ import type {
 } from "@/types/poll-suggestions";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
-import FormPollCreator, { type FormPollDraft } from "./polls/FormPollCreator";
-import type { AnyFormQuestion } from "@/types/poll-suggestions";
+import FormPollCreator, { type FormPollDraft, type AnyFormQuestion } from "./polls/FormPollCreator";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
 import { useGeminiAPI } from "../hooks/useGeminiAPI";
@@ -196,21 +196,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       }
     }, [location.state]); // Se déclenche quand location.state change
 
-    // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
+    // Wrapper pour adapter PollSuggestion provenant de Gemini au format interne
     const handlePollSuggestion = useCallback(
       (proposal: import("../lib/ai/gemini").PollSuggestion | null) => {
         if (proposal) {
-          setLastAIProposal({
-            userRequest: "",
-            generatedContent: proposal,
-            pollContext: {
-              pollId:
-                (proposal as import("../lib/ai/gemini").PollSuggestion & { id?: string }).id ||
-                `generated-${Date.now()}`,
-              pollTitle: proposal.title,
-              pollType: proposal.type,
-            },
-          });
+          // Stocker directement la suggestion de sondage
+          setLastAIProposal(proposal as PollSuggestion);
         } else {
           setLastAIProposal(null);
         }
@@ -260,6 +251,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
     // État pour le feedback IA
     const [lastAIProposal, setLastAIProposal] = useState<PollSuggestion | null>(null);
@@ -349,6 +341,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // État pour gérer le modal d'authentification
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
+    const [showDataInfo, setShowDataInfo] = useState(false);
 
     const quota = useQuota({
       showAuthIncentives: !isE2ETesting, // Désactiver en mode E2E
@@ -843,7 +836,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Expose programmatic submission (used by mobile Preview input)
     useImperativeHandle(ref, () => ({
-      submitMessage: async (text: string) => sendMessageWithText(text, false),
+      submitMessage: async (text: string) => sendMessageWithText(text, false, attachedFile),
     }));
 
     const handleSendMessage = async () => {
@@ -864,8 +857,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
       try {
         console.log(`[${timestamp}] ✅ handleSendMessage: appel sendMessageWithText`);
-        await sendMessageWithText(inputValue, true);
+        await sendMessageWithText(inputValue, true, attachedFile);
         setInputValue("");
+        // Ne pas encore envoyer le fichier côté IA : on se contente de le réinitialiser après envoi
+        setAttachedFile(null);
       } catch (error) {
         // Gérer les erreurs de quota
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -944,15 +939,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
       // Si c'est un FormPoll, afficher FormPollCreator
       if (pollManagement.selectedPollData?.type === "form" || currentPoll?.type === "form") {
-        const formDraft: FormPollDraft = currentPoll
-          ? {
-              id: currentPoll.id,
-              type: "form",
-              title: currentPoll.title,
-              questions: (currentPoll.questions || []) as AnyFormQuestion[],
-              conditionalRules: currentPoll.conditionalRules || [],
-            }
-          : pollManagement.getFormDraft();
+        const formDraft = (
+          currentPoll
+            ? {
+                id: currentPoll.id,
+                type: "form" as const,
+                title: currentPoll.title,
+                questions: (currentPoll.questions || []) as AnyFormQuestion[],
+                conditionalRules: currentPoll.conditionalRules || [],
+              }
+            : pollManagement.getFormDraft()
+        ) as FormPollDraft;
 
         return (
           <FormPollCreator
@@ -1078,20 +1075,79 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         />
 
         {/* Zone de saisie - Fixe en bas de l'écran */}
-        {/* Zone de saisie - Fixe en bas de l'écran */}
         {!inputHidden ? (
-          <ChatInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={handleSendMessage}
-            onKeyPress={handleKeyPress}
-            onUserMessage={onUserMessage}
-            isLoading={isLoading}
-            darkTheme={darkTheme}
-            voiceRecognition={voiceRecognition}
-            textareaRef={textareaRef}
-            pollType={pollTypeFromUrl}
-          />
+          <div className="w-full">
+            {/* Informations RGPD sur le chat IA */}
+            <div className="px-4 pt-2 pb-1 text-[11px] text-gray-400">
+              <button
+                type="button"
+                className="w-full flex items-center justify-between gap-2 rounded-md bg-[#111111] border border-gray-800 px-3 py-2 hover:bg-[#151515] transition-colors text-left"
+                onClick={() => setShowDataInfo((prev) => !prev)}
+                data-testid="rgpd-chat-info-toggle"
+              >
+                <div className="flex items-center gap-2 text-left">
+                  <Shield className="w-3.5 h-3.5 text-blue-400" />
+                  <div>
+                    <p className="text-[11px] font-medium text-gray-200">Vos données dans le chat IA</p>
+                    {showDataInfo && (
+                      <p className="text-[10px] text-gray-400">
+                        Vos messages peuvent contenir des données personnelles et sont envoyés à un fournisseur d'intelligence artificielle tiers pour générer des réponses.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                  <span>{showDataInfo ? "Masquer les détails" : "Voir les détails"}</span>
+                  {showDataInfo ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </div>
+              </button>
+
+              {showDataInfo && (
+                <div
+                  className="mt-2 rounded-md bg-[#0d0d0d] border border-gray-800 px-3 py-2 text-[11px] text-gray-300"
+                  data-testid="rgpd-chat-info"
+                >
+                  <p className="mb-1">
+                    Vos messages dans ce chat peuvent contenir des données personnelles (par exemple des noms, dates, informations de contact) et sont traités par un fournisseur IA tiers pour générer les réponses.
+                  </p>
+                  <p className="mb-1">
+                    Ne partagez pas d'informations sensibles ou confidentielles et contactez-nous si vous souhaitez exercer vos droits d'accès ou de suppression.
+                  </p>
+                  <p>
+                    Pour en savoir plus, consultez la{" "}
+                    <a
+                      href="/DooDates/docs"
+                      className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Politique de confidentialité de DooDates
+                    </a>
+                    .
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={handleSendMessage}
+              onKeyPress={handleKeyPress}
+              onUserMessage={onUserMessage}
+              isLoading={isLoading}
+              darkTheme={darkTheme}
+              voiceRecognition={voiceRecognition}
+              textareaRef={textareaRef}
+              pollType={pollTypeFromUrl}
+              attachedFile={attachedFile}
+              onAttachFile={setAttachedFile}
+            />
+          </div>
         ) : (
           <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] text-center">
             <p className="text-gray-500 text-sm">

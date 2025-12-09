@@ -1,7 +1,16 @@
 // Edge Function pour gestion des quotas utilisateurs authentifiés
 // Migration Phase 3: Remplace localStorage par validation serveur
 
+// Deno global is available in the Edge Function runtime
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
+// @ts-expect-error: Deno URL imports are valid in Deno runtime
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-expect-error: Deno URL imports are valid in Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Origines CORS autorisées
@@ -61,7 +70,19 @@ interface GetJournalRequest {
   limit?: number;
 }
 
-serve(async (req) => {
+// Limites horaires par type d'action (rate limiting backend, complément des quotas globaux)
+const DEFAULT_HOURLY_LIMIT = 100;
+
+const HOURLY_LIMITS: Record<CheckQuotaRequest["action"], number> = {
+  conversation_created: 50,
+  poll_created: 50,
+  ai_message: 100,
+  analytics_query: 50,
+  simulation: 20,
+  other: 100,
+};
+
+serve(async (req: Request) => {
   const requestId = crypto.randomUUID();
   const timestamp = new Date().toISOString();
   const origin = req.headers.get("origin");
@@ -92,6 +113,13 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Extraire l'adresse IP (utilisée pour le rate limiting par IP)
+    const ip =
+      req.headers.get("x-forwarded-for") ??
+      req.headers.get("cf-connecting-ip") ??
+      req.headers.get("x-real-ip") ??
+      null;
 
     // Vérifier l'authentification (OBLIGATOIRE pour cette fonction)
     const authHeader = req.headers.get("authorization");
@@ -236,12 +264,68 @@ serve(async (req) => {
         const { action, credits, metadata }: ConsumeCreditsRequest = body;
         console.log(`[${timestamp}] [${requestId}] 💳 Consume credits: ${action}, ${credits} crédits`);
 
-        // Utiliser la fonction SQL atomique
+        // 1) Vérifier le rate limiting horaire (userId + IP) avant de consommer les crédits
+        const hourlyLimit = HOURLY_LIMITS[action] ?? DEFAULT_HOURLY_LIMIT;
+
+        const { data: rateLimit, error: rateError } = await supabase.rpc(
+          "can_consume_rate_limit",
+          {
+            p_user_id: userId,
+            p_ip: ip,
+            p_action: action,
+            p_limit_per_hour: hourlyLimit,
+          },
+        );
+
+        if (rateError) {
+          console.log(
+            `[${timestamp}] [${requestId}] ❌ Erreur rate limit:`,
+            rateError,
+          );
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Failed to check rate limit",
+            }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            },
+          );
+        }
+
+        if (rateLimit && rateLimit.allowed === false) {
+          console.log(
+            `[${timestamp}] [${requestId}] ⚠️  Rate limit exceeded pour ${action}`,
+            rateLimit,
+          );
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Rate limit exceeded",
+              userCount: rateLimit.user_count ?? null,
+              ipCount: rateLimit.ip_count ?? null,
+              limit: rateLimit.limit ?? hourlyLimit,
+            }),
+            {
+              status: 429,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            },
+          );
+        }
+
+        // 2) Enrichir les metadata avec l'IP avant consommation (pour suivi et rate limiting futur)
+        const enrichedMetadata = {
+          ...(metadata || {}),
+          ...(ip ? { ip } : {}),
+        };
+
+        // 3) Utiliser la fonction SQL atomique de consommation des crédits
         const { data, error } = await supabase.rpc("consume_quota_credits", {
           p_user_id: userId,
           p_action: action,
           p_credits: credits,
-          p_metadata: metadata || {},
+          p_metadata: enrichedMetadata,
         });
 
         if (error) {
@@ -335,7 +419,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             success: true,
-            journal: (journal || []).map((entry) => ({
+            journal: (journal || []).map((entry: any) => ({
               id: entry.id,
               timestamp: entry.created_at,
               action: entry.action,

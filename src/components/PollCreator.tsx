@@ -323,6 +323,27 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   const handleFinalize = async () => {
     try {
+      // Calculer la date d'expiration par défaut si aucune durée n'est définie
+      let expiresAt: string | undefined;
+
+      if (state.expirationDays) {
+        expiresAt = new Date(
+          Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
+        ).toISOString();
+      } else if (state.selectedDates && state.selectedDates.length > 0) {
+        // Par défaut : 12 mois après la dernière date de l'événement
+        const sortedDates = [...state.selectedDates].sort();
+        const lastDateStr = sortedDates[sortedDates.length - 1];
+
+        // Construire une date en milieu de journée locale pour limiter les effets de fuseau
+        const [year, month, day] = lastDateStr.split("-").map(Number);
+        const eventDate = new Date(year, (month || 1) - 1, day || 1, 12, 0, 0);
+
+        const twelveMonthsMs = 365 * 24 * 60 * 60 * 1000;
+        const expirationDate = new Date(eventDate.getTime() + twelveMonthsMs);
+        expiresAt = expirationDate.toISOString();
+      }
+
       const result = await createPoll({
         type: "date",
         title: state.pollTitle,
@@ -338,9 +359,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           allowAnonymousVotes: true,
           allowMaybeVotes: true,
           sendNotifications: state.notificationsEnabled,
-          expiresAt: state.expirationDays
-            ? new Date(Date.now() + state.expirationDays * 24 * 60 * 60 * 1000).toISOString()
-            : undefined,
+          expiresAt,
         },
       });
 
@@ -686,14 +705,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     }
   }, [initialData]);
 
-  // Effet pour s'assurer que les dates sont bien initialisées
+  // Effet pour initialiser les dates une seule fois depuis initialData
   useEffect(() => {
-    if (
-      initialData?.dates &&
-      initialData.dates.length > 0 &&
-      (!state.selectedDates.length ||
-        JSON.stringify(state.selectedDates) !== JSON.stringify(initialData.dates))
-    ) {
+    if (initialData?.dates && initialData.dates.length > 0 && state.selectedDates.length === 0) {
       setState((prev) => ({
         ...prev,
         selectedDates: initialData.dates,
@@ -701,7 +715,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialData]); // Intentionnel : state.selectedDates changerait à chaque render, on compare via JSON.stringify
+  }, [initialData]);
 
   // Effet séparé pour initialiser les timeSlots
   useEffect(() => {
@@ -904,6 +918,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     const month = String(date.getMonth() + 1).padStart(2, "0");
                     const day = String(date.getDate()).padStart(2, "0");
                     const dateStr = `${year}-${month}-${day}`;
+                    logger.info("PollCreator - toggleDate from Calendar", "calendar", {
+                      dateStr,
+                      beforeCount: state.selectedDates.length,
+                      isAlreadySelected: state.selectedDates.includes(dateStr),
+                    });
                     toggleDate(dateStr);
                   }}
                   onMonthChange={(direction) => {

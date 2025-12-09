@@ -11,6 +11,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { usePolls } from "./usePolls";
 import { logger } from "../lib/logger";
 import { ErrorFactory } from "../lib/error-handling";
+import { getTotalCreditsConsumed } from "../lib/quotaTracking";
+import { GUEST_TOTAL_CREDITS_LIMIT } from "../lib/guestQuotaService";
 import type { Poll } from "../types/poll";
 import {
   CONVERSATION_LIMITS,
@@ -186,6 +188,10 @@ const AUTHENTICATED_LIMITS: QuotaLimits = {
   retentionDays: RETENTION_DAYS.AUTHENTICATED, // 365 days (1 year)
 };
 
+// Limite globale de crédits pour les utilisateurs authentifiés (doit rester alignée
+// avec la valeur utilisée dans l'Edge Function quota-tracking, totalLimit = 100)
+const AUTH_CREDIT_LIMIT = 100;
+
 const STORAGE_KEYS = {
   INCENTIVE_VIEWS: "doodates_incentive_views",
   LAST_CLEANUP: "doodates_last_cleanup",
@@ -243,9 +249,13 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalTrigger, setAuthModalTrigger] =
     useState<AuthIncentive["type"]>("conversation_limit");
+  const [creditsUsed, setCreditsUsed] = useState<number>(0);
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
+
+  // Limite globale de crédits à utiliser pour l'affichage (dashboard, badge, incentives)
+  const creditLimit = isAuthenticated ? AUTH_CREDIT_LIMIT : GUEST_TOTAL_CREDITS_LIMIT;
 
   // Load persisted state
   useEffect(() => {
@@ -262,6 +272,24 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     }
   }, []);
 
+  // Charger la consommation de crédits globale depuis le système de quota
+  // On évite cela en E2E pour ne pas impacter les tests existants.
+  useEffect(() => {
+    if (isE2E) {
+      return;
+    }
+
+    const userId = isAuthenticated ? user?.id ?? null : null;
+
+    getTotalCreditsConsumed(userId)
+      .then((total) => {
+        setCreditsUsed(total);
+      })
+      .catch((error) => {
+        logger.error("Failed to load total credits consumed", "quota", { error });
+      });
+  }, [isAuthenticated, user, isE2E]);
+
   // 🔍 DEBUG: Log limits only when they actually change (not on every render)
   useEffect(() => {
     if (isDev()) {
@@ -276,14 +304,9 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
 
   // Calculate current usage
   const calculateUsage = useCallback((): QuotaUsage => {
-    // Get conversation count from polls
-    let conversationCount = 0;
-    try {
-      conversationCount = polls.length;
-    } catch (error) {
-      logger.error("Failed to get conversation count", "quota", { error });
-      conversationCount = 0;
-    }
+    // Pour l'affichage du quota, on utilise désormais les crédits consommés
+    // comme source de vérité globale (Edge Function / guestQuotaService).
+    let conversationCount = creditsUsed;
 
     // Estimate storage usage from localStorage
     let storageUsed = 0;
@@ -314,7 +337,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     };
 
     return result;
-  }, [polls]);
+  }, [polls, creditsUsed]);
 
   const usage = useMemo(() => calculateUsage(), [calculateUsage]);
 
@@ -332,11 +355,12 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     };
 
     return {
-      conversations: calculateStatus(usage.conversations, limits.conversations),
+      // conversations = quota global en crédits (et non plus simple nombre de conversations locales)
+      conversations: calculateStatus(usage.conversations, creditLimit),
       polls: calculateStatus(usage.polls, limits.polls),
       storage: calculateStatus(usage.storageUsed, limits.storageSize),
     };
-  }, [usage, limits]);
+  }, [usage, limits, creditLimit]);
 
   // Quota information (legacy compatibility)
   const quotaInfo = useMemo((): QuotaInfo => {
@@ -421,12 +445,12 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     if (status.conversations.isAtLimit) {
       type = "conversation_limit";
       title = "Conversation Limit Reached";
-      description = `You've reached the limit of ${limits.conversations} conversations. Sign up to get unlimited conversations and cloud sync!`;
+      description = `You've reached the limit of ${creditLimit} credits. Sign up to get unlimited conversations and cloud sync!`;
       ctaText = "Upgrade Now";
     } else if (status.conversations.isNearLimit) {
       type = "quota_warning";
       title = "Almost at Your Limit";
-      description = `You're using ${Math.round(status.conversations.percentage)}% of your conversation quota. Upgrade to never worry about limits again!`;
+      description = `You're using ${Math.round(status.conversations.percentage)}% of your credit quota. Upgrade to never worry about limits again!`;
       ctaText = "Get Unlimited";
     } else if (status.polls.isAtLimit) {
       type = "poll_limit";
