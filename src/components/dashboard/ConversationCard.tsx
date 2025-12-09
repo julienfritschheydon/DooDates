@@ -83,8 +83,8 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const theme = getThemeColors(item.poll?.type || "date");
 
   const handleCardClick = () => {
-    // Ouvrir le workspace avec la conversation
-    navigate(`/workspace?conversationId=${item.id}`);
+    // Ouvrir le workspace avec la conversation (route produit date-polls, basename /DooDates géré par le router)
+    navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
   };
 
   const handleDeleteConversation = async () => {
@@ -475,7 +475,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/workspace?conversationId=${item.id}`);
+                navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
               }}
               className={`text-xs transition-colors ${theme.linkText}`}
             >
@@ -698,7 +698,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/workspace?conversationId=${item.id}`);
+                  navigate(`/DooDates/workspace?conversationId=${item.id}`);
                 }}
                 className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
               >

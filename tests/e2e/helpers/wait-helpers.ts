@@ -402,7 +402,16 @@ export async function waitForChatInputReady(
     // Dernier fallback ci-dessous
   }
 
-  // 3. Dernier recours : n'importe quel élément interactif (pattern beta-key)
+  // 3. Fallback dédié : marqueur racine de la page agent
+  const agentRoot = page.locator('[data-testid="agent-page-root"]').first();
+  try {
+    await agentRoot.waitFor({ state: 'visible', timeout });
+    return agentRoot;
+  } catch {
+    // Continuer vers le tout dernier recours
+  }
+
+  // 4. Dernier recours : n'importe quel élément interactif (pattern beta-key)
   const anyInteractive = page.locator('input, button, [role="button"]').first();
   await anyInteractive.waitFor({ state: 'visible', timeout });
   return anyInteractive;

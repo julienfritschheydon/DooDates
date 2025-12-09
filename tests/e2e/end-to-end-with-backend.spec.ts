@@ -42,7 +42,7 @@ import {
   openConversationFromDashboard,
 } from './helpers/auth-helpers';
 import { navigateToWorkspace, sendChatMessage, getLatestConversationId, waitForConversationCreated } from './helpers/chat-helpers';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForCondition } from './helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForCondition, waitForChatInputReady } from './helpers/wait-helpers';
 
 // Ces tests d'intégration backend ne fonctionnent correctement que sur Chromium
 test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
@@ -560,11 +560,16 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await firstConversation.click();
 
       // Attendre la navigation vers workspace
-      await pageB.waitForURL(/\/workspace\?conversationId=/, { timeout: 10000 });
+      await pageB.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
-      // Vérifier que le chat est chargé
-      const messageInputB = pageB.locator('[data-testid="chat-input"]');
-      await expect(messageInputB).toBeVisible({ timeout: 10000 });
+      // Vérifier que nous ne sommes pas sur la page 404
+      await expect(pageB.getByRole('heading', { name: '404' })).toHaveCount(0);
+
+      // Vérifier que la page agent est bien montée
+      await expect(pageB.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
+
+      // Vérifier que le chat est chargé (utilise helper robuste avec fallback agent-page-root)
+      const messageInputB = await waitForChatInputReady(pageB, 'chromium', { timeout: 10000 });
       // Attendre chargement messages depuis Supabase
       await waitForElementReady(pageB, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
 
@@ -612,11 +617,16 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await firstConversationA.click();
 
       // Attendre la navigation vers workspace
-      await pageA.waitForURL(/\/workspace\?conversationId=/, { timeout: 10000 });
+      await pageA.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
-      // Vérifier que le chat est chargé
-      const messageInputARefresh = pageA.locator('[data-testid="chat-input"]');
-      await expect(messageInputARefresh).toBeVisible({ timeout: 10000 });
+       // Vérifier que nous ne sommes pas sur la page 404
+      await expect(pageA.getByRole('heading', { name: '404' })).toHaveCount(0);
+
+      // Vérifier que la page agent est bien montée
+      await expect(pageA.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
+
+      // Vérifier que le chat est chargé (utilise helper robuste avec fallback agent-page-root)
+      const messageInputARefresh = await waitForChatInputReady(pageA, 'chromium', { timeout: 10000 });
       // Attendre chargement messages depuis Supabase
       await waitForElementReady(pageA, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
 

@@ -373,7 +373,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
                   isSelected ? theme.selectionBg : ""
                 } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
-                onClick={() => navigate(`/workspace?conversationId=${item.id}`)}
+                onClick={() => navigate(`/date-polls/workspace/date?conversationId=${item.id}`)}
               >
                 {/* Checkbox */}
                 <td className="py-3 px-2 md:px-3 lg:px-4" onClick={(e) => e.stopPropagation()}>
@@ -651,7 +651,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/workspace?conversationId=${item.id}`);
+                            navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
                           }}
                           className={`px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 ${theme.primaryButton} text-white text-xs rounded transition-colors touch-manipulation`}
                         >
