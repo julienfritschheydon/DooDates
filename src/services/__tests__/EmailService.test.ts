@@ -35,7 +35,9 @@ describe('EmailService', () => {
     pollId: 'poll-1',
     respondentName: 'Test User',
     respondentEmail: 'test@example.com',
-    items: [],
+    items: [
+      { questionId: 'q1', value: 'Réponse test' }
+    ],
     created_at: new Date().toISOString(),
   };
 

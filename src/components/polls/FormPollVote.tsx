@@ -385,12 +385,12 @@ export default function FormPollVote({ idOrSlug }: Props) {
               <p>
                 Pour en savoir plus, consultez la{" "}
                 <a
-                  href="/DooDates/docs"
+                  href="/privacy"
                   className="text-blue-600 hover:text-blue-500 underline underline-offset-2"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Politique de confidentialité de DooDates
+                  Politique de confidentialité complète
                 </a>
                 .
               </p>

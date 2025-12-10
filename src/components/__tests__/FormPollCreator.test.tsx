@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { FormPollCreator } from "../polls/FormPollCreator";
-import type { FormPollDraft } from "@/lib/pollStorage";
+import { MemoryRouter } from "react-router-dom";
+import FormPollCreator from "../polls/FormPollCreator";
+import type { FormPollDraft } from "../polls/FormPollCreator";
+import { AuthProvider } from "../../contexts/AuthContext";
+import { UIStateProvider } from "../prototype/UIStateProvider";
+import { FormPollCreatorTestHelper } from "./helpers/FormPollCreatorTestHelper";
 
 // Mock localStorage
 const localStorageMock = {
@@ -12,11 +16,24 @@ const localStorageMock = {
 };
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
+// Test wrapper with all required providers
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <MemoryRouter>
+    <UIStateProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </UIStateProvider>
+  </MemoryRouter>
+);
+
 // Mock savePolls function
-vi.mock("@/lib/pollStorage", () => ({
-  savePolls: vi.fn(),
-  validateDraft: vi.fn(() => ({ ok: true })),
-}));
+vi.mock("@/lib/pollStorage", async (importOriginal) => {
+  const actual = await importOriginal() as Record<string, unknown>;
+  return {
+    ...actual,
+    savePolls: vi.fn(),
+    validateDraft: vi.fn(() => ({ ok: true })),
+  };
+});
 
 describe("FormPollCreator - resultsVisibility", () => {
   const mockOnSave = vi.fn();
@@ -30,95 +47,88 @@ describe("FormPollCreator - resultsVisibility", () => {
 
   it("should initialize with creator-only visibility by default", () => {
     render(
-      <FormPollCreator
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Check that creator-only radio is selected by default
-    const creatorOnlyRadio = screen.getByDisplayValue("creator-only");
-    expect(creatorOnlyRadio).toBeChecked();
+    FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
   });
 
   it("should initialize with provided resultsVisibility from initialDraft", () => {
-    const initialDraft: FormPollDraft = {
-      id: "draft-1",
-      type: "form",
-      title: "Test Form",
-      questions: [],
-      resultsVisibility: "public",
-    };
+    const initialDraft = FormPollCreatorTestHelper.createTestDraft({
+      resultsVisibility: "voters",
+    });
 
     render(
-      <FormPollCreator
-        initialDraft={initialDraft}
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          initialDraft={initialDraft}
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
-    // Check that public radio is selected
-    const publicRadio = screen.getByDisplayValue("public");
-    expect(publicRadio).toBeChecked();
-
-    // Check that creator-only is not selected
-    const creatorOnlyRadio = screen.getByDisplayValue("creator-only");
-    expect(creatorOnlyRadio).not.toBeChecked();
+    // Verify voters is selected
+    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    
+    // Verify others are not selected
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
   });
 
   it("should update resultsVisibility when radio buttons are clicked", () => {
     render(
-      <FormPollCreator
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Initially creator-only should be selected
-    const creatorOnlyRadio = screen.getByDisplayValue("creator-only");
-    expect(creatorOnlyRadio).toBeChecked();
+    FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
 
     // Click on voters radio
-    const votersRadio = screen.getByDisplayValue("voters");
-    fireEvent.click(votersRadio);
-    expect(votersRadio).toBeChecked();
-    expect(creatorOnlyRadio).not.toBeChecked();
+    FormPollCreatorTestHelper.setResultsVisibility("voters");
+    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
 
     // Click on public radio
-    const publicRadio = screen.getByDisplayValue("public");
-    fireEvent.click(publicRadio);
-    expect(publicRadio).toBeChecked();
-    expect(votersRadio).not.toBeChecked();
+    FormPollCreatorTestHelper.setResultsVisibility("public");
+    FormPollCreatorTestHelper.expectVisibilityChecked("public");
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("voters");
   });
 
   it("should include resultsVisibility in draft when onSave is called", () => {
     render(
-      <FormPollCreator
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Change visibility to voters
-    const votersRadio = screen.getByDisplayValue("voters");
-    fireEvent.click(votersRadio);
+    FormPollCreatorTestHelper.setResultsVisibility("voters");
 
     // Add a title and question to make the draft valid
-    const titleInput = screen.getByPlaceholderText(/Donnez un titre/);
-    fireEvent.change(titleInput, { target: { value: "Test Form" } });
-
-    // Add a question
-    const addQuestionButton = screen.getByText(/Ajouter une question/);
-    fireEvent.click(addQuestionButton);
+    FormPollCreatorTestHelper.fillMinimumRequiredFields();
+    FormPollCreatorTestHelper.addQuestion();
 
     // Save the draft
-    const saveButton = screen.getByText(/Enregistrer/);
-    fireEvent.click(saveButton);
+    FormPollCreatorTestHelper.clickSave();
 
     // Check that onSave was called with the correct resultsVisibility
     expect(mockOnSave).toHaveBeenCalledWith(
@@ -130,28 +140,24 @@ describe("FormPollCreator - resultsVisibility", () => {
 
   it("should include resultsVisibility in draft when onFinalize is called", () => {
     render(
-      <FormPollCreator
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Change visibility to public
-    const publicRadio = screen.getByDisplayValue("public");
-    fireEvent.click(publicRadio);
+    FormPollCreatorTestHelper.setResultsVisibility("public");
 
     // Add a title and question to make the draft valid
-    const titleInput = screen.getByPlaceholderText(/Donnez un titre/);
-    fireEvent.change(titleInput, { target: { value: "Test Form" } });
-
-    // Add a question
-    const addQuestionButton = screen.getByText(/Ajouter une question/);
-    fireEvent.click(addQuestionButton);
+    FormPollCreatorTestHelper.fillMinimumRequiredFields();
+    FormPollCreatorTestHelper.addQuestion();
 
     // Finalize the draft
-    const finalizeButton = screen.getByText(/Finaliser/);
-    fireEvent.click(finalizeButton);
+    FormPollCreatorTestHelper.clickFinalize();
 
     // Check that onFinalize was called with the correct resultsVisibility
     expect(mockOnFinalize).toHaveBeenCalledWith(
@@ -164,56 +170,48 @@ describe("FormPollCreator - resultsVisibility", () => {
 
   it("should show configuration panel when resultsVisibility options are displayed", () => {
     render(
-      <FormPollCreator
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Look for the results visibility section
-    expect(screen.getByText(/Visibilité des résultats/)).toBeInTheDocument();
-    expect(screen.getByDisplayValue("creator-only")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("voters")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("public")).toBeInTheDocument();
-    expect(screen.getByText("Moi uniquement")).toBeInTheDocument();
-    expect(screen.getByText("Personnes ayant voté")).toBeInTheDocument();
-    expect(screen.getByText("Public (tout le monde)")).toBeInTheDocument();
+    FormPollCreatorTestHelper.expectConfigurationAccordionVisible();
   });
 
   it("should maintain resultsVisibility state when other form fields change", () => {
-    const initialDraft: FormPollDraft = {
-      id: "draft-1",
-      type: "form",
+    const initialDraft = FormPollCreatorTestHelper.createTestDraft({
       title: "Initial Title",
-      questions: [],
       resultsVisibility: "voters",
-    };
+    });
 
     render(
-      <FormPollCreator
-        initialDraft={initialDraft}
-        onSave={mockOnSave}
-        onFinalize={mockOnFinalize}
-        onCancel={mockOnCancel}
-      />
+      <TestWrapper>
+        <FormPollCreator
+          initialDraft={initialDraft}
+          onSave={mockOnSave}
+          onFinalize={mockOnFinalize}
+          onCancel={mockOnCancel}
+        />
+      </TestWrapper>
     );
 
     // Verify initial state
-    const votersRadio = screen.getByDisplayValue("voters");
-    expect(votersRadio).toBeChecked();
+    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
 
     // Change title
-    const titleInput = screen.getByDisplayValue("Initial Title");
-    fireEvent.change(titleInput, { target: { value: "New Title" } });
+    FormPollCreatorTestHelper.setTitle("New Title");
 
     // Add a question
-    const addQuestionButton = screen.getByText(/Ajouter une question/);
-    fireEvent.click(addQuestionButton);
+    FormPollCreatorTestHelper.addQuestion();
 
     // Verify resultsVisibility is still voters
-    expect(votersRadio).toBeChecked();
-    expect(screen.getByDisplayValue("creator-only")).not.toBeChecked();
-    expect(screen.getByDisplayValue("public")).not.toBeChecked();
+    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
+    FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
   });
 });

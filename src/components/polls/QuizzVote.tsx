@@ -15,6 +15,7 @@ import {
   MicOff,
   Clock,
   BarChart3,
+  Shield,
 } from "lucide-react";
 import {
   getQuizzBySlugOrId,
@@ -673,6 +674,30 @@ Réponds UNIQUEMENT en JSON:
               Commencer le quiz
               <ArrowRight className="w-5 h-5" />
             </Button>
+
+            {/* Informations RGPD */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">Vos données</span>
+              </div>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p>Vos réponses et nom (si fourni) sont stockés pour afficher les résultats.</p>
+                <p>Vous pouvez demander la suppression en contactant le créateur du quiz.</p>
+                <p>
+                  Pour en savoir plus, consultez la{" "}
+                  <a
+                    href="/privacy"
+                    className="text-blue-600 hover:text-blue-500 underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Politique de confidentialité complète
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

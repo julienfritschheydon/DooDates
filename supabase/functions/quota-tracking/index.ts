@@ -73,7 +73,17 @@ interface GetJournalRequest {
 // Limites horaires par type d'action (rate limiting backend, complément des quotas globaux)
 const DEFAULT_HOURLY_LIMIT = 100;
 
-const HOURLY_LIMITS: Record<CheckQuotaRequest["action"], number> = {
+// Limites pour l'environnement de test (plus basses pour les tests E2E)
+const TEST_HOURLY_LIMITS = {
+  conversation_created: 3,
+  poll_created: 3,
+  ai_message: 5,
+  analytics_query: 3,
+  simulation: 2,
+  other: 5,
+};
+
+const PROD_HOURLY_LIMITS = {
   conversation_created: 50,
   poll_created: 50,
   ai_message: 100,
@@ -81,6 +91,10 @@ const HOURLY_LIMITS: Record<CheckQuotaRequest["action"], number> = {
   simulation: 20,
   other: 100,
 };
+
+// Utiliser les limites de test si en environnement de test
+const isTestMode = Deno.env.get("ENVIRONMENT") === "test";
+const HOURLY_LIMITS = isTestMode ? TEST_HOURLY_LIMITS : PROD_HOURLY_LIMITS;
 
 serve(async (req: Request) => {
   const requestId = crypto.randomUUID();
@@ -263,6 +277,11 @@ serve(async (req: Request) => {
       case "consumeCredits": {
         const { action, credits, metadata }: ConsumeCreditsRequest = body;
         console.log(`[${timestamp}] [${requestId}] 💳 Consume credits: ${action}, ${credits} crédits`);
+        
+        // Log du mode de test pour debugging
+        if (isTestMode) {
+          console.log(`[${timestamp}] [${requestId}] 🧪 TEST MODE ACTIVATED - Using low hourly limits`);
+        }
 
         // 1) Vérifier le rate limiting horaire (userId + IP) avant de consommer les crédits
         const hourlyLimit = HOURLY_LIMITS[action] ?? DEFAULT_HOURLY_LIMIT;
@@ -339,10 +358,13 @@ serve(async (req: Request) => {
           );
         }
 
-        if (!data.success) {
-          console.log(`[${timestamp}] [${requestId}] ⚠️  Consommation refusée:`, data.error);
+        // Parse JSONB response
+        const result = typeof data === 'string' ? JSON.parse(data) : data;
+        
+        if (!result.success) {
+          console.log(`[${timestamp}] [${requestId}] ⚠️  Consommation refusée:`, result.error);
           return new Response(
-            JSON.stringify({ success: false, error: data.error, currentTotal: data.current_total }),
+            JSON.stringify({ success: false, error: result.error }),
             {
               status: 403,
               headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -350,7 +372,7 @@ serve(async (req: Request) => {
           );
         }
 
-        const quota = data.quota;
+        const quota = result.quota;
         return new Response(
           JSON.stringify({
             success: true,

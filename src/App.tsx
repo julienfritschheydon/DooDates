@@ -149,11 +149,14 @@ const AvailabilityWorkspace = lazy(() => import("./app/workspace/AvailabilityWor
 
 // Pages de navigation et paramètres
 const Settings = lazy(() => import("./pages/Settings"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const DataControl = lazy(() => import("./pages/DataControl"));
 const Recent = lazy(() => import("./pages/Recent"));
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Theme = lazy(() => import("./pages/Theme"));
 const AdminQuotaDashboard = lazy(() => import("./pages/AdminQuotaDashboard"));
+const AdminUserActivity = lazy(() => import("./pages/AdminUserActivity"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -650,10 +653,13 @@ const App = () => {
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
                                 <Route path="/admin/quotas" element={<AdminQuotaDashboard />} />
+                                <Route path="/admin/user-activity" element={<AdminUserActivity />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
                                 {/* Navigation */}
                                 <Route path="/settings" element={<Settings />} />
+                                <Route path="/privacy" element={<Privacy />} />
+                                <Route path="/data-control" element={<DataControl />} />
                                 <Route path="/recent" element={<Recent />} />
                                 <Route path="/results" element={<ResultsPage />} />
                                 <Route path="/profile" element={<Profile />} />

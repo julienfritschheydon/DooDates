@@ -259,12 +259,12 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               <p>
                 Pour en savoir plus, consultez la{" "}
                 <a
-                  href="/DooDates/docs"
+                  href="/privacy"
                   className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Politique de confidentialité de DooDates
+                  Politique de confidentialité complète
                 </a>
                 .
               </p>

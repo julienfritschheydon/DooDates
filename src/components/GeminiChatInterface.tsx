@@ -1121,52 +1121,56 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                     Vos messages dans ce chat peuvent contenir des données personnelles (par exemple des noms, dates, informations de contact) et sont traités par un fournisseur IA tiers pour générer les réponses.
                   </p>
                   <p className="mb-1">
-                    Ne partagez pas d'informations sensibles ou confidentielles et contactez-nous si vous souhaitez exercer vos droits d'accès ou de suppression.
+                    <strong>Fournisseur IA :</strong> Google Gemini agit comme sous-traitant, avec des transferts hors UE protégés par les clauses contractuelles types RGPD. Les données sont conservées maximum 30 jours chez Google et ne sont pas utilisées pour l'entraînement des modèles.
+                  </p>
+                  <p className="mb-1">
+                    <strong>Vos droits :</strong> Vous pouvez demander l'accès, la modification ou la suppression de vos conversations à tout moment. Vous pouvez également désactiver l'utilisation de vos données pour l'amélioration du produit dans vos paramètres.
                   </p>
                   <p>
-                    Pour en savoir plus, consultez la{" "}
+                    Ne partagez pas d'informations sensibles ou confidentielles. Pour en savoir plus, consultez notre
+                    {" "}
                     <a
-                      href="/DooDates/docs"
+                      href="/privacy"
                       className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Politique de confidentialité de DooDates
+                      Politique de confidentialité complète
                     </a>
-                    .
+                    {" "}
+                    ou contactez-nous à privacy@doodates.com.
                   </p>
                 </div>
               )}
-            </div>
 
-            {/* Indicateur visuel de quota IA (conversations) */}
-            <div
-              className="px-4 pb-2 flex justify-end quota-indicator"
-              data-testid="quota-indicator"
-            >
-              <QuotaIndicator
-                type="conversations"
-                used={quota.status.conversations.used}
-                limit={quota.status.conversations.limit}
-                size="sm"
-                showLabel={false}
+              <div
+                className="px-4 pb-2 flex justify-end quota-indicator"
+                data-testid="quota-indicator"
+              >
+                <QuotaIndicator
+                  type="conversations"
+                  used={quota.status.conversations.used}
+                  limit={quota.status.conversations.limit}
+                  size="sm"
+                  showLabel={false}
+                />
+              </div>
+
+              <ChatInput
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSendMessage}
+                onKeyPress={handleKeyPress}
+                onUserMessage={onUserMessage}
+                isLoading={isLoading}
+                darkTheme={darkTheme}
+                voiceRecognition={voiceRecognition}
+                textareaRef={textareaRef}
+                pollType={pollTypeFromUrl}
+                attachedFile={attachedFile}
+                onAttachFile={setAttachedFile}
               />
             </div>
-
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={handleSendMessage}
-              onKeyPress={handleKeyPress}
-              onUserMessage={onUserMessage}
-              isLoading={isLoading}
-              darkTheme={darkTheme}
-              voiceRecognition={voiceRecognition}
-              textareaRef={textareaRef}
-              pollType={pollTypeFromUrl}
-              attachedFile={attachedFile}
-              onAttachFile={setAttachedFile}
-            />
           </div>
         ) : (
           <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] text-center">
