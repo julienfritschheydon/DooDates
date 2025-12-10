@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MessageSquare, Info, Trash2, ExternalLink, FileText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardData } from "./dashboard/useDashboardData";
@@ -30,9 +30,12 @@ import TopNavGemini from "@/components/prototype/TopNavGemini";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [filter, setFilter] = useState<FilterType>("all");
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentTypeFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+
+  // Initialiser la recherche depuis l'URL si présent (support des liens depuis l'admin)
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
@@ -249,16 +252,14 @@ const Dashboard: React.FC = () => {
 
             {/* Quota indicator */}
             <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
-                quotaStatus.conversations.isNearLimit
-                  ? "bg-orange-900/20 border-orange-500/50"
-                  : `${theme.bg} ${theme.border}`
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
+                ? "bg-orange-900/20 border-orange-500/50"
+                : `${theme.bg} ${theme.border}`
+                }`}
             >
               <Info
-                className={`w-5 h-5 ${
-                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
-                }`}
+                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
+                  }`}
               />
               <TooltipProvider>
                 <Tooltip>
@@ -286,12 +287,11 @@ const Dashboard: React.FC = () => {
                       </p>
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full transition-all ${
-                            quotaStatus.conversations.isNearLimit ||
+                          className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
                             quotaStatus.aiMessages.isNearLimit
-                              ? "bg-orange-500"
-                              : theme.progressBg
-                          }`}
+                            ? "bg-orange-500"
+                            : theme.progressBg
+                            }`}
                           style={{
                             width: `${Math.min(
                               Math.max(

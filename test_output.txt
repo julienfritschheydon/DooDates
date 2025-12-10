@@ -1,53 +1,103 @@
 
-Running 1 test using 1 worker
-
-[1A[2K[1/1] [chromium] › tests\e2e\end-to-end-with-backend.spec.ts:453:3 › Tests Supabase Automatisés (anciennement manuels) › 5. Test fusion localStorage + Supabase
-[1A[2K[chromium] › tests\e2e\end-to-end-with-backend.spec.ts:453:3 › Tests Supabase Automatisés (anciennement manuels) › 5. Test fusion localStorage + Supabase
-✅ Cleaned up test data for user: 9c18beb5-b6df-4e39-8aa3-ee906888432f
-
-[1A[2KConversation not found, reloading...
-
-[1A[2K✅ Cleaned up test data for user: 9c18beb5-b6df-4e39-8aa3-ee906888432f
-
-[1A[2K  1) [chromium] › tests\e2e\end-to-end-with-backend.spec.ts:453:3 › Tests Supabase Automatisés (anciennement manuels) › 5. Test fusion localStorage + Supabase 
-
-    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-    Locator: locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first()
-    Expected: visible
-    Timeout: 10000ms
-    Error: element(s) not found
-
-    Call log:
-    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
-    [2m  - waiting for locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first()[22m
+> vite_react_shadcn_ts@0.0.0 test:unit:fast
+> vitest run --reporter=basic --run src/lib/__tests__/pollStorage-visibility.test.ts
 
 
-      552 |         await waitForConversationsInDashboard(pageB);
-      553 |         firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
-    > 554 |         await expect(firstConversation).toBeVisible({ timeout: 10000 });
-          |                                         ^
-      555 |       }
-      556 |       await firstConversation.click();
-      557 |
-        at C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\tests\e2e\end-to-end-with-backend.spec.ts:554:41
+ [1m [46m RUN  [49m [22m  [36mv3.2.4  [39m [90mC:/Users/Julien Fritsch/Documents/GitHub/DooDates-bug [39m
 
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results\e2e-end-to-end-with-backen-6a380-usion-localStorage-Supabase-chromium\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
+ DEPRECATED  'basic' reporter is deprecated and will be removed in Vitest v3.
+Remove 'basic' from 'reporters' option. To match 'basic' reporter 100%, use configuration:
+{
+  "test": {
+    "reporters": [
+      [
+        "default",
+        {
+          "summary": false
+        }
+      ]
+    ]
+  }
+}
+  [31m❯ [39m src/lib/__tests__/pollStorage-visibility.test.ts  [2m( [22m [2m14 tests [22m [2m |  [22m [31m3 failed [39m [2m) [22m [32m 16 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID pour utilisateur non authentifié [32m 2 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne authenticated user ID si fourni [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est null [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est vide [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un poll sans réponses [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via deviceId stocké dans la réponse [32m 1 [2mms [22m [39m
+ [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via respondentId anonyme contenant deviceId [39m [32m 6 [2mms [22m [39m
+ [31m     → expected false to be true // Object.is equality [39m
+ [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec un autre deviceId [39m [32m 1 [2mms [22m [39m
+ [31m     → expected true to be false // Object.is equality [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec respondentId anonyme différent [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mgère correctement les réponses mixtes (avec et sans deviceId) [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour les réponses authentifiées d autres utilisateurs [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mgénère un device ID cohérent [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mreturn cached device ID [32m 0 [2mms [22m [39m
+ [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mgetRespondentId() [2m >  [22mgénère un respondentId anonyme contenant le deviceId [39m [32m 2 [2mms [22m [39m
+ [31m     → expected 'anon:unknown:resp-123' to be 'anon:dev-mj02pf80-txrmtf:resp-123' // Object.is equality [39m
 
-    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results\e2e-end-to-end-with-backen-6a380-usion-localStorage-Supabase-chromium\test-failed-2.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results\e2e-end-to-end-with-backen-6a380-usion-localStorage-Supabase-chromium\test-failed-3.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
+⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
 
-    Error Context: test-results\e2e-end-to-end-with-backen-6a380-usion-localStorage-Supabase-chromium\error-context.md
+ FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > détecte un vote via respondentId anonyme contenant deviceId
+AssertionError: expected false to be true // Object.is equality
 
+- Expected
++ Received
 
-[1A[2K  1 failed
-    [chromium] › tests\e2e\end-to-end-with-backend.spec.ts:453:3 › Tests Supabase Automatisés (anciennement manuels) › 5. Test fusion localStorage + Supabase 
+- true
++ false
 
-[36m  Serving HTML report at http://localhost:64362. Press Ctrl+C to quit.[39m
+ ❯ src/lib/__tests__/pollStorage-visibility.test.ts:119:24
+    117| 
+    118|       const hasVoted = checkIfUserHasVoted(pollId);
+    119|       expect(hasVoted).toBe(true);
+       |                        ^
+    120|     });
+    121| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > retourne false pour un vote avec un autre deviceId
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/__tests__/pollStorage-visibility.test.ts:134:24
+    132| 
+    133|       const hasVoted = checkIfUserHasVoted(pollId);
+    134|       expect(hasVoted).toBe(false);
+       |                        ^
+    135|     });
+    136| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > getRespondentId() > génère un respondentId anonyme contenant le deviceId
+
+AssertionError: expected 'anon:unknown:resp-123' to be 'anon:dev-mj02pf80-txrmtf:resp-123' // Object.is equality
+
+Expected: "anon:dev-mj02pf80-txrmtf:resp-123"
+ [2m Test Files  [22m  [1m [31m1 failed [39m [22m [90m (1) [39m
+Received: "anon:unknown:resp-123"
+ [2m      Tests  [22m  [1m [31m3 failed [39m [22m [2m |  [22m [1m [32m11 passed [39m [22m [90m (14) [39m
+
+ ❯ src/lib/__tests__/pollStorage-visibility.test.ts:233:28
+    231| 
+    232|       // Format: anon:<deviceId>:<responseId>
+    233|       expect(respondentId).toBe(`anon:${currentDeviceId}:${response.id…
+       |                            ^
+    234|     });
+    235|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ [2m   Start at  [22m 14:56:56
+ [2m   Duration  [22m 3.17s [2m (transform 159ms, setup 492ms, collect 126ms, tests 16ms, environment 1.44s, prepare 164ms) [22m
+

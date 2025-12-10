@@ -1,0 +1,110 @@
+
+> vite_react_shadcn_ts@0.0.0 test:unit:fast
+> vitest run --reporter=basic --run src/lib/__tests__/pollStorage-visibility.test.ts
+
+
+ [1m [46m RUN  [49m [22m  [36mv3.2.4  [39m [90mC:/Users/Julien Fritsch/Documents/GitHub/DooDates-bug [39m
+
+ DEPRECATED  'basic' reporter is deprecated and will be removed in Vitest v3.
+Remove 'basic' from 'reporters' option. To match 'basic' reporter 100%, use configuration:
+{
+  "test": {
+    "reporters": [
+      [
+        "default",
+        {
+          "summary": false
+        }
+      ]
+    ]
+  }
+}
+ [90mstdout [2m | src/lib/__tests__/pollStorage-visibility.test.ts [2m >  [22m [2mPoll Storage Helpers - Visibility Features [2m >  [22m [2mcheckIfUserHasVoted() [2m >  [22m [2mdétecte un vote via deviceId stocké dans la réponse
+ [22m [39mDEBUG: Checking match by deviceId {
+  stored:  [32m'dev-mj02utm8-y43vf7' [39m,
+  current:  [32m'dev-mj02utm8-y43vf7' [39m,
+  match:  [33mtrue [39m
+}
+
+ [90mstdout [2m | src/lib/__tests__/pollStorage-visibility.test.ts [2m >  [22m [2mPoll Storage Helpers - Visibility Features [2m >  [22m [2mcheckIfUserHasVoted() [2m >  [22m [2mretourne false pour un vote avec un autre deviceId
+ [22m [39mDEBUG: Checking match by deviceId {
+  stored:  [32m'dev-mj02utm8-y43vf7' [39m,
+  current:  [32m'dev-mj02utm8-y43vf7' [39m,
+  match:  [33mtrue [39m
+}
+
+ [90mstdout [2m | src/lib/__tests__/pollStorage-visibility.test.ts [2m >  [22m [2mPoll Storage Helpers - Visibility Features [2m >  [22m [2mgère correctement les réponses mixtes (avec et sans deviceId)
+ [22m [39mDEBUG: Checking match by deviceId {
+  stored:  [32m'dev-mj02utm8-y43vf7' [39m,
+  current:  [32m'dev-mj02utm8-y43vf7' [39m,
+  match:  [33mtrue [39m
+}
+
+ [90mstdout [2m | src/lib/__tests__/pollStorage-visibility.test.ts [2m >  [22m [2mPoll Storage Helpers - Visibility Features [2m >  [22m [2mgetRespondentId() [2m >  [22m [2mgénère un respondentId anonyme contenant le deviceId
+ [22m [39mDEBUG: getRespondentId called for { id:  [32m'resp-123' [39m, name:  [32m'' [39m, deviceId:  [32m'dev-mj02utm8-y43vf7' [39m }
+
+  [31m❯ [39m src/lib/__tests__/pollStorage-visibility.test.ts  [2m( [22m [2m14 tests [22m [2m |  [22m [31m2 failed [39m [2m) [22m [32m 24 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID pour utilisateur non authentifié [32m 2 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne authenticated user ID si fourni [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est null [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est vide [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un poll sans réponses [32m 1 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via deviceId stocké dans la réponse [32m 3 [2mms [22m [39m
+ [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via respondentId anonyme contenant deviceId [39m [32m 10 [2mms [22m [39m
+ [31m     → expected false to be true // Object.is equality [39m
+ [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec un autre deviceId [39m [32m 2 [2mms [22m [39m
+ [31m     → expected true to be false // Object.is equality [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec respondentId anonyme différent [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mgère correctement les réponses mixtes (avec et sans deviceId) [32m 1 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour les réponses authentifiées d autres utilisateurs [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mgénère un device ID cohérent [32m 1 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mreturn cached device ID [32m 0 [2mms [22m [39m
+    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetRespondentId() [2m >  [22mgénère un respondentId anonyme contenant le deviceId [32m 1 [2mms [22m [39m
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > détecte un vote via respondentId anonyme contenant deviceId
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/lib/__tests__/pollStorage-visibility.test.ts:119:24
+
+    117| 
+    118|       const hasVoted = checkIfUserHasVoted(pollId);
+    119|       expect(hasVoted).toBe(true);
+       |                        ^
+    120|     });
+    121| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > retourne false pour un vote avec un autre deviceId
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/__tests__/pollStorage-visibility.test.ts:134:24
+    132| 
+    133|       const hasVoted = checkIfUserHasVoted(pollId);
+    134|       expect(hasVoted).toBe(false);
+       |                        ^
+    135|     });
+    136| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ [2m Test Files  [22m  [1m [31m1 failed [39m [22m [90m (1) [39m
+ [2m      Tests  [22m  [1m [31m2 failed [39m [22m [2m |  [22m [1m [32m12 passed [39m [22m [90m (14) [39m
+ [2m   Start at  [22m 15:01:08
+ [2m   Duration  [22m 3.37s [2m (transform 169ms, setup 453ms, collect 138ms, tests 24ms, environment 1.43s, prepare 188ms) [22m
+

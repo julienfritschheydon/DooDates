@@ -1446,8 +1446,22 @@ export function deleteVotesByPollId(pollId: string): void {
 export function getRespondentId(resp: FormResponse): string {
   const name = (resp?.respondentName || "").trim().toLowerCase();
   if (name) return `name:${name}`;
-  // Stable fallback combines deviceId and response id
-  return `anon:${getDeviceId()}:${resp.id}`;
+
+  // 1. New format: use stored deviceId if available
+  if (resp.deviceId) {
+    return `anon:${resp.deviceId}:${resp.id}`;
+  }
+
+  // 2. Legacy format: try to use existing respondentId from old data (legacy field)
+  // We need to cast to any because the field was removed from the interface
+  const legacyId = (resp as any).respondentId;
+  if (legacyId) {
+    return legacyId;
+  }
+
+  // 3. Fallback: anonymous with captured ID (but should avoid claiming ownership)
+  // Using 'unknown' ensures we don't accidentally match the current user's deviceId
+  return `anon:unknown:${resp.id}`;
 }
 
 /**
@@ -1521,3 +1535,10 @@ export function updatePollConversationLink(pollId: string, conversationId: strin
   addPoll(updatedPoll); // addPoll fait aussi la mise à jour si le poll existe déjà
 }
 
+// --- Test Utils ---
+export function resetMemoryStateForTests(): void {
+  memoryPollCache.clear();
+  memoryResponses = [];
+  memoryResponsesCache.clear();
+  DEVICE_ID_CACHE = null;
+}

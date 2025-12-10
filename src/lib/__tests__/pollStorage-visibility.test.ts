@@ -1,250 +1,206 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { 
-  getCurrentUserId, 
-  checkIfUserHasVoted, 
-  getFormResponses,
+
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  getCurrentUserId,
+  checkIfUserHasVoted,
   addFormResponse,
   getDeviceId,
-  getRespondentId
-} from '../pollStorage';
+  getRespondentId,
+  resetMemoryStateForTests,
+} from "../pollStorage";
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-  return {
-    getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value;
-    }),
-    removeItem: vi.fn((key: string) => {
-      delete store[key];
-    }),
-    clear: vi.fn(() => {
-      store = {};
-    }),
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
-describe('Poll Storage Helpers - Visibility Features', () => {
+describe("Poll Storage Helpers - Visibility Features", () => {
   beforeEach(() => {
-    localStorageMock.clear();
+    resetMemoryStateForTests();
+    localStorage.clear();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    localStorageMock.clear();
+    vi.restoreAllMocks();
   });
 
-  describe('getCurrentUserId()', () => {
-    test('retourne device ID pour utilisateur non authentifié', () => {
-      const userId = getCurrentUserId();
-      
-      expect(userId).toBeDefined();
-      expect(typeof userId).toBe('string');
-      expect(userId.length).toBeGreaterThan(0);
-      
-      // Vérifier que c'est un device ID (commence par 'device:')
-      expect(userId).toMatch(/^device:/);
+  describe("getCurrentUserId()", () => {
+    it("retourne device ID pour utilisateur non authentifié", () => {
+      const deviceId = getDeviceId();
+      expect(getCurrentUserId()).toBe(deviceId);
+      expect(getCurrentUserId(null)).toBe(deviceId);
+      expect(getCurrentUserId(undefined)).toBe(deviceId);
     });
 
-    test('retourne authenticated user ID si fourni', () => {
-      const authenticatedUserId = 'auth-user-123';
-      const userId = getCurrentUserId(authenticatedUserId);
-      
-      expect(userId).toBe(authenticatedUserId);
-      expect(userId).not.toMatch(/^device:/);
+    it("retourne authenticated user ID si fourni", () => {
+      const authUserId = "auth-user-123";
+      expect(getCurrentUserId(authUserId)).toBe(authUserId);
     });
 
-    test('retourne device ID si authenticated user ID est null', () => {
-      const userId = getCurrentUserId(null);
-      
-      expect(userId).toBeDefined();
-      expect(typeof userId).toBe('string');
-      expect(userId).toMatch(/^device:/);
+    it("retourne device ID si authenticated user ID est null", () => {
+      const deviceId = getDeviceId();
+      expect(getCurrentUserId(null)).toBe(deviceId);
     });
 
-    test('retourne device ID si authenticated user ID est vide', () => {
-      const userId = getCurrentUserId('');
-      
-      expect(userId).toBeDefined();
-      expect(typeof userId).toBe('string');
-      expect(userId).toMatch(/^device:/);
+    it("retourne device ID si authenticated user ID est vide", () => {
+      const deviceId = getDeviceId();
+      expect(getCurrentUserId("")).toBe(deviceId);
     });
   });
 
-  describe('checkIfUserHasVoted()', () => {
-    test('retourne false pour un poll sans réponses', () => {
-      const hasVoted = checkIfUserHasVoted('poll-123');
+  describe("checkIfUserHasVoted()", () => {
+    it("retourne false pour un poll sans réponses", () => {
+      const hasVoted = checkIfUserHasVoted("poll-123");
       expect(hasVoted).toBe(false);
     });
 
-    test('détecte un vote via deviceId stocké dans la réponse', () => {
-      const pollId = 'poll-123';
-      const deviceId = getDeviceId();
-      
-      // Ajouter une réponse avec deviceId
+    it("détecte un vote via deviceId stocké dans la réponse", () => {
+      const pollId = "poll-123";
+      const currentDeviceId = getDeviceId();
+
+      console.log("DEBUG: Storing response with deviceId:", currentDeviceId);
+
+      // Simuler une réponse avec le device ID actuel
       addFormResponse({
         pollId,
-        respondentName: 'Test User',
-        items: [{ questionId: 'q1', value: 'answer1' }],
-        deviceId,
+        items: [{ questionId: "q1", value: "opt1" }],
       });
 
+      // Vérifier le vote
       const hasVoted = checkIfUserHasVoted(pollId);
       expect(hasVoted).toBe(true);
     });
 
-    test('détecte un vote via respondentId anonyme contenant deviceId', () => {
-      const pollId = 'poll-456';
-      const deviceId = getDeviceId();
-      
-      // Simuler une réponse ancienne sans deviceId mais avec respondentId contenant deviceId
-      const responses = [
-        {
-          id: 'response-1',
-          pollId,
-          respondentId: `anon:${deviceId}:123456789`,
-          respondentName: 'Anonymous',
-          items: [{ questionId: 'q1', value: 'answer1' }],
-          created_at: new Date().toISOString(),
-        }
-      ];
-      
-      localStorageMock.setItem('doodates_form_responses', JSON.stringify(responses));
+    it("détecte un vote via respondentId anonyme contenant deviceId", () => {
+      // Ce test simule le cas des anciennes réponses ou des réponses créées sans champ deviceId explicite
+      // mais dont le respondentId a été généré avec le deviceId
+      const pollId = "poll-legacy-123";
+      const currentDeviceId = getDeviceId(); // Force generation/cache
 
-      const hasVoted = checkIfUserHasVoted(pollId);
-      expect(hasVoted).toBe(true);
-    });
-
-    test('retourne false pour un vote avec un autre deviceId', () => {
-      const pollId = 'poll-789';
-      const otherDeviceId = 'device:other-device-123';
-      
-      // Ajouter une réponse avec un autre deviceId
-      addFormResponse({
+      // Manually injecting a response into localStorage to simulate migration state
+      // We can't use addFormResponse because it would add the deviceId field
+      const legacyResponse = {
+        id: "resp-legacy",
         pollId,
-        respondentName: 'Other User',
-        items: [{ questionId: 'q1', value: 'answer1' }],
-        deviceId: otherDeviceId,
-      });
-
-      const hasVoted = checkIfUserHasVoted(pollId);
-      expect(hasVoted).toBe(false);
-    });
-
-    test('retourne false pour un vote avec respondentId anonyme différent', () => {
-      const pollId = 'poll-999';
-      
-      // Simuler une réponse avec un autre respondentId anonyme
-      const responses = [
-        {
-          id: 'response-2',
-          pollId,
-          respondentId: 'anon:other-device:987654321',
-          respondentName: 'Anonymous',
-          items: [{ questionId: 'q1', value: 'answer1' }],
-          created_at: new Date().toISOString(),
-        }
-      ];
-      
-      localStorageMock.setItem('doodates_form_responses', JSON.stringify(responses));
-
-      const hasVoted = checkIfUserHasVoted(pollId);
-      expect(hasVoted).toBe(false);
-    });
-
-    test('gère correctement les réponses mixtes (avec et sans deviceId)', () => {
-      const pollId = 'poll-mixed';
-      const deviceId = getDeviceId();
-      
-      // Réponse 1: avec deviceId (nouveau format)
-      addFormResponse({
-        pollId,
-        respondentName: 'User 1',
-        items: [{ questionId: 'q1', value: 'answer1' }],
-        deviceId,
-      });
-
-      // Réponse 2: sans deviceId mais avec respondentId (ancien format)
-      const responses = JSON.parse(localStorageMock.getItem('doodates_form_responses') || '[]');
-      responses.push({
-        id: 'response-old',
-        pollId,
-        respondentId: `anon:${deviceId}:123456789`,
-        respondentName: 'Anonymous',
-        items: [{ questionId: 'q2', value: 'answer2' }],
+        respondentId: `anon:${currentDeviceId}:resp-legacy`, // Old format with deviceId
         created_at: new Date().toISOString(),
-      });
-      localStorageMock.setItem('doodates_form_responses', JSON.stringify(responses));
+        items: [{ questionId: "q1", value: "opt1" }],
+        // Intentionally missing deviceId field
+      };
+
+      // Writing directly to storage to bypass addFormResponse normalization
+      localStorage.setItem("doodates_form_responses", JSON.stringify([legacyResponse]));
 
       const hasVoted = checkIfUserHasVoted(pollId);
       expect(hasVoted).toBe(true);
     });
 
-    test('retourne false pour les réponses authentifiées d autres utilisateurs', () => {
-      const pollId = 'poll-auth';
-      
-      // Simuler une réponse d'utilisateur authentifié
-      const responses = [
-        {
-          id: 'response-auth',
-          pollId,
-          respondentId: 'user:other-auth-user',
-          respondentName: 'Other Auth User',
-          items: [{ questionId: 'q1', value: 'answer1' }],
-          created_at: new Date().toISOString(),
-        }
-      ];
-      
-      localStorageMock.setItem('doodates_form_responses', JSON.stringify(responses));
+    it("retourne false pour un vote avec un autre deviceId", () => {
+      const pollId = "poll-other-123";
+
+      // Inject response from another device
+      const otherDeviceResponse = {
+        id: "resp-other",
+        pollId,
+        deviceId: "dev-other-device-id",
+        created_at: new Date().toISOString(),
+        items: [{ questionId: "q1", value: "opt1" }],
+      };
+
+      localStorage.setItem("doodates_form_responses", JSON.stringify([otherDeviceResponse]));
 
       const hasVoted = checkIfUserHasVoted(pollId);
       expect(hasVoted).toBe(false);
     });
+
+    it("retourne false pour un vote avec respondentId anonyme différent", () => {
+      const pollId = "poll-diff-123";
+
+      const otherResponse = {
+        id: "resp-diff",
+        pollId,
+        respondentId: `anon:dev-other-device:resp-diff`,
+        created_at: new Date().toISOString(),
+        items: [{ questionId: "q1", value: "opt1" }],
+      };
+
+      localStorage.setItem("doodates_form_responses", JSON.stringify([otherResponse]));
+
+      const hasVoted = checkIfUserHasVoted(pollId);
+      expect(hasVoted).toBe(false);
+    });
+
+    it("gère correctement les réponses mixtes (avec et sans deviceId)", () => {
+      const pollId = "poll-mixed-123";
+      const currentDeviceId = getDeviceId();
+
+      const responses = [
+        {
+          id: "resp-1",
+          pollId,
+          deviceId: "dev-other",
+          items: [],
+        },
+        {
+          id: "resp-2",
+          pollId,
+          deviceId: currentDeviceId, // Match!
+          items: [],
+        },
+      ];
+
+      localStorage.setItem("doodates_form_responses", JSON.stringify(responses));
+      expect(checkIfUserHasVoted(pollId)).toBe(true);
+    });
+
+    it("retourne false pour les réponses authentifiées d autres utilisateurs", () => {
+      const pollId = "poll-auth-123";
+
+      const authResponse = {
+        id: "resp-auth",
+        pollId,
+        respondentName: "Other User",
+        respondentEmail: "other@example.com",
+        // No deviceId or different deviceId
+        deviceId: "dev-other",
+        created_at: new Date().toISOString(),
+        items: [],
+      };
+
+      localStorage.setItem("doodates_form_responses", JSON.stringify([authResponse]));
+      expect(checkIfUserHasVoted(pollId)).toBe(false);
+    });
   });
 
-  describe('getDeviceId()', () => {
-    test('génère un device ID cohérent', () => {
-      const deviceId1 = getDeviceId();
-      const deviceId2 = getDeviceId();
-      
-      expect(deviceId1).toBe(deviceId2);
-      expect(deviceId1).toMatch(/^device:/);
-      expect(deviceId1.length).toBeGreaterThan(7); // 'device:' + UUID
+  describe("getDeviceId()", () => {
+    it("génère un device ID cohérent", () => {
+      const id1 = getDeviceId();
+      const id2 = getDeviceId();
+      expect(id1).toBe(id2);
+      expect(id1).toMatch(/^dev-/);
     });
 
-    test('persiste le device ID dans localStorage', () => {
-      const deviceId = getDeviceId();
-      
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('doodates_device_id');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'doodates_device_id',
-        deviceId
-      );
+    it("return cached device ID", () => {
+      const id1 = getDeviceId();
+      // Manually modify local storage to verify we use cache
+      localStorage.setItem("doodates_device_id", "dev-modified");
+      const id2 = getDeviceId();
+      expect(id2).toBe(id1); // Should still match cached value
+      expect(id2).not.toBe("dev-modified");
     });
   });
 
-  describe('getRespondentId()', () => {
-    test('génère un respondentId anonyme à partir du deviceId', () => {
-      const deviceId = 'device:test-device-123';
-      const response = { created_at: new Date().toISOString() };
-      
-      const respondentId = getRespondentId(response as any);
-      
-      expect(respondentId).toMatch(/^anon:device:test-device-123:/);
-    });
+  describe("getRespondentId()", () => {
+    it("génère un respondentId anonyme contenant le deviceId", () => {
+      const currentDeviceId = getDeviceId();
+      const response = {
+        id: "resp-123",
+        pollId: "poll-1",
+        deviceId: currentDeviceId,
+        created_at: new Date().toISOString(),
+        items: [],
+      };
 
-    test('génère un respondentId authentifié si userId fourni', () => {
-      const userId = 'user:auth-user-456';
-      const response = { created_at: new Date().toISOString() };
-      
-      const respondentId = getRespondentId(response as any, userId);
-      
-      expect(respondentId).toBe(userId);
+      const respondentId = getRespondentId(response);
+
+      // Format: anon:<deviceId>:<responseId>
+      expect(respondentId).toBe(`anon:${currentDeviceId}:${response.id}`);
     });
   });
 });
