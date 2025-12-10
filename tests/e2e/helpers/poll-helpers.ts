@@ -544,7 +544,7 @@ export async function voteOnPollComplete(
   await expect(page).toHaveURL(/\/poll\/[^\/]+/, { timeout: timeouts.navigation });
 
   // Remplir le nom du votant
-  const nameInput = page.locator('#voter-name-input').first();
+  const nameInput = page.locator('#voter-name-input, input[placeholder*="nom" i], input[placeholder*="Nom" i], input[placeholder*="name" i], input[placeholder*="Name" i], input[type="text"]:visible').first();
   await expect(nameInput).toBeVisible({ timeout: timeouts.element });
   await nameInput.fill(voterName);
 

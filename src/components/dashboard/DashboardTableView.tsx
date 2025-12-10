@@ -165,7 +165,17 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     try {
       const dup = duplicatePoll(poll);
       addPoll(dup);
-      createConversationForPoll(dup.id, dup.title, dup.type || "date");
+      // Gérer les types non supportés par createConversationForPoll
+      const rawPollType = dup.type || "date";
+      let pollType: "date" | "form" | "availability";
+      if (rawPollType === "quizz") {
+        pollType = "form"; // Les quizz sont traités comme des formulaires
+      } else if (rawPollType === "availability") {
+        pollType = "date"; // Les disponibilités utilisent le workspace date
+      } else {
+        pollType = rawPollType as "date" | "form" | "availability";
+      }
+      createConversationForPoll(dup.id, dup.title, pollType);
       toast({
         title: "Sondage copié",
         description: "Le sondage et sa conversation ont été copiés avec succès.",
@@ -373,7 +383,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
                   isSelected ? theme.selectionBg : ""
                 } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
-                onClick={() => navigate(`/date-polls/workspace/date?conversationId=${item.id}`)}
+                onClick={() => navigate(`/workspace/date?conversationId=${item.id}`)}
               >
                 {/* Checkbox */}
                 <td className="py-3 px-2 md:px-3 lg:px-4" onClick={(e) => e.stopPropagation()}>
@@ -651,7 +661,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
+                            navigate(`/workspace/date?conversationId=${item.id}`);
                           }}
                           className={`px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 ${theme.primaryButton} text-white text-xs rounded transition-colors touch-manipulation`}
                         >

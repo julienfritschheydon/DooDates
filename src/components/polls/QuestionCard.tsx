@@ -578,7 +578,7 @@ export default function QuestionCard({
               <input
                 type="number"
                 min={1}
-                className="w-20 rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
+                className="w-16 sm:w-20 rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
                 value={question.maxChoices ?? 1}
                 onChange={(e) => setMaxChoices(parseInt(e.target.value, 10))}
                 data-testid="question-maxchoices"

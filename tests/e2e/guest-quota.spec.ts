@@ -12,7 +12,10 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { waitForNetworkIdle, waitForReactStable, waitForCondition } from './helpers/wait-helpers';
+import { waitForAppReady } from './utils';
+import { waitForNetworkIdle, waitForReactStable } from './helpers/wait-helpers';
+import { navigateToWorkspace } from './helpers/chat-helpers';
+import { waitForCondition } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { clearTestData } from './helpers/test-data';
 
@@ -163,7 +166,7 @@ test.describe('Guest Quota System', () => {
   });
 
   test('Bypass E2E fonctionne avec ?e2e-test=true', async ({ page, browserName }) => {
-    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await navigateToWorkspace(page, browserName, 'default', { addE2EFlag: true });
     await waitForNetworkIdle(page, { browserName });
     
     // Vérifier que le flag E2E est détecté

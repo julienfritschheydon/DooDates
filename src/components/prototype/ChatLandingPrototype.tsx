@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import GeminiChatInterface from "../GeminiChatInterface";
 import { useConversation } from "./ConversationProvider";
+import type { PollSuggestion } from "../../types/poll-suggestions";
 
 /**
  * Chat Landing Prototype - Phase 6A: Intégration IA réelle
@@ -9,7 +10,7 @@ import { useConversation } from "./ConversationProvider";
  * Remplace le dashboard quand feature flag AI_FIRST_UX est activé
  */
 interface ChatLandingPrototypeProps {
-  onPollCreated?: (poll: import("../lib/pollStorage").Poll) => void;
+  onPollCreated?: (poll: PollSuggestion) => void;
 }
 
 export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProps) {
@@ -17,15 +18,16 @@ export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProp
   const { createPollFromChat } = useConversation();
 
   // Quand un sondage est créé, créer dans le Context et naviguer vers le nouveau workspace IA
-  const handlePollCreated = (poll: import("../lib/pollStorage").Poll) => {
+  const handlePollCreated = (poll: PollSuggestion) => {
     // Créer le sondage dans le Context (ouvre l'éditeur)
-    createPollFromChat(poll);
+    // Cast pour gérer la différence entre FormQuestion et FormQuestionShape
+    createPollFromChat(poll as any);
 
     // Appeler le callback parent si fourni
     onPollCreated?.(poll);
 
-    // Naviguer vers le workspace IA date-polls pour afficher le layout avec éditeur
-    navigate("/date-polls/workspace/date");
+    // Naviguer vers le workspace IA général pour afficher le layout avec éditeur
+    navigate("/workspace/date");
   };
 
   // Layout pleine page pour le chat

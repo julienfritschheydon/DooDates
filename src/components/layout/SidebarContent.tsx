@@ -15,7 +15,7 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
 
   const navItems = [
     {
-      href: "/date-polls/workspace/date",
+      href: "/workspace/date",
       label: "Mes sondages",
       icon: LayoutDashboard,
     },

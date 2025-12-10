@@ -271,22 +271,26 @@ const AvailabilityPollResults = () => {
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
       {/* Boutons actions */}
       <div className="fixed top-20 right-4 z-50 flex gap-2">
-        <button
+        <Button
           onClick={loadPoll}
+          variant="ghost"
+          size="icon"
           className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
           title="Rafraîchir"
           aria-label="Rafraîchir"
         >
           <Loader2 className="w-6 h-6" />
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => navigate("/dashboard")}
+          variant="ghost"
+          size="icon"
           className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
           title="Retour"
           aria-label="Retour"
         >
           <X className="w-6 h-6" />
-        </button>
+        </Button>
       </div>
 
       <div className="pt-20">

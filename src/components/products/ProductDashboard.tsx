@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useConversations } from "@/hooks/useConversations";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
 import { useToast } from "@/hooks/use-toast";
+import TopNavGemini from "@/components/prototype/TopNavGemini";
 import { useViewportItems } from "@/hooks/useViewportItems";
 import {
   Pagination,

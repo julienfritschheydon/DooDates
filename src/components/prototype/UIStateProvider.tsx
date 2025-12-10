@@ -62,7 +62,7 @@ export interface UIStateProviderProps {
  */
 export function UIStateProvider({ children }: UIStateProviderProps) {
   // Détection mobile
-  const isMobile = useMediaQuery("(max-width: 767px)");
+  const isMobile = useMediaQuery("(max-width: 1023px)");
 
   // Détecter les changements de route
   const location = useLocation();

@@ -284,7 +284,7 @@ export default function DatePollsDocumentation() {
               → Tableau de bord
             </Link>
             <Link
-              to="/date-polls/workspace/date"
+              to="/workspace/date"
               className="block text-blue-400 hover:text-blue-300 transition-colors"
             >
               → Créer un sondage

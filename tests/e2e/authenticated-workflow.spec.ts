@@ -17,7 +17,8 @@ Ces tests utilisent maintenant Supabase de test (configuré via .env.local)
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 import { mockSupabaseAuth } from './utils';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { navigateToWorkspace, waitForChatInput } from './helpers/chat-helpers';
 import { getTimeouts } from './config/timeouts';
 import { clearTestData } from './helpers/test-data';
 import { safeIsVisible } from './helpers/safe-helpers';
@@ -28,7 +29,7 @@ test.describe('Authenticated User Workflow', () => {
     await setupGeminiMock(page);
 
     // Clear localStorage and start fresh
-    await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+    await navigateToWorkspace(page, browserName);
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -88,7 +89,8 @@ test.describe('Authenticated User Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Wait for chat input using resilient helper
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
 
     // Send multiple messages in the chat
     for (let i = 1; i <= 3; i++) {
@@ -120,7 +122,8 @@ test.describe('Authenticated User Workflow', () => {
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
 
     // Wait for input to be visible
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
 
     // Send a message as guest
     await messageInput.fill('Guest message before auth');
@@ -145,7 +148,7 @@ test.describe('Authenticated User Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Wait for chat interface to reload
-    await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
 
     // Verify chat interface still works after auth
     await expect(page.locator('[data-testid="chat-input"]')).toBeVisible({ timeout: timeouts.element });
@@ -189,7 +192,8 @@ test.describe('Authenticated User Workflow', () => {
     }
 
     // Wait for input to be visible
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
 
     // Send a message
     await messageInput.fill('Test persistence');
@@ -225,12 +229,12 @@ test.describe('Authenticated User Workflow', () => {
     }, { key: authTokenKey, value: tokenValue });
 
     // Le chat est maintenant dans /workspace
-    await newPage.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+    await navigateToWorkspace(newPage, browserName);
     await waitForNetworkIdle(newPage, { browserName });
     await waitForReactStable(newPage, { browserName });
 
     // Wait for new page to load
-    await waitForChatInputReady(newPage, browserName, { timeout: timeouts.element });
+    await waitForChatInput(newPage, timeouts.element);
 
     // Verify auth token persisted (check for Supabase format using the same projectId)
     // In Firefox, localStorage might not be immediately accessible, so set it again after navigation if needed
@@ -271,7 +275,8 @@ test.describe('Authenticated User Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Create authenticated conversation
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
     const hasMessageInput = await safeIsVisible(messageInput);
 
     if (hasMessageInput) {
@@ -329,7 +334,8 @@ test.describe('Authenticated User Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Wait for input to be visible
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    await waitForChatInput(page, timeouts.element);
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
 
     // Send a message to test functionality
     await messageInput.fill('Quota test');

@@ -84,7 +84,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
   const handleCardClick = () => {
     // Ouvrir le workspace avec la conversation (route produit date-polls, basename /DooDates géré par le router)
-    navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
+    navigate(`/workspace/date?conversationId=${item.id}`);
   };
 
   const handleDeleteConversation = async () => {
@@ -168,7 +168,17 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
     try {
       const dup = duplicatePoll(item.poll);
       addPoll(dup);
-      createConversationForPoll(dup.id, dup.title, dup.type || "date");
+      // Gérer les types non supportés par createConversationForPoll
+      const rawPollType = dup.type || "date";
+      let pollType: "date" | "form" | "availability";
+      if (rawPollType === "quizz") {
+        pollType = "form"; // Les quizz sont traités comme des formulaires
+      } else if (rawPollType === "availability") {
+        pollType = "date"; // Les disponibilités utilisent le workspace date
+      } else {
+        pollType = rawPollType as "date" | "form" | "availability";
+      }
+      createConversationForPoll(dup.id, dup.title, pollType);
       toast({
         title: "Sondage copié",
         description: "Le sondage et sa conversation ont été copiés avec succès.",
@@ -475,7 +485,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/date-polls/workspace/date?conversationId=${item.id}`);
+                navigate(`/workspace/date?conversationId=${item.id}`);
               }}
               className={`text-xs transition-colors ${theme.linkText}`}
             >

@@ -118,7 +118,7 @@ const AdminQuotaDashboard: React.FC = () => {
   }).length ?? 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 pb-8 pt-10 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 px-4 pb-8 pt-20 max-w-2xl mx-auto">
       <header className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Quotas invités &amp; Fingerprinting</h1>
         <p className="text-gray-600 max-w-2xl">

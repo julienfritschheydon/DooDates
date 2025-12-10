@@ -12,6 +12,7 @@ import {
   BarChart3,
   MessageSquare,
 } from "lucide-react";
+import TopNavGemini from "@/components/prototype/TopNavGemini";
 
 const useCases = [
   "les réunions d'équipe",
@@ -34,26 +35,13 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
+      {/* Header simple avec logo */}
       <header className="border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-white">
-                DooDates
-              </Link>
-            </div>
-            <nav className="flex items-center gap-6">
-              <Link to="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-                Tableau de bord
-              </Link>
-              <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
-                Tarifs
-              </Link>
-              <Link to="/docs" className="text-gray-400 hover:text-white transition-colors">
-                Documentation
-              </Link>
-            </nav>
+          <div className="flex justify-center items-center h-16">
+            <Link to="/" className="text-2xl font-bold text-white">
+              DooDates
+            </Link>
           </div>
         </div>
       </header>

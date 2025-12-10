@@ -7,6 +7,7 @@ import FormPollCreator, {
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Check, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   getAllPolls,
   savePolls,
@@ -249,7 +250,7 @@ const PollCreator = () => {
                   <code className="px-4 py-2 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-sm font-mono text-gray-600 dark:text-gray-300 break-all">
                     {window.location.origin}/poll/{publishedPoll.slug || publishedPoll.id}
                   </code>
-                  <button
+                  <Button
                     onClick={() => {
                       const url = `${window.location.origin}/poll/${publishedPoll.slug || publishedPoll.id}`;
                       navigator.clipboard.writeText(url);
@@ -262,7 +263,7 @@ const PollCreator = () => {
                     data-testid="copy-link-button"
                   >
                     Copier
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

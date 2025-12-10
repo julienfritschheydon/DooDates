@@ -501,7 +501,7 @@ Réponds UNIQUEMENT en JSON:
 
           {/* Lien vers l'historique */}
           {respondentName.trim() && (
-            <button
+            <Button
               onClick={() =>
                 navigate(
                   `/quizz/history/${encodeURIComponent(respondentName.trim().toLowerCase())}`,
@@ -510,7 +510,7 @@ Réponds UNIQUEMENT en JSON:
               className="mb-4 text-sm text-amber-700 hover:text-amber-800 underline"
             >
               Voir mon historique et tous mes badges →
-            </button>
+            </Button>
           )}
 
           <div className="space-y-3">
@@ -580,7 +580,7 @@ Réponds UNIQUEMENT en JSON:
         <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
           {/* Bouton partage en haut à droite */}
           <div className="flex justify-end mb-2">
-            <button
+            <Button
               onClick={copyQuizLink}
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-600 transition-colors"
               title="Copier le lien"
@@ -596,7 +596,7 @@ Réponds UNIQUEMENT en JSON:
                   <span>Copier le lien</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
 
           <div className="text-center mb-6 sm:mb-8">
@@ -631,7 +631,7 @@ Réponds UNIQUEMENT en JSON:
                   <Clock className="w-5 h-5 text-amber-600" />
                   <span className="font-medium text-gray-700">Mode chrono</span>
                 </div>
-                <button
+                <Button
                   onClick={() => setTimerEnabled(!timerEnabled)}
                   className={cn(
                     "relative w-12 h-6 rounded-full transition-colors",
@@ -644,7 +644,7 @@ Réponds UNIQUEMENT en JSON:
                       timerEnabled ? "translate-x-6" : "translate-x-0.5",
                     )}
                   />
-                </button>
+                </Button>
               </div>
               {timerEnabled && (
                 <div className="mt-3 flex items-center gap-2">
@@ -752,13 +752,13 @@ Réponds UNIQUEMENT en JSON:
                 </div>
               )}
 
-              <button
+              <Button
                 onClick={handleNextQuestion}
                 className="w-full bg-amber-600 text-white py-5 sm:py-4 px-6 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 {isLastQuestion ? "Voir mes résultats" : "Question suivante"}
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
           ) : (
             // Affichage de la question
@@ -768,7 +768,7 @@ Réponds UNIQUEMENT en JSON:
               <div className="space-y-3 mb-8">
                 {currentQuestion?.type === "single" &&
                   currentQuestion.options?.map((option, idx) => (
-                    <button
+                    <Button
                       key={idx}
                       onClick={() => updateAnswer(currentQuestion.id, option)}
                       className={cn(
@@ -781,7 +781,7 @@ Réponds UNIQUEMENT en JSON:
                       <span className="font-medium text-gray-800 text-base sm:text-lg">
                         {option}
                       </span>
-                    </button>
+                    </Button>
                   ))}
 
                 {currentQuestion?.type === "multiple" &&
@@ -790,7 +790,7 @@ Réponds UNIQUEMENT en JSON:
                       ? (answers[currentQuestion.id] as string[]).includes(option)
                       : false;
                     return (
-                      <button
+                      <Button
                         key={idx}
                         onClick={() => {
                           const current = (answers[currentQuestion.id] as string[]) || [];
@@ -817,14 +817,14 @@ Réponds UNIQUEMENT en JSON:
                         <span className="font-medium text-gray-800 text-base sm:text-lg">
                           {option}
                         </span>
-                      </button>
+                      </Button>
                     );
                   })}
 
                 {currentQuestion?.type === "true-false" && (
                   <div className="flex gap-3 sm:gap-4">
                     {[true, false].map((value) => (
-                      <button
+                      <Button
                         key={String(value)}
                         onClick={() => updateAnswer(currentQuestion.id, value)}
                         className={cn(
@@ -835,7 +835,7 @@ Réponds UNIQUEMENT en JSON:
                         )}
                       >
                         {value ? "✓ Vrai" : "✗ Faux"}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -852,7 +852,7 @@ Réponds UNIQUEMENT en JSON:
                       />
                       {/* Bouton dictée vocale */}
                       {voiceRecognition.isSupported && (
-                        <button
+                        <Button
                           type="button"
                           onClick={() => {
                             if (voiceRecognition.isListening) {
@@ -877,7 +877,7 @@ Réponds UNIQUEMENT en JSON:
                           ) : (
                             <Mic className="w-5 h-5" />
                           )}
-                        </button>
+                        </Button>
                       )}
                     </div>
                     {/* Message d'erreur dictée vocale */}
@@ -908,7 +908,7 @@ Réponds UNIQUEMENT en JSON:
                       />
                       {/* Bouton dictée vocale */}
                       {voiceRecognition.isSupported && (
-                        <button
+                        <Button
                           type="button"
                           onClick={() => {
                             if (voiceRecognition.isListening) {
@@ -933,7 +933,7 @@ Réponds UNIQUEMENT en JSON:
                           ) : (
                             <Mic className="w-5 h-5" />
                           )}
-                        </button>
+                        </Button>
                       )}
                     </div>
                     {/* Message d'erreur dictée vocale */}
@@ -958,7 +958,7 @@ Réponds UNIQUEMENT en JSON:
                 )}
               </div>
 
-              <button
+              <Button
                 onClick={handleSubmitAnswer}
                 disabled={!hasAnswer || isChecking}
                 className={cn(
@@ -979,7 +979,7 @@ Réponds UNIQUEMENT en JSON:
                     <Check className="w-5 h-5" />
                   </>
                 )}
-              </button>
+              </Button>
             </>
           )}
         </div>

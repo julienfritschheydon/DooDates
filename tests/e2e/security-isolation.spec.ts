@@ -9,9 +9,10 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { setupTestEnvironment } from './helpers/test-setup';
-import { mockSupabaseAuth, waitForPageLoad, waitForAppReady } from './utils';
 import { waitForNetworkIdle, waitForReactStable } from './helpers/wait-helpers';
+import { navigateToWorkspace } from './helpers/chat-helpers';
+import { mockSupabaseAuth, waitForPageLoad, waitForAppReady } from './utils';
+import { setupTestEnvironment } from './helpers/test-setup';
 import { clearTestData } from './helpers/test-data';
 import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
@@ -32,8 +33,7 @@ test.describe('Security and Data Isolation', () => {
     const timeouts = getTimeouts(browserName);
     
     // Verify basic navigation doesn't crash on security-sensitive pages
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
-    await waitForNetworkIdle(page, { browserName });
+    await navigateToWorkspace(page, browserName, 'default');
     await expect(page).toHaveTitle(/DooDates/);
     
     await page.goto('/DooDates/create', { waitUntil: 'domcontentloaded' });
@@ -44,16 +44,15 @@ test.describe('Security and Data Isolation', () => {
     await waitForNetworkIdle(page, { browserName });
     await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
     
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
-    await waitForNetworkIdle(page, { browserName });
+    // Test workspace again for consistency
+    await navigateToWorkspace(page, browserName, 'default');
     await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
   });
 
 
 
   test('should handle authentication token security @smoke @critical', async ({ page, browserName }) => {
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
-    await waitForNetworkIdle(page, { browserName });
+    await navigateToWorkspace(page, browserName, 'default');
     
     const timeouts = getTimeouts(browserName);
     

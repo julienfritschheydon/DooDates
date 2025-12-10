@@ -231,7 +231,7 @@ export default function FormEditor({
       {configPanel && <div className="pt-4">{configPanel}</div>}
 
       {/* Boutons d'action - MÊME STYLE QUE POLLCREATOR */}
-      <div className="flex flex-wrap gap-3 justify-end pt-4">
+      <div className="flex flex-col gap-2 justify-end pt-4 sm:flex-row sm:gap-3">
         {simulationButton}
         {onSaveDraft && (
           <button

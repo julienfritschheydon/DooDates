@@ -191,7 +191,7 @@ export interface Poll {
     type: "weekend" | "week" | "fortnight" | "custom" | "range";
   }>;
   // Unification des types de sondages
-  type?: "date" | "form" | "availability";
+  type?: "date" | "form" | "availability" | "quizz";
   // Champs spécifiques aux sondages disponibilités
   clientAvailabilities?: string; // Texte libre des disponibilités client (pour parsing IA)
   parsedAvailabilities?: Array<{

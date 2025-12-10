@@ -7,20 +7,79 @@ import { Page, expect } from '@playwright/test';
 import { waitForPageLoad, robustFill } from '../utils';
 
 /**
- * Navigue vers workspace et attend que le chat soit prêt
+ * Types de workspace disponibles
+ */
+export type WorkspaceType = 'date' | 'form' | 'quizz' | 'availability' | 'default';
+
+/**
+ * Configuration des URLs de workspace selon le type
+ */
+const WORKSPACE_URLS: Record<WorkspaceType, string> = {
+  date: '/DooDates/workspace/date',
+  form: '/DooDates/workspace/form', 
+  quizz: '/DooDates/workspace/quizz',
+  availability: '/DooDates/workspace/availability',
+  default: '/DooDates/workspace/date'
+};
+
+/**
+ * Navigue vers le workspace spécifié et attend que le chat soit prêt
  * 
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur
+ * @param workspaceType - Le type de workspace ('date', 'form', 'quizz', 'availability', 'default')
+ * @param options - Options supplémentaires
  */
 export async function navigateToWorkspace(
   page: Page,
-  browserName: string
+  browserName: string,
+  workspaceType: WorkspaceType = 'default',
+  options?: {
+    addE2EFlag?: boolean;
+    waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
+  }
 ) {
-  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+  const url = WORKSPACE_URLS[workspaceType];
+  const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
+  
+  await page.goto(finalUrl, { 
+    waitUntil: options?.waitUntil || 'domcontentloaded' 
+  });
+  
   await waitForPageLoad(page, browserName);
 
   // Attendre que le chat soit prêt
   await waitForChatInput(page);
+}
+
+/**
+ * @deprecated Utiliser navigateToWorkspace(page, browserName, 'date') à la place
+ * Navigue vers le workspace des date-polls (compatibilité ascendante)
+ */
+export async function navigateToDateWorkspace(
+  page: Page,
+  browserName: string,
+  options?: {
+    addE2EFlag?: boolean;
+    waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
+  }
+) {
+  return navigateToWorkspace(page, browserName, 'date', options);
+}
+
+/**
+ * @deprecated Utiliser navigateToWorkspace(page, browserName, 'form') à la place  
+ * Navigue vers le workspace des form-polls
+ */
+export async function navigateToFormWorkspace(
+  page: Page,
+  browserName: string,
+  options?: {
+    addE2EFlag?: boolean;
+    waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
+  }
+) {
+  return navigateToWorkspace(page, browserName, 'form', options);
 }
 
 /**
@@ -31,10 +90,31 @@ export async function navigateToWorkspace(
  */
 export async function waitForChatInput(
   page: Page,
-  timeout: number = 10000
+  timeout: number = 20000
 ) {
+  console.log('🔍 waitForChatInput: Recherche du chat input...');
+  
+  // Attendre un peu que la page se stabilise
+  await page.waitForTimeout(2000);
+  
   const messageInput = page.locator('[data-testid="chat-input"]');
+  
+  // Vérifier si l'élément existe dans le DOM
+  const elementCount = await messageInput.count();
+  console.log(`🔍 waitForChatInput: ${elementCount} éléments trouvés avec data-testid="chat-input"`);
+  
+  if (elementCount === 0) {
+    // Lister tous les éléments avec data-testid pour debug
+    const allTestIds = await page.locator('[data-testid]').all();
+    console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
+    
+    // Prendre un screenshot pour debug
+    await page.screenshot({ path: 'debug-chat-input.png', fullPage: true });
+    console.log('🔍 waitForChatInput: Screenshot sauvegardé dans debug-chat-input.png');
+  }
+  
   await expect(messageInput).toBeVisible({ timeout });
+  console.log('✅ waitForChatInput: Chat input trouvé et visible');
 }
 
 /**

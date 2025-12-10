@@ -5,6 +5,8 @@ import { getPollBySlugOrId } from "@/lib/pollStorage";
 import { X } from "lucide-react";
 import FormPollVote from "@/components/polls/FormPollVote";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import TopNavGemini from "@/components/prototype/TopNavGemini";
 
 const Vote = () => {
   const { pollId, pollSlug, adminToken, slug } = useParams<{
@@ -66,13 +68,15 @@ const Vote = () => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
+            <Button
               onClick={() => window.history.back()}
-              className="fixed top-20 right-4 z-50 p-2 bg-[#1e1e1e]/80 hover:bg-[#2a2a2a] text-gray-400 hover:text-white rounded-lg transition-colors border border-gray-700/50 backdrop-blur-sm"
+              variant="ghost"
+              size="icon"
+              className="fixed top-4 right-4 z-50 p-2 bg-[#1e1e1e]/80 hover:bg-[#2a2a2a] text-gray-400 hover:text-white rounded-lg transition-colors border border-gray-700/50 backdrop-blur-sm"
               aria-label="Retour"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </TooltipTrigger>
           <TooltipContent>
             <p>Retour</p>

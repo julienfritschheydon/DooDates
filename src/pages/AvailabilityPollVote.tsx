@@ -407,8 +407,8 @@ const AvailabilityPollVote = () => {
             <Card className="bg-white dark:bg-card border-gray-200 dark:border-gray-700 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-500" />
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-500" />
                   </div>
                   <div>
                     <CardTitle className="text-2xl text-gray-900 dark:text-white">
@@ -422,9 +422,9 @@ const AvailabilityPollVote = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {slot && (
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-600/30 rounded-lg">
+                  <div className="p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-600/30 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
                       <span className="text-gray-900 dark:text-white font-semibold">
                         {new Date(`${slot.date}T00:00:00`).toLocaleDateString("fr-FR", {
                           weekday: "long",
@@ -434,15 +434,15 @@ const AvailabilityPollVote = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-emerald-700 dark:text-emerald-300 font-mono text-lg">
+                      <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <span className="text-green-700 dark:text-green-300 font-mono text-lg">
                         {slot.start} - {slot.end}
                       </span>
                     </div>
                   </div>
                 )}
-                <Alert className="bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-900/30">
-                  <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+                <Alert className="bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/30">
+                  <AlertDescription className="text-green-700 dark:text-green-300">
                     ✅ L'événement a été créé automatiquement dans le calendrier du professionnel.
                   </AlertDescription>
                 </Alert>
@@ -475,7 +475,7 @@ const AvailabilityPollVote = () => {
                           });
                         }}
                         variant="outline"
-                        className="flex-1 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                        className="flex-1 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Télécharger .ics
@@ -525,7 +525,7 @@ const AvailabilityPollVote = () => {
                   <Button
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
-                    className="w-full border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 mb-2"
+                    className="w-full border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 mb-2"
                   >
                     Voir les résultats
                   </Button>
@@ -533,7 +533,7 @@ const AvailabilityPollVote = () => {
 
                 <Button
                   onClick={() => navigate("/")}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   Retour à l'accueil
                 </Button>
@@ -557,8 +557,8 @@ const AvailabilityPollVote = () => {
             <Card className="bg-white dark:bg-card border-gray-200 dark:border-gray-700 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-500" />
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-500" />
                   </div>
                   <div>
                     <CardTitle className="text-2xl text-gray-900 dark:text-white">
@@ -586,14 +586,14 @@ const AvailabilityPollVote = () => {
                   <Button
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
-                    className="w-full border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 mb-2"
+                    className="w-full border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 mb-2"
                   >
                     Voir les résultats
                   </Button>
                 )}
                 <Button
                   onClick={() => navigate("/")}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   Retour à l'accueil
                 </Button>
@@ -608,22 +608,24 @@ const AvailabilityPollVote = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
       {/* Bouton fermer */}
-      <button
+      <Button
         onClick={() => navigate("/")}
+        variant="ghost"
+        size="icon"
         className="fixed top-24 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
         title="Fermer"
         aria-label="Fermer"
       >
         <X className="w-6 h-6" />
-      </button>
+      </Button>
 
       <div className="pt-20">
         <div className="max-w-2xl mx-auto p-4 sm:p-6">
           <Card className="bg-[#1e1e1e] border-gray-700">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                  <Calendar className="w-7 h-7 text-emerald-500" />
+                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                  <Calendar className="w-7 h-7 text-green-500" />
                 </div>
                 <div>
                   <CardTitle className="text-2xl text-white">{poll.title}</CardTitle>
@@ -669,7 +671,7 @@ const AvailabilityPollVote = () => {
                 <div className="space-y-4">
                   <div className="border-t border-gray-700 pt-6">
                     <Label className="text-gray-300 mb-3 block flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                      <Sparkles className="w-4 h-4 text-green-400" />
                       Créneaux proposés par le professionnel
                     </Label>
                     <div className="space-y-3">
@@ -690,7 +692,7 @@ const AvailabilityPollVote = () => {
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                   <div className="flex items-center gap-2">
-                                    <Calendar className="w-5 h-5 text-emerald-400" />
+                                    <Calendar className="w-5 h-5 text-green-400" />
                                     <span className="text-white font-medium">
                                       {new Date(`${slot.date}T00:00:00`).toLocaleDateString(
                                         "fr-FR",
@@ -703,8 +705,8 @@ const AvailabilityPollVote = () => {
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-emerald-400" />
-                                    <span className="text-emerald-300 font-mono text-lg">
+                                    <Clock className="w-5 h-5 text-green-400" />
+                                    <span className="text-green-300 font-mono text-lg">
                                       {slot.start} - {slot.end}
                                     </span>
                                   </div>
@@ -720,7 +722,7 @@ const AvailabilityPollVote = () => {
                                 <Button
                                   onClick={() => handleValidateSlot(slot)}
                                   disabled={isValidating}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  className="bg-green-600 hover:bg-green-700 text-white"
                                 >
                                   {isValidating ? (
                                     <>
@@ -759,7 +761,7 @@ const AvailabilityPollVote = () => {
               {/* Note MVP */}
               {!hasProposedSlots && (
                 <Alert>
-                  <AlertDescription className="text-sm text-emerald-300">
+                  <AlertDescription className="text-sm text-green-300">
                     💡 <strong>Note MVP v1.0</strong> : Vos disponibilités seront analysées
                     automatiquement par l'IA et le professionnel recevra des créneaux optimaux
                     proposés.
@@ -773,7 +775,7 @@ const AvailabilityPollVote = () => {
                   onClick={handleSubmit}
                   disabled={!availabilityText.trim() || isParsing}
                   size="lg"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isParsing ? (
                     <>

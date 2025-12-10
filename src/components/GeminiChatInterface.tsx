@@ -1056,7 +1056,13 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       - ChatMessageList utilise flex-1 pour prendre toute la hauteur et centrer le contenu quand messages.length === 0
     */
     return (
-      <div className="flex flex-col w-full h-full min-h-0">
+      <div
+        data-testid="agent-page-root"
+        data-agent-page="true"
+        className={`flex h-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50 ${
+          darkTheme ? "" : ""
+        }`}
+      >
         {/* Zone de conversation */}
         <ChatMessageList
           messages={messages}
@@ -1131,6 +1137,20 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Indicateur visuel de quota IA (conversations) */}
+            <div
+              className="px-4 pb-2 flex justify-end quota-indicator"
+              data-testid="quota-indicator"
+            >
+              <QuotaIndicator
+                type="conversations"
+                used={quota.status.conversations.used}
+                limit={quota.status.conversations.limit}
+                size="sm"
+                showLabel={false}
+              />
             </div>
 
             <ChatInput

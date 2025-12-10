@@ -884,7 +884,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   return (
     <div className="bg-[#0a0a0a]">
       <div className="px-4 md:px-6 pb-32 pt-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-none w-full">
           <div className="bg-[#0a0a0a] p-4 md:p-6">
             <div className="space-y-6">
               {/* Titre du sondage */}

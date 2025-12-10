@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
+import { ProductSidebar } from "@/components/layout/products/ProductSidebar";
+import { cn } from "@/lib/utils";
 
 // Animation staggered pour les éléments
 const useStaggeredAnimation = (itemCount: number, delay: number = 100) => {
@@ -39,6 +41,7 @@ const useStaggeredAnimation = (itemCount: number, delay: number = 100) => {
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const featureVisible = useStaggeredAnimation(3, 150);
+  const stepVisible = useStaggeredAnimation(3, 200);
   const [heroVisible, setHeroVisible] = useState(false);
 
   useEffect(() => {
@@ -47,9 +50,14 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030712] text-white overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
+    <div className="flex min-h-screen bg-[#030712]">
+      {/* Sidebar auto-suffisante avec son hamburger */}
+      <ProductSidebar productType="form" />
+      
+      {/* Contenu principal */}
+      <div className="flex-1 text-white overflow-hidden">
+        {/* Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
         {/* Diagonal lines pattern */}
         <div
           className="absolute inset-0 opacity-[0.015]"
@@ -68,45 +76,22 @@ export const LandingPage: React.FC = () => {
         <div className="absolute bottom-20 right-1/4 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[120px]" />
       </div>
 
-      {/* Navigation Header */}
+      {/* Navigation Header - Simplifié sans liens dupliqués */}
       <header className="relative z-10 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-16">
-            <Link to="/form-polls" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-semibold tracking-tight">Form Polls</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link
-                to="/form-polls/dashboard"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/form-polls/documentation"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Documentation
-              </Link>
-              <Link
-                to="/form-polls/pricing"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Tarifs
-              </Link>
-              <Link to="/" className="text-sm text-gray-400 hover:text-white transition-colors">
-                ← DooDates
-              </Link>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-32">
+      <section className={cn("relative z-10 pb-32")}>
         <div className="max-w-6xl mx-auto px-6">
           <div
             className={`transition-all duration-700 ${
@@ -347,6 +332,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };

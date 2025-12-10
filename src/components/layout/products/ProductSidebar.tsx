@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Plus, Home, List, Settings, User, LogOut, Users } from "lucide-react";
+import { Plus, Home, List, Settings, User, LogOut, Users, FileText, CreditCard, Globe, X, Calendar, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/modals/AuthModal";
@@ -10,16 +10,25 @@ interface ProductSidebarProps {
   productType: ProductType;
   onClose?: () => void;
   className?: string;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 export const ProductSidebar: React.FC<ProductSidebarProps> = ({
   productType,
   onClose,
   className,
+  isOpen: propIsOpen,
+  onToggle: propOnToggle,
 }) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  
+  // Utiliser les props si fournies, sinon l'état interne
+  const [internalIsOpen, setInternalIsOpen] = useState(true);
+  const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+  const setIsOpen = propOnToggle || setInternalIsOpen;
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/");
 
@@ -29,18 +38,46 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
 
   const handleLinkClick = () => {
     if (onClose) onClose();
+    if (propOnToggle) {
+      propOnToggle();
+    } else {
+      setInternalIsOpen(false);
+    }
+  };
+
+  const toggleSidebar = () => {
+    if (propOnToggle) {
+      propOnToggle();
+    } else {
+      setInternalIsOpen(!internalIsOpen);
+    }
   };
 
   return (
-    <div
-      className={cn("w-64 bg-[#1a1a1a] border-r border-gray-800 h-screen flex flex-col", className)}
-    >
-      <div className="p-6 border-b border-gray-800">
+    <>
+      {/* Hamburger géré par la sidebar elle-même */}
+      <button
+        onClick={toggleSidebar}
+        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
+          isOpen ? "left-[272px]" : "left-4"
+        }`}
+        aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Sidebar - conditionnel selon l'état interne */}
+      {isOpen && (
+        <div
+          className={cn("fixed left-0 top-0 w-64 bg-[#1a1a1a] border-r border-gray-800 h-screen flex flex-col z-40", className)}
+        >
+      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        {/* Logo contextuel : produit si menu ouvert, DooDates si menu fermé */}
         <Link to={config.baseRoute} className="flex items-center gap-2" onClick={handleLinkClick}>
           <div className={cn("p-2 rounded-lg", theme.bg)}>
-            <Icon className={cn("w-6 h-6", theme.text)} />
+            <Icon className={cn("w-5 h-5", theme.text)} />
           </div>
-          <span className="font-bold text-xl text-white">{config.namePlural}</span>
+          <span className="font-bold text-lg text-white">{config.namePlural}</span>
         </Link>
       </div>
 
@@ -108,6 +145,33 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
           </Link>
         )}
       </nav>
+
+      {/* Liens globaux */}
+      <div className="p-4 border-t border-gray-800 space-y-1">
+        <Link
+          to="/docs"
+          onClick={handleLinkClick}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+        >
+          <FileText className="w-5 h-5" />
+          Documentation
+        </Link>
+        <Link
+          to="/pricing"
+          onClick={handleLinkClick}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+        >
+          <CreditCard className="w-5 h-5" />
+          Tarifs
+        </Link>
+        <button
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors w-full text-left"
+          title="Langue: Français"
+        >
+          <Globe className="w-5 h-5" />
+          Français
+        </button>
+      </div>
 
       <div className="p-4 border-t border-gray-800 space-y-1">
         <Link
@@ -205,5 +269,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
 
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
+      )}
+    </>
   );
 };

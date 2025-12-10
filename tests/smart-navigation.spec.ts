@@ -5,6 +5,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { navigateToWorkspace } from "./e2e/helpers/chat-helpers";
 
 // Utilitaire pour capturer les console errors pendant les tests
 async function withConsoleGuard(page: any, testFn: () => Promise<void>) {
@@ -45,8 +46,8 @@ test.describe("Navigation Intelligente - E2E", () => {
     // 1. Aller au dashboard
     await page.goto("/DooDates/date-polls/dashboard");
 
-    // 2. Créer une conversation avec du contenu
-    await page.goto("/DooDates/date-polls/workspace/date");
+    // 2. Créer une conversation avec du contenu - utiliser navigateToWorkspace
+    await navigateToWorkspace(page, "chromium", "date");
     await page.fill(
       '[data-testid="chat-input"]',
       "Crée-moi un sondage pour le déjeuner d'équipe",

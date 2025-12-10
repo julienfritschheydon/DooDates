@@ -23,6 +23,7 @@ import {
   type QuizzResults as QuizzResultsType,
 } from "../../lib/products/quizz/quizz-service";
 import { cn } from "../../lib/utils";
+import { Button } from "@/components/ui/button";
 
 // Composant QR Code simple (génération via API externe)
 function QRCodeDisplay({ url, size = 150 }: { url: string; size?: number }) {
@@ -213,24 +214,24 @@ export default function QuizzResults() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               onClick={() => navigate("/quizz")}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
+            </Button>
             <div>
               <h1 className="font-bold text-gray-800 text-lg">{quizz.title}</h1>
               <p className="text-sm text-gray-500">Résultats du quiz</p>
             </div>
           </div>
-          <button
+          <Button
             onClick={refreshResults}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Rafraîchir les résultats"
           >
             <RefreshCw className="w-5 h-5 text-gray-600" />
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -244,7 +245,7 @@ export default function QuizzResults() {
                 Envoyez ce lien à vos élèves pour qu'ils puissent répondre au quiz.
               </p>
               <div className="flex flex-wrap gap-2">
-                <button
+                <Button
                   onClick={copyQuizLink}
                   className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
                 >
@@ -259,14 +260,14 @@ export default function QuizzResults() {
                       Copier le lien
                     </>
                   )}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowQRCode(!showQRCode)}
                   className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
                 >
                   <Share2 className="w-4 h-4" />
                   {showQRCode ? "Masquer QR" : "QR Code"}
-                </button>
+                </Button>
               </div>
             </div>
             {showQRCode && (
@@ -475,12 +476,12 @@ export default function QuizzResults() {
             <p className="text-gray-500 mb-6">
               Partagez le lien du quiz pour recevoir des réponses.
             </p>
-            <button
+            <Button
               onClick={copyQuizLink}
               className="bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-amber-700 transition-colors"
             >
               Copier le lien du quiz
-            </button>
+            </Button>
           </div>
         )}
       </main>

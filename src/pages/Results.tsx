@@ -14,6 +14,7 @@ interface VoteData {
   voter_email: string;
   voter_name: string;
   vote_data: Record<string, "yes" | "no" | "maybe">;
+  selections?: Record<string, "yes" | "no" | "maybe">; // Support pour structure alternative
   created_at: string;
 }
 
@@ -105,7 +106,7 @@ const Results: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#0a0a0a] pb-8">
         <div className="pt-20">
-          <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto px-4 py-8">
             <ResultsEmpty
               message={<>Sondage introuvable.</>}
               action={

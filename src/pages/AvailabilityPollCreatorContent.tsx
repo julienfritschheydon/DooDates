@@ -127,15 +127,15 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
     const pollUrl = `${window.location.origin}/poll/${publishedPoll.slug || publishedPoll.id}`;
 
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pb-8">
+      <div className="min-h-screen bg-gray-900 pb-8">
         <div className="pt-20">
           {/* Si utilisé dans le workspace, on n'a pas besoin de padding top aussi grand ni de max-w aussi petit */}
           <div className="max-w-2xl mx-auto p-4 sm:p-6">
-            <Card className="bg-[#1a1a1a] border-gray-800 shadow-sm">
+            <Card className="bg-gray-800 border-gray-700 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-emerald-900/20 rounded-full flex items-center justify-center">
-                    <Check className="w-7 h-7 text-emerald-500" />
+                  <div className="w-12 h-12 bg-green-900/20 rounded-full flex items-center justify-center">
+                    <Check className="w-7 h-7 text-green-500" />
                   </div>
                   <div>
                     <CardTitle className="text-2xl text-white">
@@ -149,7 +149,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Informations du sondage */}
-                <div className="p-4 bg-[#2a2a2a] rounded-lg border border-gray-700">
+                <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
                   <h3 className="text-white font-semibold mb-2">
                     {publishedPoll.title}
                   </h3>
@@ -170,7 +170,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                       <Input
                         value={pollUrl}
                         readOnly
-                        className="bg-[#2a2a2a] border-gray-700 text-gray-300 font-mono text-sm"
+                        className="bg-gray-700 border-gray-600 text-gray-300 font-mono text-sm"
                       />
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -183,7 +183,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                               });
                             }}
                             size="lg"
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Copier
@@ -198,11 +198,11 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 </TooltipProvider>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-700">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-600">
                   <Button
                     onClick={() => navigate("/dashboard")}
                     size="lg"
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     <Check className="w-4 h-4 mr-2" />
                     Aller au Tableau de bord
@@ -211,7 +211,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     onClick={() => navigate(`/poll/${publishedPoll.slug || publishedPoll.id}`)}
                     size="lg"
                     variant="outline"
-                    className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/20"
+                    className="border-green-800 text-green-400 hover:bg-green-900/20"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Voir le sondage
@@ -226,21 +226,21 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     }}
                     size="sm"
                     variant="outline"
-                    className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/20"
+                    className="border-green-800 text-green-400 hover:bg-green-900/20"
                   >
                     Créer un autre sondage
                   </Button>
                 </div>
 
                 {/* Note Version actuelle */}
-                <div className="p-4 bg-emerald-500/10 border border-emerald-600/30 rounded-lg">
+                <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
                   <div className="flex items-start gap-2">
-                    <Calendar className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-emerald-400 mb-1">
+                      <p className="text-sm font-medium text-green-400 mb-1">
                         Version v1.0 - Optimisation automatique activée
                       </p>
-                      <p className="text-sm text-emerald-300">
+                      <p className="text-sm text-green-300">
                         Vos clients indiquent leurs disponibilités en texte libre. Le système
                         propose automatiquement les créneaux optimaux depuis votre calendrier Google
                         Calendar, selon les règles configurées.
@@ -260,12 +260,12 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
   return (
     <div className="pb-8">
       <div className="max-w-2xl mx-auto p-4 sm:p-6">
-        <Card className="bg-[#1e1e1e] border-gray-700">
+        <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div>
                 <CardTitle className="text-2xl text-white flex items-center gap-2">
-                  <Calendar className="w-6 h-6 text-emerald-500" />
+                  <Calendar className="w-6 h-6 text-green-500" />
                   Créer un Sondage Disponibilités
                 </CardTitle>
                 <p className="text-gray-400 mt-1">
@@ -285,7 +285,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Planification rendez-vous - Novembre 2025"
-                className="bg-[#2a2a2a] border-gray-700 text-white"
+                className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
 
@@ -299,7 +299,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Indiquez vos disponibilités pour planifier notre prochain rendez-vous..."
-                className="bg-[#2a2a2a] border-gray-700 text-white min-h-[100px]"
+                className="bg-gray-700 border-gray-600 text-white min-h-[100px]"
               />
             </div>
 
@@ -307,14 +307,14 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
             <SchedulingRulesForm rules={schedulingRules} onChange={setSchedulingRules} />
 
             {/* Informations Version actuelle */}
-            <div className="p-4 bg-emerald-500/10 border border-emerald-600/30 rounded-lg">
+            <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <Calendar className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-emerald-400 mb-1">
+                  <p className="text-sm font-medium text-green-400 mb-1">
                     Version v1.0 - Optimisation automatique activée
                   </p>
-                  <p className="text-sm text-emerald-300">
+                  <p className="text-sm text-green-300">
                     Vos clients indiquent leurs disponibilités en texte libre.{" "}
                     <strong>L'optimisation automatique avec intégration calendrier</strong> est
                     maintenant active et utilise les règles configurées ci-dessus pour proposer les
@@ -325,12 +325,12 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-700">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-600">
               <Button
                 onClick={() => handleCreate(false)}
                 disabled={!title.trim()}
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex-1"
+                className="bg-green-600 hover:bg-green-700 text-white flex-1"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Créer le sondage
@@ -340,7 +340,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 disabled={!title.trim()}
                 size="sm"
                 variant="outline"
-                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
               >
                 Enregistrer le brouillon
               </Button>

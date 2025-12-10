@@ -129,19 +129,19 @@ export function getThemeColors(type: ContentTypeFilter) {
       };
     case "availability":
       return {
-        bg: "bg-emerald-900/20",
-        border: "border-emerald-500/50",
-        text: "text-emerald-400",
-        progressBg: "bg-emerald-500",
-        hoverText: "group-hover:text-emerald-300",
-        buttonText: "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/20",
-        primaryButton: "bg-emerald-600 hover:bg-emerald-700",
-        checkbox: "bg-emerald-600 border-emerald-600",
-        lightBadge: "bg-emerald-500/20 text-emerald-400",
-        selectionBg: "bg-emerald-900/20",
-        activeBorder: "border-emerald-500",
-        ring: "ring-emerald-500/50",
-        linkText: "text-emerald-400 hover:text-emerald-300",
+        bg: "bg-green-900/20",
+        border: "border-green-500/50",
+        text: "text-green-400",
+        progressBg: "bg-green-500",
+        hoverText: "group-hover:text-green-300",
+        buttonText: "text-green-400 hover:text-green-300 hover:bg-green-900/20",
+        primaryButton: "bg-green-600 hover:bg-green-700",
+        checkbox: "bg-green-600 border-green-600",
+        lightBadge: "bg-green-500/20 text-green-400",
+        selectionBg: "bg-green-900/20",
+        activeBorder: "border-green-500",
+        ring: "ring-green-500/50",
+        linkText: "text-green-400 hover:text-green-300",
       };
     case "quizz":
       return {

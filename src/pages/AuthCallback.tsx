@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -174,18 +175,19 @@ export default function AuthCallback() {
                 </AlertDescription>
               </Alert>
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={() => navigate("/dashboard")}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="flex-1"
                 >
                   Aller au dashboard
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => window.location.reload()}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Réessayer
-                </button>
+                </Button>
               </div>
             </div>
           )}

@@ -21,7 +21,7 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
   user,
   showBackButton = false,
   showSettings = false,
-  backTo = "/date-polls/workspace/date",
+  backTo = "/workspace/date",
 }) => {
   const navigate = useNavigate();
 

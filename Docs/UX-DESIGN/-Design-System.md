@@ -2,6 +2,66 @@
 
 Guide de design pour l'interface DooDates inspirée de Google Gemini.
 
+---
+
+## 📊 MISE À JOUR - 9 Décembre 2025
+
+### ✅ Phase 1 : Harmonisation Critique - TERMINÉE
+
+**Nouveaux standards implémentés :**
+
+#### 1. Composants Button Uniformisés
+```tsx
+// ❌ AVANT - Buttons HTML natifs
+<button className="px-4 py-2 bg-blue-500 hover:bg-blue-600">
+  Action
+</button>
+
+// ✅ APRÈS - Composants Shadcn/ui
+import { Button } from "@/components/ui/button";
+
+<Button
+  variant="default" // primary, ghost, outline, destructive
+  size="sm" // sm, default, lg
+  className="bg-blue-500 hover:bg-blue-600"
+>
+  Action
+</Button>
+```
+
+#### 2. Thème Availability Standardisé
+```tsx
+// ❌ AVANT - Couleurs emerald personnalisées
+<Card className="bg-[#1a1a1a] border-gray-800">
+  <div className="bg-emerald-500/10 border-emerald-600/30">
+    <Check className="w-5 h-5 text-emerald-400" />
+  </div>
+</Card>
+
+// ✅ APRÈS - Thème sombre uniforme
+<Card className="bg-gray-800 border-gray-700">
+  <div className="bg-green-500/10 border-green-600/30">
+    <Check className="w-5 h-5 text-green-400" />
+  </div>
+</Card>
+```
+
+#### 3. Layout Simplifié - AICreationWorkspace
+```tsx
+// ❌ AVANT - Layout complexe avec sidebar interne
+<div className="flex">
+  <div className="w-1/2">Chat</div>
+  <div className="w-1/2">Editor + sidebar interne</div>
+</div>
+
+// ✅ APRÈS - Plein écran, navigation simplifiée
+<div className="w-full">
+  {isEditorOpen ? <Editor /> : <Chat />}
+</div>
+```
+
+---
+
 ## 🎯 Palette de Couleurs
 
 ### Fonds
@@ -16,6 +76,33 @@ Guide de design pour l'interface DooDates inspirée de Google Gemini.
 - **Boutons principaux** : `#3b82f6` (blue-500)
 - **Texte principal** : `#ffffff` (blanc)
 - **Texte secondaire** : `#d1d5db` (gray-300)
+
+### Couleurs Thématiques par Produit (post-Phase 1)
+```tsx
+// Form Polls - Blue
+<Button className="bg-blue-600 hover:bg-blue-700 text-white">
+
+// Date Polls - Violet  
+<Button className="bg-violet-600 hover:bg-violet-700 text-white">
+
+// Availability - Green (standardisé)
+<Button className="bg-green-600 hover:bg-green-700 text-white">
+
+// Quizz - Amber
+<Button className="bg-amber-600 hover:bg-amber-700 text-white">
+```
+
+### Standards de Cartes (post-Phase 1)
+```tsx
+// Fond sombre uniforme
+<Card className="bg-gray-800 border-gray-700 shadow-sm">
+
+// Input standardisé
+<Input className="bg-gray-700 border-gray-600 text-white">
+
+// Textarea standardisée  
+<Textarea className="bg-gray-700 border-gray-600 text-white">
+```
 
 ## 📐 Layout
 
@@ -89,6 +176,50 @@ Guide de design pour l'interface DooDates inspirée de Google Gemini.
 - **Pas d'icône**
 
 ## ⌨️ Input
+
+---
+
+## 📝 FICHIERS MODIFIÉS - Phase 1
+
+### Composants Button harmonisés
+- `src/pages/AvailabilityPollResults.tsx`
+- `src/pages/AvailabilityPollVote.tsx` 
+- `src/pages/Vote.tsx`
+- `src/pages/AuthCallback.tsx`
+- `src/pages/PollCreator.tsx`
+- `src/components/polls/QuizzVote.tsx`
+- `src/components/polls/QuizzResults.tsx`
+- `src/components/prototype/AICreationWorkspace.tsx`
+
+### Thème Availability standardisé
+- `src/pages/AvailabilityPollCreatorContent.tsx`
+  - Background : `bg-[#0a0a0a]` → `bg-gray-900`
+  - Cards : `bg-[#1a1a1a]` → `bg-gray-800`
+  - Borders : `border-gray-800` → `border-gray-700`
+  - Colors : `emerald-*` → `green-*`
+
+### Layout simplifié
+- `src/components/prototype/AICreationWorkspace.tsx`
+  - Suppression sidebar interne
+  - Layout plein écran
+  - Header simplifié
+
+---
+
+## 🔄 PROCHAINES ÉTAPES - Phase 2
+
+### À implémenter
+1. **Hover states uniformisés** - Même logique de luminosité pour tous les produits
+2. **Spacing standardisé** - `pt-8/pt-12` et `max-w-4xl/max-w-6xl` cohérents  
+3. **Quizz Dashboard** - Harmoniser cartes ou simplifier
+
+### Deadline
+- **Phase 2** : 4h restantes
+- **Phase 3** : Polish final (bordures, ombres, icônes)
+
+---
+
+## ⌨️ Input (Standards originaux)
 
 ### Container
 - **Fond** : `#0a0a0a` (noir)

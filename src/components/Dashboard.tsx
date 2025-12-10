@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/pagination";
 import { AlertTriangle } from "lucide-react";
 import { CreatePageLayout } from "./layout/CreatePageLayout";
+import TopNavGemini from "@/components/prototype/TopNavGemini";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();

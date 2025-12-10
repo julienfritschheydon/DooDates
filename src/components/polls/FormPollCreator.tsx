@@ -644,7 +644,7 @@ export default function FormPollCreator({
   return (
     <div className="min-h-screen bg-[#0a0a0a]" data-form-container>
       <div className="px-4 md:px-6 pt-6 pb-40">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-none w-full">
           <div className="bg-[#0a0a0a]">
             <div className="space-y-4">
               <FormEditor

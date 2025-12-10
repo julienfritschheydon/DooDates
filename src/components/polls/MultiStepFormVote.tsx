@@ -37,13 +37,32 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       if (typeof value === "number") {
         simplifiedAnswers[qId] = value.toString();
       } else if (typeof value === "object" && !Array.isArray(value)) {
-        // Matrix: vérifier si au moins une ligne est remplie
-        const hasAnswer = Object.values(value).some((v) =>
-          Array.isArray(v) ? v.length > 0 : Boolean(v),
-        );
-        simplifiedAnswers[qId] = hasAnswer ? "answered" : "";
+        // Vérifier si c'est un DateVoteValue
+        if (value && Array.isArray(value) && value.length > 0 && 'date' in value[0]) {
+          // DateVoteValue: vérifier si au moins un vote "yes" ou "maybe"
+          const hasVote = (value as any).some((item: any) => 
+            item.vote === "yes" || item.vote === "maybe"
+          );
+          simplifiedAnswers[qId] = hasVote ? "answered" : "";
+        } else {
+          // Matrix: vérifier si au moins une ligne est remplie
+          const hasAnswer = Object.values(value).some((v) =>
+            Array.isArray(v) ? v.length > 0 : Boolean(v),
+          );
+          simplifiedAnswers[qId] = hasAnswer ? "answered" : "";
+        }
+      } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && 'date' in value[0]) {
+        // C'est un DateVoteValue - vérifier s'il y a des votes "yes" ou "maybe"
+        const hasVote = (value as DateVoteValue).some(item => item.vote === "yes" || item.vote === "maybe");
+        simplifiedAnswers[qId] = hasVote ? "answered" : "";
       } else {
-        simplifiedAnswers[qId] = value;
+        // Pour les types restants, s'assurer que c'est bien string | string[]
+        if (typeof value === 'string' || Array.isArray(value)) {
+          simplifiedAnswers[qId] = value;
+        } else {
+          // Cas par défaut : traiter comme vide
+          simplifiedAnswers[qId] = "";
+        }
       }
     });
 
@@ -233,7 +252,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   // Page de confirmation après soumission
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center animate-fadeIn">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-green-600" />
@@ -410,7 +429,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
             {isOnCoordinatesStep ? (
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg"
+                className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-green-600 to-green-600 text-white hover:from-green-700 hover:to-green-700 shadow-md hover:shadow-lg"
               >
                 <Check className="w-5 h-5" />
                 Soumettre

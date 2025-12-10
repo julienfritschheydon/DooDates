@@ -13,6 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import TopNavGemini from "@/components/prototype/TopNavGemini";
 
 export function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
@@ -70,37 +71,6 @@ export function PricingPage() {
   return (
     <CreatePageLayout>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 pb-8">
-        {/* Simple TopNav */}
-        <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link
-                to="/"
-                className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <Home className="w-5 h-5" />
-                DooDates
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link
-                  to="/docs"
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  Documentation
-                </Link>
-                {user ? (
-                  <Button onClick={() => navigate("/create/date")} size="sm">
-                    Créer un sondage
-                  </Button>
-                ) : (
-                  <Button onClick={handleSignIn} size="sm">
-                    Connexion
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </nav>
 
         <div className="py-12 px-4">
           {/* Hero Section */}

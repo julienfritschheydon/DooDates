@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  Calendar,
+  Clock,
   ArrowRight,
   Users,
   Zap,
   Sparkles,
   CheckCircle2,
-  Clock,
+  Calendar,
   MousePointer,
+  CalendarDays,
+  Layers,
+  Globe,
 } from "lucide-react";
 import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
+import { ProductSidebar } from "@/components/layout/products/ProductSidebar";
+import { cn } from "@/lib/utils";
 
 // Animation staggered pour les éléments
 const useStaggeredAnimation = (itemCount: number, delay: number = 100) => {
@@ -41,16 +46,32 @@ export const LandingPage: React.FC = () => {
   const featureVisible = useStaggeredAnimation(3, 150);
   const stepVisible = useStaggeredAnimation(3, 200);
   const [heroVisible, setHeroVisible] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // État du menu
 
   useEffect(() => {
-    const timer = setTimeout(() => setHeroVisible(true), 100);
+    const timer = setTimeout(() => setHeroVisible(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
+  // Sur desktop, le menu est toujours ouvert. Sur mobile, on peut le fermer.
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
+
+  const handleMenuToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <div className="min-h-screen bg-[#030712] text-white overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
+    <div className="flex min-h-screen bg-[#030712]">
+      {/* Sidebar auto-suffisante avec son hamburger */}
+      <ProductSidebar productType="date" />
+      
+      {/* Contenu principal */}
+      <div className="flex-1 text-white overflow-hidden">
+        
+        {/* Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02]"
@@ -65,45 +86,22 @@ export const LandingPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
       </div>
 
-      {/* Navigation Header */}
+      {/* Navigation Header - Simplifié sans liens dupliqués */}
       <header className="relative z-10 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-16">
-            <Link to="/date-polls" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-semibold tracking-tight">Date Polls</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link
-                to="/date-polls/dashboard"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/date-polls/documentation"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Documentation
-              </Link>
-              <Link
-                to="/date-polls/pricing"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Tarifs
-              </Link>
-              <Link to="/" className="text-sm text-gray-400 hover:text-white transition-colors">
-                ← DooDates
-              </Link>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-32">
+      <section className={cn("relative z-10 pb-32", sidebarOpen ? "pt-20" : "pt-6")}>
         <div className="max-w-6xl mx-auto px-6">
           <div
             className={`transition-all duration-700 ${
@@ -352,7 +350,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 };

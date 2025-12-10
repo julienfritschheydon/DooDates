@@ -570,7 +570,7 @@ Q3. [Visible si Q1 = Oui]
               → Tableau de bord
             </Link>
             <Link
-              to="/form-polls/workspace/form"
+              to="/workspace/form"
               className="block text-purple-400 hover:text-purple-300 transition-colors"
             >
               → Créer un formulaire

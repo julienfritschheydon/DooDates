@@ -40,7 +40,7 @@ vi.mock("../../components/modals/AuthIncentiveModal", () => {
 vi.mock("../../components/ui/QuotaIndicator", () => {
   const MockQuotaIndicator = ({ usage, limits }: any) => (
     <div data-testid="quota-indicator">
-      {usage.conversations}/{limits.conversations} conversations
+      {usage?.conversations || 0}/{limits?.conversations || 0} conversations
     </div>
   );
 

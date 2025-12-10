@@ -4,14 +4,19 @@ import {
   Clock,
   ArrowRight,
   Users,
-  CalendarDays,
+  Zap,
   Sparkles,
-  Globe,
-  Layers,
+  CheckCircle2,
+  Calendar,
   MousePointer,
+  CalendarDays,
+  Layers,
+  Globe,
 } from "lucide-react";
 import { ProductButton } from "@/components/products/ProductButton";
 import { Footer } from "@/components/shared/Footer";
+import { ProductSidebar } from "@/components/layout/products/ProductSidebar";
+import { cn } from "@/lib/utils";
 
 // Animation staggered pour les éléments
 const useStaggeredAnimation = (itemCount: number, delay: number = 100) => {
@@ -39,17 +44,33 @@ const useStaggeredAnimation = (itemCount: number, delay: number = 100) => {
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const featureVisible = useStaggeredAnimation(3, 150);
+  const stepVisible = useStaggeredAnimation(3, 200);
   const [heroVisible, setHeroVisible] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Menu ouvert par défaut
 
   useEffect(() => {
     const timer = setTimeout(() => setHeroVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
+
+  const handleMenuToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <div className="min-h-screen bg-[#030712] text-white overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
+    <div className="flex min-h-screen bg-[#030712]">
+      {/* Sidebar auto-suffisante avec son hamburger */}
+      <ProductSidebar productType="availability" />
+      
+      {/* Contenu principal */}
+      <div className="flex-1 text-white overflow-hidden">
+        
+        {/* Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
         {/* Dot pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
@@ -63,45 +84,22 @@ export const LandingPage: React.FC = () => {
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[130px] translate-y-1/3 translate-x-1/3" />
       </div>
 
-      {/* Navigation Header */}
+      {/* Navigation Header - Simplifié sans liens dupliqués */}
       <header className="relative z-10 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-16">
-            <Link to="/availability-polls" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <Clock className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-semibold tracking-tight">Availability</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link
-                to="/availability-polls/dashboard"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/availability-polls/documentation"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Documentation
-              </Link>
-              <Link
-                to="/availability-polls/pricing"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Tarifs
-              </Link>
-              <Link to="/" className="text-sm text-gray-400 hover:text-white transition-colors">
-                ← DooDates
-              </Link>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-32">
+      <section className={cn("relative z-10 pb-32", sidebarOpen ? "pt-20" : "pt-6")}>
         <div className="max-w-6xl mx-auto px-6">
           <div
             className={`transition-all duration-700 ${
@@ -371,7 +369,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 };
