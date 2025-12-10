@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
+import { getPollBySlugOrId, addFormResponse, getCurrentUserId } from "../../lib/pollStorage";
 import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type {
@@ -39,6 +39,28 @@ export default function FormPollVote({ idOrSlug }: Props) {
   const [voterEmail, setVoterEmail] = useState("");
   const [wantsEmailCopy, setWantsEmailCopy] = useState(false);
   const [showDataInfo, setShowDataInfo] = useState(false);
+
+  // Vérifier si l'utilisateur a le droit de voir les résultats (toujours appelé)
+  const canSeeResults = useMemo(() => {
+    if (!poll || !submitted) return false;
+    
+    const visibility = poll.resultsVisibility || "creator-only";
+    
+    // 1. Public : tout le monde peut voir
+    if (visibility === "public") return true;
+    
+    // 2. Créateur : vérifier si c'est le créateur
+    const currentUserId = getCurrentUserId();
+    const isCreator = poll.creator_id === currentUserId;
+    if (isCreator) return true;
+    
+    // 3. Voters : vérifier si l'utilisateur a voté (après soumission, il a voté)
+    if (visibility === "voters") {
+      return true; // Après soumission, l'utilisateur a voté
+    }
+    
+    return false;
+  }, [poll, submitted]);
 
   useEffect(() => {
     const p = getPollBySlugOrId(idOrSlug);
@@ -275,9 +297,6 @@ export default function FormPollVote({ idOrSlug }: Props) {
   }
 
   if (submitted) {
-    const visibility = poll.resultsVisibility || "creator-only";
-    const canSeeResults = visibility === "public" || visibility === "voters";
-
     return (
       <VoteCompletionScreen
         voterName={voterName}

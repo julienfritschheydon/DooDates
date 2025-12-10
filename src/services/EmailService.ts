@@ -59,7 +59,7 @@ export async function sendVoteConfirmationEmail(data: EmailResponseData): Promis
 /**
  * Génère le HTML de l'email de confirmation
  */
-function generateEmailHtml(data: EmailResponseData): string {
+export function generateEmailHtml(data: EmailResponseData): string {
   const { poll, response, questions } = data;
 
   let html = `
