@@ -1295,7 +1295,7 @@ export function anonymizeFormResponsesForPoll(pollId: string): { anonymizedCount
 export function getDeviceId(): string {
   if (DEVICE_ID_CACHE) return DEVICE_ID_CACHE;
   if (!hasWindow()) return (DEVICE_ID_CACHE = "server");
-  const key = "dd-device-id";
+  const key = "doodates_device_id";
   const existing = hasWindow() ? window.localStorage.getItem(key) : null;
   if (existing && existing.trim()) {
     DEVICE_ID_CACHE = existing;
@@ -1494,8 +1494,18 @@ export function checkIfUserHasVoted(pollId: string): boolean {
   if (hasVotedByDeviceId) return true;
 
   // Priorité 2: Fallback pour réponses anciennes (sans deviceId stocké)
-  // Pour les réponses anonymes, le respondentId contient le deviceId
+  // Pour les réponses anonymes, vérifier si le respondentId (legacy ou calculé) contient le deviceId
   return responses.some((r) => {
+    // Vérifier d'abord s'il y a un respondentId legacy stocké directement
+    const legacyRespondentId = (r as any).respondentId;
+    if (legacyRespondentId && typeof legacyRespondentId === 'string') {
+      // Format legacy: anon:<deviceId>:<responseId>
+      if (legacyRespondentId.startsWith(`anon:${deviceId}:`)) {
+        return true;
+      }
+    }
+
+    // Sinon, utiliser getRespondentId qui calcule le respondentId
     const respondentId = getRespondentId(r);
     // Si la réponse est anonyme, le respondentId contient le deviceId
     if (respondentId.startsWith(`anon:${deviceId}:`)) {
@@ -1540,5 +1550,6 @@ export function resetMemoryStateForTests(): void {
   memoryPollCache.clear();
   memoryResponses = [];
   memoryResponsesCache.clear();
-  DEVICE_ID_CACHE = null;
+  // DON'T clear DEVICE_ID_CACHE - it should remain consistent within a test run
+  // Otherwise getDeviceId() will return different IDs when called multiple times
 }

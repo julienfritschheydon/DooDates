@@ -1,0 +1,146 @@
+Competitor Analysis Report - 2025-12-10T23:36:08.020Z
+================================================================================
+✓ Supabase credentials found.
+
+
+================================================================================
+Source: Doodle
+URL: https://help.doodle.com/hc/en-us/sections/360003058852-Product-Updates
+--------------------------------------------------------------------------------
+Page Title: Doodle Help Center
+
+Category: Date Polls
+ANALYSIS:
+The text highlights features DooDates may not have: Booking Pages, 1:1 scheduling tools, 
+and extensive integrations with calendar and video conferencing platforms. It also indicates 
+a focus on user education through comprehensive articles and dedicated troubleshooting sections. 
+DooDates could consider developing similar features and resources to enhance its scheduling capabilities and user support.
+
+
+
+================================================================================
+Source: Calendly
+URL: https://calendly.com/blog/category/product-news
+--------------------------------------------------------------------------------
+Page Title: Calendly.com
+
+Category: Date Polls
+ANALYSIS:
+Calendly's new "Meeting Polls" feature allows users to vote on meeting times and directly book the meeting 
+within the platform, streamlining the scheduling process. They also have a browser extension enabling quick 
+link sharing within LinkedIn Messaging, improving accessibility and convenience. DooDates should explore similar 
+integrated booking functionalities within polls and consider browser extensions for popular platforms.
+
+
+
+================================================================================
+Source: Rallly
+URL: https://github.com/lukevella/rallly/releases
+--------------------------------------------------------------------------------
+Page Title: Releases · lukevella/rallly
+
+Category: Date Polls
+ANALYSIS:
+Rallly's recent updates heavily focus on security patches (multiple CVEs), dependency updates, and bug 
+fixes related to authentication (OIDC, Google/Microsoft redirects) and email delivery. One potential 
+feature to note is "Show pinging indicator when there are invisible options", which could improve UX 
+by subtly hinting at hidden data. The introduction of password-based login alongside existing session 
+management could be a strategic shift towards wider accessibility and user preference.
+
+
+
+================================================================================
+Source: Framadate
+URL: https://framagit.org/framasoft/framadate/framadate/-/blob/master/CHANGELOG.md
+--------------------------------------------------------------------------------
+Page Title: CHANGELOG.md · master · Framasoft / framadate / framadate · GitLab
+
+Category: Date Polls
+ANALYSIS:
+- **Creation of polls by date range:** Framadate allows users to create polls by specifying a range of dates, a feature DooDates could explore to simplify poll creation for events spanning multiple days.
+- **Modify poll after expiration**: The ability to change a poll after it has expired.
+- **"Each participant can modify their vote" option:** DooDates could consider adding a feature where each participant can modify only their own vote, enhancing privacy and control.
+- **"Hidden votes, only the creator can see the results" option:** DooDates could explore to give users more control over privacy settings in date polls.
+
+
+
+================================================================================
+Source: Typeform
+URL: https://www.typeform.com/help/a/whats-new-at-typeform-360029586111/
+--------------------------------------------------------------------------------
+ERROR: Error processing Typeform: TimeoutError: Navigation timeout of 60000 ms exceeded
+
+
+================================================================================
+Source: Tally.so
+URL: https://tally.so/changelog
+--------------------------------------------------------------------------------
+ERROR: Error processing Tally.so: TimeoutError: Navigation timeout of 60000 ms exceeded
+
+
+================================================================================
+Source: Google Forms
+URL: https://workspaceupdates.googleblog.com/search/label/Google%20Forms
+--------------------------------------------------------------------------------
+ERROR: Error processing Google Forms: TimeoutError: Navigation timeout of 60000 ms exceeded
+
+
+================================================================================
+Source: Jotform
+URL: https://www.jotform.com/blog/category/new-features/
+--------------------------------------------------------------------------------
+Page Title: 
+
+Category: Forms
+ANALYSIS:
+No relevant updates found.
+
+
+
+================================================================================
+Source: Calendly Meeting Polls
+URL: https://calendly.com/features/meeting-polls
+--------------------------------------------------------------------------------
+Page Title: Meeting Polls | Calendly
+
+Category: Availability Polls
+ANALYSIS:
+Calendly's Meeting Polls directly integrate with user calendars for real-time syncing, time zone detection, and automated calendar invites, transforming polls into scheduled events. They emphasize an ad-free experience and highlight ease of use, even across multiple time zones. A key differentiator is that meeting polls are included in every Calendly plan, including the free tier.
+
+No relevant updates found.
+
+
+
+================================================================================
+Source: Kahoot
+URL: https://kahoot.com/blog/
+--------------------------------------------------------------------------------
+Page Title: Kahoot! Blog
+
+Category: AI Quizz
+ANALYSIS:
+* **Confidence Mode:** Kahoot!'s "confidence mode" allows students to reflect on their learning, providing teachers with deeper insights into knowledge gaps. This could inform AI Quizz & Learning by adding self-assessment features.
+* **Research-backed results:** Kahoot highlights research demonstrating its impact on engagement and learning outcomes. DooDates could emphasize similar data-driven results for its educational features.
+* **Partnerships/Themed Content:** Kahoot leverages partnerships (e.g., Disney) to create themed quizzes and content. DooDates could explore similar collaborations to expand its AI Quizz & Learning content library.
+
+
+
+================================================================================
+Source: Quizlet
+URL: https://quizlet.com/blog
+--------------------------------------------------------------------------------
+Page Title: Inside Quizlet | Quizlet
+
+Category: AI Quizz
+ANALYSIS:
+*   **Partnerships:** Quizlet partners with tools like Superhuman (formerly Grammarly) to support students' learning at every stage (writing to studying). DooDates could explore similar partnerships to enhance the user experience within AI Quizz & Learning.
+*   **AI-powered study tools:** Quizlet focuses on AI-powered study tools. DooDates could analyze specific AI tools and features Quizlet is developing to incorporate into the AI Quizz.
+*   **Personalized learning:** Quizlet emphasizes personalized learning experiences. DooDates should focus on personalization within its AI Quizz & Learning to create tailored content and learning paths.
+*   **Marketing:** Quizlet has launched a merchandise store. DooDates could test similar marketing activities.
+
+No relevant updates found.
+
+
+
+================================================================================
+Report completed at 2025-12-10T23:41:41.855Z

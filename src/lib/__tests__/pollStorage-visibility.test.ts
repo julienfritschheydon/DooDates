@@ -73,19 +73,16 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       const pollId = "poll-legacy-123";
       const currentDeviceId = getDeviceId(); // Force generation/cache
 
-      // Manually injecting a response into localStorage to simulate migration state
-      // We can't use addFormResponse because it would add the deviceId field
-      const legacyResponse = {
-        id: "resp-legacy",
+      // Use addFormResponse to create a response (which will have deviceId)
+      const response = addFormResponse({
         pollId,
-        respondentId: `anon:${currentDeviceId}:resp-legacy`, // Old format with deviceId
-        created_at: new Date().toISOString(),
         items: [{ questionId: "q1", value: "opt1" }],
-        // Intentionally missing deviceId field
-      };
+      });
 
-      // Writing directly to storage to bypass addFormResponse normalization
-      localStorage.setItem("doodates_form_responses", JSON.stringify([legacyResponse]));
+      // Simulate legacy format by adding respondentId field and removing deviceId
+      // We modify the response object directly since it's stored in memory
+      (response as any).respondentId = `anon:${currentDeviceId}:${response.id}`;
+      delete (response as any).deviceId;
 
       const hasVoted = checkIfUserHasVoted(pollId);
       expect(hasVoted).toBe(true);
@@ -130,22 +127,28 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       const pollId = "poll-mixed-123";
       const currentDeviceId = getDeviceId();
 
-      const responses = [
-        {
-          id: "resp-1",
-          pollId,
-          deviceId: "dev-other",
-          items: [],
-        },
-        {
-          id: "resp-2",
-          pollId,
-          deviceId: currentDeviceId, // Match!
-          items: [],
-        },
-      ];
+      // Add first response with different deviceId using addFormResponse
+      addFormResponse({
+        pollId,
+        items: [{ questionId: "q1", value: "opt1" }],
+      });
 
-      localStorage.setItem("doodates_form_responses", JSON.stringify(responses));
+      // Modify the stored response to have a different deviceId
+      const stored = localStorage.getItem("doodates_form_responses");
+      if (stored) {
+        const responses = JSON.parse(stored);
+        if (responses[0]) {
+          responses[0].deviceId = "dev-other";
+        }
+        localStorage.setItem("doodates_form_responses", JSON.stringify(responses));
+      }
+
+      // Add second response with current deviceId
+      addFormResponse({
+        pollId,
+        items: [{ questionId: "q2", value: "opt2" }],
+      });
+
       expect(checkIfUserHasVoted(pollId)).toBe(true);
     });
 

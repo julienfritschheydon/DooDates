@@ -5,8 +5,8 @@ import { logger } from "../../logger";
 import { formatDateLocal, getTodayLocal } from "../../date-utils";
 // ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
 // import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
-import { secureGeminiService } from "@/services/SecureGeminiService";
-import { directGeminiService } from "@/services/DirectGeminiService";
+import { secureGeminiService } from "../../../services/SecureGeminiService";
+import { directGeminiService } from "../../../services/DirectGeminiService";
 import { getEnv, isDev } from "../../env";
 import type { ParsedTemporalInput } from "../../temporalParser";
 
@@ -668,6 +668,59 @@ export class GeminiService {
       logError(error as Error, {
         operation: "FormPollResponseParseError",
         metadata: { text: text.substring(0, 200) },
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Résume un contenu textuel (usage générique)
+   */
+  async summarizeContent(text: string, prompt?: string): Promise<string | null> {
+    try {
+      if (text.length > 20000) {
+        text = text.substring(0, 20000) + "... (truncated)";
+      }
+
+      const defaultPrompt = `
+        Summarize the following text. Key information only.
+        
+        Text:
+        ${text}
+      `;
+
+      const response = await geminiBackend.generateContent(text, prompt || defaultPrompt);
+
+      if (!response.success || !response.data) {
+        logger.warn("Summarization failed", "api", { error: response.error });
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      logError(error as Error, {
+        operation: "SummarizeContentError",
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Génère du contenu avec un prompt complet (pour usage avancé)
+   */
+  async generateWithPrompt(fullPrompt: string): Promise<string | null> {
+    try {
+      const response = await geminiBackend.generateContent('', fullPrompt);
+
+      if (!response.success || !response.data) {
+        logger.warn("Content generation failed", "api", { error: response.error });
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      logError(error as Error, {
+        operation: "GenerateWithPromptError",
       });
       return null;
     }

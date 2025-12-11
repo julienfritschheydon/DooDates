@@ -1,11 +1,11 @@
 // Service sécurisé pour appeler Gemini via Edge Function
 // Remplace les appels directs à Gemini API côté client
 
-import { logger } from "@/lib/logger";
-import { handleError, ErrorFactory, logError } from "@/lib/error-handling";
-import { getEnv } from "@/lib/env";
-import { getSupabaseSessionWithTimeout } from "@/lib/supabaseApi";
-import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
+import { logger } from "../lib/logger";
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { getEnv } from "../lib/env";
+import { getSupabaseSessionWithTimeout } from "../lib/supabaseApi";
+import type { GeminiAttachedFile } from "./FileAttachmentService";
 
 export interface SecureGeminiResponse {
   success: boolean;

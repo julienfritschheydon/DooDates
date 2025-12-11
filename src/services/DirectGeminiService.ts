@@ -410,8 +410,6 @@
 //   }
 // }
 
-// // ⚠️ INSTANCE NON CONFORME RGPD - DÉVELOPPEMENT SEULEMENT ⚠️
-// export const directGeminiService = DirectGeminiService.getInstance();
 
 /**
  * RAPPEL RGPD CRITIQUE :

@@ -11,10 +11,16 @@ export class FormPollCreatorTestHelper {
    */
   static openConfigurationAccordion(): void {
     const configButton = screen.getByText(/Paramètres de configuration/);
-    fireEvent.click(configButton);
-    
-    // Wait a bit for the accordion to open and content to render
-    // This helps with timing issues in tests
+
+    // Check if accordion is already open by looking for visibility radio buttons
+    try {
+      screen.getByDisplayValue("creator-only");
+      // Already open, don't click again
+      return;
+    } catch {
+      // Not open, click to open
+      fireEvent.click(configButton);
+    }
   }
 
   /**
@@ -33,7 +39,7 @@ export class FormPollCreatorTestHelper {
   static getAllResultsVisibilityRadios() {
     return [
       screen.getByDisplayValue("creator-only"),
-      screen.getByDisplayValue("voters"), 
+      screen.getByDisplayValue("voters"),
       screen.getByDisplayValue("public")
     ];
   }
@@ -123,7 +129,7 @@ export class FormPollCreatorTestHelper {
    * Gets the finalize button element
    */
   static getFinalizeButton() {
-    return screen.getByText(/Finaliser/);
+    return screen.getByRole('button', { name: /Publier le formulaire/i });
   }
 
   /**

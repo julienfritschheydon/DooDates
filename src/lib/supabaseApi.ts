@@ -5,6 +5,7 @@
 
 import { logger } from "./logger";
 import { ErrorFactory } from "./error-handling";
+import { getEnv } from "./env";
 import type { Session } from "@supabase/supabase-js";
 
 /**
@@ -120,8 +121,8 @@ export async function supabaseRestApi<T = Record<string, unknown>>(
   // Helper function to perform the fetch
   const performFetch = async (token: string | null) => {
     // Build URL
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const baseUrl = getEnv("VITE_SUPABASE_URL");
+    const anonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
     if (!baseUrl || !anonKey) {
       throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");
@@ -401,8 +402,8 @@ export async function callSupabaseEdgeFunction<T = Record<string, unknown>>(
   }
 
   // Build URL
-  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const baseUrl = getEnv("VITE_SUPABASE_URL");
+  const anonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
   if (!baseUrl || !anonKey) {
     throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");
@@ -492,8 +493,8 @@ export async function supabaseRpc<T = Record<string, unknown>>(
   }
 
   // Build URL
-  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const baseUrl = getEnv("VITE_SUPABASE_URL");
+  const anonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
   if (!baseUrl || !anonKey) {
     throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");

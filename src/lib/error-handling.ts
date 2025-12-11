@@ -1,3 +1,5 @@
+import { isDev } from "./env";
+
 /**
  * Centralized Error Handling System for DooDates
  *
@@ -84,7 +86,7 @@ export function logError(error: Error | DooDatesError, context: ErrorContext = {
   };
 
   // Always log to console in development
-  if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+  if (isDev() || (typeof process !== "undefined" && process.env?.NODE_ENV !== "production")) {
     console.error("🚨 DooDates Error:", errorInfo);
   }
 

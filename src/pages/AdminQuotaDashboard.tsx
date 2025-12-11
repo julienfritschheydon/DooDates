@@ -124,7 +124,7 @@ const AdminQuotaDashboard: React.FC = () => {
       setQuotas(qData || []);
       setJournal(jData || []);
     } catch (err: any) {
-      logger.error("Failed to load admin quota data", "admin", err);
+      logger.error("Failed to load admin quota data", "quota", err);
       setLoadError(err.message || "Erreur de chargement");
     } finally {
       setIsLoadingData(false);
@@ -200,7 +200,7 @@ const AdminQuotaDashboard: React.FC = () => {
       setShowDeleteConfirm(null);
       void loadQuotas();
     } catch (e) {
-      logger.error("Failed to delete user data", "admin", e);
+      logger.error("Failed to delete user data", "quota", e);
       alert("Erreur lors de la suppression des données");
     }
   };

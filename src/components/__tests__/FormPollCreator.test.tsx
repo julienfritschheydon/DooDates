@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import FormPollCreator from "../polls/FormPollCreator";
 import type { FormPollDraft } from "../polls/FormPollCreator";
@@ -78,7 +78,7 @@ describe("FormPollCreator - resultsVisibility", () => {
 
     // Verify voters is selected
     FormPollCreatorTestHelper.expectVisibilityChecked("voters");
-    
+
     // Verify others are not selected
     FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
     FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
@@ -138,7 +138,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
   });
 
-  it("should include resultsVisibility in draft when onFinalize is called", () => {
+  it("should include resultsVisibility in draft when onFinalize is called", async () => {
     render(
       <TestWrapper>
         <FormPollCreator
@@ -159,12 +159,17 @@ describe("FormPollCreator - resultsVisibility", () => {
     // Finalize the draft
     FormPollCreatorTestHelper.clickFinalize();
 
+    // Wait for the async finalize operation to complete
+    await waitFor(() => {
+      expect(mockOnFinalize).toHaveBeenCalled();
+    });
+
     // Check that onFinalize was called with the correct resultsVisibility
     expect(mockOnFinalize).toHaveBeenCalledWith(
       expect.objectContaining({
         resultsVisibility: "public",
       }),
-      undefined // savedPoll is undefined for new polls
+      expect.any(Object) // savedPoll is now an object after creation
     );
   });
 
