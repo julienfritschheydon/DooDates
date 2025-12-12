@@ -218,8 +218,17 @@ export async function createTestPoll(
   poll: Omit<TestPoll, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<TestPoll> {
   const { slug, ...restPoll } = poll;
-  // Récupérer le device ID pour le creator_id par défaut
-  const deviceId = await page.evaluate(() => localStorage.getItem('dd-device-id'));
+  // Récupérer le device ID pour le creator_id par défaut (doit matcher pollStorage.getDeviceId)
+  // Clé attendue par l'app : "doodates_device_id"
+  const deviceId = await page.evaluate(() => {
+    const key = "doodates_device_id";
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = "test-device-id";
+      localStorage.setItem(key, id);
+    }
+    return id;
+  });
 
   const testPoll: TestPoll = {
     id: `test-poll-${Date.now()}`,
@@ -227,7 +236,7 @@ export async function createTestPoll(
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     settings: restPoll.settings || {},
-    creator_id: restPoll.creator_id || deviceId || 'test-device-id',
+    creator_id: restPoll.creator_id || deviceId,
     ...restPoll,
   };
 
