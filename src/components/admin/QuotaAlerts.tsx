@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { ErrorFactory } from '../../lib/error-handling';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +40,7 @@ export default function QuotaAlerts() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Not authenticated');
+        throw ErrorFactory.authentication('Not authenticated');
       }
 
       const response = await fetch(
@@ -54,7 +55,7 @@ export default function QuotaAlerts() {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -74,7 +75,7 @@ export default function QuotaAlerts() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Not authenticated');
+        throw ErrorFactory.authentication('Not authenticated');
       }
 
       const response = await fetch(
@@ -89,7 +90,7 @@ export default function QuotaAlerts() {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -110,7 +111,7 @@ export default function QuotaAlerts() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Not authenticated');
+        throw ErrorFactory.authentication('Not authenticated');
       }
 
       const response = await fetch(
@@ -125,7 +126,7 @@ export default function QuotaAlerts() {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
       }
 
       setSuccess('Test alert email sent successfully!');

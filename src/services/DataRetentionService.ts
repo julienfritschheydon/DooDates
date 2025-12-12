@@ -1,4 +1,5 @@
 import { toast } from "@/hooks/use-toast";
+import { logError } from "@/lib/error-handling";
 
 export interface DeletionWarning {
   type: 'chat' | 'poll' | 'account';
@@ -89,7 +90,7 @@ export class DataRetentionService {
         await this.sendEmailWarning(warning);
         console.log(`Email de suppression envoyé à ${warning.userEmail} pour ${warning.type}`);
       } catch (error) {
-        console.error(`Erreur envoi email à ${warning.userEmail}:`, error);
+        logError(new Error(`Erreur envoi email à ${warning.userEmail}: ${error}`));
       }
     }
   }
@@ -199,7 +200,7 @@ export class DataRetentionService {
       
       return true;
     } catch (error) {
-      console.error('Erreur lors du report de suppression:', error);
+      logError(new Error(`Erreur lors du report de suppression: ${error}`));
       return false;
     }
   }

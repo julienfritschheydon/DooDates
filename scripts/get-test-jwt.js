@@ -5,19 +5,45 @@
  */
 
 import https from 'https';
+import { config } from 'dotenv';
 
-const SUPABASE_URL = 'https://outmbbisrrdiumlweira.supabase.co';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dG1iYmlzcnJkaXVtbHdlaXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTg1MDUsImV4cCI6MjA3Nzk5NDUwNX0.xeD_7_klSNzfX_5OU2p_vxFSwhrhQvqzi1b6RM-N-Ts';
+// Load environment variables from .env.test or .env.local
+config({ path: '.env.test' });
+config({ path: '.env.local' });
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !ANON_KEY) {
+  console.error('❌ Missing environment variables:');
+  console.error('   - SUPABASE_URL or VITE_SUPABASE_URL');
+  console.error('   - SUPABASE_ANON_KEY or VITE_SUPABASE_ANON_KEY');
+  console.error('\n💡 Create a .env.test file with these variables');
+  process.exit(1);
+}
+
+const E2E_TEST_EMAIL = process.env.E2E_TEST_EMAIL;
+const E2E_TEST_PASSWORD = process.env.E2E_TEST_PASSWORD;
+
+if (!E2E_TEST_EMAIL || !E2E_TEST_PASSWORD) {
+  console.error('❌ Missing E2E test credentials:');
+  console.error('   - E2E_TEST_EMAIL');
+  console.error('   - E2E_TEST_PASSWORD');
+  console.error('\n💡 Add these to your .env.test file');
+  process.exit(1);
+}
 
 const loginData = {
-  email: 'e2e-test@doodates.com',
-  password: 'E2E-Test-123'
+  email: E2E_TEST_EMAIL,
+  password: E2E_TEST_PASSWORD
 };
 
 const postData = JSON.stringify(loginData);
 
+const supabaseHost = new URL(SUPABASE_URL).hostname;
+
 const options = {
-  hostname: 'outmbbisrrdiumlweira.supabase.co',
+  hostname: supabaseHost,
   port: 443,
   path: '/auth/v1/token?grant_type=password',
   method: 'POST',

@@ -43,6 +43,7 @@ describe("unicity helpers", () => {
     const anonId = getRespondentId({
       id: "r2",
       pollId: "p1",
+      deviceId: deviceId, // Include deviceId as addFormResponse does
       created_at: new Date().toISOString(),
       items: [],
     } as any);

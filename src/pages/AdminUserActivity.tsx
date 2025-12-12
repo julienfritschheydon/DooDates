@@ -140,7 +140,7 @@ const AdminUserActivity: React.FC = () => {
       }
 
     } catch (error) {
-      console.error("Failed to load user quota", error);
+      logError(error instanceof Error ? error : new Error(String(error)), 'api', { context: 'Failed to load user quota' });
       // This is non-critical for viewing logs, but important for context
     }
 
@@ -194,7 +194,7 @@ const AdminUserActivity: React.FC = () => {
           setJournal(journalData);
         }
       } catch (e) {
-        console.error("Could not fetch journal", e);
+        logError(e instanceof Error ? e : new Error(String(e)), 'api', { context: 'Could not fetch journal' });
       }
     };
     promises.push(fetchJournal());

@@ -11,9 +11,20 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-// Configuration
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dG1iYmlzcnJkaXVtbHdlaXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwMjc5MDAsImV4cCI6MjA0OTYwMzkwMH0.6FqYHsEh1sC6Nj8p-TzZq6xWJpZrKqzHh9m2wY6Jk4';
+// Configuration - Load from environment variables only (no hardcoded secrets)
+require('dotenv').config({ path: '.env.test' });
+require('dotenv').config({ path: '.env.local' });
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('❌ Missing environment variables:');
+  console.error('   - SUPABASE_URL or VITE_SUPABASE_URL');
+  console.error('   - SUPABASE_ANON_KEY or VITE_SUPABASE_ANON_KEY');
+  console.error('\n💡 Create a .env.test file with these variables');
+  process.exit(1);
+}
 
 console.log('🧪 Testing DooDates Quota Alerts System\n');
 

@@ -19,6 +19,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { TopNav } from "@/components/layout/TopNav";
+import { logError } from "@/lib/error-handling";
 import DataRetentionService, { RetentionSettings } from "@/services/DataRetentionService";
 
 interface LocalDeletionWarning {
@@ -77,7 +78,7 @@ export const DataControl: React.FC = () => {
       
       setUpcomingDeletions(localWarnings);
     } catch (error) {
-      console.error('Erreur calcul suppressions:', error);
+      logError(new Error(`Erreur calcul suppressions: ${error}`));
       // Fallback avec données simulées
       const warnings: LocalDeletionWarning[] = [];
       const now = new Date();
@@ -215,7 +216,7 @@ export const DataControl: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Erreur report suppression:', error);
+      logError(new Error(`Erreur report suppression: ${error}`));
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors du report de suppression.",
