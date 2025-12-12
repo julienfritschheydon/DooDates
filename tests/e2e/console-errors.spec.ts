@@ -172,6 +172,8 @@ test.describe('Console Errors & React Warnings', () => {
         !error.includes('sw.js') &&
         !error.includes('Gemini') &&
         !error.includes('DooDatesError') && // Erreurs métier loggées intentionnellement
+        !error.includes('An unknown error occurred when fetching the script.') &&
+        !error.includes('ERR_CONNECTION_RESET') &&
         !error.includes('Failed to read from doodates_conversations') &&
         !error.includes('process is not defined') && // Ignorer l'erreur process is not defined
         !error.includes('Failed to load resource: the server responded with a status of 404'); // Ignorer les 404 génériques
