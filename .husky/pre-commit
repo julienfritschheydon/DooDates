@@ -4,6 +4,20 @@ echo "🔍 DooDates - Validation pre-commit..."
 # Détection branche courante
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 
+# ggshield secret scan (fail-fast sur toutes les branches, y compris test*)
+GGSHIELD_RAN=0
+if command -v ggshield >/dev/null 2>&1; then
+  echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+  ggshield secret scan pre-commit
+  if [ $? -ne 0 ]; then
+    echo "❌ Secrets détectés - Commit bloqué"
+    exit 1
+  fi
+  GGSHIELD_RAN=1
+else
+  echo "ℹ️ ggshield non installé (skip)"
+fi
+
 # Skip tous les tests pour les branches de test (test, test-*)
 if echo "$BRANCH" | grep -qE "^test"; then
   echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
@@ -202,15 +216,17 @@ if [ "$BRANCH" = "pre-prod" ]; then
 fi
 
 # ggshield secret scan (fail-fast sur toutes les branches)
-if command -v ggshield >/dev/null 2>&1; then
-  echo "🛡️ ggshield: scan des secrets (pre-commit)..."
-  ggshield secret scan pre-commit
-  if [ $? -ne 0 ]; then
-    echo "❌ Secrets détectés - Commit bloqué"
-    exit 1
+if [ "$GGSHIELD_RAN" != "1" ]; then
+  if command -v ggshield >/dev/null 2>&1; then
+    echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+    ggshield secret scan pre-commit
+    if [ $? -ne 0 ]; then
+      echo "❌ Secrets détectés - Commit bloqué"
+      exit 1
+    fi
+  else
+    echo "ℹ️ ggshield non installé (skip)"
   fi
-else
-  echo "ℹ️ ggshield non installé (skip)"
 fi
 
 # Mode rapide optionnel pour accélérer les commits locaux
