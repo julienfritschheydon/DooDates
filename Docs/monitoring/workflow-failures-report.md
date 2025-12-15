@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 15/12/2025 02:09:59
+**Dernière mise à jour:** 15/12/2025 07:25:30
 
-_Workflow run #760 (ID 20217255825) — génération UTC 2025-12-15T01:09:59.119Z_
+_Workflow run #761 (ID 20222641629) — génération UTC 2025-12-15T06:25:30.494Z_
 
-## 🎯 Focus: Commit `89cdf08`
+## 🎯 Focus: Commit `ca8a5e3`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #760 (ID 20217255825) — génération UTC 2025-12-15T01:09:59.119
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `89cdf08`.
+Tous les workflows surveillés ont réussi pour le commit `ca8a5e3`.
 
 ---
 
@@ -41,13 +41,13 @@ Tous les workflows surveillés ont réussi pour le commit `89cdf08`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `89cdf08`.
+Tous les workflows surveillés ont réussi pour le commit `ca8a5e3`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `89cdf08`
+- 🎯 **Focus: Commit actuel** `ca8a5e3`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
