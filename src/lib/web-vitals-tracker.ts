@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { logError, ErrorFactory } from './error-handling';
 
 // Web Vitals types
 interface WebVitalsMetric {
@@ -46,7 +47,10 @@ export function useWebVitals() {
       if (webVitals.onTTFB) webVitals.onTTFB(sendToAnalytics);
       if (webVitals.onINP) webVitals.onINP(sendToAnalytics); // INP replaces FID in newer versions
     }).catch((error) => {
-      console.warn('Web Vitals tracking not available:', error);
+      logError(
+        ErrorFactory.api('Web Vitals tracking not available', 'Suivi Web Vitals non disponible'),
+        { component: 'web-vitals-tracker', operation: 'useWebVitals', error }
+      );
     });
   }, []);
 }
@@ -79,7 +83,10 @@ async function sendWebVitalsToSupabase(data: WebVitalsData) {
       console.log('Web Vitals:', data);
     }
   } catch (error) {
-    console.warn('Failed to send Web Vitals data:', error);
+    logError(
+      ErrorFactory.api('Failed to send Web Vitals data', 'Erreur lors de l\'envoi des données Web Vitals'),
+      { component: 'web-vitals-tracker', operation: 'sendWebVitalsToSupabase', error }
+    );
   }
 }
 

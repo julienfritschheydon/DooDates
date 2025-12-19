@@ -133,6 +133,151 @@ export function shouldSendConfirmationEmail(settings: any): boolean {
 }
 
 /**
+ * Génère le HTML de l'email de confirmation pour un Form Poll
+ */
+function generateFormPollEmailHTML(data: {
+  pollTitle: string;
+  responses: Array<{ question: string; answer: string }>;
+  respondentName?: string;
+}): string {
+  const respondentName = data.respondentName || "Anonyme";
+  const responsesList = data.responses
+    .map(
+      (item) => `
+    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
+      <p style="margin: 0 0 8px; color: #333; font-size: 16px; font-weight: 600;">
+        ${escapeHtml(item.question)}
+      </p>
+      <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.6;">
+        ${escapeHtml(item.answer)}
+      </p>
+    </div>
+  `
+    )
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vos réponses : ${escapeHtml(data.pollTitle)}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">DooDates</h1>
+              <p style="margin: 8px 0 0; color: #ffffff; font-size: 16px; opacity: 0.9;">Confirmation de réponse</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px; color: #333; font-size: 24px; font-weight: 600;">
+                ${escapeHtml(data.pollTitle)}
+              </h2>
+              <p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${escapeHtml(respondentName)},</p>
+              <p style="margin: 0 0 24px; color: #666; font-size: 16px;">
+                Merci d'avoir répondu au formulaire ! Voici un récapitulatif de vos réponses :
+              </p>
+              <div style="background-color: #f8f9fa; padding: 24px; border-radius: 4px; margin-bottom: 24px;">
+                ${responsesList}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Échappe les caractères HTML pour éviter les injections XSS
+ */
+function escapeHtml(text: string): string {
+  if (typeof text !== 'string') {
+    return String(text);
+  }
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+/**
+ * Formate la réponse selon le type de question
+ */
+function formatAnswer(value: any, question: any): string {
+  if (typeof value === "string") {
+    // Pour les questions single, trouver le label de l'option
+    if (question.kind === "single" && question.options) {
+      const option = question.options.find((opt: any) => opt.id === value);
+      return option?.label || value;
+    }
+    return value;
+  } else if (Array.isArray(value)) {
+    // Pour les questions multiple, trouver les labels des options
+    if (question.kind === "multiple" && question.options) {
+      return value
+        .map((optId: string) => {
+          const option = question.options.find((opt: any) => opt.id === optId);
+          return option?.label || optId;
+        })
+        .join(", ");
+    }
+    return value.join(", ");
+  } else if (typeof value === "object" && value !== null) {
+    // Pour les questions matrix
+    if (question.kind === "matrix") {
+      const entries = Object.entries(value);
+      return entries
+        .map(([rowId, colValue]) => {
+          const row = question.matrixRows?.find((r: any) => r.id === rowId);
+          const rowLabel = row?.label || rowId;
+          
+          if (Array.isArray(colValue)) {
+            // Multiple choice matrix
+            const colLabels = colValue
+              .map((colId: string) => {
+                const col = question.matrixColumns?.find((c: any) => c.id === colId);
+                return col?.label || colId;
+              })
+              .join(", ");
+            return `${rowLabel}: ${colLabels}`;
+          } else {
+            // Single choice matrix
+            const col = question.matrixColumns?.find((c: any) => c.id === colValue);
+            const colLabel = col?.label || colValue;
+            return `${rowLabel}: ${colLabel}`;
+          }
+        })
+        .join("; ");
+    }
+    return JSON.stringify(value);
+  } else if (typeof value === "number") {
+    // Pour les questions rating et NPS
+    if (question.kind === "rating" && question.ratingScale) {
+      return `${value}/${question.ratingScale}`;
+    } else if (question.kind === "nps") {
+      return `${value}/10`;
+    }
+    return String(value);
+  }
+  return String(value);
+}
+
+/**
  * Fonction wrapper pour FormPollVote (compatibilité avec l'ancien code)
  */
 export async function sendVoteConfirmationEmail(params: {
@@ -142,21 +287,16 @@ export async function sendVoteConfirmationEmail(params: {
 }): Promise<void> {
   const { poll, response, questions } = params;
   
-  // Construire le tableau de réponses
-  const responses = response.items.map((item: any) => {
-    const question = questions.find(q => q.id === item.questionId);
+  // Valider que l'email est présent
+  if (!response.respondentEmail) {
+    throw new Error('Email du votant manquant');
+  }
+  
+  // Construire le tableau de réponses avec formatage approprié
+  const formattedResponses = response.items.map((item: any) => {
+    const question = questions.find((q: any) => q.id === item.questionId);
     const questionTitle = question?.title || "Question";
-    
-    let answerText = "";
-    if (typeof item.value === "string") {
-      answerText = item.value;
-    } else if (Array.isArray(item.value)) {
-      answerText = item.value.join(", ");
-    } else if (typeof item.value === "object") {
-      answerText = JSON.stringify(item.value);
-    } else {
-      answerText = String(item.value);
-    }
+    const answerText = formatAnswer(item.value, question);
     
     return {
       question: questionTitle,
@@ -164,12 +304,30 @@ export async function sendVoteConfirmationEmail(params: {
     };
   });
   
-  // Appeler la fonction principale
-  await sendFormPollConfirmationEmail({
-    pollId: poll.id,
+  // Générer le HTML de l'email
+  const html = generateFormPollEmailHTML({
     pollTitle: poll.title,
-    responses,
+    responses: formattedResponses,
     respondentName: response.respondentName,
-    recipientEmail: response.respondentEmail || poll.settings?.emailForCopy || '',
   });
+  
+  // En mode test/dev, logger à la console
+  if (typeof process !== "undefined" && (process.env?.NODE_ENV === "test" || !import.meta.env?.PROD)) {
+    console.log('📧 Email à envoyer:', {
+      to: response.respondentEmail,
+      subject: `Vos réponses : ${poll.title}`,
+      html,
+    });
+  }
+  
+  // En production, appeler la fonction principale
+  if (import.meta.env?.PROD) {
+    await sendFormPollConfirmationEmail({
+      pollId: poll.id,
+      pollTitle: poll.title,
+      responses: formattedResponses,
+      respondentName: response.respondentName,
+      recipientEmail: response.respondentEmail,
+    });
+  }
 }

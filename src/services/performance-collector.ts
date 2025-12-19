@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { logError, ErrorFactory } from '../lib/error-handling';
 
 export interface PerformanceMetrics {
   timestamp: string;
@@ -69,7 +70,10 @@ export async function collectWorkflowMetrics(
       }]);
 
     if (error) {
-      console.error('Failed to store performance metrics:', error);
+      logError(
+        ErrorFactory.api('Failed to store performance metrics', 'Erreur lors du stockage des métriques'),
+        { component: 'performance-collector', operation: 'collectWorkflowMetrics', error }
+      );
       return { success: false, error: error.message };
     }
 
@@ -78,7 +82,10 @@ export async function collectWorkflowMetrics(
 
     return { success: true };
   } catch (error) {
-    console.error('Error collecting workflow metrics:', error);
+    logError(
+      ErrorFactory.api('Error collecting workflow metrics', 'Erreur lors de la collecte des métriques'),
+      { component: 'performance-collector', operation: 'collectWorkflowMetrics', error }
+    );
     return { success: false, error: String(error) };
   }
 }
@@ -107,13 +114,19 @@ export async function getHistoricalMetrics(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Failed to fetch historical metrics:', error);
+      logError(
+        ErrorFactory.api('Failed to fetch historical metrics', 'Erreur lors de la récupération des métriques'),
+        { component: 'performance-collector', operation: 'getHistoricalMetrics', error }
+      );
       return [];
     }
 
     return data?.map(row => row.metrics) || [];
   } catch (error) {
-    console.error('Error fetching historical metrics:', error);
+    logError(
+      ErrorFactory.api('Error fetching historical metrics', 'Erreur lors de la récupération des métriques'),
+      { component: 'performance-collector', operation: 'getHistoricalMetrics', error }
+    );
     return [];
   }
 }
@@ -183,7 +196,10 @@ async function checkForRegressions(
       await storeAlerts(alerts);
     }
   } catch (error) {
-    console.error('Error checking for regressions:', error);
+    logError(
+      ErrorFactory.api('Error checking for regressions', 'Erreur lors de la vérification des régressions'),
+      { component: 'performance-collector', operation: 'checkForRegressions', error }
+    );
   }
 }
 
@@ -240,10 +256,16 @@ async function storeAlerts(alerts: PerformanceAlert[]): Promise<void> {
       .insert(alerts);
 
     if (error) {
-      console.error('Failed to store performance alerts:', error);
+      logError(
+        ErrorFactory.api('Failed to store performance alerts', 'Erreur lors du stockage des alertes'),
+        { component: 'performance-collector', operation: 'storeAlerts', error }
+      );
     }
   } catch (error) {
-    console.error('Error storing alerts:', error);
+    logError(
+      ErrorFactory.api('Error storing alerts', 'Erreur lors du stockage des alertes'),
+      { component: 'performance-collector', operation: 'storeAlerts', error }
+    );
   }
 }
 
@@ -259,13 +281,19 @@ export async function getActiveAlerts(): Promise<PerformanceAlert[]> {
       .order('timestamp', { ascending: false });
 
     if (error) {
-      console.error('Failed to fetch active alerts:', error);
+      logError(
+        ErrorFactory.api('Failed to fetch active alerts', 'Erreur lors de la récupération des alertes'),
+        { component: 'performance-collector', operation: 'getActiveAlerts', error }
+      );
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error fetching active alerts:', error);
+    logError(
+      ErrorFactory.api('Error fetching active alerts', 'Erreur lors de la récupération des alertes'),
+      { component: 'performance-collector', operation: 'getActiveAlerts', error }
+    );
     return [];
   }
 }
@@ -281,13 +309,19 @@ export async function resolveAlert(alertId: string): Promise<boolean> {
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to resolve alert:', error);
+      logError(
+        ErrorFactory.api('Failed to resolve alert', 'Erreur lors de la résolution de l\'alerte'),
+        { component: 'performance-collector', operation: 'resolveAlert', error }
+      );
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error resolving alert:', error);
+    logError(
+      ErrorFactory.api('Error resolving alert', 'Erreur lors de la résolution de l\'alerte'),
+      { component: 'performance-collector', operation: 'resolveAlert', error }
+    );
     return false;
   }
 }

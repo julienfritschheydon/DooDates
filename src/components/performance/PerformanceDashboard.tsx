@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { PerformanceAlerts } from './PerformanceAlerts';
+import { logError, ErrorFactory } from '@/lib/error-handling';
 
 // Types for performance data
 interface PerformanceMetric {
@@ -110,7 +111,10 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
       setMetrics(mockHistoricalData);
       setCurrentMetrics(mockHistoricalData[mockHistoricalData.length - 1]);
     } catch (error) {
-      console.error('Failed to load performance data:', error);
+      logError(
+        ErrorFactory.api('Failed to load performance data', 'Erreur lors du chargement des données de performance'),
+        { component: 'PerformanceDashboard', operation: 'loadPerformanceData', error }
+      );
     } finally {
       setLoading(false);
     }
