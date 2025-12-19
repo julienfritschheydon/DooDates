@@ -169,7 +169,7 @@ npx vitest run src/services/__tests__/PollCreatorService.weekendGrouping.test.ts
 
 ---
 
-🌐 Tests E2E (Playwright)      : 81/81 passent (100% sur Chrome)
+🌐 Tests E2E (Playwright)      : 86/86 passent (100% sur Chrome)
    - Dashboard                 : 22 tests
    - Analytics IA              : 9/9 passent (dont analytics-ai-optimized.spec.ts factorisé)
    - Analytics IA Optimized    : 3/3 passent (~52s, gain ~70%) ✅ MIGRÉ vers nouveaux helpers
@@ -183,6 +183,7 @@ npx vitest run src/services/__tests__/PollCreatorService.weekendGrouping.test.ts
    - Guest Workflow            : 7/7 passent
    - Supabase Integration      : 11/11 passent (supabase-integration-manual.spec.ts migré)
    - Availability Poll Workflow: 6/6 passent - MVP v1.0 Agenda Intelligent
+   - Cross-Product Workflow    : 5/5 passent ✅ NOUVEAU (Décembre 2025)
    - Ultra Simple              : 1/1 passe sur Firefox/WebKit ✅ Calendrier stabilisé (useState)
 📈 SCORE GLOBAL                : 98%
 ```
@@ -635,7 +636,8 @@ npm run test:ci                # Suite CI complète
   - `tests/e2e/products/form-polls/*`
   - `tests/e2e/products/availability-polls/*`
   - `tests/e2e/products/quizz/*`
-  - `tests/e2e/products/cross-product/product-isolation.spec.ts` (vérifie que chaque dashboard produit ne voit que son type de sondage).
+  - `tests/e2e/products/cross-product/product-isolation.spec.ts` (vérifie que chaque dashboard produit ne voit que son type de sondage)
+  - `tests/e2e/products/cross-product/cross-product-workflow.spec.ts` (5 tests : workflow cross-produits + régression) ✅ NOUVEAU (Décembre 2025)
 - **Workflows ultra-simples** :
   - `ultra-simple-poll.spec.ts` → Date Poll complet (création + vote + présence dashboard Date).
   - `ultra-simple-form.spec.ts` → Form Poll complet (création IA + vote + dashboard Form Polls dédié).
@@ -647,6 +649,11 @@ npm run test:ci                # Suite CI complète
   - `tests/e2e/quota-tracking-complete.spec.ts` contrôle maintenant que la création d’un sondage de chaque type n’incrémente **que** le compteur correspondant :
     - `datePollsCreated`, `formPollsCreated`, `availabilityPollsCreated`, `quizzCreated`.
   - Ces tests fonctionnent en mode E2E localStorage (clé `doodates_quota_consumed`) et servent de référence métier pour les quotas.
+- **Tests cross-produits** :
+  - `tests/e2e/products/cross-product/product-isolation.spec.ts` : Isolation entre produits (3 tests)
+  - `tests/e2e/products/cross-product/cross-product-workflow.spec.ts` : Workflow et régression cross-produits (5 tests) ✅ NOUVEAU (Décembre 2025)
+    - Tests de workflow : Création Date Poll → Form Poll → Vérification quotas séparés, Isolation données multi-produits, Suppression compte
+    - Tests de régression : Modification service partagé, Changement quota
 
 #### 3.2 Suites principales
 
@@ -1641,6 +1648,6 @@ PRODUCT_ROUTES.quizz = {
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 6 décembre 2025 (Ajout tests Quizz - 54 tests unitaires + 4 scénarios E2E)
+**Dernière révision** : Décembre 2025 (Ajout tests Cross-Product Workflow - 5 tests E2E)
 
 ---

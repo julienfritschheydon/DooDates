@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { waitForNetworkIdle, waitForReactStable } from '../../helpers/wait-helpers';
 import { setupAllMocks } from '../../global-setup';
-import { createPollInLocalStorage } from '../../helpers/poll-storage-helpers';
+import { createPollInLocalStorage, createPollsAndVerifyInDashboard } from '../../helpers/poll-storage-helpers';
 import { PRODUCT_ROUTES, enableE2ELocalMode } from '../../utils';
 
 test.describe('Cross-Product Isolation', () => {
@@ -55,32 +54,35 @@ test.describe('Cross-Product Isolation', () => {
     });
 
     test('Date Polls Dashboard should only show Date Polls', async ({ page, browserName }) => {
-        await page.goto(PRODUCT_ROUTES.datePoll.dashboard);
-        await waitForNetworkIdle(page, { browserName });
-        await waitForReactStable(page, { browserName });
-
-        await expect(page.getByText('Test Date Poll')).toBeVisible();
-        await expect(page.getByText('Test Form Poll')).not.toBeVisible();
-        await expect(page.getByText('Test Availability Poll')).not.toBeVisible();
+        await createPollsAndVerifyInDashboard(
+            page,
+            browserName,
+            [], // Polls déjà créés dans beforeEach
+            PRODUCT_ROUTES.datePoll.dashboard,
+            ['Test Date Poll'],
+            ['Test Form Poll', 'Test Availability Poll']
+        );
     });
 
     test('Form Polls Dashboard should only show Form Polls', async ({ page, browserName }) => {
-        await page.goto(PRODUCT_ROUTES.formPoll.dashboard);
-        await waitForNetworkIdle(page, { browserName });
-        await waitForReactStable(page, { browserName });
-
-        await expect(page.getByText('Test Form Poll')).toBeVisible();
-        await expect(page.getByText('Test Date Poll')).not.toBeVisible();
-        await expect(page.getByText('Test Availability Poll')).not.toBeVisible();
+        await createPollsAndVerifyInDashboard(
+            page,
+            browserName,
+            [], // Polls déjà créés dans beforeEach
+            PRODUCT_ROUTES.formPoll.dashboard,
+            ['Test Form Poll'],
+            ['Test Date Poll', 'Test Availability Poll']
+        );
     });
 
     test('Availability Polls Dashboard should only show Availability Polls', async ({ page, browserName }) => {
-        await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard);
-        await waitForNetworkIdle(page, { browserName });
-        await waitForReactStable(page, { browserName });
-
-        await expect(page.getByText('Test Availability Poll')).toBeVisible();
-        await expect(page.getByText('Test Date Poll')).not.toBeVisible();
-        await expect(page.getByText('Test Form Poll')).not.toBeVisible();
+        await createPollsAndVerifyInDashboard(
+            page,
+            browserName,
+            [], // Polls déjà créés dans beforeEach
+            PRODUCT_ROUTES.availabilityPoll.dashboard,
+            ['Test Availability Poll'],
+            ['Test Date Poll', 'Test Form Poll']
+        );
     });
 });

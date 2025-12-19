@@ -1,24 +1,79 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClientOptions } from "@supabase/supabase-js";
 import { handleError, ErrorFactory, logError } from "./error-handling";
-import { getEnv, getMode } from "./env";
+import { getEnv, getMode, isDev } from "./env";
 
-// Configuration Supabase pour bêta
+// Configuration Supabase pour production
 const supabaseUrl = getEnv("VITE_SUPABASE_URL");
 const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
+// Déterminer l'environnement
+const mode = getMode();
+const isProduction = mode === "production";
+const isLocalDev = !supabaseUrl || !supabaseAnonKey;
+
 // Debug: Log des variables d'environnement (développement uniquement)
-if (import.meta.env.DEV) {
+if (isDev()) {
   console.log("🔧 DooDates Supabase Config:", {
     url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "❌ MISSING",
     key: supabaseAnonKey ? "✅ Configured" : "❌ MISSING",
-    isLocalDev: !supabaseUrl || !supabaseAnonKey,
-    mode: getMode(),
+    isLocalDev,
+    mode,
+    isProduction,
   });
 }
 
-// Déterminer si on est en mode développement local
-const isLocalDev = !supabaseUrl || !supabaseAnonKey;
+// Configuration Supabase optimisée pour la production
+const getSupabaseConfig = (): SupabaseClientOptions<"public"> => {
+  if (isLocalDev) {
+    // Configuration mock pour développement local
+    return {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    };
+  }
+
+  // Configuration production optimisée
+  if (isProduction) {
+    return {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: typeof window !== "undefined" ? window.localStorage : undefined,
+        storageKey: "doo-dates-auth-token",
+        flowType: "pkce", // Utiliser PKCE pour meilleure sécurité
+      },
+      global: {
+        headers: {
+          "x-client-info": "doo-dates-web@1.0.0",
+        },
+      },
+      // Connection pooling: Supabase gère automatiquement via l'URL
+      // Pour utiliser connection pooling explicite, utiliser l'URL avec /rest/v1/ au lieu de /rest/v1/
+      db: {
+        schema: "public",
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10, // Limiter les événements en production
+        },
+      },
+    };
+  }
+
+  // Configuration développement/staging
+  return {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  };
+};
 
 // Configuration Supabase
 let supabaseClient;
@@ -27,24 +82,27 @@ if (isLocalDev) {
   const MOCK_SUPABASE_URL = "https://mock.supabase.co";
   const MOCK_SUPABASE_KEY = "mock-key";
 
-  supabaseClient = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-    // Laisser Supabase utiliser fetch natif (même en mock)
-  });
+  supabaseClient = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, getSupabaseConfig());
 } else {
-  // Configuration Supabase réelle
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: true, // ✅ Activer pour la bêta
-      persistSession: true, // ✅ Activer pour la bêta
-      detectSessionInUrl: true, // ✅ Activer pour la bêta
-    },
-    // Laisser Supabase utiliser fetch natif
-  });
+  // Configuration Supabase réelle avec validation
+  if (!supabaseUrl || !supabaseAnonKey) {
+    const error = ErrorFactory.createError(
+      "ConfigurationError",
+      "Variables d'environnement Supabase manquantes",
+      {
+        component: "Supabase",
+        operation: "initialization",
+        missingVars: {
+          url: !supabaseUrl,
+          key: !supabaseAnonKey,
+        },
+      },
+    );
+    logError(error, { component: "Supabase" });
+    throw error;
+  }
+
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey, getSupabaseConfig());
 }
 
 export const supabase = supabaseClient;

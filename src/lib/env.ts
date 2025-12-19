@@ -73,3 +73,64 @@ export function getMode(): string {
   // Default to production in browser if we can't determine
   return "production";
 }
+
+/**
+ * Validate required environment variables for production
+ * @param requiredVars Array of required environment variable keys
+ * @returns Object with validation results
+ */
+export function validateEnvVars(requiredVars: string[]): {
+  isValid: boolean;
+  missing: string[];
+  present: string[];
+} {
+  const missing: string[] = [];
+  const present: string[] = [];
+
+  for (const key of requiredVars) {
+    const value = getEnv(key);
+    if (!value || value.trim() === "") {
+      missing.push(key);
+    } else {
+      present.push(key);
+    }
+  }
+
+  return {
+    isValid: missing.length === 0,
+    missing,
+    present,
+  };
+}
+
+/**
+ * Get required environment variables for production
+ * @returns Array of required environment variable keys
+ */
+export function getRequiredProductionVars(): string[] {
+  return [
+    "VITE_SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY",
+    "VITE_GEMINI_API_KEY",
+  ];
+}
+
+/**
+ * Validate production environment variables
+ * Throws an error if any required variables are missing
+ */
+export function validateProductionEnv(): void {
+  if (!isDev() && getMode() === "production") {
+    const requiredVars = getRequiredProductionVars();
+    const validation = validateEnvVars(requiredVars);
+
+    if (!validation.isValid) {
+      const error = new Error(
+        `Variables d'environnement de production manquantes: ${validation.missing.join(", ")}`,
+      );
+      (error as any).code = "MISSING_ENV_VARS";
+      (error as any).missing = validation.missing;
+      throw error;
+    }
+  }
+}

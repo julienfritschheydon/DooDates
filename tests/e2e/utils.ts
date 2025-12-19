@@ -174,6 +174,8 @@ export async function enableE2ELocalMode(page: Page) {
       localStorage.setItem('e2e', '1');
       localStorage.setItem('dev-local-mode', '1');
       localStorage.setItem('dd-device-id', 'test-device-id');
+      // ✅ FIX: getDeviceId() cherche 'doodates_device_id', pas 'dd-device-id'
+      localStorage.setItem('doodates_device_id', 'test-device-id');
     } catch { }
   });
 

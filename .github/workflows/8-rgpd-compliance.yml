@@ -1,0 +1,176 @@
+name: 8️⃣ RGPD Compliance Tests (Weekly)
+
+on:
+  schedule:
+    # Tous les dimanches à 3h du matin (UTC)
+    - cron: '0 3 * * 0'
+  workflow_dispatch:  # Permet exécution manuelle
+  push:
+    branches: [main]
+    paths:
+      - 'tests/e2e/rgpd/**'
+      - 'src/lib/security/**'
+      - 'src/services/DataRetentionService.ts'
+      - 'src/pages/DataControl.tsx'
+      - 'src/pages/products/date-polls/DatePollsDataControl.tsx'
+      - '.github/workflows/8-rgpd-compliance.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  rgpd-compliance:
+    runs-on: ubuntu-latest
+    # Exécuter seulement sur chromium pour gagner du temps
+    # Les tests RGPD sont fonctionnels, pas liés au navigateur
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+            ${{ runner.os }}-playwright-
+
+      - name: 🧭 Install Playwright Browser (chromium only)
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: 🔒 Run RGPD Compliance Tests
+        run: npx playwright test tests/e2e/rgpd --project=chromium --reporter=html,json --workers=1
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+
+      - name: 📊 Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-rgpd-compliance
+          path: playwright-report
+          retention-days: 30
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-rgpd-compliance
+          path: |
+            test-results
+            test-results.json
+          retention-days: 30
+
+      - name: 📋 Generate RGPD Compliance Report
+        if: always()
+        run: |
+          echo "# 🔒 Rapport de Conformité RGPD" > rgpd-compliance-report.md
+          echo "" >> rgpd-compliance-report.md
+          echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> rgpd-compliance-report.md
+          echo "" >> rgpd-compliance-report.md
+          
+          if [ -f test-results.json ]; then
+            echo "## Résultats des Tests" >> rgpd-compliance-report.md
+            echo "" >> rgpd-compliance-report.md
+            echo "- **Total de tests:** $(jq '.stats.total' test-results.json 2>/dev/null || echo 'N/A')" >> rgpd-compliance-report.md
+            echo "- **Tests réussis:** $(jq '.stats.passed' test-results.json 2>/dev/null || echo 'N/A')" >> rgpd-compliance-report.md
+            echo "- **Tests échoués:** $(jq '.stats.failed' test-results.json 2>/dev/null || echo 'N/A')" >> rgpd-compliance-report.md
+            echo "- **Temps d'exécution:** $(jq '.stats.duration' test-results.json 2>/dev/null || echo 'N/A')s" >> rgpd-compliance-report.md
+          fi
+          
+          echo "" >> rgpd-compliance-report.md
+          echo "## Tests Couverts" >> rgpd-compliance-report.md
+          echo "" >> rgpd-compliance-report.md
+          echo "- ✅ Droit d'accès (Article 15) - 6 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Droit de rectification (Article 16) - 5 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Droit à l'effacement (Article 17) - 6 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Droit à la portabilité (Article 20) - 6 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Consentement et opt-out (Article 7) - 5 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Suppression automatique - 5 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Anonymisation Form Polls - 5 tests" >> rgpd-compliance-report.md
+          echo "- ✅ Logs et audit - 6 tests" >> rgpd-compliance-report.md
+          echo "" >> rgpd-compliance-report.md
+          echo "**Total: 44 tests RGPD**" >> rgpd-compliance-report.md
+        continue-on-error: true
+
+      - name: 📤 Upload Compliance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rgpd-compliance-report
+          path: rgpd-compliance-report.md
+          retention-days: 90
+
+      - name: 📝 Create Issue on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            let reportContent = '';
+            const reportPath = path.join(process.cwd(), 'rgpd-compliance-report.md');
+            if (fs.existsSync(reportPath)) {
+              reportContent = fs.readFileSync(reportPath, 'utf-8');
+            } else {
+              reportContent = '## 🚨 Échec des Tests RGPD\n\nLes tests de conformité RGPD ont échoué.';
+            }
+            
+            reportContent += `\n\n---\n\n**🔗 Lien vers le workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const issueTitle = `🚨 RGPD Compliance Tests - Échec - ${today}`;
+            
+            try {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'rgpd,compliance,automated',
+                per_page: 10
+              });
+              
+              const todayIssue = issues.find(issue => 
+                issue.title.includes('RGPD Compliance') &&
+                (issue.title.includes(today) || issue.created_at.startsWith(today))
+              );
+              
+              if (todayIssue) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: todayIssue.number,
+                  body: `## 🔄 Nouvel échec détecté - ${new Date().toISOString()}\n\n${reportContent}`
+                });
+              } else {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issueTitle,
+                  body: reportContent,
+                  labels: ['rgpd', 'compliance', 'automated', 'urgent']
+                });
+              }
+            } catch (error) {
+              console.error('❌ Erreur lors de la création/mise à jour de l\'issue:', error);
+            }
+

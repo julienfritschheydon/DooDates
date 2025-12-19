@@ -432,8 +432,9 @@ jobs:
           npx playwright install --with-deps $BROWSER
 
       - name: 🧪 Run Playwright E2E (${{ matrix.project }})
+        # Exclure les tests RGPD (exécutés séparément dans 8-rgpd-compliance.yml)
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html,json --ignore-snapshots --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow"
+          npx playwright test --project="${{ matrix.project }}" --reporter=html,json --ignore-snapshots --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
 
       - name: 📊 Upload Playwright report (${{ matrix.project }})
         if: always()

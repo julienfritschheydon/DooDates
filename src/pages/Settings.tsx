@@ -13,7 +13,7 @@ export const Settings: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Paramètres</h1>
+            <h1 className="text-3xl font-bold text-white mb-2" data-testid="settings-title">Paramètres</h1>
             <p className="text-gray-400">Gérez vos préférences et vos données personnelles</p>
           </div>
 

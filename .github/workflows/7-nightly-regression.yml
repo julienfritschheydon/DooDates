@@ -63,7 +63,8 @@ jobs:
           npx playwright install --with-deps $BROWSER
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
-        run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json
+        # Exclure les tests RGPD (exécutés séparément dans 8-rgpd-compliance.yml)
+        run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json --grep-invert "RGPD|RGPD-"
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

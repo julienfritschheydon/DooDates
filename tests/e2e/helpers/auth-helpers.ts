@@ -8,45 +8,77 @@ import { authenticateWithSupabase, mockSupabaseAuth, waitForPageLoad } from '../
 
 /**
  * Authentifie un utilisateur sur une page et désactive la détection E2E
+ * Avec retry logic pour gérer les rate limits
  * 
  * @param page - La page Playwright
  * @param email - Email de l'utilisateur
  * @param password - Mot de passe de l'utilisateur
+ * @param retries - Nombre de tentatives (défaut: 3)
  * @returns Les données de session et l'utilisateur
  */
 export async function authenticateUserInPage(
   page: Page,
   email: string,
-  password: string
+  password: string,
+  retries: number = 3
 ) {
-  // Désactiver temporairement la détection E2E pour permettre le chargement depuis Supabase
-  await page.evaluate(() => {
-    (window as any).__DISABLE_E2E_DETECTION__ = true;
-  });
-
-  // Authentifier avec un vrai compte utilisateur Supabase
-  const authResult = await authenticateWithSupabase(page, {
-    email,
-    password,
-  });
-
-  if (!authResult) {
-    throw new Error(`Failed to authenticate user: ${email}`);
-  }
-
-  // FIX: Forcer un reload pour que AuthContext relise la session depuis localStorage
-  // Le client Supabase créé dans page.evaluate() ne notifie pas l'AuthContext de React
-  await page.reload({ waitUntil: 'domcontentloaded' });
-
-  // Réappliquer le flag après reload
-  await page.evaluate(() => {
-    (window as any).__DISABLE_E2E_DETECTION__ = true;
-  });
-
-  // Attendre que AuthContext s'initialise avec la session
+  // Délai initial pour éviter le rate limiting (augmenté)
   await page.waitForTimeout(1000);
+  
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      // Désactiver temporairement la détection E2E pour permettre le chargement depuis Supabase
+      await page.evaluate(() => {
+        (window as any).__DISABLE_E2E_DETECTION__ = true;
+      });
 
-  return authResult;
+      // Authentifier avec un vrai compte utilisateur Supabase
+      const authResult = await authenticateWithSupabase(page, {
+        email,
+        password,
+      });
+
+      if (!authResult) {
+        throw new Error(`Failed to authenticate user: ${email}`);
+      }
+
+      // FIX: Forcer un reload pour que AuthContext relise la session depuis localStorage
+      // Le client Supabase créé dans page.evaluate() ne notifie pas l'AuthContext de React
+      await page.reload({ waitUntil: 'domcontentloaded' });
+
+      // Réappliquer le flag après reload
+      await page.evaluate(() => {
+        (window as any).__DISABLE_E2E_DETECTION__ = true;
+      });
+
+      // Attendre que AuthContext s'initialise avec la session
+      await page.waitForTimeout(1000);
+
+      return authResult;
+    } catch (error: any) {
+      lastError = error;
+      
+      // Si c'est une erreur de rate limiting, attendre avec backoff exponentiel
+      if (error.message?.includes('rate limit') || error.message?.includes('Request rate limit')) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5 secondes
+        console.log(`Rate limit hit, waiting ${delay}ms before retry ${attempt + 1}/${retries}`);
+        await page.waitForTimeout(delay);
+        continue;
+      }
+      
+      // Pour les autres erreurs, relancer immédiatement
+      if (attempt < retries - 1) {
+        await page.waitForTimeout(1000);
+        continue;
+      }
+      
+      throw error;
+    }
+  }
+  
+  throw lastError || new Error(`Failed to authenticate user after ${retries} attempts: ${email}`);
 }
 
 /**

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { TopNav } from "@/components/layout/TopNav";
 
 export default function DatePollsDataControl() {
     const navigate = useNavigate();
@@ -71,7 +72,9 @@ export default function DatePollsDataControl() {
 
     return (
         <div className="min-h-screen bg-gray-900">
-            <div className="max-w-4xl mx-auto px-4 py-8">
+            <TopNav />
+            <div className="pt-20">
+                <div className="max-w-4xl mx-auto px-4 py-8">
                 <div className="mb-8">
                     <Button
                         variant="ghost"
@@ -81,7 +84,7 @@ export default function DatePollsDataControl() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour au tableau de bord
                     </Button>
-                    <h1 className="text-4xl font-bold text-white mb-2">
+                    <h1 className="text-4xl font-bold text-white mb-2" data-testid="data-control-title">
                         Contrôle de vos données
                     </h1>
                     <p className="text-gray-400">DooDates - Sondages de Dates</p>
@@ -127,6 +130,7 @@ export default function DatePollsDataControl() {
                                 onClick={handleExportData}
                                 disabled={isExporting}
                                 className="bg-green-600 hover:bg-green-700"
+                                data-testid="export-data-button"
                             >
                                 <FileJson className="w-4 h-4 mr-2" />
                                 {isExporting ? "Export en cours..." : "Exporter mes données"}
@@ -170,6 +174,7 @@ export default function DatePollsDataControl() {
                                 onClick={handleDeleteAllData}
                                 disabled={isDeleting}
                                 variant="destructive"
+                                data-testid="delete-account-button"
                             >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 {isDeleting ? "Suppression en cours..." : "Supprimer toutes mes données"}
@@ -209,6 +214,7 @@ export default function DatePollsDataControl() {
                             dpo@doodates.com
                         </a>
                     </p>
+                </div>
                 </div>
             </div>
         </div>
