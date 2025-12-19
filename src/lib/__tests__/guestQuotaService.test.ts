@@ -53,7 +53,6 @@ function createMockQuota(overrides: Partial<GuestQuotaData> = {}): GuestQuotaDat
     id: "test-quota-id",
     fingerprint: "test-fingerprint",
     conversationsCreated: 0,
-    pollsCreated: 0,
     datePollsCreated: 0,
     formPollsCreated: 0,
     quizzCreated: 0,
@@ -80,7 +79,7 @@ function createMockSupabaseRow(quota: GuestQuotaData) {
     id: quota.id,
     fingerprint: quota.fingerprint,
     conversations_created: quota.conversationsCreated,
-    polls_created: quota.pollsCreated,
+    // polls_created supprimé - utiliser calculateTotalPollsCreated() pour calculer à la volée
     date_polls_created: quota.datePollsCreated,
     form_polls_created: quota.formPollsCreated,
     quizz_created: quota.quizzCreated,

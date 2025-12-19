@@ -23,8 +23,7 @@ BEGIN
             SELECT conversations_created INTO v_current_count FROM quota_tracking WHERE user_id = v_user_id;
         WHEN 'ai_message' THEN 
             SELECT ai_messages INTO v_current_count FROM quota_tracking WHERE user_id = v_user_id;
-        WHEN 'poll_created' THEN 
-            SELECT polls_created INTO v_current_count FROM quota_tracking WHERE user_id = v_user_id;
+        -- poll_created supprimé - utiliser les compteurs séparés par type (date_poll_created, form_poll_created, etc.)
         WHEN 'date_poll_created' THEN 
             SELECT date_polls_created INTO v_current_count FROM quota_tracking WHERE user_id = v_user_id;
         WHEN 'form_poll_created' THEN 

@@ -3,8 +3,12 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-// Utiliser le même port que Playwright (via process.env.PORT), avec 8080 en fallback local
-const PORT = parseInt(process.env.PORT || '8080', 10);
+// Utiliser le même port que Playwright (via process.env.PORT ou --port), avec 8080 en fallback local
+const args = process.argv.slice(2);
+const portArg = args.find(arg => arg.startsWith('--port='));
+const PORT = portArg 
+  ? parseInt(portArg.split('=')[1], 10)
+  : parseInt(process.env.PORT || '8080', 10);
 const HOST = '0.0.0.0';
 const TIMEOUT = process.env.CI ? 180000 : 120000; // 3 min en CI, 2 min en local
 
@@ -103,20 +107,28 @@ function startVite() {
 // Point d'entrée
 async function main() {
   try {
-    // Vérifier si le serveur est déjà en cours d'exécution
-    isServerRunning(PORT, (isRunning) => {
-      if (isRunning) {
-        console.log(`Server is already running on port ${PORT}`);
-        // Garder le processus en vie
-        setInterval(() => { }, 1000);
-      } else {
-        // Démarrer un nouveau serveur
-        startVite().catch(error => {
-          console.error('Failed to start Vite server:', error);
-          process.exit(1);
+    // Vérifier si le serveur est déjà en cours d'exécution (de manière synchrone)
+    const checkServer = () => {
+      return new Promise((resolve) => {
+        isServerRunning(PORT, (isRunning) => {
+          resolve(isRunning);
         });
-      }
-    });
+      });
+    };
+
+    const isRunning = await checkServer();
+    
+    if (isRunning) {
+      console.log(`Server is already running on port ${PORT}`);
+      // Garder le processus en vie
+      setInterval(() => { }, 1000);
+    } else {
+      // Démarrer un nouveau serveur
+      startVite().catch(error => {
+        console.error('Failed to start Vite server:', error);
+        process.exit(1);
+      });
+    }
 
     // Gérer la sortie proprement
     process.on('SIGINT', () => {

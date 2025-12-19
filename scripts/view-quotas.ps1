@@ -201,7 +201,7 @@ try {
                 Identifier = $q.user_id
                 Total = $q.total_credits_consumed
                 Convs = $q.conversations_created
-                Polls = $q.polls_created
+                Polls = ($q.date_polls_created + $q.form_polls_created + $q.quizz_created + $q.availability_polls_created)
                 DatePolls = $q.date_polls_created
                 FormPolls = $q.form_polls_created
                 Quizz = $q.quizz_created
@@ -220,7 +220,7 @@ try {
                     Identifier = $gq.fingerprint.Substring(0, [Math]::Min(36, $gq.fingerprint.Length))
                     Total = $gq.total_credits_consumed
                     Convs = $gq.conversations_created
-                    Polls = $gq.polls_created
+                    Polls = ($gq.date_polls_created + $gq.form_polls_created + $gq.quizz_created + $gq.availability_polls_created)
                     DatePolls = $gq.date_polls_created
                     FormPolls = $gq.form_polls_created
                     Quizz = $gq.quizz_created
@@ -314,7 +314,8 @@ try {
                 
                 Write-Host "   📊 Détail par action:" -ForegroundColor Gray
                 Write-Host "      ├─ Conversations: $($quota.conversations_created) / $($LIMITS_AUTH.conversations)" -ForegroundColor Gray
-                Write-Host "      ├─ Polls (Total): $($quota.polls_created)" -ForegroundColor Gray
+                $totalPolls = ($quota.date_polls_created + $quota.form_polls_created + $quota.quizz_created + $quota.availability_polls_created)
+                Write-Host "      ├─ Polls (Total): $totalPolls" -ForegroundColor Gray
                 Write-Host "      │  ├─ Date Polls: $($quota.date_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      │  ├─ Form Polls: $($quota.form_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      │  ├─ Quizz: $($quota.quizz_created)" -ForegroundColor DarkGray
@@ -367,7 +368,8 @@ try {
                 
                 Write-Host "   📊 Détail par action:" -ForegroundColor Gray
                 Write-Host "      ├─ Conversations: $($guest.conversations_created) / $($LIMITS_GUEST.conversations)" -ForegroundColor Gray
-                Write-Host "      ├─ Polls (Total): $($guest.polls_created) / $($LIMITS_GUEST.polls)" -ForegroundColor Gray
+                $guestTotalPolls = ($guest.date_polls_created + $guest.form_polls_created + $guest.quizz_created + $guest.availability_polls_created)
+                Write-Host "      ├─ Polls (Total): $guestTotalPolls / $($LIMITS_GUEST.polls)" -ForegroundColor Gray
                 Write-Host "      │  ├─ Date Polls: $($guest.date_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      │  ├─ Form Polls: $($guest.form_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      │  ├─ Quizz: $($guest.quizz_created)" -ForegroundColor DarkGray

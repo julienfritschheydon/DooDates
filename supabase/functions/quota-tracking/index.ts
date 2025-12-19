@@ -235,7 +235,7 @@ serve(async (req: Request) => {
         const currentTotal = currentQuota?.total_credits_consumed || 0;
         const currentActionCount = {
           conversation_created: currentQuota?.conversations_created || 0,
-          poll_created: currentQuota?.polls_created || 0,
+          // poll_created supprimé - utiliser les compteurs séparés par type
           ai_message: currentQuota?.ai_messages || 0,
           analytics_query: currentQuota?.analytics_queries || 0,
           simulation: currentQuota?.simulations || 0,
@@ -252,7 +252,6 @@ serve(async (req: Request) => {
             allowed,
             currentQuota: currentQuota ? {
               conversationsCreated: currentQuota.conversations_created,
-              pollsCreated: currentQuota.polls_created,
               datePollsCreated: currentQuota.date_polls_created || 0,
               formPollsCreated: currentQuota.form_polls_created || 0,
               quizzCreated: currentQuota.quizz_created || 0,
@@ -378,7 +377,6 @@ serve(async (req: Request) => {
             success: true,
             quota: {
               conversationsCreated: quota.conversations_created,
-              pollsCreated: quota.polls_created,
               datePollsCreated: quota.date_polls_created || 0,
               formPollsCreated: quota.form_polls_created || 0,
               quizzCreated: quota.quizz_created || 0,

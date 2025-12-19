@@ -23,7 +23,7 @@ SELECT
   u.email,
   u.raw_user_meta_data->>'full_name' as display_name,
   qt.conversations_created,
-  qt.polls_created,
+  -- polls_created supprimé - calculer à la volée
   qt.date_polls_created,
   qt.form_polls_created,
   qt.quizz_created,
@@ -49,7 +49,7 @@ SELECT
   AVG(total_credits_consumed) as avg_credits_per_user,
   MAX(total_credits_consumed) as max_credits_consumed,
   SUM(conversations_created) as total_conversations,
-  SUM(polls_created) as total_polls,
+  SUM(date_polls_created + form_polls_created + quizz_created + availability_polls_created) as total_polls,
   SUM(ai_messages) as total_ai_messages,
   SUM(analytics_queries) as total_analytics_queries,
   SUM(simulations) as total_simulations
@@ -61,7 +61,7 @@ SELECT
   u.raw_user_meta_data->>'full_name' as display_name,
   qt.total_credits_consumed,
   qt.conversations_created,
-  qt.polls_created,
+  -- polls_created supprimé - calculer à la volée
   qt.date_polls_created,
   qt.form_polls_created,
   qt.quizz_created,
@@ -98,9 +98,9 @@ FROM quota_tracking
 UNION ALL
 SELECT 
   'Polls (Total)' as action_type,
-  SUM(polls_created) as total,
-  AVG(polls_created) as avg_per_user,
-  MAX(polls_created) as max_per_user
+  SUM(date_polls_created + form_polls_created + quizz_created + availability_polls_created) as total,
+  AVG(date_polls_created + form_polls_created + quizz_created + availability_polls_created) as avg_per_user,
+  MAX(date_polls_created + form_polls_created + quizz_created + availability_polls_created) as max_per_user
 FROM quota_tracking
 UNION ALL
 SELECT 

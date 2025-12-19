@@ -306,7 +306,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   const calculateUsage = useCallback((): QuotaUsage => {
     // Pour l'affichage du quota, on utilise désormais les crédits consommés
     // comme source de vérité globale (Edge Function / guestQuotaService).
-    let conversationCount = creditsUsed;
+    const conversationCount = creditsUsed;
 
     // Estimate storage usage from localStorage
     let storageUsed = 0;

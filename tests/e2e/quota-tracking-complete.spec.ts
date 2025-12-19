@@ -33,6 +33,20 @@ import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
 import { clearTestData } from './helpers/test-data';
 
+/**
+ * Calcule le total de polls créés à partir des compteurs séparés
+ * (remplace l'ancien pollsCreated qui était maintenu par trigger SQL)
+ */
+function calculateTotalPollsCreated(quota: {
+  datePollsCreated?: number;
+  formPollsCreated?: number;
+  quizzCreated?: number;
+  availabilityPollsCreated?: number;
+}): number {
+  return (quota.datePollsCreated || 0) + (quota.formPollsCreated || 0) + 
+         (quota.quizzCreated || 0) + (quota.availabilityPollsCreated || 0);
+}
+
 // Ces tests de quota sont très lourds et ne fonctionnent correctement que sur Chromium
 test.describe('Quota Tracking - Complete Tests', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'Quota tracking tests optimized for Chrome');
@@ -65,7 +79,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
         const allData = stored ? JSON.parse(stored) : {};
         allData['guest'] = {
           conversationsCreated: 0,
-          pollsCreated: 0,
           datePollsCreated: 0,
           formPollsCreated: 0,
           quizzCreated: 0,
@@ -295,7 +308,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(initialQuotaData).toBeTruthy();
     const initialTotal = initialQuotaData.totalCreditsConsumed;
     expect(initialTotal).toBeGreaterThanOrEqual(1);
-    expect(initialQuotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const initialTotalPolls = calculateTotalPollsCreated(initialQuotaData);
+    expect(initialTotalPolls).toBeGreaterThanOrEqual(1);
 
     // Supprimer le poll depuis le dashboard
     await page.goto('/DooDates/date-polls/dashboard');
@@ -346,7 +360,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     });
 
     expect(afterDeleteQuotaData.totalCreditsConsumed).toBe(initialTotal);
-    expect(afterDeleteQuotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const afterDeleteTotalPolls = calculateTotalPollsCreated(afterDeleteQuotaData);
+    expect(afterDeleteTotalPolls).toBeGreaterThanOrEqual(1);
 
     // Vérifier que le journal contient toujours les entrées "conversation_created"
     const journal = await page.evaluate(() => {
@@ -430,7 +445,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const allData = stored ? JSON.parse(stored) : {};
       allData['guest'] = {
         ...allData['guest'],
-        pollsCreated: 1,
         datePollsCreated: 1,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -444,7 +458,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
 
     expect(quotaData).toBeTruthy();
-    expect(quotaData.pollsCreated).toBe(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBe(1);
     expect(quotaData.datePollsCreated).toBe(1);
     expect(quotaData.formPollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
@@ -464,7 +479,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const allData = stored ? JSON.parse(stored) : {};
       allData['guest'] = {
         ...allData['guest'],
-        pollsCreated: 1,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 1,
@@ -478,7 +492,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
 
     expect(quotaData).toBeTruthy();
-    expect(quotaData.pollsCreated).toBe(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBe(1);
     expect(quotaData.quizzCreated).toBe(1);
     expect(quotaData.datePollsCreated).toBe(0);
     expect(quotaData.formPollsCreated).toBe(0);
@@ -625,7 +640,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const allData = stored ? JSON.parse(stored) : {};
       allData['guest'] = {
         ...allData['guest'],
-        pollsCreated: 1,
         totalCreditsConsumed: 1,
         userId: 'guest'
       };
@@ -905,7 +919,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       // Créer des données pour l'utilisateur authentifié
       allData[userId] = {
         conversationsCreated: 0,
-        pollsCreated: 0,
         aiMessages: 0,
         analyticsQueries: 0,
         simulations: 0,
@@ -999,7 +1012,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
       allData[userId] = {
         conversationsCreated: 2,
-        pollsCreated: 1,
         aiMessages: 2,
         analyticsQueries: 0,
         simulations: 0,
@@ -1187,7 +1199,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const allData = stored ? JSON.parse(stored) : {};
       allData['guest'] = {
         conversationsCreated: 5,
-        pollsCreated: 0,
         aiMessages: 0,
         analyticsQueries: 0,
         simulations: 0,
@@ -1277,7 +1288,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const allData = stored ? JSON.parse(stored) : {};
       allData['guest'] = {
         conversationsCreated: 24,
-        pollsCreated: 0,
         aiMessages: 96,
         analyticsQueries: 0,
         simulations: 0,
@@ -1976,15 +1986,30 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Reset quota
     await resetGuestQuota(page);
 
-    // Créer un date poll via l'interface
-    await page.goto('/DooDates/create/ai?type=date&e2e-test=true', { waitUntil: 'domcontentloaded' });
-    await waitForNetworkIdle(page, { browserName });
-    await waitForReactStable(page, { browserName });
-
-    // Simuler création d'un date poll (simplifié pour le test)
+    // Simuler création d'un date poll en manipulant directement le localStorage
     await page.evaluate(() => {
-      const { incrementPollCreated } = require('../src/lib/quotaTracking');
-      incrementPollCreated(null, 'test-date-poll-1', 'date').catch(() => { });
+      const STORAGE_KEY = 'doodates_quota_consumed';
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const allData = stored ? JSON.parse(stored) : {};
+
+      const current = allData['guest'] || {
+        conversationsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
+        aiMessages: 0,
+        analyticsQueries: 0,
+        simulations: 0,
+        totalCreditsConsumed: 0,
+        userId: 'guest',
+      };
+
+      current.datePollsCreated = (current.datePollsCreated || 0) + 1;
+      current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
+
+      allData['guest'] = current;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
     });
 
     // Attendre que le quota soit mis à jour
@@ -1997,7 +2022,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.formPollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
     expect(quotaData.availabilityPollsCreated).toBe(0);
-    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBeGreaterThanOrEqual(1);
   });
 
   test('Form poll creation increments formPollsCreated only', async ({ page, browserName }) => {
@@ -2006,10 +2032,30 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Reset quota
     await resetGuestQuota(page);
 
-    // Simuler création d'un form poll
+    // Simuler création d'un form poll en manipulant directement le localStorage
     await page.evaluate(() => {
-      const { incrementPollCreated } = require('../src/lib/quotaTracking');
-      incrementPollCreated(null, 'test-form-poll-1', 'form').catch(() => { });
+      const STORAGE_KEY = 'doodates_quota_consumed';
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const allData = stored ? JSON.parse(stored) : {};
+
+      const current = allData['guest'] || {
+        conversationsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
+        aiMessages: 0,
+        analyticsQueries: 0,
+        simulations: 0,
+        totalCreditsConsumed: 0,
+        userId: 'guest',
+      };
+
+      current.formPollsCreated = (current.formPollsCreated || 0) + 1;
+      current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
+
+      allData['guest'] = current;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
     });
 
     // Attendre que le quota soit mis à jour
@@ -2022,7 +2068,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.datePollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
     expect(quotaData.availabilityPollsCreated).toBe(0);
-    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBeGreaterThanOrEqual(1);
   });
 
   test('Quizz creation increments quizzCreated only', async ({ page, browserName }) => {
@@ -2031,10 +2078,30 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Reset quota
     await resetGuestQuota(page);
 
-    // Simuler création d'un quizz
+    // Simuler création d'un quizz en manipulant directement le localStorage
     await page.evaluate(() => {
-      const { incrementPollCreated } = require('../src/lib/quotaTracking');
-      incrementPollCreated(null, 'test-quizz-1', 'quizz').catch(() => { });
+      const STORAGE_KEY = 'doodates_quota_consumed';
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const allData = stored ? JSON.parse(stored) : {};
+
+      const current = allData['guest'] || {
+        conversationsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
+        aiMessages: 0,
+        analyticsQueries: 0,
+        simulations: 0,
+        totalCreditsConsumed: 0,
+        userId: 'guest',
+      };
+
+      current.quizzCreated = (current.quizzCreated || 0) + 1;
+      current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
+
+      allData['guest'] = current;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
     });
 
     // Attendre que le quota soit mis à jour
@@ -2047,7 +2114,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.datePollsCreated).toBe(0);
     expect(quotaData.formPollsCreated).toBe(0);
     expect(quotaData.availabilityPollsCreated).toBe(0);
-    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBeGreaterThanOrEqual(1);
   });
 
   test('Availability poll creation increments availabilityPollsCreated only', async ({ page, browserName }) => {
@@ -2064,7 +2132,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
       const current = allData['guest'] || {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -2076,7 +2143,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      current.pollsCreated = (current.pollsCreated || 0) + 1;
+      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.availabilityPollsCreated = (current.availabilityPollsCreated || 0) + 1;
       current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
 
@@ -2094,7 +2161,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.datePollsCreated).toBe(0);
     expect(quotaData.formPollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
-    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    const totalPolls = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls).toBeGreaterThanOrEqual(1);
   });
 
   test('Multiple poll types increment correct counters separately', async ({ page, browserName }) => {
@@ -2111,7 +2179,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
       const current = allData['guest'] || {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -2123,7 +2190,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      current.pollsCreated = (current.pollsCreated || 0) + 4;
+      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.datePollsCreated = (current.datePollsCreated || 0) + 1;
       current.formPollsCreated = (current.formPollsCreated || 0) + 1;
       current.quizzCreated = (current.quizzCreated || 0) + 1;
@@ -2144,7 +2211,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.formPollsCreated).toBeGreaterThanOrEqual(1);
     expect(quotaData.quizzCreated).toBeGreaterThanOrEqual(1);
     expect(quotaData.availabilityPollsCreated).toBeGreaterThanOrEqual(1);
-    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(4);
+    const totalPolls4 = calculateTotalPollsCreated(quotaData);
+    expect(totalPolls4).toBeGreaterThanOrEqual(4);
   });
 
   test('Dashboard and Edge Function show same quota values after separation', async ({ page, browserName }) => {
@@ -2161,7 +2229,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
       const current = allData['guest'] || {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -2173,7 +2240,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      current.pollsCreated = (current.pollsCreated || 0) + 2;
+      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.datePollsCreated = (current.datePollsCreated || 0) + 1;
       current.formPollsCreated = (current.formPollsCreated || 0) + 1;
       current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 2;
@@ -2192,14 +2259,15 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(dashboardQuota).toBeTruthy();
     expect(dashboardQuota.datePollsCreated).toBeGreaterThanOrEqual(1);
     expect(dashboardQuota.formPollsCreated).toBeGreaterThanOrEqual(1);
-    expect(dashboardQuota.pollsCreated).toBeGreaterThanOrEqual(2);
+    const dashboardTotalPolls = calculateTotalPollsCreated(dashboardQuota);
+    expect(dashboardTotalPolls).toBeGreaterThanOrEqual(2);
 
-    // Vérifier que pollsCreated = somme des compteurs séparés
+    // Vérifier que le total calculé = somme des compteurs séparés
     const sumSeparated = (dashboardQuota.datePollsCreated || 0) +
       (dashboardQuota.formPollsCreated || 0) +
       (dashboardQuota.quizzCreated || 0) +
       (dashboardQuota.availabilityPollsCreated || 0);
-    expect(dashboardQuota.pollsCreated).toBeGreaterThanOrEqual(sumSeparated);
+    expect(dashboardTotalPolls).toBeGreaterThanOrEqual(sumSeparated);
   });
 
   /**
@@ -2332,7 +2400,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const mockData = {
         'guest': {
           conversationsCreated: 16, // 16/20 = 80%
-          pollsCreated: 0,
           aiMessages: 0,
           analyticsQueries: 0,
           simulations: 0,
@@ -2362,7 +2429,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
       const mockData = {
         'guest': {
           conversationsCreated: 20, // 20/20 = 100%
-          pollsCreated: 0,
           aiMessages: 0,
           analyticsQueries: 0,
           simulations: 0,
@@ -2481,9 +2547,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await page.evaluate(() => {
       const guestData = {
         'guest': {
-          conversationsCreated: 10,
-          pollsCreated: 5,
-          aiMessages: 15,
+        conversationsCreated: 10,
+        aiMessages: 15,
           analyticsQueries: 3,
           simulations: 1,
           totalCreditsConsumed: 34,

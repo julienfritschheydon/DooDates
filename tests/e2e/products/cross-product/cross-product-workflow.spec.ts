@@ -21,6 +21,20 @@ import { clearTestData } from '../../helpers/test-data';
 import { PRODUCT_ROUTES, enableE2ELocalMode } from '../../utils';
 import { getTimeouts } from '../../config/timeouts';
 
+/**
+ * Calcule le total de polls créés à partir des compteurs séparés
+ * (remplace l'ancien pollsCreated qui était maintenu par trigger SQL)
+ */
+function calculateTotalPollsCreated(quota: {
+  datePollsCreated?: number;
+  formPollsCreated?: number;
+  quizzCreated?: number;
+  availabilityPollsCreated?: number;
+}): number {
+  return (quota.datePollsCreated || 0) + (quota.formPollsCreated || 0) + 
+         (quota.quizzCreated || 0) + (quota.availabilityPollsCreated || 0);
+}
+
 test.describe('Cross-Product Workflow Tests', () => {
   test.describe.configure({ mode: 'serial' });
 
@@ -58,7 +72,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         const allData = stored ? JSON.parse(stored) : {};
         allData[uid] = {
           conversationsCreated: 0,
-          pollsCreated: 0,
           datePollsCreated: 0,
           formPollsCreated: 0,
           quizzCreated: 0,
@@ -186,7 +199,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         if (!allData['guest']) {
           allData['guest'] = {
             conversationsCreated: 0,
-            pollsCreated: 0,
             datePollsCreated: 0,
             formPollsCreated: 0,
             quizzCreated: 0,
@@ -200,7 +212,7 @@ test.describe('Cross-Product Workflow Tests', () => {
         }
         
         allData['guest'].datePollsCreated = (allData['guest'].datePollsCreated || 0) + 1;
-        allData['guest'].pollsCreated = (allData['guest'].pollsCreated || 0) + 1;
+        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -246,7 +258,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         if (!allData['guest']) {
           allData['guest'] = {
             conversationsCreated: 0,
-            pollsCreated: 0,
             datePollsCreated: 0,
             formPollsCreated: 0,
             quizzCreated: 0,
@@ -260,7 +271,7 @@ test.describe('Cross-Product Workflow Tests', () => {
         }
         
         allData['guest'].formPollsCreated = (allData['guest'].formPollsCreated || 0) + 1;
-        allData['guest'].pollsCreated = (allData['guest'].pollsCreated || 0) + 1;
+        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -278,15 +289,14 @@ test.describe('Cross-Product Workflow Tests', () => {
     expect(quota).toBeTruthy();
     expect(quota.datePollsCreated).toBe(initialDatePolls + 1);
     expect(quota.formPollsCreated).toBe(initialFormPolls + 1);
-    expect(quota.pollsCreated).toBeGreaterThanOrEqual(initialDatePolls + initialFormPolls + 2);
-    
     // Vérifier que les quotas sont indépendants
     // Le quota de Date Polls ne doit pas affecter le quota de Form Polls
-    console.log(`[TEST] Quota final: date=${quota.datePollsCreated}, form=${quota.formPollsCreated}, total=${quota.pollsCreated}`);
+    const totalPolls = calculateTotalPollsCreated(quota);
+    console.log(`[TEST] Quota final: date=${quota.datePollsCreated}, form=${quota.formPollsCreated}, total=${totalPolls}`);
     
-    // Vérifier que pollsCreated = somme des compteurs séparés (au moins)
+    // Vérifier que le total calculé = somme des compteurs séparés
     const expectedTotal = quota.datePollsCreated + quota.formPollsCreated;
-    expect(quota.pollsCreated).toBeGreaterThanOrEqual(expectedTotal);
+    expect(totalPolls).toBeGreaterThanOrEqual(expectedTotal);
   });
 
   test('Utilisateur avec plusieurs produits → Vérifier isolation données', async ({ page, browserName }) => {
@@ -607,7 +617,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         if (!allData['guest']) {
           allData['guest'] = {
             conversationsCreated: 0,
-            pollsCreated: 0,
             datePollsCreated: 0,
             formPollsCreated: 0,
             quizzCreated: 0,
@@ -622,7 +631,7 @@ test.describe('Cross-Product Workflow Tests', () => {
         
         // Simuler l'incrémentation d'un Date Poll
         allData['guest'].datePollsCreated = (allData['guest'].datePollsCreated || 0) + 1;
-        allData['guest'].pollsCreated = (allData['guest'].pollsCreated || 0) + 1;
+        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -635,7 +644,8 @@ test.describe('Cross-Product Workflow Tests', () => {
     quota = await getQuotaData(page, 'guest');
     expect(quota).toBeTruthy();
     expect(quota.datePollsCreated).toBe(initialDatePolls + 1);
-    expect(quota.pollsCreated).toBeGreaterThanOrEqual(initialDatePolls + 1);
+    const totalPolls1 = calculateTotalPollsCreated(quota);
+    expect(totalPolls1).toBeGreaterThanOrEqual(initialDatePolls + 1);
     
     // 4. Simuler l'incrémentation d'un Form Poll
     await page.evaluate(() => {
@@ -646,7 +656,7 @@ test.describe('Cross-Product Workflow Tests', () => {
         
         if (allData['guest']) {
           allData['guest'].formPollsCreated = (allData['guest'].formPollsCreated || 0) + 1;
-          allData['guest'].pollsCreated = (allData['guest'].pollsCreated || 0) + 1;
+          // pollsCreated supprimé - calculer à la volée si nécessaire
           allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
           
           localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -661,19 +671,21 @@ test.describe('Cross-Product Workflow Tests', () => {
     expect(quota).toBeTruthy();
     expect(quota.datePollsCreated).toBe(initialDatePolls + 1);
     expect(quota.formPollsCreated).toBe(initialFormPolls + 1);
-    expect(quota.pollsCreated).toBeGreaterThanOrEqual(initialDatePolls + initialFormPolls + 2);
+    const totalPolls = calculateTotalPollsCreated(quota);
+    expect(totalPolls).toBeGreaterThanOrEqual(initialDatePolls + initialFormPolls + 2);
     expect(quota.totalCreditsConsumed).toBeGreaterThanOrEqual(2);
     
-    // 6. Vérifier que pollsCreated = somme des compteurs séparés
+    // 6. Vérifier que le total calculé = somme des compteurs séparés
+    const totalPolls2 = calculateTotalPollsCreated(quota);
     const expectedTotal = quota.datePollsCreated + quota.formPollsCreated;
-    expect(quota.pollsCreated).toBeGreaterThanOrEqual(expectedTotal);
+    expect(totalPolls2).toBeGreaterThanOrEqual(expectedTotal);
     
     // 7. Vérifier que les quotas sont indépendants
     // Le quota de Date Polls ne doit pas affecter le quota de Form Polls
     expect(quota.datePollsCreated).toBe(initialDatePolls + 1);
     expect(quota.formPollsCreated).toBe(initialFormPolls + 1);
     
-    console.log(`[TEST] Quota final après changement: date=${quota.datePollsCreated}, form=${quota.formPollsCreated}, total=${quota.pollsCreated}`);
+    console.log(`[TEST] Quota final après changement: date=${quota.datePollsCreated}, form=${quota.formPollsCreated}, total=${totalPolls2}`);
   });
 });
 

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS quota_tracking (
   
   -- Compteurs de crédits consommés (même structure que guest_quotas)
   conversations_created INTEGER DEFAULT 0 NOT NULL,
-  polls_created INTEGER DEFAULT 0 NOT NULL,
+  -- polls_created supprimé (EOL) - calculer à la volée: date_polls_created + form_polls_created + quizz_created + availability_polls_created
   -- Compteurs séparés par type de poll
   date_polls_created INTEGER DEFAULT 0 NOT NULL,
   form_polls_created INTEGER DEFAULT 0 NOT NULL,
@@ -295,7 +295,7 @@ BEGIN
     total_credits_consumed,
     CASE p_action
       WHEN 'conversation_created' THEN conversations_created
-      WHEN 'poll_created' THEN polls_created
+      -- poll_created supprimé - utiliser les compteurs séparés par type uniquement
       WHEN 'ai_message' THEN ai_messages
       WHEN 'analytics_query' THEN analytics_queries
       WHEN 'simulation' THEN simulations
@@ -367,8 +367,7 @@ BEGIN
     total_credits_consumed = total_credits_consumed + p_credits,
     conversations_created = CASE WHEN p_action = 'conversation_created' 
       THEN conversations_created + p_credits ELSE conversations_created END,
-    polls_created = CASE WHEN p_action = 'poll_created' 
-      THEN polls_created + p_credits ELSE polls_created END,
+    -- polls_created supprimé (EOL) - incrémenter uniquement les compteurs séparés par type
     -- Incrémenter le compteur spécifique selon pollType
     date_polls_created = CASE WHEN p_action = 'poll_created' AND p_poll_type = 'date'
       THEN date_polls_created + p_credits ELSE date_polls_created END,
@@ -419,39 +418,12 @@ COMMENT ON FUNCTION consume_quota_credits IS 'Consomme des crédits de manière 
 
 -- ============================================================================
 -- FUNCTION: sync_polls_created_from_separated_counters
--- Description: Maintient automatiquement polls_created = somme des compteurs séparés
+-- Description: SUPPRIMÉ (EOL) - polls_created n'est plus maintenu automatiquement
+-- Utiliser calculateTotalPollsCreated() côté frontend pour calculer à la volée
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION sync_polls_created_from_separated_counters()
-RETURNS TRIGGER
-SET search_path = public
-AS $$
-BEGIN
-  -- Maintenir polls_created = somme des 4 compteurs séparés
-  NEW.polls_created := COALESCE(NEW.date_polls_created, 0) + 
-                       COALESCE(NEW.form_polls_created, 0) + 
-                       COALESCE(NEW.quizz_created, 0) + 
-                       COALESCE(NEW.availability_polls_created, 0);
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger pour maintenir polls_created automatiquement
-DROP TRIGGER IF EXISTS sync_polls_created_trigger ON quota_tracking;
-CREATE TRIGGER sync_polls_created_trigger
-  BEFORE INSERT OR UPDATE ON quota_tracking
-  FOR EACH ROW
-  WHEN (
-    -- Se déclencher si un des compteurs séparés change
-    (OLD IS NULL) OR
-    (NEW.date_polls_created IS DISTINCT FROM OLD.date_polls_created) OR
-    (NEW.form_polls_created IS DISTINCT FROM OLD.form_polls_created) OR
-    (NEW.quizz_created IS DISTINCT FROM OLD.quizz_created) OR
-    (NEW.availability_polls_created IS DISTINCT FROM OLD.availability_polls_created)
-  )
-  EXECUTE FUNCTION sync_polls_created_from_separated_counters();
-
-COMMENT ON FUNCTION sync_polls_created_from_separated_counters IS 'Maintient automatiquement polls_created = somme des compteurs séparés par type';
+-- Cette fonction et le trigger ont été supprimés dans le cadre de l'EOL de polls_created
+-- Voir sql-scripts/eol-remove-polls-created.sql pour le script de suppression
 
 -- ============================================================================
 -- COMMENTAIRES

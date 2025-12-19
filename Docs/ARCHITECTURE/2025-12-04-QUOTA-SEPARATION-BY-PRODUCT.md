@@ -11,7 +11,7 @@ Ce document décrit l'architecture de la séparation complète des quotas de con
 
 1. **Séparation complète** : Chaque type de poll a son propre compteur et sa propre limite
 2. **Indépendance des produits** : Un utilisateur peut atteindre la limite d'un type sans affecter les autres
-3. **Rétrocompatibilité** : `polls_created` est maintenu pour affichage uniquement (via trigger SQL)
+3. ~~**Rétrocompatibilité** : `polls_created` est maintenu pour affichage uniquement (via trigger SQL)~~ ✅ **EOL : Supprimé le 19/01/2025** (voir `2025-01-19-EOL-REMOVE-POLLS-CREATED.md`)
 4. **Validation stricte** : `pollType` est obligatoire et validé à chaque création
 
 ## Structure de la base de données
@@ -23,29 +23,19 @@ Colonnes ajoutées :
 - `form_polls_created INTEGER DEFAULT 0 NOT NULL`
 - `quizz_created INTEGER DEFAULT 0 NOT NULL`
 - `availability_polls_created INTEGER DEFAULT 0 NOT NULL`
-- `polls_created INTEGER DEFAULT 0 NOT NULL` (maintenu pour affichage, calculé via trigger)
+- ~~`polls_created INTEGER DEFAULT 0 NOT NULL`~~ ✅ **EOL : Supprimé le 19/01/2025**
 
 ### Table `guest_quotas`
 
 Mêmes colonnes que `quota_tracking` pour les utilisateurs guests.
 
-### Trigger SQL
+### ~~Trigger SQL~~ ✅ EOL : Supprimé le 19/01/2025
 
-Un trigger maintient automatiquement `polls_created` = somme des 4 compteurs :
+~~Un trigger maintenait automatiquement `polls_created` = somme des 4 compteurs.~~
 
-```sql
-CREATE TRIGGER sync_polls_created_trigger
-  BEFORE INSERT OR UPDATE ON quota_tracking
-  FOR EACH ROW
-  WHEN (
-    (OLD IS NULL) OR
-    (NEW.date_polls_created IS DISTINCT FROM OLD.date_polls_created) OR
-    (NEW.form_polls_created IS DISTINCT FROM OLD.form_polls_created) OR
-    (NEW.quizz_created IS DISTINCT FROM OLD.quizz_created) OR
-    (NEW.availability_polls_created IS DISTINCT FROM OLD.availability_polls_created)
-  )
-  EXECUTE FUNCTION sync_polls_created_from_separated_counters();
-```
+**Remplacement :** Le total est maintenant calculé à la volée côté frontend via `calculateTotalPollsCreated()`.
+
+Voir `2025-01-19-EOL-REMOVE-POLLS-CREATED.md` pour plus de détails.
 
 ## Flux de consommation
 
@@ -84,7 +74,7 @@ consumeCredits(userId, 1, "poll_created", { pollId, pollType })
 ```typescript
 interface QuotaConsumedData {
   conversationsCreated: number;
-  pollsCreated: number;  // Somme des 4 compteurs (affichage uniquement)
+  // pollsCreated supprimé - utiliser calculateTotalPollsCreated() pour calculer à la volée
   datePollsCreated: number;
   formPollsCreated: number;
   quizzCreated: number;
@@ -224,17 +214,24 @@ console.log(quota.availabilityPollsCreated); // 0
 console.log(quota.pollsCreated);          // 6 (somme, pour affichage)
 ```
 
-## EOL (End of Life) - Planifié
+## EOL (End of Life) - ✅ EN COURS (Branche `feature/eol-remove-polls-created`)
 
-### Janvier 2025
+### Janvier 2025 - Statut: Code prêt, SQL à exécuter
 
-L'ancienne expérience où les produits partageaient un quota global `polls_created` sera complètement supprimée :
+L'ancienne expérience où les produits partageaient un quota global `polls_created` est en cours de suppression :
 
-1. Suppression de la colonne `polls_created` dans `quota_tracking` et `guest_quotas`
-2. Suppression du trigger `sync_polls_created_trigger`
-3. Suppression de la fonction `sync_polls_created_from_separated_counters`
-4. Nettoyage des interfaces TypeScript (retirer `pollsCreated`)
-5. Mise à jour de la documentation
+**✅ Terminé:**
+1. ✅ Nettoyage des interfaces TypeScript (retirer `pollsCreated`)
+2. ✅ Mise à jour Edge Functions pour ne plus retourner `pollsCreated`
+3. ✅ Remplacement par calcul à la volée dans les composants UI
+4. ✅ Mise à jour de tous les tests E2E
+5. ✅ Mise à jour des scripts de monitoring
+6. ✅ Création du script SQL de suppression (`sql-scripts/eol-remove-polls-created.sql`)
+
+**⏳ À faire:**
+1. ⏳ **EXÉCUTER** le script SQL `sql-scripts/eol-remove-polls-created.sql` en production/testing
+2. ⏳ Vérifier que tous les tests passent après suppression SQL
+3. ⏳ Merger la branche `feature/eol-remove-polls-created` dans `testing`
 
 Voir `Docs/2. Planning - Decembre.md` (section EOL) pour plus de détails.
 
@@ -271,5 +268,6 @@ Voir `Docs/2. Planning - Decembre.md` (section EOL) pour plus de détails.
 
 - Plan de séparation : `Docs/plan_quotas_separation_reste_a_faire.md`
 - Plan EOL : `Docs/2. Planning - Decembre.md` (section EOL)
-- Script de migration : `sql-scripts/migrate-quota-separation.sql`
+- Documentation EOL : `Docs/ARCHITECTURE/2025-01-19-EOL-REMOVE-POLLS-CREATED.md`
+- Script EOL : `sql-scripts/eol-remove-polls-created.sql`
 - Constantes : `src/constants/quotas.ts`

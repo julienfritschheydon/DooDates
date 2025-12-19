@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS guest_quotas (
   
   -- Compteurs de crédits consommés
   conversations_created INTEGER DEFAULT 0 NOT NULL,
-  polls_created INTEGER DEFAULT 0 NOT NULL,
+  -- polls_created supprimé (EOL) - calculer à la volée: date_polls_created + form_polls_created + quizz_created + availability_polls_created
   -- Compteurs séparés par type de poll
   date_polls_created INTEGER DEFAULT 0 NOT NULL,
   form_polls_created INTEGER DEFAULT 0 NOT NULL,
@@ -348,7 +348,7 @@ BEGIN
   UPDATE guest_quotas
   SET 
     conversations_created = 0,
-    polls_created = 0,
+    -- polls_created supprimé (EOL)
     date_polls_created = 0,
     form_polls_created = 0,
     quizz_created = 0,

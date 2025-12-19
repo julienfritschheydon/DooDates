@@ -77,7 +77,7 @@ if command -v jq &> /dev/null; then
     printf "%-40s %10s %10s %10s %10s %10s %10s %10s %10s\n" "Email" "Total" "Convs" "Polls" "Date" "Form" "Quizz" "Avail" "IA Msg"
     echo "----------------------------------------------------------------------------------"
     
-    echo "$RESPONSE" | jq -r '.[0:10] | .[] | "\(.users.email // "N/A") \(.total_credits_consumed) \(.conversations_created) \(.polls_created) \(.date_polls_created // 0) \(.form_polls_created // 0) \(.quizz_created // 0) \(.availability_polls_created // 0) \(.ai_messages)"' | \
+    echo "$RESPONSE" | jq -r '.[0:10] | .[] | "\(.users.email // "N/A") \(.total_credits_consumed) \(.conversations_created) \(((.date_polls_created // 0) + (.form_polls_created // 0) + (.quizz_created // 0) + (.availability_polls_created // 0))) \(.date_polls_created // 0) \(.form_polls_created // 0) \(.quizz_created // 0) \(.availability_polls_created // 0) \(.ai_messages)"' | \
     while read -r email total convs polls date form quizz avail ai; do
       printf "%-40s %10s %10s %10s %10s %10s %10s %10s %10s\n" "$email" "$total" "$convs" "$polls" "$date" "$form" "$quizz" "$avail" "$ai"
     done
@@ -91,7 +91,7 @@ if command -v jq &> /dev/null; then
       (if .users.raw_user_meta_data.full_name then "   Nom: \(.users.raw_user_meta_data.full_name)\n" else "" end) +
       "   Total crédits: \(.total_credits_consumed)\n" +
       "   ├─ Conversations: \(.conversations_created)\n" +
-      "   ├─ Polls (Total): \(.polls_created)\n" +
+      "   ├─ Polls (Total): \(((.date_polls_created // 0) + (.form_polls_created // 0) + (.quizz_created // 0) + (.availability_polls_created // 0)))\n" +
       "   │  ├─ Date Polls: \(.date_polls_created // 0)\n" +
       "   │  ├─ Form Polls: \(.form_polls_created // 0)\n" +
       "   │  ├─ Quizz: \(.quizz_created // 0)\n" +

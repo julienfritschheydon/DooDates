@@ -36,11 +36,11 @@ interface GuestQuota {
   first_seen_at: string;
   last_activity_at: string;
   total_credits_consumed: number;
-  polls_created: number; // Conserved for display compatibility
+  // polls_created supprimé - calculer à la volée avec calculateTotalPollsCreated()
   date_polls_created: number;
   form_polls_created: number;
   quizz_created: number;
-  availability_polls_created: number; // Added
+  availability_polls_created: number;
   conversations_created: number;
   ai_messages: number;
   analytics_queries: number;
@@ -165,7 +165,6 @@ const AdminQuotaDashboard: React.FC = () => {
         .from("guest_quotas")
         .update({
           total_credits_consumed: 0,
-          polls_created: 0,
           date_polls_created: 0, // Reset specific counters
           form_polls_created: 0,
           quizz_created: 0,
@@ -298,7 +297,12 @@ const AdminQuotaDashboard: React.FC = () => {
         name: q.fingerprint.substring(0, 8),
         fullFingerprint: q.fingerprint, // Store full fingerprint for click handler
         credits: q.total_credits_consumed,
-        polls: q.polls_created,
+        polls: calculateTotalPollsCreated({
+          datePollsCreated: q.date_polls_created || 0,
+          formPollsCreated: q.form_polls_created || 0,
+          quizzCreated: q.quizz_created || 0,
+          availabilityPollsCreated: q.availability_polls_created || 0,
+        }),
       }));
 
     return { totalRequests, uniqueUsers, totalCredits, distribution, chartData, topConsumers };
@@ -689,7 +693,12 @@ const AdminQuotaDashboard: React.FC = () => {
                             <td className="px-2 py-2 text-[11px]">{q.conversations_created}</td>
                             <td className="px-2 py-2 text-[11px]">
                               <div className="space-y-0.5">
-                                <div>Total : {q.polls_created}</div>
+                                <div>Total : {calculateTotalPollsCreated({
+                                  datePollsCreated: datePolls,
+                                  formPollsCreated: formPolls,
+                                  quizzCreated: quizzPolls,
+                                  availabilityPollsCreated: availabilityPolls,
+                                })}</div>
                                 <div className="text-[10px] text-gray-500">
                                   date {datePolls} · form {formPolls} · quiz {quizzPolls} · dispo {availabilityPolls}
                                 </div>

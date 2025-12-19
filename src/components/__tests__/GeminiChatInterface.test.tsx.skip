@@ -99,7 +99,10 @@ vi.mock("../hooks/useAiMessageQuota", () => ({
     cooldownRemaining: 0,
     quota: {
       conversationsCreated: 0,
-      pollsCreated: 0,
+      datePollsCreated: 0,
+      formPollsCreated: 0,
+      quizzCreated: 0,
+      availabilityPollsCreated: 0,
       aiMessages: 45, // Proche de la limite
       analyticsQueries: 0,
       simulations: 0,

@@ -131,7 +131,6 @@ export default function QuizzResults() {
     } catch (error) {
       // Fallback simple : alerte utilisateur
       // (les erreurs sont déjà loguées côté service)
-      // eslint-disable-next-line no-alert
       alert("Impossible de réinitialiser les scores du quiz. Veuillez réessayer.");
     }
   };
@@ -150,7 +149,6 @@ export default function QuizzResults() {
       refreshResults();
       setSelectedChild("");
     } catch (error) {
-      // eslint-disable-next-line no-alert
       alert("Impossible de réinitialiser les scores de cet enfant. Veuillez réessayer.");
     }
   };

@@ -55,8 +55,7 @@ export interface CreditJournalEntry {
 
 interface QuotaConsumedData {
   conversationsCreated: number;
-  pollsCreated: number;
-  // Compteurs séparés par type de poll
+  // Compteurs séparés par type de poll (pollsCreated supprimé - calculer à la volée)
   datePollsCreated: number;
   formPollsCreated: number;
   quizzCreated: number;
@@ -68,6 +67,20 @@ interface QuotaConsumedData {
   subscriptionStartDate?: string; // Date de début d'abonnement (pour reset mensuel)
   lastResetDate?: string; // Date du dernier reset
   userId: string; // "guest" ou user.id
+}
+
+/**
+ * Calcule le total de polls créés à partir des compteurs séparés
+ * (remplace l'ancien pollsCreated qui était maintenu par trigger SQL)
+ */
+export function calculateTotalPollsCreated(quota: {
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
+}): number {
+  return quota.datePollsCreated + quota.formPollsCreated + 
+         quota.quizzCreated + quota.availabilityPollsCreated;
 }
 
 interface AllQuotaData {
@@ -210,7 +223,6 @@ async function fetchQuotaFromServer(userId: string): Promise<QuotaConsumedData |
       }
       return {
         conversationsCreated: data.currentQuota.conversationsCreated || 0,
-        pollsCreated: data.currentQuota.pollsCreated || 0,
         datePollsCreated: data.currentQuota.datePollsCreated || 0,
         formPollsCreated: data.currentQuota.formPollsCreated || 0,
         quizzCreated: data.currentQuota.quizzCreated || 0,
@@ -323,7 +335,6 @@ export async function getQuotaConsumed(
       const subscriptionStart = await getSubscriptionStartDate(userId);
       return {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -344,7 +355,6 @@ export async function getQuotaConsumed(
       const subscriptionStart = await getSubscriptionStartDate(userId);
       userData = {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -379,7 +389,6 @@ export async function getQuotaConsumed(
           if (now >= nextReset) {
             const resetData: QuotaConsumedData = {
               conversationsCreated: 0,
-              pollsCreated: 0,
               datePollsCreated: 0,
               formPollsCreated: 0,
               quizzCreated: 0,
@@ -408,7 +417,6 @@ export async function getQuotaConsumed(
     logger.error("Erreur lors de la lecture du quota consommé", error);
     return {
       conversationsCreated: 0,
-      pollsCreated: 0,
       datePollsCreated: 0,
       formPollsCreated: 0,
       quizzCreated: 0,
@@ -771,7 +779,6 @@ async function consumeCredits(
       console.log(`[quotaTracking] 💾 Création données par défaut (pas d'appel getQuotaConsumed)`);
       userData = {
         conversationsCreated: 0,
-        pollsCreated: 0,
         datePollsCreated: 0,
         formPollsCreated: 0,
         quizzCreated: 0,
@@ -796,8 +803,7 @@ async function consumeCredits(
         userData.conversationsCreated = (userData.conversationsCreated || 0) + credits;
         break;
       case "poll_created": {
-        userData.pollsCreated = (userData.pollsCreated || 0) + credits;
-        // Incrémenter le compteur spécifique selon pollType
+        // Incrémenter le compteur spécifique selon pollType (pollsCreated supprimé)
         const pollType = metadata?.pollType as
           | "date"
           | "form"

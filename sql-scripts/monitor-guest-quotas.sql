@@ -28,7 +28,7 @@ SELECT
   q.total_credits_consumed,
   q.ai_messages,
   q.conversations_created,
-  q.polls_created,
+  -- polls_created supprimé - calculer à la volée
   q.date_polls_created,
   q.form_polls_created,
   q.quizz_created,
@@ -112,7 +112,7 @@ SELECT
   q.total_credits_consumed as quota_total_at_time,
   q.ai_messages,
   q.conversations_created,
-  q.polls_created,
+  -- polls_created supprimé - calculer à la volée
   q.date_polls_created,
   q.form_polls_created,
   q.quizz_created,
@@ -135,7 +135,7 @@ SELECT
   END as level,
   q.ai_messages,
   q.conversations_created,
-  q.polls_created,
+  -- polls_created supprimé - calculer à la volée
   q.last_activity_at,
   q.user_agent,
   q.timezone
@@ -180,7 +180,7 @@ SELECT
   AVG(q.total_credits_consumed) as avg_credits_per_guest,
   SUM(q.ai_messages) as total_ai_messages,
   SUM(q.conversations_created) as total_conversations,
-  SUM(q.polls_created) as total_polls,
+  -- polls_created supprimé - calculer à la volée
   SUM(q.date_polls_created) as total_date_polls,
   SUM(q.form_polls_created) as total_form_polls,
   SUM(q.quizz_created) as total_quizz,
@@ -228,7 +228,7 @@ SELECT
   q.total_credits_consumed,
   q.ai_messages,
   q.conversations_created,
-  q.polls_created,
+  -- polls_created supprimé - calculer à la volée
   q.date_polls_created,
   q.form_polls_created,
   q.quizz_created,

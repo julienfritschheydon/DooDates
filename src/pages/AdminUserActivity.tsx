@@ -2,6 +2,7 @@ import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabaseSelect } from "../lib/supabaseApi";
 import { logError, ErrorFactory } from "../lib/error-handling";
+import { calculateTotalPollsCreated } from "../lib/quotaTracking";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ interface UserActivity {
   id: string;
   fingerprint: string;
   conversations_created: number;
-  polls_created: number;
+  // polls_created supprimé - calculer à la volée avec calculateTotalPollsCreated()
   date_polls_created?: number | null;
   form_polls_created?: number | null;
   quizz_created?: number | null;
@@ -140,7 +141,7 @@ const AdminUserActivity: React.FC = () => {
       }
 
     } catch (error) {
-      logError(error instanceof Error ? error : new Error(String(error)), 'api', { context: 'Failed to load user quota' });
+      logError(error instanceof Error ? error : new Error(String(error)), { operation: 'Failed to load user quota', component: 'AdminUserActivity' });
       // This is non-critical for viewing logs, but important for context
     }
 
@@ -194,7 +195,7 @@ const AdminUserActivity: React.FC = () => {
           setJournal(journalData);
         }
       } catch (e) {
-        logError(e instanceof Error ? e : new Error(String(e)), 'api', { context: 'Could not fetch journal' });
+        logError(e instanceof Error ? e : new Error(String(e)), { operation: 'Could not fetch journal', component: 'AdminUserActivity' });
       }
     };
     promises.push(fetchJournal());
@@ -304,7 +305,12 @@ const AdminUserActivity: React.FC = () => {
                     </div>
                     <div className="flex flex-col p-3 bg-green-50 rounded-lg border border-green-100">
                       <span className="text-xs text-green-700 font-medium uppercase">Sondages</span>
-                      <span className="text-2xl font-bold text-green-900">{userActivity.polls_created}</span>
+                      <span className="text-2xl font-bold text-green-900">{calculateTotalPollsCreated({
+                        datePollsCreated: userActivity.date_polls_created || 0,
+                        formPollsCreated: userActivity.form_polls_created || 0,
+                        quizzCreated: userActivity.quizz_created || 0,
+                        availabilityPollsCreated: userActivity.availability_polls_created || 0,
+                      })}</span>
                     </div>
                     <div className="flex flex-col p-3 bg-purple-50 rounded-lg border border-purple-100">
                       <span className="text-xs text-purple-700 font-medium uppercase">IA Calls</span>

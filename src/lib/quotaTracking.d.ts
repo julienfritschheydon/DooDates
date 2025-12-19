@@ -34,8 +34,7 @@ export interface CreditJournalEntry {
 }
 interface QuotaConsumedData {
   conversationsCreated: number;
-  pollsCreated: number;
-  // Compteurs séparés par type de poll
+  // Compteurs séparés par type de poll (pollsCreated supprimé - calculer à la volée)
   datePollsCreated: number;
   formPollsCreated: number;
   quizzCreated: number;
@@ -48,6 +47,16 @@ interface QuotaConsumedData {
   lastResetDate?: string;
   userId: string;
 }
+/**
+ * Calcule le total de polls créés à partir des compteurs séparés
+ * (remplace l'ancien pollsCreated qui était maintenu par trigger SQL)
+ */
+export declare function calculateTotalPollsCreated(quota: {
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
+}): number;
 /**
  * Obtenir les données de quota consommé pour l'utilisateur actuel
  */

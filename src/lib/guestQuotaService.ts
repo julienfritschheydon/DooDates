@@ -30,8 +30,7 @@ export interface GuestQuotaData {
   id: string;
   fingerprint: string;
   conversationsCreated: number;
-  pollsCreated: number;
-  // Compteurs séparés par type de poll
+  // Compteurs séparés par type de poll (pollsCreated supprimé - calculer à la volée)
   datePollsCreated: number;
   formPollsCreated: number;
   quizzCreated: number;
@@ -49,6 +48,20 @@ export interface GuestQuotaData {
     language?: string | null;
     screenResolution?: string | null;
   };
+}
+
+/**
+ * Calcule le total de polls créés à partir des compteurs séparés
+ * (remplace l'ancien pollsCreated qui était maintenu par trigger SQL)
+ */
+export function calculateTotalPollsCreated(quota: {
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
+}): number {
+  return quota.datePollsCreated + quota.formPollsCreated + 
+         quota.quizzCreated + quota.availabilityPollsCreated;
 }
 
 interface GuestQuotaJournalSupabaseRow {
@@ -98,7 +111,7 @@ interface GuestQuotaSupabaseRow {
   id: string;
   fingerprint: string;
   conversations_created: number;
-  polls_created: number;
+  // polls_created supprimé - utiliser calculateTotalPollsCreated() pour calculer à la volée
   date_polls_created: number;
   form_polls_created: number;
   quizz_created: number;
@@ -158,7 +171,6 @@ interface GuestQuotaSyncOptions {
     Pick<
       GuestQuotaData,
       | "conversationsCreated"
-      | "pollsCreated"
       | "aiMessages"
       | "analyticsQueries"
       | "simulations"
@@ -177,7 +189,6 @@ function mapSupabaseRowToGuestQuota(row: GuestQuotaSupabaseRow): GuestQuotaData 
     id: row.id,
     fingerprint: row.fingerprint,
     conversationsCreated: row.conversations_created,
-    pollsCreated: row.polls_created,
     datePollsCreated: row.date_polls_created || 0,
     formPollsCreated: row.form_polls_created || 0,
     quizzCreated: row.quizz_created || 0,
@@ -222,7 +233,6 @@ function evaluateQuotaLimits(
       break;
     case "poll_created": {
       // Vérifier limite par type de poll uniquement (séparation complète par produit)
-      // Note: pollsCreated est maintenu pour affichage uniquement, pas pour les limites
       const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
 
       // Validation stricte : pollType est obligatoire pour poll_created
@@ -529,7 +539,6 @@ async function ensureGuestQuota(
         field: keyof typeof merge;
       }> = [
         { key: "conversations_created", field: "conversationsCreated" },
-        { key: "polls_created", field: "pollsCreated" },
         { key: "ai_messages", field: "aiMessages" },
         { key: "analytics_queries", field: "analyticsQueries" },
         { key: "simulations", field: "simulations" },
@@ -691,8 +700,7 @@ export async function consumeGuestCredits(
         updates.conversations_created = quota.conversationsCreated + 1;
         break;
       case "poll_created": {
-        updates.polls_created = quota.pollsCreated + 1;
-        // Incrémenter le compteur spécifique selon pollType
+        // Incrémenter le compteur spécifique selon pollType (polls_created supprimé)
         const pollType = metadata?.pollType as
           | "date"
           | "form"

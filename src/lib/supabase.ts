@@ -290,7 +290,7 @@ export type Database = {
           id: string;
           fingerprint: string;
           conversations_created: number;
-          polls_created: number;
+          // polls_created supprimé - utiliser calculateTotalPollsCreated() pour calculer à la volée
           ai_messages: number;
           analytics_queries: number;
           simulations: number;
@@ -307,7 +307,7 @@ export type Database = {
         Insert: {
           fingerprint: string;
           conversations_created?: number;
-          polls_created?: number;
+          // polls_created supprimé
           ai_messages?: number;
           analytics_queries?: number;
           simulations?: number;
@@ -319,7 +319,7 @@ export type Database = {
         };
         Update: {
           conversations_created?: number;
-          polls_created?: number;
+          // polls_created supprimé
           ai_messages?: number;
           analytics_queries?: number;
           simulations?: number;
