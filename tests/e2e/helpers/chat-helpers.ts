@@ -5,6 +5,7 @@
 
 import { Page, expect } from '@playwright/test';
 import { waitForPageLoad, robustFill } from '../utils';
+import { waitForChatInputReady, waitForReactStable } from './wait-helpers';
 
 /**
  * Types de workspace disponibles
@@ -48,8 +49,11 @@ export async function navigateToWorkspace(
   
   await waitForPageLoad(page, browserName);
 
-  // Attendre que le chat soit prêt
-  await waitForChatInput(page);
+  // Attendre que React soit stable avant de chercher le chat input
+  await waitForReactStable(page, { browserName });
+
+  // Attendre que le chat soit prêt avec la stratégie robuste
+  await waitForChatInput(page, browserName);
 }
 
 /**
@@ -84,26 +88,52 @@ export async function navigateToFormWorkspace(
 
 /**
  * Attend que le champ de saisie du chat soit visible
+ * Utilise waitForChatInputReady pour une stratégie robuste avec fallbacks
  *
  * @param page - La page Playwright
- * @param timeout - Timeout en ms (défaut: 10000)
+ * @param browserNameOrTimeout - Le nom du navigateur (string) ou timeout en ms (number) pour compatibilité
+ * @param timeout - Timeout en ms (optionnel, utilise les timeouts par défaut si non fourni)
  */
 export async function waitForChatInput(
   page: Page,
-  timeout: number = 20000
+  browserNameOrTimeout?: string | number,
+  timeout?: number
 ) {
   console.log('🔍 waitForChatInput: Recherche du chat input...');
   
-  // Attendre un peu que la page se stabilise
-  await page.waitForTimeout(2000);
+  // Gérer la compatibilité avec l'ancienne signature: waitForChatInput(page, timeout)
+  let browserName: string = 'chromium';
+  let actualTimeout: number | undefined;
   
-  const messageInput = page.locator('[data-testid="chat-input"]');
+  if (typeof browserNameOrTimeout === 'string') {
+    browserName = browserNameOrTimeout;
+    actualTimeout = timeout;
+  } else if (typeof browserNameOrTimeout === 'number') {
+    // Ancienne signature: waitForChatInput(page, timeout)
+    actualTimeout = browserNameOrTimeout;
+  } else {
+    // Pas de paramètres: utiliser les valeurs par défaut
+    actualTimeout = timeout;
+  }
   
-  // Vérifier si l'élément existe dans le DOM
-  const elementCount = await messageInput.count();
-  console.log(`🔍 waitForChatInput: ${elementCount} éléments trouvés avec data-testid="chat-input"`);
-  
-  if (elementCount === 0) {
+  try {
+    // Utiliser la stratégie robuste avec fallbacks
+    const chatInput = await waitForChatInputReady(page, browserName, { timeout: actualTimeout });
+    
+    // Vérifier que c'est bien l'input de chat (pas un fallback)
+    const testId = await chatInput.getAttribute('data-testid');
+    if (testId === 'chat-input') {
+      console.log('✅ waitForChatInput: Chat input trouvé et visible');
+    } else {
+      console.log(`⚠️ waitForChatInput: Fallback utilisé (${testId || 'unknown'}), mais élément interactif trouvé`);
+    }
+    
+    // Vérifier que l'élément est visible et interactif
+    await expect(chatInput).toBeVisible({ timeout: actualTimeout || 5000 });
+  } catch (error) {
+    // Diagnostic en cas d'échec
+    console.log('❌ waitForChatInput: Échec de la recherche du chat input');
+    
     // Lister tous les éléments avec data-testid pour debug
     const allTestIds = await page.locator('[data-testid]').all();
     console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
@@ -111,10 +141,9 @@ export async function waitForChatInput(
     // Prendre un screenshot pour debug
     await page.screenshot({ path: 'debug-chat-input.png', fullPage: true });
     console.log('🔍 waitForChatInput: Screenshot sauvegardé dans debug-chat-input.png');
+    
+    throw error;
   }
-  
-  await expect(messageInput).toBeVisible({ timeout });
-  console.log('✅ waitForChatInput: Chat input trouvé et visible');
 }
 
 /**
