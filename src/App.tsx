@@ -111,10 +111,11 @@ const DatePollsJournalSimple = lazy(() => import("./app/date-polls/JournalSimple
 const FormPollsJournalSimple = lazy(() => import("./app/form-polls/JournalSimple"));
 const AvailabilityPollsJournalSimple = lazy(() => import("./app/availability-polls/JournalSimple"));
 
-// Simple settings
-const DatePollsSettingsSimple = lazy(() => import("./app/date-polls/SettingsSimple"));
-const FormPollsSettingsSimple = lazy(() => import("./app/form-polls/SettingsSimple"));
-const AvailabilityPollsSettingsSimple = lazy(() => import("./app/availability-polls/SettingsSimple"));
+// Tabbed settings (new unified approach)
+const DatePollsSettingsTabs = lazy(() => import("./app/date-polls/SettingsTabs"));
+const FormPollsSettingsTabs = lazy(() => import("./app/form-polls/SettingsTabs"));
+const AvailabilityPollsSettingsTabs = lazy(() => import("./app/availability-polls/SettingsTabs"));
+const QuizzPollsSettingsTabs = lazy(() => import("./app/quizz-polls/SettingsTabs"));
 
 // Simple pricing
 const DatePollsPricingSimple = lazy(() => import("./app/date-polls/PricingSimple"));
@@ -157,6 +158,20 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Theme = lazy(() => import("./pages/Theme"));
 const AdminQuotaDashboard = lazy(() => import("./pages/AdminQuotaDashboard"));
 const AdminUserActivity = lazy(() => import("./pages/AdminUserActivity"));
+
+// Product-specific Privacy pages
+const DatePollsPrivacy = lazy(() => import("./pages/products/date-polls/DatePollsPrivacy"));
+const FormPollsPrivacy = lazy(() => import("./pages/products/form-polls/FormPollsPrivacy"));
+const AvailabilityPollsPrivacy = lazy(() => import("./pages/products/availability-polls/AvailabilityPollsPrivacy"));
+const QuizzPollsPrivacy = lazy(() => import("./pages/products/quizz-polls/QuizzPollsPrivacy"));
+
+// Product-specific Data Control pages
+const DatePollsDataControl = lazy(() => import("./pages/products/date-polls/DatePollsDataControl"));
+const FormPollsDataControl = lazy(() => import("./pages/products/form-polls/FormPollsDataControl"));
+const AvailabilityPollsDataControl = lazy(() => import("./pages/products/availability-polls/AvailabilityPollsDataControl"));
+const QuizzPollsDataControl = lazy(() => import("./pages/products/quizz-polls/QuizzPollsDataControl"));
+
+
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -530,23 +545,18 @@ const App = () => {
                                 {/* Route / vers MainLanding (Nouvelle Landing) */}
                                 <Route path="/" element={<MainLanding />} />
 
-                                {/* Workspace IA - Uses proper layout with 50/50 split */}
-                                <Route path="/workspace/date" element={<DateWorkspace />} />
-                                <Route path="/workspace/form" element={<FormWorkspace />} />
-                                <Route path="/workspace/availability" element={<AvailabilityWorkspace />} />
-
                                 {/* Product Workspaces - Rediriger vers les workspaces généraux */}
                                 <Route
                                   path="/date-polls/workspace/date"
-                                  element={<Navigate to="/workspace/date" replace />}
+                                  element={<DateWorkspace />}
                                 />
                                 <Route
                                   path="/form-polls/workspace/form"
-                                  element={<Navigate to="/workspace/form" replace />}
+                                  element={<FormWorkspace />}
                                 />
                                 <Route
                                   path="/availability-polls/workspace/availability"
-                                  element={<Navigate to="/workspace/availability" replace />}
+                                  element={<AvailabilityWorkspace />}
                                 />
 
                                 {/* Product Landing Pages */}
@@ -586,18 +596,22 @@ const App = () => {
                                   element={<AvailabilityPollsJournalSimple />}
                                 />
 
-                                {/* Product Settings */}
+                                {/* Product Settings - New Tabbed Interface */}
                                 <Route
                                   path="/date-polls/settings"
-                                  element={<DatePollsSettingsSimple />}
+                                  element={<DatePollsSettingsTabs />}
                                 />
                                 <Route
                                   path="/form-polls/settings"
-                                  element={<FormPollsSettingsSimple />}
+                                  element={<FormPollsSettingsTabs />}
                                 />
                                 <Route
                                   path="/availability-polls/settings"
-                                  element={<AvailabilityPollsSettingsSimple />}
+                                  element={<AvailabilityPollsSettingsTabs />}
+                                />
+                                <Route
+                                  path="/quizz-polls/settings"
+                                  element={<QuizzPollsSettingsTabs />}
                                 />
 
                                 {/* Product Pricing Pages */}
@@ -649,26 +663,60 @@ const App = () => {
                                   element={<AvailabilityPollsDocumentationSimple />}
                                 />
 
-                                {/* Dashboard */}
-                                <Route path="/dashboard" element={<Dashboard />} />
-                                <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
-                                <Route path="/admin/quotas" element={<AdminQuotaDashboard />} />
-                                <Route path="/admin/user-activity" element={<AdminUserActivity />} />
+                                {/* Product-specific Privacy Pages */}
+                                <Route
+                                  path="/date-polls/privacy"
+                                  element={<DatePollsPrivacy />}
+                                />
+                                <Route
+                                  path="/form-polls/privacy"
+                                  element={<FormPollsPrivacy />}
+                                />
+                                <Route
+                                  path="/availability-polls/privacy"
+                                  element={<AvailabilityPollsPrivacy />}
+                                />
+                                <Route
+                                  path="/quizz-polls/privacy"
+                                  element={<QuizzPollsPrivacy />}
+                                />
+
+                                {/* Product-specific Data Control Pages */}
+                                <Route
+                                  path="/date-polls/data-control"
+                                  element={<DatePollsDataControl />}
+                                />
+                                <Route
+                                  path="/form-polls/data-control"
+                                  element={<FormPollsDataControl />}
+                                />
+                                <Route
+                                  path="/availability-polls/data-control"
+                                  element={<AvailabilityPollsDataControl />}
+                                />
+                                <Route
+                                  path="/quizz-polls/data-control"
+                                  element={<QuizzPollsDataControl />}
+                                />
+
+                                {/* Essential Pages - Redirect to date-polls by default */}
+                                <Route
+                                  path="/privacy"
+                                  element={<Navigate to="/date-polls/privacy" replace />}
+                                />
+                                <Route
+                                  path="/data-control"
+                                  element={<Navigate to="/date-polls/data-control" replace />}
+                                />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
-                                {/* Navigation */}
-                                <Route path="/settings" element={<Settings />} />
-                                <Route path="/privacy" element={<Privacy />} />
-                                <Route path="/data-control" element={<DataControl />} />
-                                <Route path="/recent" element={<Recent />} />
-                                <Route path="/results" element={<ResultsPage />} />
-                                <Route path="/profile" element={<Profile />} />
-                                <Route path="/theme" element={<Theme />} />
+                                {/* Admin Routes (keep for now) */}
+                                <Route path="/admin/quotas" element={<AdminQuotaDashboard />} />
+                                <Route path="/admin/user-activity" element={<AdminUserActivity />} />
 
-                                {/* Sondages */}
+                                {/* Sondages - Routes utilisées par les date polls */}
                                 <Route path="/poll/:slug" element={<Vote />} />
                                 <Route path="/poll/:slug/results" element={<Results />} />
-                                <Route path="/vote/:pollId" element={<Vote />} />
                                 <Route
                                   path="/poll/:pollSlug/results/:adminToken"
                                   element={<Vote />}
@@ -677,9 +725,6 @@ const App = () => {
                                 {/* Quizz - Aide aux Devoirs */}
                                 <Route path="/quizz/*" element={<QuizzApp />} />
                                 <Route path="/quizz/:slug/vote" element={<QuizzVote />} />
-
-                                {/* Pages de test */}
-                                <Route path="/vote-desktop-test" element={<VoteDesktopTest />} />
 
                                 {/* Old /create/* routes - Redirect to product-specific routes */}
                                 <Route
@@ -704,9 +749,7 @@ const App = () => {
                                   element={<Navigate to="/date-polls/workspace/date" replace />}
                                 />
 
-                                {/* Autres */}
-                                <Route path="/pricing" element={<Pricing />} />
-                                <Route path="/docs/*" element={<Docs />} />
+                                {/* 404 */}
                                 <Route path="*" element={<NotFound />} />
                               </Routes>
                             </ConversationProvider>

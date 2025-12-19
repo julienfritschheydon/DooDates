@@ -232,10 +232,9 @@ Chez DooDates, **l'utilisateur contrôle la durée de conservation** de ses donn
 ## Documentation Créée
 
    1. **`Politique-Confidentialite-IA.md`** - Documentation complète fournisseur IA
-   2. **`RGPD-Audit-Complet.md`** - Ce document d'audit
-   3. **Interface chat** - Informations RGPD intégrées
-   4. **Page Settings** - Gestion des préférences et opt-out ✅
-   5. **`RGPD-Cartographie-Donnees.md`** - Cartographie existante mise à jour
+   2. **Interface chat** - Informations RGPD intégrées
+   3. **Page Settings** - Gestion des préférences et opt-out ✅
+   4. **`RGPD-Cartographie-Donnees.md`** - Cartographie existante mise à jour
 
    ---
 

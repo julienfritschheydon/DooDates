@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Shield, 
-  Clock, 
-  Mail, 
-  Download, 
-  Trash2, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Shield,
+  Clock,
+  Mail,
+  Download,
+  Trash2,
+  AlertTriangle,
+  CheckCircle,
   Calendar,
   BarChart3,
   Eye,
@@ -16,7 +16,7 @@ import {
   Bell,
   BellOff
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { TopNav } from "@/components/layout/TopNav";
 import { logError } from "@/lib/error-handling";
@@ -67,7 +67,7 @@ export const DataControl: React.FC = () => {
       // Utiliser le service pour calculer les suppressions
       const userId = 'current-user'; // TODO: Récupérer l'ID utilisateur réel
       const warnings = await retentionService.calculateUpcomingDeletions(userId, currentSettings);
-      
+
       // Mapper vers le format local
       const localWarnings: LocalDeletionWarning[] = warnings.map(w => ({
         type: w.type,
@@ -75,7 +75,7 @@ export const DataControl: React.FC = () => {
         itemCount: w.itemCount,
         deletionDate: w.deletionDate
       }));
-      
+
       setUpcomingDeletions(localWarnings);
     } catch (error) {
       logError(new Error(`Erreur calcul suppressions: ${error}`));
@@ -166,7 +166,7 @@ export const DataControl: React.FC = () => {
       description: "Vos données sont en cours d'export...",
       duration: 2000,
     });
-    
+
     setTimeout(() => {
       toast({
         title: "Export terminé",
@@ -183,7 +183,7 @@ export const DataControl: React.FC = () => {
         description: "Vos données sont en cours de suppression...",
         duration: 2000,
       });
-      
+
       setTimeout(() => {
         toast({
           title: "Compte supprimé",
@@ -198,14 +198,14 @@ export const DataControl: React.FC = () => {
     try {
       const userId = 'current-user'; // TODO: Récupérer l'ID utilisateur réel
       const success = await retentionService.postponeDeletion(userId, type as 'chat' | 'poll');
-      
+
       if (success) {
         toast({
           title: "Suppression reportée",
           description: `La suppression des ${type === 'chat' ? 'conversations' : 'sondages'} a été reportée de 30 jours.`,
           duration: 3000,
         });
-        
+
         // Recalculer les alertes
         calculateUpcomingDeletions(settings);
       } else {
@@ -226,7 +226,7 @@ export const DataControl: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       <TopNav />
       <div className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
@@ -235,44 +235,44 @@ export const DataControl: React.FC = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6">
               <Shield className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-white mb-4">
               Mes Données
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Contrôlez totalement vos données personnelles. 
-              <span className="font-semibold text-blue-600"> Votre vie privée, vos règles.</span>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Contrôlez totalement vos données personnelles.
+              <span className="font-semibold text-blue-400"> Votre vie privée, vos règles.</span>
             </p>
           </div>
 
           {/* Alertes suppressions à venir */}
           {upcomingDeletions.length > 0 && (
             <div className="mb-8 space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <AlertTriangle className="w-6 h-6 text-orange-500" />
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-orange-400" />
                 Suppressions à venir
               </h2>
               {upcomingDeletions.map((warning, index) => (
-                <div key={index} className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                <div key={index} className="bg-orange-900/30 border border-orange-700/50 rounded-lg p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <Clock className="w-5 h-5 text-orange-600" />
-                        <h3 className="font-semibold text-orange-900">
+                        <Clock className="w-5 h-5 text-orange-400" />
+                        <h3 className="font-semibold text-orange-200">
                           {warning.type === 'chat' ? 'Conversations IA' : 'Sondages'}
                         </h3>
-                        <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">
+                        <span className="px-2 py-1 bg-orange-800/50 text-orange-200 text-xs font-medium rounded">
                           {warning.daysUntilDeletion} jours
                         </span>
                       </div>
-                      <p className="text-orange-800 mb-3">
-                        {warning.itemCount} {warning.type === 'chat' ? 'conversations' : 'sondages'} 
+                      <p className="text-orange-200 mb-3">
+                        {warning.itemCount} {warning.type === 'chat' ? 'conversations' : 'sondages'}
                         seront supprimées le {warning.deletionDate.toLocaleDateString('fr-FR')}
                       </p>
-                      <div className="flex items-center gap-4 text-sm text-orange-700">
+                      <div className="flex items-center gap-4 text-sm text-orange-300">
                         <span>📧 Alerte email prévue</span>
                         <button
                           onClick={() => postponeDeletion(warning.type)}
-                          className="text-orange-700 hover:text-orange-900 font-medium underline"
+                          className="text-orange-300 hover:text-orange-100 font-medium underline"
                         >
                           Reporter de 30 jours
                         </button>
@@ -280,7 +280,7 @@ export const DataControl: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setShowPreview(true)}
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-sm font-medium"
                     >
                       Voir les données
                     </button>
@@ -291,59 +291,59 @@ export const DataControl: React.FC = () => {
           )}
 
           {/* Contrôle des données */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+          <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 mb-8">
             <div className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Settings className="w-6 h-6 text-blue-600" />
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <Settings className="w-6 h-6 text-blue-400" />
                 Contrôle de mes données
               </h2>
 
               <div className="space-y-8">
                 {/* Conservation conversations IA */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  <label className="block text-lg font-semibold text-white mb-3">
                     Conversations IA
                   </label>
                   <select
                     value={settings.chatRetention}
                     onChange={(e) => handleSettingChange('chatRetention', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   >
                     <option value="30-days">🔒 30 jours (privacy-first, recommandé)</option>
                     <option value="12-months">📅 12 mois (standard)</option>
                     <option value="indefinite">♾️ Indéfiniment (mon choix)</option>
                   </select>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-400 mt-2">
                     Plus la durée est courte, plus votre vie privée est protégée
                   </p>
                 </div>
 
                 {/* Conservation sondages */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  <label className="block text-lg font-semibold text-white mb-3">
                     Sondages et formulaires
                   </label>
                   <select
                     value={settings.pollRetention}
                     onChange={(e) => handleSettingChange('pollRetention', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   >
                     <option value="12-months">📅 12 mois après clôture (défaut)</option>
                     <option value="6-years">📚 6 ans (archive personnelle)</option>
                     <option value="indefinite">♾️ Indéfiniment (mon choix)</option>
                   </select>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-400 mt-2">
                     Idéal pour les besoins professionnels ou académiques
                   </p>
                 </div>
 
                 {/* Suppression automatique */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
+                    <h3 className="font-semibold text-white mb-1">
                       Suppression automatique
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-300">
                       Supprimer les données selon mes préférences de conservation
                     </p>
                   </div>
@@ -359,12 +359,12 @@ export const DataControl: React.FC = () => {
                 </div>
 
                 {/* Amélioration produit */}
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-blue-900/30 rounded-lg">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-blue-900 mb-1">
+                    <h3 className="font-semibold text-blue-300 mb-1">
                       Utiliser mes données pour améliorer le produit
                     </h3>
-                    <p className="text-blue-700">
+                    <p className="text-blue-200">
                       Permet l'utilisation de vos données anonymisées pour l'amélioration des services
                     </p>
                   </div>
@@ -380,13 +380,13 @@ export const DataControl: React.FC = () => {
                 </div>
 
                 {/* Notifications email */}
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-green-900/30 rounded-lg">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-green-900 mb-1 flex items-center gap-2">
+                    <h3 className="font-semibold text-green-300 mb-1 flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       Alertes email avant suppression
                     </h3>
-                    <p className="text-green-700">
+                    <p className="text-green-200">
                       Recevez un email 30 jours avant la suppression automatique de vos données
                     </p>
                   </div>
@@ -405,105 +405,89 @@ export const DataControl: React.FC = () => {
           </div>
 
           {/* Actions rapides */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+          <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 mb-8">
             <div className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-green-600" />
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <BarChart3 className="w-6 h-6 text-green-400" />
                 Actions rapides
               </h2>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <button
                   onClick={handleExportData}
-                  className="flex items-center justify-between p-6 bg-green-50 rounded-lg hover:bg-green-100 transition-colors group"
+                  className="flex items-center justify-between p-6 bg-green-900/30 rounded-lg hover:bg-green-900/50 transition-colors group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <Download className="w-6 h-6 text-green-600" />
+                    <div className="w-12 h-12 bg-green-800/50 rounded-full flex items-center justify-center">
+                      <Download className="w-6 h-6 text-green-400" />
                     </div>
                     <div className="text-left">
-                      <p className="font-semibold text-gray-900 group-hover:text-green-900">
+                      <p className="font-semibold text-white group-hover:text-green-300">
                         Exporter mes données
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-300">
                         Télécharger toutes mes données au format JSON
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-green-600" />
+                  <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-green-400" />
                 </button>
 
                 <button
                   onClick={handleDeleteAccount}
-                  className="flex items-center justify-between p-6 bg-red-50 rounded-lg hover:bg-red-100 transition-colors group"
+                  className="flex items-center justify-between p-6 bg-red-900/30 rounded-lg hover:bg-red-900/50 transition-colors group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                      <Trash2 className="w-6 h-6 text-red-600" />
+                    <div className="w-12 h-12 bg-red-800/50 rounded-full flex items-center justify-center">
+                      <Trash2 className="w-6 h-6 text-red-400" />
                     </div>
                     <div className="text-left">
-                      <p className="font-semibold text-red-900 group-hover:text-red-800">
+                      <p className="font-semibold text-red-300 group-hover:text-red-200">
                         Supprimer mes données
                       </p>
-                      <p className="text-sm text-red-700">
+                      <p className="text-sm text-red-200">
                         Suppression définitive de toutes mes données
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-red-400 group-hover:text-red-600" />
+                  <ChevronRight className="w-5 h-5 text-red-500 group-hover:text-red-400" />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Documentation et support */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <Eye className="w-6 h-6 text-blue-600" />
+          <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-xl p-8 border border-blue-700/50">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Eye className="w-6 h-6 text-blue-400" />
               Transparence et support
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <a
-                href="/privacy"
-                className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-gray-50 transition-colors"
+            <div className="grid md:grid-cols-1 gap-4">
+              <Link
+                to="/privacy"
+                className="flex items-center justify-between p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-blue-600" />
+                  <Shield className="w-5 h-5 text-blue-400" />
                   <div className="text-left">
-                    <p className="font-medium text-gray-900">Politique de confidentialité</p>
-                    <p className="text-sm text-gray-600">Consultez notre politique complète</p>
+                    <p className="font-medium text-white">Politique de confidentialité</p>
+                    <p className="text-sm text-gray-300">Consultez notre politique complète</p>
                   </div>
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400" />
-              </a>
-
-              <a
-                href="/DooDates/docs/LEGAL/RGPD-Audit-Complet.md"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-green-600" />
-                  <div className="text-left">
-                    <p className="font-medium text-gray-900">Audit RGPD complet</p>
-                    <p className="text-sm text-gray-600">Détails techniques de notre conformité</p>
-                  </div>
-                </div>
-                <ExternalLink className="w-4 h-4 text-gray-400" />
-              </a>
+                <ExternalLink className="w-4 h-4 text-gray-500" />
+              </Link>
             </div>
 
             {/* Contact DPO */}
-            <div className="mt-6 p-4 bg-white rounded-lg border border-blue-200">
+            <div className="mt-6 p-4 bg-gray-800 rounded-lg border border-blue-700/50">
               <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-blue-600" />
+                <Mail className="w-5 h-5 text-blue-400" />
                 <div>
-                  <p className="font-medium text-blue-900">Contact DPO</p>
-                  <p className="text-sm text-blue-800">
+                  <p className="font-medium text-blue-300">Contact DPO</p>
+                  <p className="text-sm text-blue-200">
                     Pour toute question sur vos données :{" "}
-                    <a href="mailto:privacy@doodates.com" className="underline">
+                    <a href="mailto:privacy@doodates.com" className="underline hover:text-white">
                       privacy@doodates.com
                     </a>
                   </p>

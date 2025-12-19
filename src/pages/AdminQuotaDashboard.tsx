@@ -68,7 +68,7 @@ const POLL_TYPE_COLORS = {
 };
 
 const AdminQuotaDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [quotas, setQuotas] = useState<GuestQuota[]>([]);
   const [journal, setJournal] = useState<QuotaJournalEntry[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -85,11 +85,19 @@ const AdminQuotaDashboard: React.FC = () => {
 
   // Vérification basique admin (à renforcer backend)
   useEffect(() => {
-    if (user?.email?.endsWith("@doodates.com") || user?.email === "admin@doodates.com") {
-      setIsAdmin(true);
+    const hasRoleAdmin =
+      !!user && (profile?.preferences as { role?: string } | null)?.role === "admin";
+
+    const hasEmailAdmin =
+      !!user && (user.email?.endsWith("@doodates.com") || user.email === "admin@doodates.com");
+
+    const nextIsAdmin = hasRoleAdmin || hasEmailAdmin;
+
+    setIsAdmin(nextIsAdmin);
+    if (nextIsAdmin) {
       void loadQuotas();
     }
-  }, [user]);
+  }, [user, profile]);
 
   const loadQuotas = async () => {
     setIsLoadingData(true);

@@ -3,7 +3,7 @@
  * Affiche l'historique détaillé de toutes les consommations de crédits
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTracking";
@@ -24,6 +24,7 @@ import { logError, ErrorFactory } from "@/lib/error-handling";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getThemeColors } from "@/components/dashboard/utils";
 import { ContentTypeFilter } from "@/components/dashboard/types";
+import { PollLink } from "@/components/journal/PollLink";
 
 const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   conversation_created: {
@@ -32,7 +33,7 @@ const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; colo
     color: "text-blue-400",
   },
   poll_created: {
-    label: "Poll créé",
+    label: "Sondage créé",
     icon: <FileText className="w-4 h-4" />,
     color: "text-green-400",
   },
@@ -89,6 +90,8 @@ export default function ConsumptionJournal() {
   const [filteredJournal, setFilteredJournal] = useState<CreditJournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState<'current' | 'all' | string>('current');
+  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
 
   useEffect(() => {
     const loadJournal = async () => {
@@ -112,8 +115,47 @@ export default function ConsumptionJournal() {
           entries = await getConsumptionJournal(user.id, 500);
         }
 
-        setJournal(entries);
-        setFilteredJournal(entries);
+        // Filtrer les entrées selon le type de produit (basé sur l'URL)
+        // Utiliser window.location.pathname car location.pathname ne contient pas le basename
+        const fullPath = window.location.pathname;
+        let filteredEntries = entries;
+        if (fullPath.includes("/date-polls/")) {
+          // Journal des date polls : afficher uniquement les sondages de dates
+          filteredEntries = entries.filter(entry => {
+            // Garder toutes les entrées sauf poll_created avec un type différent de date
+            if (entry.action === "poll_created" && entry.metadata?.pollType) {
+              return entry.metadata.pollType === "date";
+            }
+            return true; // Garder les autres types d'actions (conversations, messages IA, etc.)
+          });
+        } else if (fullPath.includes("/form-polls/")) {
+          // Journal des form polls : afficher uniquement les sondages de formulaires
+          filteredEntries = entries.filter(entry => {
+            if (entry.action === "poll_created" && entry.metadata?.pollType) {
+              return entry.metadata.pollType === "form";
+            }
+            return true;
+          });
+        } else if (fullPath.includes("/availability-polls/")) {
+          // Journal des availability polls : afficher uniquement les sondages de disponibilité
+          filteredEntries = entries.filter(entry => {
+            if (entry.action === "poll_created" && entry.metadata?.pollType) {
+              return entry.metadata.pollType === "availability";
+            }
+            return true;
+          });
+        } else if (fullPath.includes("/quizz-polls/")) {
+          // Journal des quizz polls : afficher uniquement les quiz
+          filteredEntries = entries.filter(entry => {
+            if (entry.action === "poll_created" && entry.metadata?.pollType) {
+              return entry.metadata.pollType === "quizz";
+            }
+            return true;
+          });
+        }
+
+        setJournal(filteredEntries);
+        setFilteredJournal(filteredEntries);
       } catch (error) {
         logError(
           ErrorFactory.storage(
@@ -130,22 +172,64 @@ export default function ConsumptionJournal() {
     loadJournal();
   }, [user]);
 
+  // Calculer les mois disponibles depuis le journal
+  useEffect(() => {
+    const months = new Set<string>();
+    journal.forEach(entry => {
+      const month = entry.timestamp.substring(0, 7); // 'YYYY-MM'
+      months.add(month);
+    });
+    const sortedMonths = Array.from(months).sort().reverse();
+    setAvailableMonths(sortedMonths);
+  }, [journal]);
+
+  // Filtrer par période
+  const filteredByPeriod = useMemo(() => {
+    if (selectedPeriod === 'all') return journal;
+
+    if (selectedPeriod === 'current') {
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      return journal.filter(entry => {
+        const entryMonth = entry.timestamp.substring(0, 7);
+        return entryMonth === currentMonth;
+      });
+    }
+
+    // Mois spécifique
+    return journal.filter(entry => {
+      const entryMonth = entry.timestamp.substring(0, 7);
+      return entryMonth === selectedPeriod;
+    });
+  }, [journal, selectedPeriod]);
+
   // Filtrer le journal selon la recherche
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredJournal(journal);
+      setFilteredJournal(filteredByPeriod);
       return;
     }
 
     const query = searchQuery.toLowerCase();
-    const filtered = journal.filter((entry) => {
+    const filtered = filteredByPeriod.filter((entry) => {
       const actionLabel = ACTION_LABELS[entry.action]?.label.toLowerCase() || "";
       const metadataStr = JSON.stringify(entry.metadata || {}).toLowerCase();
       return actionLabel.includes(query) || metadataStr.includes(query);
     });
 
     setFilteredJournal(filtered);
-  }, [searchQuery, journal]);
+  }, [searchQuery, filteredByPeriod]);
+
+  // Calculer le label de période
+  const periodLabel = useMemo(() => {
+    if (selectedPeriod === 'all') return 'Tout l\'historique';
+    if (selectedPeriod === 'current') return 'Mois en cours';
+
+    // Mois spécifique - formater en "Janvier 2025"
+    const [year, month] = selectedPeriod.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  }, [selectedPeriod]);
 
   // Grouper par date
   const groupedByDate = filteredJournal.reduce(
@@ -217,28 +301,63 @@ export default function ConsumptionJournal() {
                 <p className="text-gray-400">
                   Historique détaillé de toutes vos consommations de crédits
                 </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Période: {periodLabel}
+                </p>
               </div>
 
               {/* Statistiques globales */}
               <div className="text-right">
                 <div className="text-2xl font-bold text-white">{totalCredits}</div>
-                <div className="text-sm text-gray-400">Crédits totaux consommés</div>
+                <div className="text-sm text-gray-400">Crédits consommés</div>
+                {user && (
+                  <div className="text-sm text-gray-500 mt-1">
+                    Reset mensuel automatique
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </TooltipProvider>
 
         {/* Barre de recherche */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Rechercher par action, poll, conversation..."
+              placeholder="Rechercher par action, sondage, conversation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-[#1a1a1a] border-gray-700 text-white"
             />
+          </div>
+
+          {/* Sélecteur de période */}
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="flex-1 bg-[#1a1a1a] border border-gray-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="current">Mois en cours</option>
+              <option value="all">Tout l'historique</option>
+              {availableMonths.length > 0 && (
+                <optgroup label="Mois spécifiques">
+                  {availableMonths.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    const date = new Date(parseInt(year), parseInt(monthNum) - 1);
+                    const label = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                    return (
+                      <option key={month} value={month}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                </optgroup>
+              )}
+            </select>
           </div>
         </div>
 
@@ -287,7 +406,7 @@ export default function ConsumptionJournal() {
                     <Calendar className="w-5 h-5 text-gray-400" />
                     <h2 className="text-lg font-semibold text-white">{dateKey}</h2>
                     <span className="text-sm text-gray-400">
-                      ({entries.length} {entries.length === 1 ? "action" : "actions"})
+                      ({entries.length} {entries.length === 1 ? "crédit" : "crédits"})
                     </span>
                   </div>
 
@@ -303,7 +422,7 @@ export default function ConsumptionJournal() {
                       return (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-gray-800 hover:border-gray-700 transition-colors"
+                          className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-gray-800"
                         >
                           <div className="flex items-center gap-3 flex-1">
                             <div className={actionInfo.color}>{actionInfo.icon}</div>
@@ -313,16 +432,28 @@ export default function ConsumptionJournal() {
                                 <span className="text-gray-500 text-sm">{timeStr}</span>
                               </div>
                               {entry.metadata && (
-                                <div className="text-xs text-gray-400 mt-1">
+                                <div className="text-xs text-gray-400 mt-1 space-y-1">
                                   {entry.metadata.conversationId && (
                                     <span>
                                       Conversation: {entry.metadata.conversationId.slice(0, 8)}...
                                     </span>
                                   )}
                                   {entry.metadata.pollId && (
-                                    <span className="ml-2">
-                                      Poll: {entry.metadata.pollId.slice(0, 8)}...
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span>Sondage:</span>
+                                      <PollLink
+                                        pollId={entry.metadata.pollId}
+                                        pollType={entry.metadata.pollType}
+                                      />
+                                      {entry.action === "poll_created" && (
+                                        <span className={`text-xs px-2 py-0.5 rounded ${entry.metadata.conversationId
+                                          ? "bg-purple-900/30 text-purple-300"
+                                          : "bg-blue-900/30 text-blue-300"
+                                          }`}>
+                                          {entry.metadata.conversationId ? "IA" : "Manuel"}
+                                        </span>
+                                      )}
+                                    </div>
                                   )}
                                   {entry.metadata.analyticsQuery && (
                                     <span className="ml-2">

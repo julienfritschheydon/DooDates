@@ -8,6 +8,7 @@ import React, {
   lazy,
   Suspense,
 } from "react";
+import { Link } from "react-router-dom";
 import { Shield, ChevronDown, ChevronUp } from "lucide-react";
 // Lazy load Plus pour réduire le bundle initial
 import { createLazyIcon } from "../lib/lazy-icons";
@@ -262,9 +263,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     useEffect(() => {
       const pollWithHighlight = currentPoll as
         | (typeof currentPoll & {
-            _highlightedId?: string;
-            _highlightType?: "add" | "remove" | "modify";
-          })
+          _highlightedId?: string;
+          _highlightType?: "add" | "remove" | "modify";
+        })
         | null;
       if (
         pollWithHighlight &&
@@ -942,12 +943,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         const formDraft = (
           currentPoll
             ? {
-                id: currentPoll.id,
-                type: "form" as const,
-                title: currentPoll.title,
-                questions: (currentPoll.questions || []) as AnyFormQuestion[],
-                conditionalRules: currentPoll.conditionalRules || [],
-              }
+              id: currentPoll.id,
+              type: "form" as const,
+              title: currentPoll.title,
+              questions: (currentPoll.questions || []) as AnyFormQuestion[],
+              conditionalRules: currentPoll.conditionalRules || [],
+            }
             : pollManagement.getFormDraft()
         ) as FormPollDraft;
 
@@ -1028,17 +1029,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             initialData={
               pollManagement.selectedPollData
                 ? {
-                    ...(pollManagement.selectedPollData as DatePollSuggestion),
-                    dateGroups: (
-                      pollManagement.selectedPollData as DatePollSuggestion
-                    ).dateGroups?.map((g) => ({
-                      ...g,
-                      type:
-                        g.type === "week" || g.type === "fortnight"
-                          ? ("range" as const)
-                          : (g.type as "custom" | "weekend" | "range"),
-                    })),
-                  }
+                  ...(pollManagement.selectedPollData as DatePollSuggestion),
+                  dateGroups: (
+                    pollManagement.selectedPollData as DatePollSuggestion
+                  ).dateGroups?.map((g) => ({
+                    ...g,
+                    type:
+                      g.type === "week" || g.type === "fortnight"
+                        ? ("range" as const)
+                        : (g.type as "custom" | "weekend" | "range"),
+                  })),
+                }
                 : undefined
             }
             onBack={() => {
@@ -1059,9 +1060,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       <div
         data-testid="agent-page-root"
         data-agent-page="true"
-        className={`flex h-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50 ${
-          darkTheme ? "" : ""
-        }`}
+        className={`flex h-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50 ${darkTheme ? "" : ""
+          }`}
       >
         {/* Zone de conversation */}
         <ChatMessageList
@@ -1129,14 +1129,14 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   <p>
                     Ne partagez pas d'informations sensibles ou confidentielles. Pour en savoir plus, consultez notre
                     {" "}
-                    <a
-                      href="/privacy"
+                    <Link
+                      to="/privacy"
                       className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
                       target="_blank"
                       rel="noreferrer"
                     >
                       Politique de confidentialité complète
-                    </a>
+                    </Link>
                     {" "}
                     ou contactez-nous à privacy@doodates.com.
                   </p>

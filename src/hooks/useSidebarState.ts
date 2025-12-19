@@ -9,12 +9,12 @@ import { logger } from "@/lib/logger";
 export const useSidebarState = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   
-  // État initial : ouvert sur desktop (>= 768px), fermé sur mobile
+  // État initial : fermé par défaut (pour éviter de couvrir l'agent)
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window === "undefined") {
-      return true; // fallback SSR: ouvert
+      return false; // fallback SSR: fermé
     }
-    return window.innerWidth >= 768;
+    return false; // Fermé par défaut sur tous les écrans
   });
 
   // Fonctions centralisées pour gérer l'état

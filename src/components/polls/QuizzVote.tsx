@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowRight,
   Check,
@@ -686,14 +686,14 @@ Réponds UNIQUEMENT en JSON:
                 <p>Vous pouvez demander la suppression en contactant le créateur du quiz.</p>
                 <p>
                   Pour en savoir plus, consultez la{" "}
-                  <a
-                    href="/privacy"
+                  <Link
+                    to="/privacy"
                     className="text-blue-600 hover:text-blue-500 underline"
                     target="_blank"
                     rel="noreferrer"
                   >
                     Politique de confidentialité complète
-                  </a>
+                  </Link>
                   .
                 </p>
               </div>

@@ -43,22 +43,22 @@ export default function FormPollVote({ idOrSlug }: Props) {
   // Vérifier si l'utilisateur a le droit de voir les résultats (toujours appelé)
   const canSeeResults = useMemo(() => {
     if (!poll || !submitted) return false;
-    
+
     const visibility = poll.resultsVisibility || "creator-only";
-    
+
     // 1. Public : tout le monde peut voir
     if (visibility === "public") return true;
-    
+
     // 2. Créateur : vérifier si c'est le créateur
     const currentUserId = getCurrentUserId();
     const isCreator = poll.creator_id === currentUserId;
     if (isCreator) return true;
-    
+
     // 3. Voters : vérifier si l'utilisateur a voté (après soumission, il a voté)
     if (visibility === "voters") {
       return true; // Après soumission, l'utilisateur a voté
     }
-    
+
     return false;
   }, [poll, submitted]);
 
@@ -384,14 +384,14 @@ export default function FormPollVote({ idOrSlug }: Props) {
               </p>
               <p>
                 Pour en savoir plus, consultez la{" "}
-                <a
-                  href="/privacy"
+                <Link
+                  to="/privacy"
                   className="text-blue-600 hover:text-blue-500 underline underline-offset-2"
                   target="_blank"
                   rel="noreferrer"
                 >
                   Politique de confidentialité complète
-                </a>
+                </Link>
                 .
               </p>
             </div>

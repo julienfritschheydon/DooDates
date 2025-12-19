@@ -19,6 +19,7 @@ export interface ProductConfig {
   listRoute: string;
   settingsRoute: string;
   pricingRoute: string;
+  docsRoute: string;
   journalRoute: string;
   createLabel: string;
   emptyStateTitle: string;
@@ -45,6 +46,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     listRoute: "/date-polls/list",
     settingsRoute: "/date-polls/settings",
     pricingRoute: "/date-polls/pricing",
+    docsRoute: "/date-polls/docs",
     journalRoute: "/date-polls/journal",
     createLabel: "Nouveau Sondage",
     emptyStateTitle: "Aucun sondage de dates",
@@ -69,6 +71,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     listRoute: "/form-polls/list",
     settingsRoute: "/form-polls/settings",
     pricingRoute: "/form-polls/pricing",
+    docsRoute: "/form-polls/docs",
     journalRoute: "/form-polls/journal",
     createLabel: "Nouveau Formulaire",
     emptyStateTitle: "Aucun formulaire",
@@ -93,6 +96,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     listRoute: "/availability-polls/list",
     settingsRoute: "/availability-polls/settings",
     pricingRoute: "/availability-polls/pricing",
+    docsRoute: "/availability-polls/docs",
     journalRoute: "/availability-polls/journal",
     createLabel: "Nouvelle Dispo",
     emptyStateTitle: "Aucune disponibilité",
@@ -117,6 +121,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     listRoute: "/quizz",
     settingsRoute: "/settings",
     pricingRoute: "/quizz/pricing",
+    docsRoute: "/quizz/docs",
     journalRoute: "/quizz/journal",
     createLabel: "Nouveau Quiz",
     emptyStateTitle: "Aucun quiz pour le moment",

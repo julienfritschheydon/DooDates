@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Check, X, HelpCircle, ChevronDown, ChevronUp, Shield } from "lucide-react";
 
 // Import components
@@ -199,11 +200,11 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         poll={
           poll
             ? {
-                ...poll,
-                description: poll.description || "",
-                expires_at:
-                  poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              }
+              ...poll,
+              description: poll.description || "",
+              expires_at:
+                poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }
             : null
         }
         existingVotes={existingVotes}
@@ -258,14 +259,14 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               </p>
               <p>
                 Pour en savoir plus, consultez la{" "}
-                <a
-                  href="/privacy"
+                <Link
+                  to="/privacy"
                   className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
                   target="_blank"
                   rel="noreferrer"
                 >
                   Politique de confidentialité complète
-                </a>
+                </Link>
                 .
               </p>
             </div>
