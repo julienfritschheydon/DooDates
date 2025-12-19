@@ -19,6 +19,9 @@ import {
   type SchedulingRules,
 } from "@/components/availability/SchedulingRulesForm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PollSettingsForm } from "@/components/polls/PollSettingsForm";
+import type { AvailabilityPollSettings } from "@/lib/products/availability-polls/availability-polls-service";
+import { Settings } from "lucide-react";
 
 interface AvailabilityPollCreatorContentProps {
   onBack?: (createdPoll?: StoragePoll) => void;
@@ -46,6 +49,14 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
     preferNearTerm: true,
     preferHalfDays: false,
     slotDurationMinutes: 60,
+  });
+  const [advancedSettings, setAdvancedSettings] = useState<AvailabilityPollSettings>({
+    showLogo: true,
+    requireAuth: false,
+    oneResponsePerPerson: false,
+    allowEditAfterSubmit: true,
+    maxResponses: undefined,
+    resultsVisibility: 'public',
   });
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
@@ -81,11 +92,20 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
       status: asDraft ? "draft" : "active",
       type: "availability",
       dates: [],
+      settings: {
+        ...advancedSettings,
+        // Règles intelligentes d'optimisation
+        minLatencyMinutes: schedulingRules.minLatencyMinutes,
+        maxLatencyMinutes: schedulingRules.maxLatencyMinutes,
+        preferNearTerm: schedulingRules.preferNearTerm,
+        preferHalfDays: schedulingRules.preferHalfDays,
+        slotDurationMinutes: schedulingRules.slotDurationMinutes,
+      },
       // Champs spécifiques aux sondages disponibilités
       clientAvailabilities: undefined,
       parsedAvailabilities: undefined,
       proposedSlots: undefined,
-      // Règles intelligentes d'optimisation
+      // Règles intelligentes d'optimisation (legacy, gardé pour compatibilité)
       schedulingRules: Object.keys(schedulingRules).length > 0 ? schedulingRules : undefined,
     };
 
@@ -305,6 +325,19 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
 
             {/* Règles intelligentes d'optimisation */}
             <SchedulingRulesForm rules={schedulingRules} onChange={setSchedulingRules} />
+
+            {/* Paramètres avancés */}
+            <div className="border-t border-gray-700 pt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Settings className="w-5 h-5 text-gray-400" />
+                <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
+              </div>
+              <PollSettingsForm
+                settings={advancedSettings}
+                onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as AvailabilityPollSettings)}
+                pollType="date"
+              />
+            </div>
 
             {/* Informations Version actuelle */}
             <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">

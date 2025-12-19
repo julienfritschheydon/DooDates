@@ -13,6 +13,7 @@ CREATE OR REPLACE FUNCTION public.consume_quota_credits(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_quota RECORD;

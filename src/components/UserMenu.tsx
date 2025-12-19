@@ -56,14 +56,14 @@ export function UserMenu() {
   };
 
   return (
-    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg max-w-full">
+    <div className="flex items-center gap-2 p-3 bg-gray-800/50 rounded-lg max-w-full border border-gray-700">
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <User className="w-4 h-4 text-gray-600 flex-shrink-0" />
+        <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
         <div className="text-sm min-w-0 flex-1">
-          <div className="font-medium text-gray-900 truncate">
+          <div className="font-medium text-white truncate">
             {user.user_metadata?.full_name || user.email}
           </div>
-          <div className="text-gray-600 truncate">{user.email}</div>
+          <div className="text-gray-400 truncate">{user.email}</div>
         </div>
       </div>
 

@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
+import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
 import PollAnalyticsPanel from "@/components/polls/PollAnalyticsPanel";
 import { NPSResults } from "@/components/polls/NPSResults";
 import DateResultsView from "@/components/polls/DateResultsView";
+import { useResultsAccess } from "@/hooks/useResultsAccess";
 import {
   getPollBySlugOrId,
   getFormResults,
@@ -61,27 +63,14 @@ export default function FormPollResults({ idOrSlug }: Props) {
 
   const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
-  // Vérifier si l'utilisateur a le droit de voir les résultats
-  const canViewResults = useMemo(() => {
+  // Vérifier si l'utilisateur a voté
+  const hasVoted = useMemo(() => {
     if (!poll) return false;
-    const visibility = poll.resultsVisibility || "creator-only";
+    return checkIfUserHasVoted(poll.id);
+  }, [poll]);
 
-    // 1. Public : tout le monde peut voir
-    if (visibility === "public") return true;
-
-    // 2. Créateur : vérifier si c'est le créateur (via localStorage ou auth)
-    const currentUserId = getCurrentUserId(user?.id); // Passer user.id si authentifié
-    const isCreator = poll.creator_id === currentUserId;
-    if (isCreator) return true;
-
-    // 3. Voters : vérifier si l'utilisateur a voté
-    if (visibility === "voters") {
-      const hasVoted = checkIfUserHasVoted(poll.id);
-      return hasVoted;
-    }
-
-    return false;
-  }, [poll, user?.id]);
+  // Vérifier l'accès aux résultats
+  const accessStatus = useResultsAccess(poll, hasVoted);
 
   const currentUserId = getCurrentUserId(user?.id);
   const isCreator = poll?.creator_id === currentUserId;
@@ -180,23 +169,14 @@ export default function FormPollResults({ idOrSlug }: Props) {
     );
   }
 
-  if (!canViewResults) {
+  // Vérifier l'accès aux résultats
+  if (!accessStatus.allowed) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
-        <div className="max-w-2xl mx-auto p-6">
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
-            <h2 className="font-semibold text-lg mb-2 dark:text-yellow-200">Accès restreint</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              Le créateur de ce sondage a choisi de ne pas partager les résultats publiquement.
-            </p>
-            {poll.resultsVisibility === "voters" && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                💡 Votez pour voir les résultats !
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+      <ResultsAccessDenied 
+        message={accessStatus.message}
+        pollSlug={poll?.slug || idOrSlug}
+        showVoteButton={accessStatus.reason === 'not-voted'}
+      />
     );
   }
 

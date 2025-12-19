@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "description": "Performance baseline results for automated regression detection",
+  "last_updated": "2025-12-19T00:00:00.000Z",
+  "e2e_performance": {
+    "description": "E2E performance metrics from successful runs",
+    "baseline_run_timestamp": "2025-12-19T00:00:00.000Z",
+    "baseline_workflow_run_id": null,
+    "metrics": {
+      "dashboard_load_50_conversations": 3000,
+      "dashboard_load_200_conversations": 5000,
+      "tags_menu_open": 500,
+      "folders_menu_open": 500,
+      "date_dashboard_load": 3000,
+      "form_dashboard_load": 3000,
+      "availability_dashboard_load": 3000,
+      "quizz_dashboard_load": 3000
+    }
+  },
+  "lighthouse_ci": {
+    "description": "Lighthouse CI metrics from successful runs",
+    "baseline_run_timestamp": "2025-12-19T00:00:00.000Z",
+    "baseline_workflow_run_id": null,
+    "metrics": {
+      "performance_score": 90,
+      "largest_contentful_paint": 2500,
+      "cumulative_layout_shift": 0.1,
+      "total_blocking_time": 200,
+      "first_input_delay": 100
+    }
+  }
+}

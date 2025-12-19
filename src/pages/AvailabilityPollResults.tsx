@@ -24,6 +24,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { optimizeSchedule, type ProposedSlot } from "@/services/schedulingOptimizer";
 import { GoogleCalendarService } from "@/lib/google-calendar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useResultsAccess } from "@/hooks/useResultsAccess";
+import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
 
 const DAYS_OF_WEEK = [
   { value: "monday", label: "Lundi" },
@@ -50,6 +52,9 @@ const AvailabilityPollResults = () => {
   const [optimizedSlots, setOptimizedSlots] = useState<ProposedSlot[]>([]);
   const { user } = useAuth();
   const calendarService = useMemo(() => (user ? new GoogleCalendarService() : undefined), [user]);
+  
+  // Vérifier l'accès aux résultats (hasVoted = true car c'est le créateur qui propose les slots)
+  const accessStatus = useResultsAccess(poll, true);
 
   // Fonction pour charger le poll
   const loadPoll = React.useCallback(() => {
@@ -153,6 +158,17 @@ const AvailabilityPollResults = () => {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+  
+  // Vérifier l'accès aux résultats
+  if (!accessStatus.allowed) {
+    return (
+      <ResultsAccessDenied
+        message={accessStatus.message}
+        pollSlug={poll.slug}
+        showVoteButton={accessStatus.reason === 'not-voted'}
+      />
     );
   }
 

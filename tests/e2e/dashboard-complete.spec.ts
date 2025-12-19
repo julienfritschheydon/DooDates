@@ -39,7 +39,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await setupTestData(page, { mode: 'authenticated' });
       await page.reload({ waitUntil: 'domcontentloaded' });
       await waitForReactStable(page, { browserName });
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -95,7 +95,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -119,7 +119,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -154,7 +154,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -185,7 +185,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -214,7 +214,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -254,7 +254,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -308,7 +308,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -345,7 +345,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -391,7 +391,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -433,7 +433,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await setupTestData(page, undefined, { conversations });
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -464,7 +464,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier que l'indicateur de quota est visible (texte changé en "crédits utilisés")
@@ -476,7 +476,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   test('@functional - Fermer le dashboard (bouton X)', async ({ page, browserName }) => {
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Le Dashboard n'a plus de bouton de fermeture dédié
@@ -495,7 +495,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -538,7 +538,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       // Ne pas créer de conversations
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier le message "Aucune conversation"
@@ -552,7 +552,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });

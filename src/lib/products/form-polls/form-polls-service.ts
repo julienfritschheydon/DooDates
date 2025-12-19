@@ -112,6 +112,20 @@ export interface FormResults {
 export interface FormPollSettings {
   allowAnonymousResponses?: boolean;
   expiresAt?: string;
+  // UI display settings
+  showLogo?: boolean;
+  showEstimatedTime?: boolean;
+  showQuestionCount?: boolean;
+  // Access control settings
+  requireAuth?: boolean;
+  oneResponsePerPerson?: boolean;
+  allowEditAfterSubmit?: boolean;
+  maxResponses?: number;
+  // Email settings
+  sendEmailCopy?: boolean;
+  emailForCopy?: string;
+  // Results visibility
+  resultsVisibility?: 'creator-only' | 'voters' | 'public';
 }
 
 export interface FormPoll {

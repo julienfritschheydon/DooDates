@@ -4,17 +4,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useParams, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { logger } from "@/lib/logger";
 import { performanceMeasurement } from "@/lib/performance-measurement";
 import { performanceAnalyzer } from "@/lib/performance-analyzer";
-import VotingSwipe from "./components/voting/VotingSwipe";
-// import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
-import { ConversationProvider } from "./components/prototype/ConversationProvider";
+import { WebVitalsTracker } from "./lib/web-vitals-tracker";
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
 import { ConversationStateProvider } from "./components/prototype/ConversationStateProvider";
 import { EditorStateProvider } from "./components/prototype/EditorStateProvider";
+import { ConversationProvider } from "./components/prototype/ConversationProvider";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -158,6 +157,10 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Theme = lazy(() => import("./pages/Theme"));
 const AdminQuotaDashboard = lazy(() => import("./pages/AdminQuotaDashboard"));
 const AdminUserActivity = lazy(() => import("./pages/AdminUserActivity"));
+const Admin = lazy(() => import("./pages/Admin"));
+
+// Page Performance pour le dashboard historique
+const PerformancePage = lazy(() => import("./pages/Performance"));
 
 // Product-specific Privacy pages
 const DatePollsPrivacy = lazy(() => import("./pages/products/date-polls/DatePollsPrivacy"));
@@ -419,21 +422,7 @@ window.preloadPollCreator = () => {
   return preloadPollCreator();
 };
 
-// Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
-const VotingSwipeWrapper = () => {
-  const { pollId } = useParams<{ pollId: string }>();
-  return pollId ? <VotingSwipe pollId={pollId} /> : <div>ID du sondage manquant</div>;
-};
-
-// Composant pour la démo avec un ID fixe
-// const VotingSwipeDemo = () => {
-//   return <VotingSwipe pollId="demo-poll-id" />;
-// };
-
-// Composant pour afficher l'ancienne version ex-VotingSwipe
-// const ExVotingSwipeDemo = () => {
-//   return <ExVotingSwipe onBack={() => window.history.back()} />;
-// };
+// Removed unused VotingSwipe imports and wrapper components
 
 // Hook pour précharger PollCreator sur navigation vers /create
 const usePreloadOnNavigation = () => {
@@ -541,6 +530,8 @@ const App = () => {
                           <EditorStateProvider>
                             {/* ConversationProvider LEGACY - À migrer progressivement */}
                             <ConversationProvider>
+                              {/* Web Vitals Tracking */}
+                              <WebVitalsTracker />
                               <Routes>
                                 {/* Route / vers MainLanding (Nouvelle Landing) */}
                                 <Route path="/" element={<MainLanding />} />
@@ -710,9 +701,14 @@ const App = () => {
                                 />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
-                                {/* Admin Routes (keep for now) */}
-                                <Route path="/admin/quotas" element={<AdminQuotaDashboard />} />
-                                <Route path="/admin/user-activity" element={<AdminUserActivity />} />
+                                {/* Admin Routes */}
+                                <Route path="/admin" element={<Admin />} />
+                                {/* Legacy admin routes - redirect to new tabbed interface */}
+                                <Route path="/admin/quotas" element={<Navigate to="/admin?tab=quotas" replace />} />
+                                <Route path="/admin/user-activity" element={<Navigate to="/admin?tab=activity" replace />} />
+
+                                {/* Performance Dashboard - Legacy route, redirect to admin */}
+                                <Route path="/performance" element={<Navigate to="/admin?tab=performance" replace />} />
 
                                 {/* Sondages - Routes utilisées par les date polls */}
                                 <Route path="/poll/:slug" element={<Vote />} />

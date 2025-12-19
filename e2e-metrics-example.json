@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-12-19T12:00:00.000Z",
+  "source": "e2e",
+  "dashboard_load_50_conversations": 2800,
+  "dashboard_load_200_conversations": 4500,
+  "tags_menu_open": 450,
+  "folders_menu_open": 420,
+  "date_dashboard_load": 2900,
+  "form_dashboard_load": 2850,
+  "availability_dashboard_load": 2750,
+  "quizz_dashboard_load": 2900
+}
+

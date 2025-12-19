@@ -24,6 +24,9 @@ import {
 } from "../../lib/products/quizz/quizz-service";
 import { cn } from "../../lib/utils";
 import { Button } from "@/components/ui/button";
+import { useResultsAccess } from "@/hooks/useResultsAccess";
+import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Composant QR Code simple (génération via API externe)
 function QRCodeDisplay({ url, size = 150 }: { url: string; size?: number }) {
@@ -46,6 +49,7 @@ function QRCodeDisplay({ url, size = 150 }: { url: string; size?: number }) {
 export default function QuizzResults() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [quizz, setQuizz] = useState<Quizz | null>(null);
   const [results, setResults] = useState<QuizzResultsType | null>(null);
@@ -53,6 +57,19 @@ export default function QuizzResults() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [selectedChild, setSelectedChild] = useState<string>("");
+  
+  // Vérifier si l'utilisateur a répondu au quizz (pour contrôle d'accès)
+  const hasVoted = useMemo(() => {
+    if (!quizz || !results) return false;
+    // Si l'utilisateur est connecté, vérifier s'il a des réponses
+    if (user) {
+      return results.totalResponses > 0; // Simplification: si des réponses existent
+    }
+    return false;
+  }, [quizz, results, user]);
+  
+  // Vérifier l'accès aux résultats
+  const accessStatus = useResultsAccess(quizz as any, hasVoted);
 
   // Charger le quiz et les résultats
   useEffect(() => {
@@ -205,6 +222,17 @@ export default function QuizzResults() {
           </Link>
         </div>
       </div>
+    );
+  }
+  
+  // Vérifier l'accès aux résultats
+  if (!accessStatus.allowed) {
+    return (
+      <ResultsAccessDenied
+        message={accessStatus.message}
+        pollSlug={quizz.slug}
+        showVoteButton={accessStatus.reason === 'not-voted'}
+      />
     );
   }
 

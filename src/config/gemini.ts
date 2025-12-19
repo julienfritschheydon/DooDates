@@ -4,11 +4,12 @@
  */
 
 import constants from "./gemini-constants.json";
+import { getEnv } from "../lib/env";
 
 export const GEMINI_CONFIG = {
   // Modèle actuel : version Flash 2.0 (non expérimentale)
   // Utiliser "gemini-2.0-flash" pour la prod, "gemini-2.0-flash-exp" pour les tests si besoin
-  MODEL_NAME: constants.MODEL_NAME,
+  MODEL_NAME: (getEnv("VITE_GEMINI_MODEL_NAME") ?? constants.MODEL_NAME) as string,
 
   // URL de base pour l'API directe (bypass edge function)
   API_BASE_URL: constants.API_BASE_URL,

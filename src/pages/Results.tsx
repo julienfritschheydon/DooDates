@@ -7,6 +7,8 @@ import { Poll, getPollBySlugOrId, getVoterId, getAllPolls } from "@/lib/pollStor
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
+import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
+import { useResultsAccess } from "@/hooks/useResultsAccess";
 import { logger } from "@/lib/logger";
 
 interface VoteData {
@@ -28,11 +30,15 @@ const Results: React.FC = () => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votes, setVotes] = useState<VoteData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasVoted, setHasVoted] = useState(false);
 
   // Vérifier le type de poll pour le routing
   const pollForTypeCheck = slug ? getPollBySlugOrId(slug) : null;
   const isFormPoll = pollForTypeCheck?.type === "form";
   const isAvailabilityPoll = pollForTypeCheck?.type === "availability";
+
+  // Vérifier l'accès aux résultats
+  const accessStatus = useResultsAccess(poll, hasVoted);
 
   // Enforcer: un sondage doit avoir des dates. Pas de fallback synthétique ici.
 
@@ -66,6 +72,15 @@ const Results: React.FC = () => {
         return true;
       });
       setVotes(pollVotes);
+
+      // Vérifier si l'utilisateur actuel a voté
+      const voterId = getVoterId();
+      const userHasVoted = pollVotes.some((vote: VoteData) => {
+        // Vérifier par voter_email ou par un identifiant stocké
+        return vote.voter_email === voterId || 
+               localStorage.getItem(`voted-${foundPoll.id}`) === 'true';
+      });
+      setHasVoted(userHasVoted);
     }
 
     setLoading(false);
@@ -99,6 +114,17 @@ const Results: React.FC = () => {
           <ResultsLoading label="Chargement des résultats..." />
         </div>
       </div>
+    );
+  }
+
+  // Vérifier l'accès aux résultats
+  if (!accessStatus.allowed) {
+    return (
+      <ResultsAccessDenied 
+        message={accessStatus.message}
+        pollSlug={slug}
+        showVoteButton={accessStatus.reason === 'not-voted'}
+      />
     );
   }
 

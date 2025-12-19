@@ -33,6 +33,7 @@ import { ThemeSelector } from "./ThemeSelector";
 import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 import { useFormPollCreation } from "../../hooks/useFormPollCreation";
+import { PollSettingsForm } from "./PollSettingsForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
@@ -118,6 +119,8 @@ export type AnyFormQuestion =
   | NPSQuestion
   | DateQuestion;
 
+import type { FormPollSettings } from '@/lib/products/form-polls/form-polls-service';
+
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
   type: "form";
@@ -127,6 +130,7 @@ export interface FormPollDraft {
   themeId?: string; // Thème visuel (Quick Win #3)
   displayMode?: "all-at-once" | "multi-step"; // Mode d'affichage du formulaire
   resultsVisibility?: "creator-only" | "voters" | "public"; // Visibilité des résultats
+  settings?: FormPollSettings; // Paramètres du sondage
 }
 
 interface FormPollCreatorProps {
@@ -195,6 +199,13 @@ export default function FormPollCreator({
     initialDraft?.resultsVisibility || "creator-only",
   );
 
+  const [settings, setSettings] = useState<FormPollSettings>(
+    initialDraft?.settings || {
+      allowAnonymousResponses: true,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // Default: 1 year
+    },
+  );
+
   // État pour contrôler l'ouverture du panneau de configuration (fermé par défaut)
   const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
 
@@ -206,6 +217,10 @@ export default function FormPollCreator({
       setConditionalRules(initialDraft.conditionalRules || []);
       setDisplayMode(initialDraft.displayMode || suggestedDisplayMode);
       setResultsVisibility(initialDraft.resultsVisibility || "creator-only");
+      setSettings(initialDraft.settings || {
+        allowAnonymousResponses: true,
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDraft?.id]); // Intentionnel : on veut seulement initialiser au montage, pas tracker initialDraft entier
@@ -220,8 +235,9 @@ export default function FormPollCreator({
       themeId,
       displayMode,
       resultsVisibility,
+      settings,
     }),
-    [draftId, title, questions, conditionalRules, themeId, displayMode, resultsVisibility],
+    [draftId, title, questions, conditionalRules, themeId, displayMode, resultsVisibility, settings],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -397,6 +413,7 @@ export default function FormPollCreator({
       themeId: draft.themeId, // Persister le thème visuel
       displayMode: draft.displayMode, // Persister le mode d'affichage
       resultsVisibility: draft.resultsVisibility, // Persister la visibilité des résultats
+      settings: draft.settings, // Persister les paramètres du sondage
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -422,7 +439,7 @@ export default function FormPollCreator({
       if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDraft.title, currentDraft.questions, displayMode]); // Intentionnel : on veut sauvegarder seulement si title/questions/displayMode changent
+  }, [currentDraft.title, currentDraft.questions, displayMode, settings]); // Intentionnel : on veut sauvegarder seulement si title/questions/displayMode/settings changent
 
   const addQuestion = (type: FormQuestionType) => {
     if (type === "text") {
@@ -603,9 +620,8 @@ export default function FormPollCreator({
           title: draft.title,
           description: undefined,
           questions: mappedQuestions,
-          settings: {
+          settings: draft.settings || {
             allowAnonymousResponses: true,
-            // Durée de conservation par défaut : ~12 mois après la création
             expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           },
           slug: draftSlug, // Conserver le slug du draft lors de la publication
@@ -870,6 +886,15 @@ export default function FormPollCreator({
                       {/* Sélecteur de thème */}
                       <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
                         <ThemeSelector selectedThemeId={themeId} onThemeChange={setThemeId} />
+                      </div>
+
+                      {/* Paramètres du sondage */}
+                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+                        <PollSettingsForm
+                          settings={settings}
+                          onSettingsChange={setSettings}
+                          pollType="form"
+                        />
                       </div>
                     </CollapsibleContent>
                   </Collapsible>

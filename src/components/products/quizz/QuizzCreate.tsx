@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { ErrorFactory, logError } from "@/lib/error-handling";
 import { Button } from "@/components/ui/button";
 import { fileToGeminiAttachment } from "@/services/FileAttachmentService";
+import { PollSettingsForm } from "@/components/polls/PollSettingsForm";
+import type { QuizzSettings } from "@/lib/products/quizz/quizz-settings";
+import { Settings } from "lucide-react";
 
 // Limites et formats supportés pour les fichiers utilisés en génération de quizz
 const MAX_QUIZZ_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
@@ -53,6 +56,16 @@ export const QuizzCreate: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [textPrompt, setTextPrompt] = useState("");
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [advancedSettings, setAdvancedSettings] = useState<QuizzSettings>({
+    showEstimatedTime: true,
+    showQuestionCount: true,
+    requireAuth: false,
+    oneResponsePerPerson: true,
+    maxResponses: undefined,
+    resultsVisibility: 'creator-only',
+    allowRetry: false,
+    showCorrectAnswers: true,
+  });
 
   // Toggle question expansion
   const toggleQuestion = (questionId: string) => {
@@ -297,7 +310,7 @@ export const QuizzCreate: React.FC = () => {
       updated_at: new Date().toISOString(),
       creator_id: "local",
       maxPoints,
-      settings: {},
+      settings: advancedSettings,
     };
 
     try {
@@ -576,6 +589,21 @@ export const QuizzCreate: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Paramètres avancés */}
+        {questions.length > 0 && (
+          <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Settings className="w-5 h-5 text-gray-400" />
+              <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
+            </div>
+            <PollSettingsForm
+              settings={advancedSettings}
+              onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as QuizzSettings)}
+              pollType="date"
+            />
+          </div>
+        )}
 
         {/* Actions - Fixed on mobile */}
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 pb-8">

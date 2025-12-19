@@ -45,7 +45,7 @@ test.describe('Dashboard - Cas Limites', () => {
       // Nettoyer localStorage pour avoir un dashboard vide
       await clearTestData(page, { all: true });
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -83,7 +83,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
       await createTestConversations(page, conversations);
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -145,7 +145,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -222,7 +222,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -294,7 +294,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -360,7 +360,7 @@ test.describe('Dashboard - Cas Limites', () => {
         },
       ]);
 
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);

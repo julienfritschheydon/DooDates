@@ -8,6 +8,7 @@ CREATE OR REPLACE FUNCTION public.can_consume_rate_limit(
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_current_count INTEGER;

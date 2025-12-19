@@ -298,7 +298,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(initialQuotaData.pollsCreated).toBeGreaterThanOrEqual(1);
 
     // Supprimer le poll depuis le dashboard
-    await page.goto('/DooDates/dashboard');
+    await page.goto('/DooDates/date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -409,7 +409,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     });
     
     // Accéder au journal - ne devrait pas planter
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -706,7 +706,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Naviguer vers la page de création/édition du poll (où se trouve le bouton simulation)
     // Le bouton simulation est généralement sur la page de création, pas sur la page de vote
-    await page.goto('/DooDates/dashboard');
+    await page.goto('/DooDates/date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -795,7 +795,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Accéder à /dashboard/journal
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1129,7 +1129,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Aller au dashboard
-    await page.goto('/DooDates/dashboard');
+    await page.goto('/DooDates/date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1152,7 +1152,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       expect(currentUrl).toContain('/dashboard/journal');
 
       // Retourner au dashboard
-      await page.goto('/DooDates/dashboard');
+      await page.goto('/DooDates/date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
@@ -1219,7 +1219,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le journal continue de fonctionner même à la limite
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1227,7 +1227,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await expect(journalPage).toBeVisible();
 
     // Vérifier que la barre de progression affiche 100%
-    await page.goto('/DooDates/dashboard');
+    await page.goto('/DooDates/date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1296,7 +1296,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(journalBefore.length).toBe(120); // On a créé 120 entrées
 
     // Accéder à la page du journal
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1360,7 +1360,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       localStorage.setItem('doodates_quota_journal', JSON.stringify(journal));
     });
 
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1436,7 +1436,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const localStorageTotal = quotaData.totalCreditsConsumed;
 
     // Vérifier que les valeurs affichées dans l'UI correspondent exactement à localStorage
-    await page.goto('/DooDates/dashboard');
+    await page.goto('/DooDates/date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1486,7 +1486,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le journal affiche les mêmes totaux que le dashboard
-    await page.goto('/DooDates/dashboard/journal');
+    await page.goto('/DooDates/date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1541,7 +1541,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier que créateur voit les résultats
-      await page.goto('/DooDates/dashboard');
+      await page.goto('/DooDates/date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
@@ -1862,7 +1862,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Naviguer vers le vote
-      await page.goto('/DooDates/dashboard');
+      await page.goto('/DooDates/date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 

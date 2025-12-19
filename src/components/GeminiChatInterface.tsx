@@ -47,7 +47,6 @@ import { useMessageSender } from "../hooks/useMessageSender";
 import { SurveyRequestAggregator } from "../services/SurveyRequestAggregator";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import { AuthModal } from "./modals/AuthModal";
-import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { conversationProtection } from "../services/ConversationProtection";
@@ -1142,19 +1141,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   </p>
                 </div>
               )}
-
-              <div
-                className="px-4 pb-2 flex justify-end quota-indicator"
-                data-testid="quota-indicator"
-              >
-                <QuotaIndicator
-                  type="conversations"
-                  used={quota.status.conversations.used}
-                  limit={quota.status.conversations.limit}
-                  size="sm"
-                  showLabel={false}
-                />
-              </div>
 
               <ChatInput
                 value={inputValue}

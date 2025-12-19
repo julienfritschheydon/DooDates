@@ -146,6 +146,32 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     if (success) {
       setIsVoteComplete(true);
       setShowForm(false);
+      
+      // Envoyer l'email de confirmation si activé
+      if (poll && shouldSendConfirmationEmail(poll.settings)) {
+        try {
+          const selectedDates = options
+            .filter(opt => votes[opt.id])
+            .map(opt => ({
+              date: opt.date || opt.label,
+              slots: opt.timeSlots || []
+            }));
+          
+          await sendDatePollConfirmationEmail({
+            pollId: poll.id,
+            pollTitle: poll.title,
+            selectedDates,
+            respondentName: voterInfo.name,
+            recipientEmail: (poll.settings as any)?.emailForCopy || voterInfo.email || '',
+          });
+          
+          logger.info("Email de confirmation envoyé", "vote", { pollId: poll.id });
+        } catch (error) {
+          logger.error("Erreur lors de l'envoi de l'email de confirmation", "vote", { error });
+          // Ne pas bloquer le vote si l'email échoue
+        }
+      }
+      
       if (onVoteSubmitted) onVoteSubmitted();
     }
   };

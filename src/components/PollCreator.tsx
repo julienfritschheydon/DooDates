@@ -15,6 +15,9 @@ import {
   Share2,
   Copy,
   Loader2,
+  Eye,
+  Shield,
+  User,
 } from "lucide-react";
 import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
@@ -42,6 +45,8 @@ import { linkPollToConversationBidirectional } from "@/lib/ConversationPollLink"
 import { useDragToSelect } from "@/hooks/useDragToSelect";
 import { usePollCreatorState } from "@/hooks/usePollCreatorState";
 import type { TimeSlot, PollCreationState } from "@/services/PollCreationBusinessLogic";
+import { PollSettingsForm } from "./polls/PollSettingsForm";
+import type { DatePollSettings } from "@/lib/products/date-polls/date-polls-service";
 
 // Type pour identifier un slot avec sa date (défini en dehors du composant)
 interface TimeSlotWithDate {
@@ -143,6 +148,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   // État pour la détection de conflits
   const [calendarConflicts, setCalendarConflicts] = useState<TimeSlotConflict[]>([]);
   const [isAnalyzingCalendar, setIsAnalyzingCalendar] = useState(false);
+
+  // État pour les paramètres avancés du sondage
+  const [advancedSettings, setAdvancedSettings] = useState<DatePollSettings>({
+    showLogo: true,
+    requireAuth: false,
+    oneResponsePerPerson: false,
+    allowEditAfterSubmit: true,
+    maxResponses: undefined,
+    resultsVisibility: 'public',
+  });
 
   const handleAnalyzeCalendar = useCallback(async () => {
     if (!googleCalendarRef.current || state.selectedDates.length === 0) {
@@ -352,6 +367,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           allowMaybeVotes: true,
           sendNotifications: state.notificationsEnabled,
           expiresAt,
+          // Paramètres avancés
+          ...advancedSettings,
         },
       });
 
@@ -1307,9 +1324,189 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               <SettingsPanel
                 tabs={[
                   {
-                    id: "settings",
-                    label: "Paramètres",
-                    icon: <Settings className="w-4 h-4" />,
+                    id: "display",
+                    label: "Affichage",
+                    icon: <Eye className="w-4 h-4" />,
+                    content: (
+                      <div className="space-y-6">
+                        {/* Paramètres d'affichage */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-white">Paramètres d'affichage</h3>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Eye className="w-5 h-5 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-white">Afficher le logo DooDates</p>
+                                  <p className="text-sm text-gray-400">Montrer le branding DooDates sur le formulaire</p>
+                                </div>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={advancedSettings.showLogo ?? true}
+                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, showLogo: e.target.checked }))}
+                                />
+                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "access",
+                    label: "Accès",
+                    icon: <Shield className="w-4 h-4" />,
+                    content: (
+                      <div className="space-y-6">
+                        {/* Contrôle d'accès */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-white">Contrôle d'accès</h3>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Shield className="w-5 h-5 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-white">Connexion requise</p>
+                                  <p className="text-sm text-gray-400">Les utilisateurs doivent se connecter avec Google</p>
+                                </div>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={advancedSettings.requireAuth ?? false}
+                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, requireAuth: e.target.checked }))}
+                                />
+                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <User className="w-5 h-5 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-white">Une réponse par personne</p>
+                                  <p className="text-sm text-gray-400">Prévenir les réponses multiples (cookie)</p>
+                                </div>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={advancedSettings.oneResponsePerPerson ?? false}
+                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, oneResponsePerPerson: e.target.checked }))}
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Eye className="w-5 h-5 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-white">Modification après soumission</p>
+                                  <p className="text-sm text-gray-400">Permettre de modifier sa réponse</p>
+                                </div>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={advancedSettings.allowEditAfterSubmit ?? false}
+                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, allowEditAfterSubmit: e.target.checked }))}
+                                />
+                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Limites */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-white">Limites</h3>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                              Nombre maximum de réponses
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Illimité"
+                              value={advancedSettings.maxResponses || ''}
+                              onChange={(e) => {
+                                const value = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                                setAdvancedSettings(prev => ({ ...prev, maxResponses: value }));
+                              }}
+                              className="w-full px-3 py-2 border border-gray-600 bg-[#1e1e1e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Laisser vide pour illimité</p>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "visibility",
+                    label: "Visibilité",
+                    icon: <Eye className="w-4 h-4" />,
+                    content: (
+                      <div className="space-y-6">
+                        {/* Visibilité des résultats */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-white">Visibilité des résultats</h3>
+                          
+                          <div className="space-y-3">
+                            {[
+                              {
+                                value: 'creator-only',
+                                label: 'Créateur uniquement',
+                                description: 'Seul le créateur peut voir les résultats'
+                              },
+                              {
+                                value: 'voters',
+                                label: 'Participants après vote',
+                                description: 'Visible après avoir voté'
+                              },
+                              {
+                                value: 'public',
+                                label: 'Public',
+                                description: 'Tout le monde peut voir les résultats'
+                              },
+                            ].map((option) => (
+                              <div key={option.value} className="flex items-center">
+                                <input
+                                  type="radio"
+                                  id={option.value}
+                                  name="resultsVisibility"
+                                  value={option.value}
+                                  checked={(advancedSettings.resultsVisibility || 'public') === option.value}
+                                  onChange={(e) => {
+                                    setAdvancedSettings(prev => ({ ...prev, resultsVisibility: e.target.value as 'creator-only' | 'voters' | 'public' }));
+                                  }}
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 bg-gray-700"
+                                />
+                                <label htmlFor={option.value} className="ml-3">
+                                  <div className="font-medium text-white">{option.label}</div>
+                                  <div className="text-sm text-gray-400">{option.description}</div>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "expiration",
+                    label: "Expiration",
+                    icon: <Clock className="w-4 h-4" />,
                     content: (
                       <div className="space-y-6">
                         {/* Paramètres d'expiration */}
@@ -1318,7 +1515,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             <Clock className="h-5 w-5 text-orange-600" />
                             <h3 className="font-semibold text-white">Expiration du sondage</h3>
                           </div>
-                          <div className="p-4 bg-orange-900/20 rounded-lg">
+                          <div className="p-4 bg-orange-900/30 border border-orange-800/50 rounded-lg">
                             <p className="text-sm text-gray-300 mb-3">
                               Le sondage expirera après :
                             </p>
@@ -1437,7 +1634,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     ),
                   },
                 ]}
-                defaultTab="settings"
+                defaultTab="display"
                 isOpen={state.showSettingsPanel}
                 onOpenChange={(open) => setState((prev) => ({ ...prev, showSettingsPanel: open }))}
                 title="Paramètres et Partage"
