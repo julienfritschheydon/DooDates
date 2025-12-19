@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { ErrorFactory } from "@/lib/error-handling";
 
 interface DatePollEmailData {
   pollId: string;
@@ -30,7 +31,7 @@ export async function sendDatePollConfirmationEmail(
   data: DatePollEmailData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    logger.info("Sending date poll confirmation email", {
+    logger.info("Sending date poll confirmation email", "api", {
       pollId: data.pollId,
       recipient: data.recipientEmail,
     });
@@ -52,21 +53,21 @@ export async function sendDatePollConfirmationEmail(
     );
 
     if (error) {
-      logger.error("Failed to send date poll confirmation email", {
+      logger.error("Failed to send date poll confirmation email", "api", {
         error,
         pollId: data.pollId,
       });
       return { success: false, error: error.message };
     }
 
-    logger.info("Date poll confirmation email sent successfully", {
+    logger.info("Date poll confirmation email sent successfully", "api", {
       pollId: data.pollId,
       emailId: result?.emailId,
     });
 
     return { success: true };
   } catch (error: any) {
-    logger.error("Error sending date poll confirmation email", {
+    logger.error("Error sending date poll confirmation email", "api", {
       error: error.message,
       pollId: data.pollId,
     });
@@ -81,7 +82,7 @@ export async function sendFormPollConfirmationEmail(
   data: FormPollEmailData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    logger.info("Sending form poll confirmation email", {
+    logger.info("Sending form poll confirmation email", "api", {
       pollId: data.pollId,
       recipient: data.recipientEmail,
     });
@@ -103,21 +104,21 @@ export async function sendFormPollConfirmationEmail(
     );
 
     if (error) {
-      logger.error("Failed to send form poll confirmation email", {
+      logger.error("Failed to send form poll confirmation email", "api", {
         error,
         pollId: data.pollId,
       });
       return { success: false, error: error.message };
     }
 
-    logger.info("Form poll confirmation email sent successfully", {
+    logger.info("Form poll confirmation email sent successfully", "api", {
       pollId: data.pollId,
       emailId: result?.emailId,
     });
 
     return { success: true };
   } catch (error: any) {
-    logger.error("Error sending form poll confirmation email", {
+    logger.error("Error sending form poll confirmation email", "api", {
       error: error.message,
       pollId: data.pollId,
     });
@@ -219,6 +220,11 @@ function escapeHtml(text: string): string {
  * Formate la réponse selon le type de question
  */
 function formatAnswer(value: any, question: any): string {
+  // Si la question n'est pas trouvée, retourner la valeur telle quelle
+  if (!question) {
+    return String(value);
+  }
+  
   if (typeof value === "string") {
     // Pour les questions single, trouver le label de l'option
     if (question.kind === "single" && question.options) {
@@ -289,30 +295,39 @@ export async function sendVoteConfirmationEmail(params: {
   
   // Valider que l'email est présent
   if (!response.respondentEmail) {
-    throw new Error('Email du votant manquant');
+    const metadata: Record<string, unknown> = {
+      component: 'EmailService',
+      operation: 'sendVoteConfirmationEmail',
+    };
+    const validationError = ErrorFactory.validation('Email du votant manquant', 'Email du votant manquant', metadata);
+    throw validationError;
   }
-  
+
   // Construire le tableau de réponses avec formatage approprié
-  const formattedResponses = response.items.map((item: any) => {
+  const items = response.items || [];
+  const formattedResponses: Array<{ question: string; answer: string }> = [];
+  
+  for (const item of items) {
     const question = questions.find((q: any) => q.id === item.questionId);
     const questionTitle = question?.title || "Question";
     const answerText = formatAnswer(item.value, question);
     
-    return {
+    formattedResponses.push({
       question: questionTitle,
-      answer: answerText
-    };
-  });
-  
+      answer: answerText,
+    });
+  }
+
   // Générer le HTML de l'email
   const html = generateFormPollEmailHTML({
     pollTitle: poll.title,
     responses: formattedResponses,
     respondentName: response.respondentName,
   });
-  
+
   // En mode test/dev, logger à la console
-  if (typeof process !== "undefined" && (process.env?.NODE_ENV === "test" || !import.meta.env?.PROD)) {
+  const isTestOrDev = (typeof process !== "undefined" && process.env?.NODE_ENV === "test") || !import.meta.env?.PROD;
+  if (isTestOrDev) {
     console.log('📧 Email à envoyer:', {
       to: response.respondentEmail,
       subject: `Vos réponses : ${poll.title}`,

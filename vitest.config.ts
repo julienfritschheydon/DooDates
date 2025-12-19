@@ -28,6 +28,15 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts", "./src/vitest.setup.d.ts"],
     globals: true,
+    // Reporter configuration (remplace le deprecated 'basic' reporter)
+    reporters: [
+      [
+        "default",
+        {
+          summary: false,
+        },
+      ],
+    ],
     // Optimisations pour exécution parallèle
     pool: "threads", // Threads plus rapides que forks
     poolOptions: {
