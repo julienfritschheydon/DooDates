@@ -150,6 +150,8 @@ const AvailabilityWorkspace = lazy(() => import("./app/workspace/AvailabilityWor
 // Pages de navigation et paramètres
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Security = lazy(() => import("./pages/Security"));
+const SupportPolicy = lazy(() => import("./pages/SupportPolicy"));
 const DataControl = lazy(() => import("./pages/DataControl"));
 const Recent = lazy(() => import("./pages/Recent"));
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
@@ -558,6 +560,10 @@ const App = () => {
                                   element={<AvailabilityPollsLanding />}
                                 />
 
+                                {/* Global Documentation Route */}
+                                <Route path="/docs" element={<Docs />} />
+                                <Route path="/docs/:docId" element={<Docs />} />
+
                                 {/* Product Dashboards */}
                                 {/* Product Dashboards */}
                                 <Route
@@ -690,11 +696,12 @@ const App = () => {
                                   element={<QuizzPollsDataControl />}
                                 />
 
+                                {/* Pages globales (site principal) */}
+                                <Route path="/privacy" element={<Privacy />} />
+                                <Route path="/security" element={<Security />} />
+                                <Route path="/support-policy" element={<SupportPolicy />} />
+                                
                                 {/* Essential Pages - Redirect to date-polls by default */}
-                                <Route
-                                  path="/privacy"
-                                  element={<Navigate to="/date-polls/privacy" replace />}
-                                />
                                 <Route
                                   path="/data-control"
                                   element={<Navigate to="/date-polls/data-control" replace />}

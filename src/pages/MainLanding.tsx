@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Calendar, CheckCircle2, FileText, ArrowRight, Sparkles, Brain } from "lucide-react";
+import { Footer } from "@/components/shared/Footer";
 
 export default function MainLanding() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden relative">
+    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden relative flex flex-col">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]" />
@@ -28,7 +29,7 @@ export default function MainLanding() {
       </header>
 
       {/* Hero Section */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex-1">
         <div className="text-center mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
             <Sparkles className="w-4 h-4 text-yellow-400" />
@@ -138,12 +139,10 @@ export default function MainLanding() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 mt-20 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-          <p>© 2025 DooDates. Tous droits réservés.</p>
-        </div>
-      </footer>
+      {/* Footer global avec tous les liens - collé en bas */}
+      <div className="relative z-10 mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }

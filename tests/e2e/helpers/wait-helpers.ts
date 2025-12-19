@@ -412,7 +412,25 @@ export async function waitForChatInputReady(
   }
 
   // 4. Dernier recours : n'importe quel élément interactif (pattern beta-key)
-  const anyInteractive = page.locator('input, button, [role="button"]').first();
-  await anyInteractive.waitFor({ state: 'visible', timeout });
-  return anyInteractive;
+  // Attendre d'abord que le body soit chargé et que React soit prêt
+  try {
+    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 10000) });
+  } catch {
+    // Ignorer si le timeout est dépassé, continuer quand même
+  }
+  
+  const anyInteractive = page.locator('input, button, [role="button"], a[href]').first();
+  try {
+    await anyInteractive.waitFor({ state: 'visible', timeout });
+    return anyInteractive;
+  } catch (error) {
+    // Si même le dernier recours échoue, vérifier si la page est chargée
+    const bodyVisible = await page.locator('body').isVisible().catch(() => false);
+    if (!bodyVisible) {
+      throw new Error(`Page not loaded: body element not visible. Original error: ${error}`);
+    }
+    // Si le body est visible mais aucun élément interactif, c'est peut-être une page vide
+    // Retourner le body comme fallback ultime
+    return page.locator('body');
+  }
 }

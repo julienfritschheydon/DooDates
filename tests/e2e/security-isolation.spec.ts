@@ -24,7 +24,7 @@ test.describe('Security and Data Isolation', () => {
       warmup: true,
       consoleGuard: { enabled: true },
       mocks: { gemini: true },
-      navigation: { path: '/workspace', waitForReady: true },
+      navigation: undefined, // Ne pas naviguer ici, chaque test navigue vers sa propre page
       clearLocalStorage: { beforeNavigation: true },
     });
   });

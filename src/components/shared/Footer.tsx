@@ -17,6 +17,12 @@ export const Footer: React.FC = () => (
         <Link to="/privacy" className="hover:text-white transition-colors">
           Confidentialité
         </Link>
+        <Link to="/security" className="hover:text-white transition-colors">
+          Sécurité
+        </Link>
+        <Link to="/support-policy" className="hover:text-white transition-colors">
+          Support
+        </Link>
       </div>
       <p className="text-sm">© {new Date().getFullYear()} DooDates – Tous droits réservés.</p>
     </div>

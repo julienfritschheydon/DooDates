@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Shield, Mail, Clock, Eye, Trash2, Settings, FileText, ChevronRight } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
+import { Footer } from "@/components/shared/Footer";
 
 export const Privacy: React.FC = () => {
   return (
@@ -206,7 +207,7 @@ export const Privacy: React.FC = () => {
             </section>
           </div>
 
-          {/* Footer */}
+          {/* Footer intégré */}
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
               Cette politique s'applique à tous les produits DooDates :
@@ -228,6 +229,8 @@ export const Privacy: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Footer global */}
+      <Footer />
     </div>
   );
 };

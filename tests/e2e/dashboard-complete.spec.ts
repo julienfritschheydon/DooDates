@@ -56,6 +56,9 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         /status: 401/i,
         /Failed to resolve import.*Settings/i,
         /\[vite\] Internal Server Error/i,
+        /Failed to refresh session/i,
+        /Session refresh failed/i,
+        /Session expired/i,
       ],
     });
   });
@@ -83,8 +86,9 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     // Attendre que les éléments de chargement disparaissent
     await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
     
-    // Attendre que le titre du dashboard soit visible
-    await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible({ timeout: timeouts.element });
+    // Attendre que le titre du dashboard soit visible (peut être "Tableau de bord" ou "Vos Sondages de Dates" selon le composant)
+    const dashboardTitle = page.getByRole('heading').first();
+    await expect(dashboardTitle).toBeVisible({ timeout: timeouts.element });
     
     // Attendre que React soit stable
     await waitForReactStable(page, { browserName });

@@ -1,0 +1,287 @@
+# Politique de Confidentialité - DooDates
+
+> **Version :** 1.0  
+> **Dernière mise à jour :** Janvier 2026  
+> **Contact DPO :** privacy@doodates.com
+
+---
+
+## 📋 Introduction
+
+DooDates s'engage à protéger votre vie privée et vos données personnelles. Cette politique de confidentialité explique comment nous collectons, utilisons, stockons et protégeons vos données conformément au Règlement Général sur la Protection des Données (RGPD) et aux lois applicables.
+
+**Responsable du traitement :** DooDates  
+**Contact DPO :** privacy@doodates.com
+
+---
+
+## 🔍 Données Collectées
+
+### Données que vous nous fournissez
+
+- **Identité** : Nom, pseudo, email (pour les comptes authentifiés)
+- **Contenu** : Titres de sondages, descriptions, réponses aux sondages
+- **Préférences** : Paramètres de compte, préférences de rétention des données
+- **Support** : Messages de support, tickets
+
+### Données collectées automatiquement
+
+- **Données techniques** : Adresse IP (anonymisée), user-agent, device ID (pour quotas invités)
+- **Données d'utilisation** : Pages visitées, actions effectuées, temps passé
+- **Cookies** : Cookies essentiels et analytics (avec consentement)
+
+### Données de tiers
+
+- **Fournisseur IA (Google Gemini)** : Messages de conversation pour traitement IA (voir [Politique IA](./LEGAL/Politique-Confidentialite-IA.md))
+
+---
+
+## 🎯 Finalités du Traitement
+
+Nous utilisons vos données pour :
+
+1. **Fournir le service** : Création et gestion de sondages, formulaires, quizz
+2. **Améliorer le service** : Analyse d'utilisation, correction de bugs, nouvelles fonctionnalités
+3. **Support** : Répondre à vos demandes, résoudre les problèmes
+4. **Sécurité** : Prévention de la fraude, protection contre les abus
+5. **Conformité légale** : Respect des obligations légales et réglementaires
+
+---
+
+## ⏱️ Durées de Conservation des Données
+
+### Politique de rétention
+
+Nous conservons vos données uniquement le temps nécessaire aux finalités pour lesquelles elles ont été collectées.
+
+| Type de données | Durée par défaut | Options utilisateur | Maximum |
+|----------------|------------------|---------------------|---------|
+| **Sondages actifs** | Indéfinie (jusqu'à clôture) | - | - |
+| **Sondages clôturés** | 12 mois après dernière activité | 12 mois / 6 ans / Indéfini | Selon choix utilisateur |
+| **Conversations IA** | 30 jours | 30j / 12 mois / Indéfini | Selon choix utilisateur |
+| **Comptes utilisateurs** | Tant que le compte est actif | - | - |
+| **Comptes inactifs** | 6 mois d'inactivité | - | 6 mois |
+| **Logs techniques** | 30 jours | Fixe | 30 jours |
+| **Données de support** | 24 mois après clôture du ticket | - | 24 mois |
+
+### Contrôle utilisateur
+
+**Vous contrôlez la durée de conservation** de vos données personnelles :
+
+- **Paramètres** : Accédez à `/settings` pour modifier vos préférences de rétention
+- **Suppression manuelle** : Supprimez vos sondages ou votre compte à tout moment
+- **Export avant suppression** : Exportez vos données avant suppression définitive
+
+### Suppression automatique
+
+- **Alertes** : Nous vous envoyons des alertes avant suppression automatique (30 jours, 7 jours)
+- **Désactivation** : Vous pouvez désactiver la suppression automatique dans les paramètres
+- **Irréversible** : La suppression est définitive et irréversible
+
+---
+
+## 🔄 Processus de Suppression Automatique
+
+### Sondages et formulaires
+
+1. **Détection** : Identification des sondages inactifs depuis la durée configurée
+2. **Alerte** : Email envoyé 30 jours avant suppression (si email disponible)
+3. **Rappel** : Email de rappel 7 jours avant suppression
+4. **Suppression** : Suppression automatique après le délai
+
+### Comptes inactifs
+
+- **Définition** : Compte sans activité depuis 6 mois
+- **Alerte** : Email envoyé avant suppression
+- **Suppression** : Suppression du compte et de toutes les données associées
+
+### Exceptions
+
+- **Sondages archivés** : Conservés selon vos préférences
+- **Données légales** : Certaines données peuvent être conservées pour obligations légales
+
+---
+
+## 🌍 Transferts de Données Hors UE
+
+### Fournisseur IA (Google Gemini)
+
+Vos conversations avec l'IA sont traitées par **Google Gemini**, dont les serveurs sont situés **hors de l'Union Européenne** (principalement aux États-Unis).
+
+**Garanties :**
+- **Clauses Contractuelles Types (CCT)** : Intégrées dans l'accord Google Cloud
+- **Durée limitée** : 30 jours maximum chez Google
+- **Pas d'entraînement** : Vos données ne sont PAS utilisées pour entraîner les modèles
+- **Détails** : Voir [Politique IA](./LEGAL/Politique-Confidentialite-IA.md)
+
+### Autres transferts
+
+- **Analytics** : Données anonymisées vers services analytics (avec consentement)
+- **Hébergement** : Supabase (région configurable, par défaut Europe)
+
+---
+
+## 👤 Vos Droits RGPD
+
+Conformément au RGPD, vous disposez des droits suivants :
+
+### Droit d'accès (Article 15)
+
+**Vous pouvez demander** :
+- Accès à toutes vos données personnelles
+- Informations sur l'utilisation de vos données
+- Copie de vos données dans un format lisible
+
+**Comment exercer** :
+- **Export automatique** : Accédez à `/data-control` → "Exporter mes données"
+- **Demande manuelle** : Contactez privacy@doodates.com
+
+### Droit de rectification (Article 16)
+
+**Vous pouvez** :
+- Modifier vos informations personnelles
+- Corriger les erreurs dans vos données
+
+**Comment exercer** :
+- **Profil** : Modifiez vos informations dans `/settings`
+- **Demande manuelle** : Contactez privacy@doodates.com
+
+### Droit à l'effacement (Article 17)
+
+**Vous pouvez demander** :
+- La suppression de votre compte
+- La suppression de données spécifiques
+
+**Comment exercer** :
+- **Suppression compte** : `/settings` → "Supprimer mon compte"
+- **Suppression sondage** : Supprimez individuellement vos sondages
+- **Demande manuelle** : Contactez privacy@doodates.com
+
+**Délai** : Suppression dans les **30 jours** suivant la demande
+
+### Droit à la portabilité (Article 20)
+
+**Vous pouvez** :
+- Exporter vos données dans un format structuré (JSON, CSV)
+- Transférer vos données vers un autre service
+
+**Comment exercer** :
+- **Export automatique** : `/data-control` → "Exporter mes données"
+- **Formats** : JSON (complet), CSV (sondages), iCal (événements)
+
+### Droit d'opposition (Article 21)
+
+**Vous pouvez** :
+- Vous opposer au traitement de vos données pour certaines finalités
+- Refuser les communications marketing
+
+**Comment exercer** :
+- **Paramètres** : `/settings` → Désactiver analytics/marketing
+- **Email** : Répondez "Se désabonner" aux emails marketing
+
+### Droit à la limitation (Article 18)
+
+**Vous pouvez demander** :
+- La limitation du traitement de vos données
+- La suspension temporaire du traitement
+
+**Comment exercer** : Contactez privacy@doodates.com
+
+### Droit de retirer votre consentement
+
+**Vous pouvez** :
+- Retirer votre consentement à tout moment
+- Modifier vos préférences de consentement
+
+**Comment exercer** :
+- **Paramètres** : `/settings` → Modifier les consentements
+- **Cookies** : Gérer les cookies via le banner
+
+---
+
+## 🔐 Sécurité des Données
+
+### Mesures techniques
+
+- **Chiffrement** : TLS 1.3 en transit, AES-256 au repos
+- **Authentification** : Supabase Auth avec tokens JWT sécurisés
+- **Accès** : Row Level Security (RLS) sur toutes les tables
+- **Backups** : Sauvegardes quotidiennes avec rétention limitée
+
+### Mesures organisationnelles
+
+- **Accès limité** : Seuls les membres autorisés ont accès aux données
+- **Formation** : Équipe formée aux bonnes pratiques RGPD
+- **Audits** : Audits réguliers de conformité
+
+**Détails** : Voir [Politique de Sécurité](./SECURITY.md)
+
+---
+
+## 🍪 Cookies et Technologies Similaires
+
+### Cookies essentiels
+
+- **Session** : Nécessaires au fonctionnement de l'application
+- **Authentification** : Gestion des sessions utilisateur
+- **Préférences** : Sauvegarde de vos préférences
+
+### Cookies analytics (avec consentement)
+
+- **Analytics** : Analyse d'utilisation anonymisée
+- **Performance** : Mesure des performances de l'application
+
+### Gestion des cookies
+
+- **Banner** : Consentement granulaire (essentiels / analytics / marketing)
+- **Paramètres** : Modifiez vos préférences à tout moment dans `/settings`
+
+---
+
+## 👶 Données des Mineurs
+
+DooDates n'est **pas destiné aux mineurs de moins de 16 ans**. Nous ne collectons pas sciemment de données personnelles de mineurs.
+
+Si vous êtes parent/tuteur et que vous découvrez que votre enfant nous a fourni des données, contactez-nous à privacy@doodates.com pour demander la suppression.
+
+---
+
+## 📞 Contact et Réclamations
+
+### Contact DPO
+
+**Email :** privacy@doodates.com  
+**Délai de réponse** : Sous 7 jours ouvrés
+
+### Réclamation auprès de l'autorité de contrôle
+
+Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de :
+
+**CNIL (Commission Nationale de l'Informatique et des Libertés)**  
+3 Place de Fontenoy - TSA 80715  
+75334 Paris Cedex 07  
+Tél. : 01 53 73 22 22  
+Site web : https://www.cnil.fr
+
+---
+
+## 📝 Modifications de cette Politique
+
+Nous pouvons modifier cette politique de confidentialité pour refléter l'évolution de nos pratiques ou des exigences légales.
+
+**Notification** : Nous vous informerons des modifications importantes par email ou via une notification dans l'application.
+
+**Date de dernière mise à jour** : Indiquée en haut du document.
+
+---
+
+## 📚 Documents Complémentaires
+
+- [Politique de Confidentialité IA](./LEGAL/Politique-Confidentialite-IA.md) : Détails sur l'utilisation de l'IA
+- [Cartographie des Données](./LEGAL/RGPD-Cartographie-Donnees.md) : Détails techniques sur les données
+- [Politique de Sécurité](./SECURITY.md) : Mesures de sécurité techniques
+
+---
+
+*Dernière mise à jour : Janvier 2026*
+

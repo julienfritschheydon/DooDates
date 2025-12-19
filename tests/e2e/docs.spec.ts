@@ -16,6 +16,8 @@ test.describe('Documentation - Tests E2E', () => {
         /Importing a module script failed\./i,
         /error loading dynamically imported module/i,
         /The above error occurred in one of your React components/i,
+        /404 Error.*non-existent route/i,
+        /User attempted to access non-existent route/i,
       ],
     });
 
@@ -158,6 +160,8 @@ test.describe('Documentation - Tests E2E', () => {
       allowlist: [
         /Importing a module script failed\./i,
         /error loading dynamically imported module/i,
+        /404 Error.*non-existent route/i,
+        /User attempted to access non-existent route/i,
       ],
     });
 
