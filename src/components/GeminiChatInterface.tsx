@@ -9,7 +9,8 @@ import React, {
   Suspense,
 } from "react";
 import { Link } from "react-router-dom";
-import { Shield, ChevronDown, ChevronUp } from "lucide-react";
+import { Shield, ChevronDown, ChevronUp, Info, X } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 // Lazy load Plus pour réduire le bundle initial
 import { createLazyIcon } from "../lib/lazy-icons";
 const PlusLazy = createLazyIcon("Plus");
@@ -1081,48 +1082,77 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
         {/* Zone de saisie - Fixe en bas de l'écran */}
         {!inputHidden ? (
-          <div className="w-full">
-            {/* Informations RGPD sur le chat IA */}
-            <div className="px-4 pt-2 pb-1 text-[11px] text-gray-400">
-              <button
-                type="button"
-                className="w-full flex items-center justify-between gap-2 rounded-md bg-[#111111] border border-gray-800 px-3 py-2 hover:bg-[#151515] transition-colors text-left"
-                onClick={() => setShowDataInfo((prev) => !prev)}
-                data-testid="rgpd-chat-info-toggle"
-              >
-                <div className="flex items-center gap-2 text-left">
-                  <Shield className="w-3.5 h-3.5 text-blue-400" />
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-200">Vos données dans le chat IA</p>
-                    {showDataInfo && (
-                      <p className="text-[10px] text-gray-400">
-                        Vos messages peuvent contenir des données personnelles et sont envoyés à un fournisseur d'intelligence artificielle tiers pour générer des réponses.
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                  <span>{showDataInfo ? "Masquer les détails" : "Voir les détails"}</span>
-                  {showDataInfo ? (
-                    <ChevronUp className="w-3 h-3" />
-                  ) : (
-                    <ChevronDown className="w-3 h-3" />
-                  )}
-                </div>
-              </button>
+          <div className="w-full relative">
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={handleSendMessage}
+              onKeyPress={handleKeyPress}
+              onUserMessage={onUserMessage}
+              isLoading={isLoading}
+              darkTheme={darkTheme}
+              voiceRecognition={voiceRecognition}
+              textareaRef={textareaRef}
+              pollType={pollTypeFromUrl}
+              attachedFile={attachedFile}
+              onAttachFile={setAttachedFile}
+            />
+            
+            {/* Icône RGPD discrète en bas à gauche */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => setShowDataInfo((prev) => !prev)}
+                    data-testid="rgpd-chat-info-toggle"
+                    className="absolute bottom-3 left-4 p-1.5 rounded-md hover:bg-gray-800/50 transition-colors text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600/50 z-10"
+                    aria-label="Informations sur la confidentialité des données"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs bg-gray-900 border-gray-700">
+                  <p className="text-xs text-white">Vos données dans le chat IA</p>
+                  <p className="text-[10px] text-gray-400 mt-1">Cliquez pour plus d'informations</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-              {showDataInfo && (
-                <div
-                  className="mt-2 rounded-md bg-[#0d0d0d] border border-gray-800 px-3 py-2 text-[11px] text-gray-300"
-                  data-testid="rgpd-chat-info"
-                >
-                  <p className="mb-1">
+            {/* Overlay pour fermer le modal en cliquant en dehors */}
+            {showDataInfo && (
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowDataInfo(false)}
+                aria-hidden="true"
+              />
+            )}
+
+            {/* Modal/Popover pour les détails complets */}
+            {showDataInfo && (
+              <div className="absolute bottom-20 left-4 right-4 z-50 rounded-lg bg-[#0d0d0d] border border-gray-800 shadow-xl p-4 text-[11px] text-gray-300 max-h-96 overflow-y-auto sm:max-w-md">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-400" />
+                    <h3 className="font-semibold text-white text-sm">Vos données dans le chat IA</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowDataInfo(false)}
+                    className="text-gray-400 hover:text-gray-200 transition-colors p-1 rounded hover:bg-gray-800"
+                    aria-label="Fermer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="space-y-2" data-testid="rgpd-chat-info">
+                  <p>
                     Vos messages dans ce chat peuvent contenir des données personnelles (par exemple des noms, dates, informations de contact) et sont traités par un fournisseur IA tiers pour générer les réponses.
                   </p>
-                  <p className="mb-1">
+                  <p>
                     <strong>Fournisseur IA :</strong> Google Gemini agit comme sous-traitant, avec des transferts hors UE protégés par les clauses contractuelles types RGPD. Les données sont conservées maximum 30 jours chez Google et ne sont pas utilisées pour l'entraînement des modèles.
                   </p>
-                  <p className="mb-1">
+                  <p>
                     <strong>Vos droits :</strong> Vous pouvez demander l'accès, la modification ou la suppression de vos conversations à tout moment. Vous pouvez également désactiver l'utilisation de vos données pour l'amélioration du produit dans vos paramètres.
                   </p>
                   <p>
@@ -1140,23 +1170,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                     ou contactez-nous à privacy@doodates.com.
                   </p>
                 </div>
-              )}
-
-              <ChatInput
-                value={inputValue}
-                onChange={setInputValue}
-                onSend={handleSendMessage}
-                onKeyPress={handleKeyPress}
-                onUserMessage={onUserMessage}
-                isLoading={isLoading}
-                darkTheme={darkTheme}
-                voiceRecognition={voiceRecognition}
-                textareaRef={textareaRef}
-                pollType={pollTypeFromUrl}
-                attachedFile={attachedFile}
-                onAttachFile={setAttachedFile}
-              />
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] text-center">

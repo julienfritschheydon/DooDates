@@ -1510,32 +1510,35 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     content: (
                       <div className="space-y-6">
                         {/* Paramètres d'expiration */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <Clock className="h-5 w-5 text-orange-600" />
-                            <h3 className="font-semibold text-white">Expiration du sondage</h3>
-                          </div>
-                          <div className="p-4 bg-orange-900/30 border border-orange-800/50 rounded-lg">
-                            <p className="text-sm text-gray-300 mb-3">
-                              Le sondage expirera après :
-                            </p>
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="number"
-                                min="1"
-                                max="365"
-                                value={state.expirationDays}
-                                onChange={(e) =>
-                                  setState((prev) => ({
-                                    ...prev,
-                                    expirationDays: parseInt(e.target.value) || 30,
-                                  }))
-                                }
-                                className="w-16 px-2 py-1 border border-orange-700 bg-[#1e1e1e] text-white rounded text-center"
-                              />
-                              <span className="text-sm text-gray-300">jours</span>
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-white">Expiration du sondage</h3>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Clock className="w-5 h-5 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-white">Le sondage expirera après</p>
+                                  <p className="text-sm text-gray-400">Par défaut: 30 jours</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="365"
+                                  value={state.expirationDays}
+                                  onChange={(e) =>
+                                    setState((prev) => ({
+                                      ...prev,
+                                      expirationDays: parseInt(e.target.value) || 30,
+                                    }))
+                                  }
+                                  className="w-16 px-2 py-1 border border-gray-600 bg-[#1e1e1e] text-white rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                />
+                                <span className="text-sm text-gray-400">jours</span>
+                              </div>
                             </div>
-                            <p className="text-xs text-gray-400 mt-2">Par défaut: 30 jours</p>
                           </div>
                         </div>
 

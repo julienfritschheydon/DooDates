@@ -18,15 +18,22 @@ DROP POLICY IF EXISTS "Allow public read access" ON guest_quotas;
 DROP POLICY IF EXISTS "Allow public insert" ON guest_quotas;
 DROP POLICY IF EXISTS "Allow public update" ON guest_quotas;
 
--- Create consolidated SELECT policy for anon (with admin check using optimized auth call)
+-- Create SELECT policy for anon (fingerprint-based access only)
 CREATE POLICY "anon_select_guest_quotas" ON guest_quotas
   FOR SELECT
   TO anon
   USING (
+    fingerprint = get_request_fingerprint()
+    OR id = get_request_guest_quota_id()
+  );
+
+-- Create SELECT policy for authenticated users (with admin check using optimized auth call)
+CREATE POLICY "Admins can view all guest quotas" ON guest_quotas
+  FOR SELECT
+  TO authenticated
+  USING (
     -- Admin check (optimized to prevent per-row evaluation)
     ((SELECT auth.jwt()) ->> 'email' = 'julien.fritsch@gmail.com' OR (SELECT auth.jwt()) ->> 'role' = 'admin')
-    OR fingerprint = get_request_fingerprint()
-    OR id = get_request_guest_quota_id()
   );
 
 -- Create consolidated INSERT policy for anon
@@ -60,15 +67,22 @@ DROP POLICY IF EXISTS "anon_insert_guest_quota_journal" ON guest_quota_journal;
 DROP POLICY IF EXISTS "Allow public read journal" ON guest_quota_journal;
 DROP POLICY IF EXISTS "Allow public insert journal" ON guest_quota_journal;
 
--- Create consolidated SELECT policy for anon (with admin check using optimized auth call)
+-- Create SELECT policy for anon (fingerprint-based access only)
 CREATE POLICY "anon_select_guest_quota_journal" ON guest_quota_journal
   FOR SELECT
   TO anon
   USING (
+    fingerprint = get_request_fingerprint()
+    OR guest_quota_id = get_request_guest_quota_id()
+  );
+
+-- Create SELECT policy for authenticated users (with admin check using optimized auth call)
+CREATE POLICY "Admins can view all guest quota journal" ON guest_quota_journal
+  FOR SELECT
+  TO authenticated
+  USING (
     -- Admin check (optimized to prevent per-row evaluation)
     ((SELECT auth.jwt()) ->> 'email' = 'julien.fritsch@gmail.com' OR (SELECT auth.jwt()) ->> 'role' = 'admin')
-    OR fingerprint = get_request_fingerprint()
-    OR guest_quota_id = get_request_guest_quota_id()
   );
 
 -- Create consolidated INSERT policy for anon
