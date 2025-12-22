@@ -16,12 +16,15 @@ import {
   Clock,
   BarChart3,
   Shield,
+  Lock,
+  AlertTriangle,
 } from "lucide-react";
 import {
   getQuizzBySlugOrId,
   addQuizzResponse,
   getChildHistory,
   getNewBadges,
+  getQuizzResponses,
   type Quizz,
   type QuizzQuestion,
   type QuizzResponse,
@@ -32,6 +35,7 @@ import { secureGeminiService } from "../../services/SecureGeminiService";
 import { cn } from "../../lib/utils";
 import { logError, ErrorFactory } from "../../lib/error-handling";
 import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
+import { getPollClosureReason } from "../../lib/pollEnforcement";
 import { Button } from "@/components/ui/button";
 
 // Configuration du timer (en secondes)
@@ -119,6 +123,9 @@ export default function QuizzVote() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [earnedBadges, setEarnedBadges] = useState<Badge[]>([]); // Nouveaux badges gagnés
   const [previousBadgeCount, setPreviousBadgeCount] = useState(0); // Pour calculer les nouveaux
+  const [closureReason, setClosureReason] = useState<
+    "expired" | "capped" | "closed" | "archived" | null
+  >(null);
 
   // ⏱️ Timer
   const [timerEnabled, setTimerEnabled] = useState(false);
@@ -149,11 +156,18 @@ export default function QuizzVote() {
     });
   }, [slug]);
 
-  // Charger le quizz
   useEffect(() => {
     if (slug) {
       const q = getQuizzBySlugOrId(slug);
       setQuizz(q);
+
+      if (q) {
+        // Vérifier si le quiz est fermé/expiré/complet
+        const responses = getQuizzResponses(q.id);
+        const reason = getPollClosureReason(q as any, responses.length);
+        setClosureReason(reason);
+      }
+
       setLoading(false);
     }
   }, [slug]);
@@ -441,6 +455,48 @@ Réponds UNIQUEMENT en JSON:
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Écran de clôture / Quota atteint / Expiration
+  if (closureReason && !result) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 text-center max-w-md w-full shadow-2xl">
+          {closureReason === "expired" ? (
+            <>
+              <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Quiz expiré</h1>
+              <p className="text-gray-600 mb-6">
+                Le temps imparti pour participer à ce quiz est écoulé.
+              </p>
+            </>
+          ) : closureReason === "capped" ? (
+            <>
+              <Lock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Quiz complet</h1>
+              <p className="text-gray-600 mb-6">
+                Le nombre maximum de participants pour ce quiz a été atteint.
+              </p>
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Quiz clôturé</h1>
+              <p className="text-gray-600 mb-6">
+                Ce quiz n'accepte plus de réponses.
+              </p>
+            </>
+          )}
+
+          <Button
+            onClick={() => navigate("/quizz")}
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            Retour aux quiz
+          </Button>
+        </div>
       </div>
     );
   }

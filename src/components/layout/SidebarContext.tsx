@@ -13,7 +13,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export const SidebarProvider: React.FC<{ children: ReactNode; defaultOpen?: boolean }> = ({
   children,
-  defaultOpen = true,
+  defaultOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -34,11 +34,11 @@ export const useSidebar = () => {
     // Return a dummy context if used outside of provider to avoid crashes
     // This allows components to work even if not wrapped in SidebarProvider
     return {
-      isOpen: true,
-      toggle: () => {},
-      close: () => {},
-      open: () => {},
-      setIsOpen: () => {},
+      isOpen: false,
+      toggle: () => { },
+      close: () => { },
+      open: () => { },
+      setIsOpen: () => { },
     };
   }
   return context;

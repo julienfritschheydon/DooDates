@@ -588,16 +588,14 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
 
           {/* Quota indicator */}
           <div
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
-              quotaStatus.conversations.isNearLimit
-                ? "bg-orange-900/20 border-orange-500/50"
-                : theme.quotaBg
-            }`}
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
+              ? "bg-orange-900/20 border-orange-500/50"
+              : theme.quotaBg
+              }`}
           >
             <Info
-              className={`w-5 h-5 ${
-                quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
-              }`}
+              className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
+                }`}
             />
             <TooltipProvider>
               <Tooltip>
@@ -624,9 +622,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                     </p>
                     <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all ${
-                          quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
-                        }`}
+                        className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
+                          }`}
                         style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
                       />
                     </div>
@@ -643,6 +640,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                 onClick={() => navigate(config.journalRoute)}
                 className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
                 title="Voir le journal de consommation"
+                aria-label="Voir le journal de consommation"
               >
                 <FileText className="w-4 h-4" />
                 <span className="hidden sm:inline">Journal</span>
@@ -652,6 +650,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                 onClick={() => navigate(config.pricingRoute)}
                 className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
                 title="Voir les quotas et tarifs"
+                aria-label="Voir les quotas et tarifs"
               >
                 <Info className="w-4 h-4" />
                 <span className="hidden sm:inline">En savoir plus</span>
@@ -667,7 +666,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
             filter={filter}
             onFilterChange={setFilter}
             contentTypeFilter={contentTypeFilter}
-            onContentTypeFilterChange={() => {}}
+            onContentTypeFilterChange={() => { }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             selectedTags={selectedTags}
@@ -686,6 +685,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
             <div className="flex items-center gap-2 mb-4">
               <span className="text-sm text-gray-400">Trier par:</span>
               <select
+                aria-label="Trier les quiz par"
                 value={quizzSortBy}
                 onChange={(e) => setQuizzSortBy(e.target.value as QuizzSortBy)}
                 className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500"

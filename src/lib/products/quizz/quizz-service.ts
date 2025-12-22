@@ -58,6 +58,8 @@ export interface QuizzSettings {
   timeLimit?: number; // en minutes
   randomizeQuestions?: boolean;
   randomizeOptions?: boolean;
+  maxResponses?: number; // Limite de réponses
+  expiresAt?: string; // Date d'expiration spécifique (surpasse celle du root si présente)
 }
 
 // Système de badges

@@ -17,7 +17,9 @@ import {
   Zap,
   Download,
   ExternalLink,
+  Lock,
 } from "lucide-react";
+import { getPollClosureReason } from "@/lib/pollEnforcement";
 import { useToast } from "@/hooks/use-toast";
 import { parseAvailabilitiesWithAI, parseAvailabilitiesSimple } from "@/lib/availability-parser";
 import { getTodayLocal, formatDateLocal } from "@/lib/date-utils";
@@ -100,6 +102,9 @@ const AvailabilityPollVote = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validatedSlot, setValidatedSlot] = useState<string | null>(null);
   const { user } = useAuth();
+  const [closureReason, setClosureReason] = useState<
+    "expired" | "capped" | "closed" | "archived" | null
+  >(null);
   const calendarService = user ? new GoogleCalendarService() : undefined;
 
   const poll = slug ? getPollBySlugOrId(slug) : null;
@@ -108,11 +113,19 @@ const AvailabilityPollVote = () => {
   useEffect(() => {
     if (poll && slug) {
       setPollState(poll);
+
+      // Check enforcement initial
+      // On utilise 0 pour responseCount si on ne sait pas encore, ou on peut essayer de compter
+      setClosureReason(getPollClosureReason(poll, 0));
+
       // Vérifier périodiquement si des créneaux ont été proposés
       const interval = setInterval(() => {
         const updatedPoll = getPollBySlugOrId(slug);
-        if (updatedPoll && updatedPoll.proposedSlots && updatedPoll.proposedSlots.length > 0) {
-          setPollState(updatedPoll);
+        if (updatedPoll) {
+          if (updatedPoll.proposedSlots && updatedPoll.proposedSlots.length > 0) {
+            setPollState(updatedPoll);
+          }
+          setClosureReason(getPollClosureReason(updatedPoll, 0));
         }
       }, 2000);
       return () => clearInterval(interval);
@@ -139,6 +152,55 @@ const AvailabilityPollVote = () => {
             <p className="text-white text-center">Sondage de disponibilités introuvable</p>
             <Button onClick={() => navigate("/")} className="mt-4 w-full">
               Retour à l'accueil
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 🛑 Écran de sondage fermé
+  if (closureReason && !submitted) {
+    const getClosureInfo = () => {
+      switch (closureReason) {
+        case "expired":
+          return {
+            title: "Sondage expiré",
+            message: "La date limite pour participer à ce sondage est dépassée.",
+            icon: Clock,
+            color: "text-amber-500",
+          };
+        case "capped":
+          return {
+            title: "Sondage complet",
+            message: "Le nombre maximum de participations a été atteint.",
+            icon: Lock,
+            color: "text-blue-500",
+          };
+        default:
+          return {
+            title: "Sondage clôturé",
+            message: "Ce sondage n'accepte plus de nouvelles réponses pour le moment.",
+            icon: Lock,
+            color: "text-gray-500",
+          };
+      }
+    };
+
+    const info = getClosureInfo();
+    const Icon = info.icon;
+
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 text-white">
+        <Card className="bg-[#1e1e1e] border-gray-700 max-w-md w-full text-center">
+          <CardContent className="pt-10 pb-8 px-8">
+            <div className="inline-flex items-center justify-center p-4 rounded-full bg-gray-800 mb-6">
+              <Icon className={`w-10 h-10 ${info.color}`} />
+            </div>
+            <h2 className="text-2xl font-bold mb-3">{info.title}</h2>
+            <p className="text-gray-400 mb-8">{info.message}</p>
+            <Button onClick={() => navigate("/")} className="w-full bg-green-600 hover:bg-green-700 text-white">
+              C'est compris
             </Button>
           </CardContent>
         </Card>
@@ -395,9 +457,9 @@ const AvailabilityPollVote = () => {
   if (validatedSlot || (pollState && pollState.validatedSlot)) {
     const slot = validatedSlot
       ? pollState?.proposedSlots?.find(
-          (s: { date: string; start: string; end: string }) =>
-            `${s.date}-${s.start}-${s.end}` === validatedSlot,
-        )
+        (s: { date: string; start: string; end: string }) =>
+          `${s.date}-${s.start}-${s.end}` === validatedSlot,
+      )
       : pollState?.validatedSlot;
 
     return (

@@ -51,6 +51,12 @@ export interface PollSettings {
   // Email settings
   sendEmailCopy?: boolean;
   emailForCopy?: string;
+  // Scheduling Rules (Availability Polls)
+  minLatencyMinutes?: number;
+  maxLatencyMinutes?: number;
+  preferNearTerm?: boolean;
+  preferHalfDays?: boolean;
+  slotDurationMinutes?: number;
 }
 
 // --- Types FormPoll (réponses & résultats) ---

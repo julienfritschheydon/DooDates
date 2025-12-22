@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, ShieldCheck } from "lucide-react";
+import { AlertCircle, ShieldCheck, Clock, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { triggerHaptic } from "./utils/voteUtils";
 import { logger } from "@/lib/logger";
@@ -19,7 +19,8 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
   const [showResults, setShowResults] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const { poll, options, votes, loading, error, totalVotes } = useVoting(pollId);
+  const { poll, options, votes, loading, error, totalVotes, isClosed, closureReason } =
+    useVoting(pollId);
 
   logger.debug("VotingInterface - État", "vote", {
     pollId,
@@ -71,6 +72,64 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
               Retour
             </Button>
           )}
+        </motion.div>
+      </div>
+    );
+  }
+
+  // 🛑 Écran de sondage fermé
+  if (isClosed && !isAdmin) {
+    const getClosureInfo = () => {
+      switch (closureReason) {
+        case "expired":
+          return {
+            title: "Sondage expiré",
+            message: "La date limite pour participer à ce sondage est dépassée.",
+            icon: Clock,
+            color: "text-amber-500",
+          };
+        case "capped":
+          return {
+            title: "Sondage complet",
+            message: "Le nombre maximum de participations a été atteint.",
+            icon: Lock,
+            color: "text-blue-500",
+          };
+        default:
+          return {
+            title: "Sondage clôturé",
+            message: "Ce sondage n'accepte plus de nouvelles réponses.",
+            icon: Lock,
+            color: "text-gray-500",
+          };
+      }
+    };
+
+    const info = getClosureInfo();
+    const Icon = info.icon;
+
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-gray-100"
+        >
+          <div className={`p-4 rounded-full bg-gray-50 w-20 h-20 flex items-center justify-center mx-auto mb-6`}>
+            <Icon className={`h-10 w-10 ${info.color}`} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">{info.title}</h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">{info.message}</p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => setShowResults(true)} variant="outline" className="w-full py-6 rounded-xl font-semibold">
+              Voir les résultats actuels
+            </Button>
+            {onBack && (
+              <Button onClick={onBack} variant="ghost" className="w-full py-6 rounded-xl font-medium text-gray-500">
+                Retour
+              </Button>
+            )}
+          </div>
         </motion.div>
       </div>
     );

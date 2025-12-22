@@ -112,7 +112,7 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                                                 <p className="text-sm text-gray-400">Recevoir des notifications par email</p>
                                             </div>
                                             <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" className="sr-only peer" defaultChecked />
+                                                <input type="checkbox" className="sr-only peer" defaultChecked aria-label="Activer les notifications email" />
                                                 <div className="w-14 h-7 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
@@ -123,10 +123,10 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                                     <h2 className="text-xl font-bold text-white mb-4">Conservation des données</h2>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            <label htmlFor="data-retention-select" className="block text-sm font-medium text-gray-300 mb-2">
                                                 Durée de conservation
                                             </label>
-                                            <select className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <select id="data-retention-select" aria-label="Durée de conservation des données" className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500">
                                                 <option>30 jours (recommandé)</option>
                                                 <option>12 mois</option>
                                                 <option>Indéfiniment</option>

@@ -183,11 +183,12 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 {/* Lien de partage */}
                 <TooltipProvider>
                   <div>
-                    <Label className="text-gray-300 mb-2 block">
+                    <Label htmlFor="share-link" className="text-gray-300 mb-2 block">
                       Lien de partage :
                     </Label>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <Input
+                        id="share-link"
                         value={pollUrl}
                         readOnly
                         className="bg-gray-700 border-gray-600 text-gray-300 font-mono text-sm"

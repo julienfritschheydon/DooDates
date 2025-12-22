@@ -16,11 +16,11 @@ export type WorkspaceType = 'date' | 'form' | 'quizz' | 'availability' | 'defaul
  * Configuration des URLs de workspace selon le type
  */
 const WORKSPACE_URLS: Record<WorkspaceType, string> = {
-  date: '/DooDates/workspace/date',
-  form: '/DooDates/workspace/form', 
-  quizz: '/DooDates/workspace/quizz',
-  availability: '/DooDates/workspace/availability',
-  default: '/DooDates/workspace/date'
+  date: '/DooDates/date-polls/workspace/date',
+  form: '/DooDates/form-polls/workspace/form',
+  quizz: '/DooDates/quizz/workspace',
+  availability: '/DooDates/availability-polls/workspace/availability',
+  default: '/DooDates/date-polls/workspace/date'
 };
 
 /**
@@ -42,11 +42,11 @@ export async function navigateToWorkspace(
 ) {
   const url = WORKSPACE_URLS[workspaceType];
   const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
-  
-  await page.goto(finalUrl, { 
-    waitUntil: options?.waitUntil || 'domcontentloaded' 
+
+  await page.goto(finalUrl, {
+    waitUntil: options?.waitUntil || 'domcontentloaded'
   });
-  
+
   await waitForPageLoad(page, browserName);
 
   // Attendre que React soit stable avant de chercher le chat input
@@ -100,11 +100,11 @@ export async function waitForChatInput(
   timeout?: number
 ) {
   console.log('🔍 waitForChatInput: Recherche du chat input...');
-  
+
   // Gérer la compatibilité avec l'ancienne signature: waitForChatInput(page, timeout)
   let browserName: string = 'chromium';
   let actualTimeout: number | undefined;
-  
+
   if (typeof browserNameOrTimeout === 'string') {
     browserName = browserNameOrTimeout;
     actualTimeout = timeout;
@@ -115,11 +115,11 @@ export async function waitForChatInput(
     // Pas de paramètres: utiliser les valeurs par défaut
     actualTimeout = timeout;
   }
-  
+
   try {
     // Utiliser la stratégie robuste avec fallbacks
     const chatInput = await waitForChatInputReady(page, browserName, { timeout: actualTimeout });
-    
+
     // Vérifier que c'est bien l'input de chat (pas un fallback)
     const testId = await chatInput.getAttribute('data-testid');
     if (testId === 'chat-input') {
@@ -127,21 +127,21 @@ export async function waitForChatInput(
     } else {
       console.log(`⚠️ waitForChatInput: Fallback utilisé (${testId || 'unknown'}), mais élément interactif trouvé`);
     }
-    
+
     // Vérifier que l'élément est visible et interactif
     await expect(chatInput).toBeVisible({ timeout: actualTimeout || 5000 });
   } catch (error) {
     // Diagnostic en cas d'échec
     console.log('❌ waitForChatInput: Échec de la recherche du chat input');
-    
+
     // Lister tous les éléments avec data-testid pour debug
     const allTestIds = await page.locator('[data-testid]').all();
     console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
-    
+
     // Prendre un screenshot pour debug
     await page.screenshot({ path: 'debug-chat-input.png', fullPage: true });
     console.log('🔍 waitForChatInput: Screenshot sauvegardé dans debug-chat-input.png');
-    
+
     throw error;
   }
 }
@@ -169,7 +169,7 @@ export async function sendChatMessage(
 
   await robustFill(messageInput, message, { debug: process.env.DEBUG_E2E === '1' });
   await messageInput.press('Enter');
-  
+
   if (options?.waitForResponse !== false) {
     // Attendre que le message apparaisse ou que l'input soit toujours disponible
     const messageVisible = await page.locator(`text=${message}`).isVisible({ timeout: 5000 }).catch(() => false);
@@ -192,12 +192,12 @@ export async function waitForAIResponse(
 ) {
   const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
   const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
-  
+
   await Promise.race([
     successText.waitFor({ state: 'visible', timeout }).catch(() => null),
     errorText.waitFor({ state: 'visible', timeout }).catch(() => null),
   ]);
-  
+
   const hasError = await errorText.isVisible({ timeout: 2000 }).catch(() => false);
   if (hasError) {
     const errorContent = await errorText.textContent();
@@ -205,7 +205,7 @@ export async function waitForAIResponse(
       `L'IA a retourné une erreur: ${errorContent}`
     );
   }
-  
+
   await expect(successText).toBeVisible({ timeout: 5000 });
 }
 
@@ -235,14 +235,14 @@ export async function getLatestConversationId(page: Page): Promise<string | null
         // Ignorer erreur de parsing
       }
     }
-    
+
     // Méthode 2: Chercher des clés conversation_* (format legacy)
     const keys = Object.keys(localStorage);
     const convKey = keys.find(k => k.startsWith('conversation_'));
     if (convKey) {
       return convKey.replace('conversation_', '');
     }
-    
+
     return null;
   });
 }
@@ -260,13 +260,13 @@ export async function waitForConversationCreated(
 ): Promise<string | null> {
   let conversationId: string | null = null;
   let attempts = 0;
-  
+
   while (!conversationId && attempts < maxAttempts) {
     await page.waitForTimeout(1000);
     conversationId = await getLatestConversationId(page);
     attempts++;
   }
-  
+
   return conversationId;
 }
 

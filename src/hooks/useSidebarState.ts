@@ -8,14 +8,9 @@ import { logger } from "@/lib/logger";
  */
 export const useSidebarState = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   // État initial : fermé par défaut (pour éviter de couvrir l'agent)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    if (typeof window === "undefined") {
-      return false; // fallback SSR: fermé
-    }
-    return false; // Fermé par défaut sur tous les écrans
-  });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fonctions centralisées pour gérer l'état
   const toggleSidebar = useCallback(() => {
@@ -31,10 +26,10 @@ export const useSidebarState = () => {
     setIsSidebarOpen(false);
   }, [isMobile]);
 
-  return { 
-    isSidebarOpen, 
-    toggleSidebar, 
-    closeSidebar, 
-    isMobile 
+  return {
+    isSidebarOpen,
+    toggleSidebar,
+    closeSidebar,
+    isMobile
   };
 };

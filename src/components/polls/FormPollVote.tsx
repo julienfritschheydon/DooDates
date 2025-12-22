@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getPollBySlugOrId, addFormResponse, getCurrentUserId } from "../../lib/pollStorage";
+import { getPollBySlugOrId, addFormResponse, getCurrentUserId, getFormResponses } from "../../lib/pollStorage";
 import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type {
@@ -10,6 +10,8 @@ import type {
   DateVoteValue,
   FormResponseItem,
 } from "../../lib/pollStorage";
+import { getPollClosureReason } from "../../lib/pollEnforcement";
+import { Clock, Lock, AlertTriangle } from "lucide-react";
 import { StructuredInput } from "./StructuredInput";
 import type { ValidationType } from "../../lib/validation";
 import { RatingInput } from "./RatingInput";
@@ -39,6 +41,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
   const [voterEmail, setVoterEmail] = useState("");
   const [wantsEmailCopy, setWantsEmailCopy] = useState(false);
   const [showDataInfo, setShowDataInfo] = useState(false);
+  const [closureReason, setClosureReason] = useState<
+    "expired" | "capped" | "closed" | "archived" | null
+  >(null);
 
   // Vérifier si l'utilisateur a le droit de voir les résultats (toujours appelé)
   const canSeeResults = useMemo(() => {
@@ -65,6 +70,14 @@ export default function FormPollVote({ idOrSlug }: Props) {
   useEffect(() => {
     const p = getPollBySlugOrId(idOrSlug);
     setPoll(p);
+
+    if (p) {
+      // Compter les réponses existantes pour le quota
+      const responses = getFormResponses(p.id);
+      const reason = getPollClosureReason(p, responses.length);
+      setClosureReason(reason);
+    }
+
     setLoading(false);
   }, [idOrSlug]);
 
@@ -287,6 +300,61 @@ export default function FormPollVote({ idOrSlug }: Props) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-600">Sondage introuvable</p>
+      </div>
+    );
+  }
+
+  // 🛑 Écran de sondage fermé
+  if (closureReason && !submitted) {
+    const getClosureInfo = () => {
+      switch (closureReason) {
+        case "expired":
+          return {
+            title: "C'est fini !",
+            message: "Désolé, la date limite de participation à ce sondage est dépassée.",
+            icon: Clock,
+            color: "text-amber-500",
+            bgColor: "bg-amber-50",
+            borderColor: "border-amber-100",
+          };
+        case "capped":
+          return {
+            title: "Sondage complet",
+            message: "Le nombre maximum de participations pour ce sondage a été atteint.",
+            icon: Lock,
+            color: "text-blue-500",
+            bgColor: "bg-blue-50",
+            borderColor: "border-blue-100",
+          };
+        default:
+          return {
+            title: "Sondage clôturé",
+            message: "Ce sondage n'accepte plus de nouvelles réponses pour le moment.",
+            icon: Lock,
+            color: "text-gray-500",
+            bgColor: "bg-gray-50",
+            borderColor: "border-gray-100",
+          };
+      }
+    };
+
+    const info = getClosureInfo();
+    const Icon = info.icon;
+
+    return (
+      <div className="min-h-screen bg-gray-50 pt-32 px-4">
+        <div className={`max-w-md mx-auto rounded-3xl shadow-sm border ${info.borderColor} ${info.bgColor} p-10 text-center`}>
+          <div className="inline-flex items-center justify-center p-5 rounded-full bg-white shadow-sm mb-8">
+            <Icon className={`w-12 h-12 ${info.color}`} />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{info.title}</h1>
+          <p className="text-gray-600 text-lg mb-10 leading-relaxed">{info.message}</p>
+          <div className="flex flex-col gap-4">
+            <Link to="/" className="inline-flex items-center justify-center px-8 py-4 bg-white border border-gray-200 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-all active:scale-95 shadow-sm">
+              Retour à l'accueil
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

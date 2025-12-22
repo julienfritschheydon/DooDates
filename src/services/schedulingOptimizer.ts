@@ -216,7 +216,7 @@ function calculateScore(
 
   if (busyBefore !== undefined) {
     const gapBefore = slotStartMinutes - busyBefore;
-    if (gapBefore > 0 && gapBefore <= 60) {
+    if (gapBefore >= 0 && gapBefore <= 60) {
       score += 15;
       reasons.push(`Remplit un gap de ${gapBefore} min`);
     }
@@ -224,7 +224,7 @@ function calculateScore(
 
   if (busyAfter !== undefined) {
     const gapAfter = busyAfter - slotEndMinutes;
-    if (gapAfter > 0 && gapAfter <= 60) {
+    if (gapAfter >= 0 && gapAfter <= 60) {
       score += 15;
       reasons.push(`Remplit un gap de ${gapAfter} min`);
     }
@@ -336,8 +336,8 @@ function detectHalfDayGrouping(
     const currentStartMinutes = currentStartHour * 60 + currentStartMin;
     const prevEndMinutes = prevEndHour * 60 + prevEndMin;
 
-    // Vérifier si les créneaux sont consécutifs (séparés par slotDurationMinutes)
-    if (currentStartMinutes - prevEndMinutes <= slotDurationMinutes) {
+    // Vérifier si les créneaux sont consécutifs (strictement adjacents)
+    if (currentStartMinutes - prevEndMinutes <= 0) {
       consecutiveCount++;
       currentIndex--;
     } else {
@@ -357,7 +357,7 @@ function detectHalfDayGrouping(
     const nextStartMinutes = nextStartHour * 60 + nextStartMin;
 
     // Vérifier si les créneaux sont consécutifs
-    if (nextStartMinutes - currentEndMinutes <= slotDurationMinutes) {
+    if (nextStartMinutes - currentEndMinutes <= 0) {
       consecutiveCount++;
       currentIndex++;
     } else {
@@ -386,7 +386,7 @@ export async function optimizeSchedule(
   rules: SchedulingRules = {},
   calendarService?: GoogleCalendarService,
 ): Promise<ProposedSlot[]> {
-  logger.info("Optimisation des créneaux", "schedulingOptimizer", {
+  logger.info("Optimisation des créneaux", "api", {
     availabilitiesCount: parsedAvailabilities.length,
     rules,
   });
@@ -398,12 +398,12 @@ export async function optimizeSchedule(
   const availabilitiesByDate: ParsedAvailability[] = hasDates
     ? (parsedAvailabilities as ParsedAvailability[])
     : convertDaysToDates(
-        parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
-        4,
-      );
+      parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
+      4,
+    );
 
   if (availabilitiesByDate.length === 0) {
-    logger.warn("Aucune disponibilité trouvée", "schedulingOptimizer");
+    logger.warn("Aucune disponibilité trouvée", "api");
     return [];
   }
 
@@ -411,19 +411,20 @@ export async function optimizeSchedule(
   let busySlots: CalendarBusySlot[] = [];
   if (calendarService) {
     try {
-      const today = getTodayLocal();
-      const endDate = new Date(today);
+      const todayStr = getTodayLocal();
+      const todayDate = new Date(todayStr); // Créer une Date à partir de string
+      const endDate = new Date(todayDate);
       endDate.setDate(endDate.getDate() + 28); // 4 semaines
 
-      const startISO = today.toISOString();
+      const startISO = todayDate.toISOString();
       const endISO = endDate.toISOString();
 
       busySlots = await calendarService.getFreeBusy(startISO, endISO);
-      logger.info("Créneaux occupés récupérés", "schedulingOptimizer", {
+      logger.info("Créneaux occupés récupérés", "api", {
         busySlotsCount: busySlots.length,
       });
     } catch (error) {
-      logger.warn("Impossible de récupérer les créneaux occupés", "schedulingOptimizer", error);
+      logger.warn("Impossible de récupérer les créneaux occupés", "api", error);
       // Continuer sans calendrier (mode dégradé)
     }
   }

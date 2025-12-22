@@ -36,16 +36,16 @@ export async function waitForElementReady(
     first?: boolean; // Si true, utilise .first() pour éviter strict mode violation
   }
 ): Promise<ReturnType<Page['locator']>> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const timeout = options?.timeout ?? timeouts.element;
   const state = options?.state ?? 'visible';
   const useFirst = options?.first ?? true; // Par défaut, utiliser .first()
-  
+
   const locator = useFirst ? page.locator(selector).first() : page.locator(selector);
-  
+
   // Attendre que l'élément soit dans l'état demandé avec polling sur le timeout global
   const start = Date.now();
   while (Date.now() - start < timeout) {
@@ -95,13 +95,13 @@ export async function waitForNetworkIdle(
     idleTime?: number; // Temps d'inactivité requis (ms)
   }
 ): Promise<void> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const timeout = options?.timeout ?? timeouts.network;
   const idleTime = options?.idleTime ?? 500;
-  
+
   // Certains navigateurs (Firefox, WebKit, Mobile Safari) ne passent jamais en
   // 'networkidle' ou 'load' de manière fiable (streaming, requêtes longues).
   // On se contente donc de s'assurer que le DOM est chargé, puis d'attendre
@@ -153,10 +153,10 @@ export async function waitForReactStable(
     maxWaitTime?: number; // Temps maximum d'attente (ms)
   }
 ): Promise<void> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const maxWaitTime = options?.maxWaitTime ?? timeouts.stability;
 
   // Attendre que React ait fini de traiter
@@ -179,7 +179,7 @@ export async function waitForReactStable(
     }
 
     // Laisser la boucle d'événements avancer via un petit yield basé sur l'état de chargement
-    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForLoadState('domcontentloaded').catch(() => { });
   }
 }
 
@@ -210,12 +210,12 @@ export async function waitForAnimationComplete(
     browserName?: string;
   }
 ): Promise<void> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const timeout = options?.timeout ?? timeouts.animation;
-  
+
   // Vérifier que toutes les animations sont terminées
   await page.evaluate(
     ({ selector, timeout }) => {
@@ -225,27 +225,27 @@ export async function waitForAnimationComplete(
           resolve();
           return;
         }
-        
+
         const startTime = Date.now();
-        
+
         const checkAnimations = () => {
           const animations = element.getAnimations();
           const transitions = window.getComputedStyle(element).transition;
-          
+
           if (animations.length === 0 && (!transitions || transitions === 'none')) {
             resolve();
             return;
           }
-          
+
           if (Date.now() - startTime > timeout) {
             resolve(); // Timeout, continuer quand même
             return;
           }
-          
+
           // Vérifier à nouveau après un court délai
           setTimeout(checkAnimations, 50);
         };
-        
+
         checkAnimations();
       });
     },
@@ -283,10 +283,10 @@ export async function waitForCondition(
     browserName?: string;
   }
 ): Promise<void> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const timeout = options?.timeout ?? timeouts.element;
   const interval = options?.interval ?? 100;
 
@@ -298,7 +298,7 @@ export async function waitForCondition(
       return;
     }
     // Utiliser un yield léger au lieu d'un timeout fixe direct
-    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForLoadState('domcontentloaded').catch(() => { });
     const now = Date.now();
     if (now - startTime + interval > timeout) break;
   }
@@ -332,10 +332,10 @@ export async function waitForVisibleAndStable(
     stabilityTime?: number;
   }
 ): Promise<void> {
-  const timeouts = options?.browserName 
+  const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
     : getTimeouts('chromium');
-  
+
   const timeout = options?.timeout ?? timeouts.element;
   const stabilityTime = options?.stabilityTime ?? timeouts.stability;
 
@@ -392,6 +392,7 @@ export async function waitForChatInputReady(
     '[data-poll-preview]',
     'textarea[placeholder*="Décrivez votre sondage"]',
     'textarea[placeholder*="Décrivez votre formulaire"]',
+    'textarea', // Fallback générique pour les workflows sans placeholder spécifique
   ].join(',');
 
   const chatOrPreview = page.locator(chatOrPreviewSelector).first();
@@ -418,7 +419,7 @@ export async function waitForChatInputReady(
   } catch {
     // Ignorer si le timeout est dépassé, continuer quand même
   }
-  
+
   const anyInteractive = page.locator('input, button, [role="button"], a[href]').first();
   try {
     await anyInteractive.waitFor({ state: 'visible', timeout });

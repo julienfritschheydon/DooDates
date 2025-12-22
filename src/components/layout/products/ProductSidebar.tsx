@@ -26,7 +26,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Utiliser les props si fournies, sinon l'état interne
-  const [internalIsOpen, setInternalIsOpen] = useState(true);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
   const setIsOpen = propOnToggle || setInternalIsOpen;
   const isActive = (path: string) =>

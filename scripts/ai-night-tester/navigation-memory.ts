@@ -1,0 +1,179 @@
+/**
+ * AI Night Tester - Navigation Memory
+ * 
+ * Tracks all element interactions to enable smart exploration
+ * and avoid repetitive actions.
+ */
+
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import type { ElementMemory, MemoryStats, InteractiveElement } from './types';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class NavigationMemory {
+    private memory: Map<string, ElementMemory> = new Map();
+    private persistPath: string;
+
+    constructor(persistPath?: string) {
+        this.persistPath = persistPath || path.join(__dirname, 'reports', '.navigation-memory.json');
+        this.loadFromDisk();
+    }
+
+    /**
+     * Generate a unique hash for an element based on selector and page
+     */
+    private hashElement(selector: string, pageUrl: string): string {
+        const normalized = `${this.normalizeUrl(pageUrl)}::${selector}`;
+        return crypto.createHash('md5').update(normalized).digest('hex').substring(0, 12);
+    }
+
+    /**
+     * Normalize URL to path only (remove base URL variations)
+     */
+    private normalizeUrl(url: string): string {
+        try {
+            const parsed = new URL(url);
+            return parsed.pathname;
+        } catch {
+            // Already a path
+            return url.replace(/^https?:\/\/[^/]+/, '');
+        }
+    }
+
+    /**
+     * Record an interaction with an element
+     */
+    recordInteraction(element: InteractiveElement, pageUrl: string, wasSuccessful: boolean = true): void {
+        const hash = this.hashElement(element.selector, pageUrl);
+        const existing = this.memory.get(hash);
+
+        if (existing) {
+            existing.clickCount++;
+            existing.lastInteraction = new Date();
+            existing.wasSuccessful = wasSuccessful;
+        } else {
+            this.memory.set(hash, {
+                selectorHash: hash,
+                selector: element.selector,
+                pageUrl: this.normalizeUrl(pageUrl),
+                text: element.text.substring(0, 100),
+                clickCount: 1,
+                firstInteraction: new Date(),
+                lastInteraction: new Date(),
+                wasSuccessful,
+            });
+        }
+    }
+
+    /**
+     * Get novelty score for an element (1 = never seen, 0 = frequently clicked)
+     */
+    getNoveltyScore(selector: string, pageUrl: string): number {
+        const hash = this.hashElement(selector, pageUrl);
+        const mem = this.memory.get(hash);
+
+        if (!mem) return 1.0; // Never seen = maximum novelty
+
+        // Decay based on click count (1 click = 0.8, 3 clicks = 0.4, 5+ = 0.1)
+        const clickPenalty = Math.min(mem.clickCount * 0.2, 0.9);
+        return Math.max(0.1, 1.0 - clickPenalty);
+    }
+
+    /**
+     * Check if element has been clicked before
+     */
+    hasBeenClicked(selector: string, pageUrl: string): boolean {
+        const hash = this.hashElement(selector, pageUrl);
+        return this.memory.has(hash);
+    }
+
+    /**
+     * Get click count for element
+     */
+    getClickCount(selector: string, pageUrl: string): number {
+        const hash = this.hashElement(selector, pageUrl);
+        return this.memory.get(hash)?.clickCount || 0;
+    }
+
+    /**
+     * Get statistics about navigation memory
+     */
+    getStats(): MemoryStats {
+        const elements = Array.from(this.memory.values());
+        const uniquePages = new Set(elements.map(e => e.pageUrl)).size;
+        const totalClicks = elements.reduce((sum, e) => sum + e.clickCount, 0);
+
+        return {
+            totalElements: elements.length,
+            totalInteractions: totalClicks,
+            uniquePages,
+            avgClicksPerElement: elements.length > 0 ? totalClicks / elements.length : 0,
+        };
+    }
+
+    /**
+     * Get elements sorted by novelty (most novel first)
+     */
+    rankByNovelty(elements: InteractiveElement[], pageUrl: string): InteractiveElement[] {
+        return [...elements].sort((a, b) => {
+            const scoreA = this.getNoveltyScore(a.selector, pageUrl);
+            const scoreB = this.getNoveltyScore(b.selector, pageUrl);
+            return scoreB - scoreA; // Higher score = more novel = first
+        });
+    }
+
+    /**
+     * Save memory to disk for persistence between sessions
+     */
+    saveToDisk(): void {
+        try {
+            const data = {
+                savedAt: new Date().toISOString(),
+                elements: Array.from(this.memory.entries()),
+            };
+            fs.writeFileSync(this.persistPath, JSON.stringify(data, null, 2));
+            console.log(`💾 Navigation memory saved (${this.memory.size} elements)`);
+        } catch (error) {
+            console.warn('⚠️ Could not save navigation memory:', error);
+        }
+    }
+
+    /**
+     * Load memory from disk
+     */
+    private loadFromDisk(): void {
+        try {
+            if (fs.existsSync(this.persistPath)) {
+                const raw = fs.readFileSync(this.persistPath, 'utf-8');
+                const data = JSON.parse(raw);
+
+                if (data.elements && Array.isArray(data.elements)) {
+                    this.memory = new Map(data.elements.map(([key, value]: [string, ElementMemory]) => {
+                        // Restore dates
+                        value.firstInteraction = new Date(value.firstInteraction);
+                        value.lastInteraction = new Date(value.lastInteraction);
+                        return [key, value];
+                    }));
+                    console.log(`📂 Navigation memory loaded (${this.memory.size} elements)`);
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load navigation memory:', error);
+        }
+    }
+
+    /**
+     * Clear all memory (for fresh sessions)
+     */
+    clear(): void {
+        this.memory.clear();
+        if (fs.existsSync(this.persistPath)) {
+            fs.unlinkSync(this.persistPath);
+        }
+        console.log('🧹 Navigation memory cleared');
+    }
+}

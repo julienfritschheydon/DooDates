@@ -1,14 +1,17 @@
 # DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 28 novembre 2025 (restauration tests Gemini)
+> **Dernière mise à jour** : 22 décembre 2025 (ajout ultra-simple-dispo et ultra-simple-quizz)
 
 RAPPEL: 
 # ✅ Compteur dans terminal + erreurs dans fichier séparé
 npm run test -- --run 2> test_errors.txt
 
-# Deux tests E2E Ulta Simple
+# Deux tests E2E Ultra Simple (Date/Form)
 npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts 2> ultra-simple-error.txt
+
+# Quatre tests E2E Ultra Simple (tous produits)
+npx playwright test tests/e2e/ultra-simple-poll.spec.ts tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-dispo.spec.ts tests/e2e/ultra-simple-quizz.spec.ts --project=chromium
 
 # 1. Vérifier l'état du CI/CD
 node scripts/monitor-workflow-failures.js
@@ -641,6 +644,8 @@ npm run test:ci                # Suite CI complète
 - **Workflows ultra-simples** :
   - `ultra-simple-poll.spec.ts` → Date Poll complet (création + vote + présence dashboard Date).
   - `ultra-simple-form.spec.ts` → Form Poll complet (création IA + vote + dashboard Form Polls dédié).
+  - `ultra-simple-dispo.spec.ts` → Availability Poll (formulaire manuel + dashboard) ✅ NOUVEAU (Décembre 2025)
+  - `ultra-simple-quizz.spec.ts` → Quizz (auto-détection chat IA ou formulaire + dashboard) ✅ NOUVEAU (Décembre 2025)
   - `products/quizz/ultra-simple-quizz.spec.ts` → Quizz minimal (workspace → création → dashboard Quizz).
 - **Quizz** :
   - Navigation et comportements de base testés dans `products/quizz/navigation.spec.ts` (landing Quizz, workspace, dashboard), **sans dépendre de `/`**.

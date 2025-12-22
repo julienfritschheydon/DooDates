@@ -4,6 +4,7 @@ import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 import { groupConsecutiveDates, type DateGroup } from "@/lib/date-utils";
 import { getPollBySlugOrId, type Poll } from "@/lib/pollStorage";
+import { getPollClosureReason } from "@/lib/pollEnforcement";
 
 interface VoterInfo {
   name: string;
@@ -25,6 +26,9 @@ export const useVoting = (pollSlug: string) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [closureReason, setClosureReason] = useState<
+    "expired" | "capped" | "closed" | "archived" | null
+  >(null);
 
   // Initialiser les votes par défaut à "maybe"
   const initializeDefaultVotes = useCallback((optionsData: PollOption[]) => {
@@ -151,6 +155,10 @@ export const useVoting = (pollSlug: string) => {
         }),
       );
       setVotes(mappedVotes);
+
+      // 🛑 Check for poll enforcement (expiration / quota)
+      const reason = getPollClosureReason(pollData, mappedVotes.length);
+      setClosureReason(reason);
     } catch (err: unknown) {
       const processedError = handleError(
         err instanceof Error ? err : new Error(String(err)),
@@ -212,7 +220,13 @@ export const useVoting = (pollSlug: string) => {
 
     try {
       const votesData = await votesApi.getByPollId(realPollId);
-      setVotes(votesData || []);
+      const updatedVotes = votesData || [];
+      setVotes(updatedVotes);
+
+      // Re-verify closure reason when votes change (for quota)
+      if (poll) {
+        setClosureReason(getPollClosureReason(poll, updatedVotes.length));
+      }
     } catch (err) {
       const processedError = handleError(
         err,
@@ -262,6 +276,18 @@ export const useVoting = (pollSlug: string) => {
   const submitVote = useCallback(async (): Promise<boolean> => {
     if (!voterInfo.name.trim() || Object.keys(currentVote).length === 0) {
       setError("Veuillez remplir vos informations et sélectionner au moins une option");
+      return false;
+    }
+
+    // 🛑 Final enforcement check before submission
+    if (closureReason) {
+      const msg =
+        closureReason === "expired"
+          ? "Désolé, ce sondage a expiré."
+          : closureReason === "capped"
+            ? "Désolé, ce sondage a atteint sa limite maximale de réponses."
+            : "Ce sondage est actuellement fermé.";
+      setError(msg);
       return false;
     }
 
@@ -477,5 +503,7 @@ export const useVoting = (pollSlug: string) => {
     getBestOption,
     hasVotes: Object.keys(currentVote).length > 0,
     totalVotes: votes.length,
+    isClosed: !!closureReason,
+    closureReason,
   };
 };

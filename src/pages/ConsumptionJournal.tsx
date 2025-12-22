@@ -337,6 +337,8 @@ export default function ConsumptionJournal() {
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-400" />
             <select
+              id="period-selector"
+              aria-label="Sélectionner la période"
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
               className="flex-1 bg-[#1a1a1a] border border-gray-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

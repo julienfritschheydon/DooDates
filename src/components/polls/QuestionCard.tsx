@@ -133,9 +133,9 @@ export default function QuestionCard({
           question.options && question.options.length > 0
             ? question.options.map((opt) => ({ id: opt.id, label: opt.label }))
             : [
-                { id: rid(), label: "Ligne 1" },
-                { id: rid(), label: "Ligne 2" },
-              ];
+              { id: rid(), label: "Ligne 1" },
+              { id: rid(), label: "Ligne 2" },
+            ];
 
         onChange({
           kind,
@@ -417,8 +417,8 @@ export default function QuestionCard({
                 {question.selectedDates.length} date{question.selectedDates.length > 1 ? "s" : ""}{" "}
                 sélectionnée{question.selectedDates.length > 1 ? "s" : ""}
                 {question.timeSlotsByDate &&
-                Object.keys(question.timeSlotsByDate).length > 0 &&
-                Object.values(question.timeSlotsByDate).some((slots) => slots.length > 0) ? (
+                  Object.keys(question.timeSlotsByDate).length > 0 &&
+                  Object.values(question.timeSlotsByDate).some((slots) => slots.length > 0) ? (
                   <span className="ml-2">• Horaires configurés</span>
                 ) : null}
               </>
@@ -438,6 +438,7 @@ export default function QuestionCard({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <select
+            aria-label="Type de question"
             className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
             value={question.kind}
             onChange={(e) => setKind(e.target.value as QuestionKind)}
@@ -503,11 +504,10 @@ export default function QuestionCard({
             <button
               type="button"
               onClick={() => setShowConditionalEditor(!showConditionalEditor)}
-              className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm transition-colors ${
-                showConditionalEditor
+              className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm transition-colors ${showConditionalEditor
                   ? "bg-blue-500 border-blue-500 text-white"
                   : "border-gray-700 text-gray-300 hover:bg-gray-800"
-              }`}
+                }`}
               title="Règles conditionnelles"
               aria-label="Règles conditionnelles"
               data-testid="question-conditional"
@@ -536,11 +536,10 @@ export default function QuestionCard({
             {(question.options ?? []).map((opt) => (
               <div key={opt.id} className="flex items-center gap-2">
                 <input
-                  className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${
-                    opt.isOther
+                  className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${opt.isOther
                       ? "bg-blue-900 border-blue-500 text-white"
                       : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
-                  }`}
+                    }`}
                   value={opt.label || ""}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
                   readOnly={opt.isOther}
@@ -596,6 +595,7 @@ export default function QuestionCard({
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-400">Type de réponse</label>
             <select
+              aria-label="Type de réponse matrice"
               className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
               value={question.matrixType ?? "single"}
               onChange={(e) => setMatrixType(e.target.value as "single" | "multiple")}
@@ -649,11 +649,10 @@ export default function QuestionCard({
                 <button
                   type="button"
                   onClick={toggleMatrixColumnsNumeric}
-                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs transition-colors ${
-                    question.matrixColumnsNumeric
+                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs transition-colors ${question.matrixColumnsNumeric
                       ? "bg-blue-500 border-blue-500 text-white"
                       : "border-gray-700 text-gray-300 hover:bg-gray-800"
-                  }`}
+                    }`}
                   title={
                     question.matrixColumnsNumeric ? "Passer en texte" : "Passer en numérique (1-5)"
                   }
@@ -703,6 +702,7 @@ export default function QuestionCard({
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Échelle</label>
               <select
+                aria-label="Échelle de notation"
                 className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
                 value={question.ratingScale ?? 5}
                 onChange={(e) => onChange({ ratingScale: parseInt(e.target.value, 10) })}
@@ -716,6 +716,7 @@ export default function QuestionCard({
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Style</label>
               <select
+                aria-label="Style de notation"
                 className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
                 value={question.ratingStyle ?? "numbers"}
                 onChange={(e) =>
@@ -777,6 +778,7 @@ export default function QuestionCard({
           <div className="flex flex-col gap-1">
             <label className="text-sm text-gray-400">Type de validation (optionnel)</label>
             <select
+              aria-label="Type de validation"
               className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
               value={question.validationType ?? ""}
               onChange={(e) =>
