@@ -58,6 +58,10 @@ describe("FormPollCreator - Debug", () => {
     const configButton = screen.getByText(/Paramètres de configuration/);
     fireEvent.click(configButton);
 
+    // Switch to visibility tab
+    const visibilityTab = screen.getByRole('tab', { name: /Visibilité/i });
+    fireEvent.click(visibilityTab);
+
     // Test visibility interaction
     const creatorOnlyRadio = screen.getByDisplayValue("creator-only");
     expect(creatorOnlyRadio).toBeChecked();
@@ -86,13 +90,17 @@ describe("FormPollCreator - Debug", () => {
       </TestWrapper>
     );
 
-    // Add a question FIRST
-    const addQuestionButton = screen.getByText(/Ajouter une question/);
+    // Add a question FIRST (using new testid)
+    const addQuestionButton = screen.getByTestId("nav-add-question");
     fireEvent.click(addQuestionButton);
 
     // THEN open configuration accordion
     const configButton = screen.getByText(/Paramètres de configuration/);
     fireEvent.click(configButton);
+
+    // Switch to visibility tab
+    const visibilityTab = screen.getByRole('tab', { name: /Visibilité/i });
+    fireEvent.click(visibilityTab);
 
     // Check if visibility options are still available
     const allRadios = screen.queryAllByRole("radio");
