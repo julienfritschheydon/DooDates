@@ -1,103 +1,2132 @@
 
-> vite_react_shadcn_ts@0.0.0 test:unit:fast
-> vitest run --reporter=basic --run src/lib/__tests__/pollStorage-visibility.test.ts
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Julien Fritsch/Documents/GitHub/DooDates-testing[39m
 
-
- [1m [46m RUN  [49m [22m  [36mv3.2.4  [39m [90mC:/Users/Julien Fritsch/Documents/GitHub/DooDates-bug [39m
-
- DEPRECATED  'basic' reporter is deprecated and will be removed in Vitest v3.
-Remove 'basic' from 'reporters' option. To match 'basic' reporter 100%, use configuration:
-{
-  "test": {
-    "reporters": [
-      [
-        "default",
-        {
-          "summary": false
-        }
-      ]
-    ]
-  }
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx
+[22m[39m🔧 DooDates Supabase Config: {
+  url: [32m'https://outmbbisrrdiumlweira.s...'[39m,
+  key: [32m'✅ Configured'[39m,
+  isLocalDev: [33mfalse[39m,
+  mode: [32m'test'[39m,
+  isProduction: [33mfalse[39m
 }
-  [31m❯ [39m src/lib/__tests__/pollStorage-visibility.test.ts  [2m( [22m [2m14 tests [22m [2m |  [22m [31m3 failed [39m [2m) [22m [32m 16 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID pour utilisateur non authentifié [32m 2 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne authenticated user ID si fourni [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est null [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetCurrentUserId() [2m >  [22mretourne device ID si authenticated user ID est vide [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un poll sans réponses [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via deviceId stocké dans la réponse [32m 1 [2mms [22m [39m
- [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mdétecte un vote via respondentId anonyme contenant deviceId [39m [32m 6 [2mms [22m [39m
- [31m     → expected false to be true // Object.is equality [39m
- [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec un autre deviceId [39m [32m 1 [2mms [22m [39m
- [31m     → expected true to be false // Object.is equality [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour un vote avec respondentId anonyme différent [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mgère correctement les réponses mixtes (avec et sans deviceId) [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mcheckIfUserHasVoted() [2m >  [22mretourne false pour les réponses authentifiées d autres utilisateurs [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mgénère un device ID cohérent [32m 0 [2mms [22m [39m
-    [32m✓ [39m Poll Storage Helpers - Visibility Features [2m >  [22mgetDeviceId() [2m >  [22mreturn cached device ID [32m 0 [2mms [22m [39m
- [31m    [31m× [31m Poll Storage Helpers - Visibility Features [2m >  [22mgetRespondentId() [2m >  [22mgénère un respondentId anonyme contenant le deviceId [39m [32m 2 [2mms [22m [39m
- [31m     → expected 'anon:unknown:resp-123' to be 'anon:dev-mj02pf80-txrmtf:resp-123' // Object.is equality [39m
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould initialize with creator-only visibility by default
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+stderr | src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should initialize with creator-only visibility by default
+
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould initialize with provided resultsVisibility from initialDraft
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould update resultsVisibility when radio buttons are clicked
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould include resultsVisibility in draft when onSave is called
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould include resultsVisibility in draft when onFinalize is called
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould show configuration panel when resultsVisibility options are displayed
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility[2m > [22m[2mshould maintain resultsVisibility state when other form fields change
+[22m[39mℹ️ ℹ️ Mode guest - utilisation localStorage 
+🐛 🔐 🔍 AuthContext - Session depuis localStorage { found: [33mfalse[39m, userId: [1mnull[22m, hasAccessToken: [33mfalse[39m }
+
+[90mstdout[2m | src/components/__tests__/FormPollCreator.test.tsx[2m > [22m[2mFormPollCreator - resultsVisibility
+[22m[39m🐛 🔐 🔍 AuthContext - Session depuis getSession() { found: [33mfalse[39m, userId: [1mnull[22m }
+
+ [31m❯[39m src/components/__tests__/FormPollCreator.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 431[2mms[22m[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould initialize with creator-only visibility by default[39m[32m 169[2mms[22m[39m
+[31m     → Unable to find an element with the display value: creator-only.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m""[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                  [36m<button[31m
+                    [33maria-current[31m=[32m"true"[31m
+                    [33mclass[31m=[32m"rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"[31m
+                    [33mdata-index[31m=[32m"1"[31m
+                    [33mdata-qid[31m=[32m"uvx1873v"[31m
+                    [33mdata-testid[31m=[32m"question-nav"[31m
+                    [33mtitle[31m=[32m"Nouvelle question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [0mQ1[0m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "[31m
+                  [36m>[31m
+                    [36m<div[31m
+                      [33mclass[31m=[32m"flex items-center justify-between gap-2"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-2 flex-wrap"[31m
+                      [36m>[31m
+                        [36m<select[31m
+                          [33maria-label[31m=[32m"Type de question"[31m
+                          [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"[31m
+                          [33mdata-qid[31m=[32m"uvx1873v"[31m
+                          [33mdata-testid[31m=[32m"question-kind-select"[31m
+                        [36m>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"single"[31m
+                          [36m>[31m
+                            [0mChoix unique[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"multiple"[31m
+                          [36m>[31m
+                            [0mChoix multiples[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"text"[31m
+                          [36m>[31m
+                            [0mTexte court[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"long-text"[31m
+                          [36m>[31m
+                            [0mTexte long[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"matrix"[31m
+                          [36m>[31m
+                            [0mMatrice[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"rating"[31m
+                          [36m>[31m
+                            [0mÉchelle de notation[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"nps"[31m
+                          [36m>[31m
+                            [0mNet Promoter Score (NPS)[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"date"[31m
+                          [36m>[31m
+                            [0mDate[0m
+                 ...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould initialize with provided resultsVisibility from initialDraft[39m[32m 43[2mms[22m[39m
+[31m     → Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m"Test Form"[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m/>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"pt-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mdata-state[31m=[32m"open"[31m
+                  [36m>[31m
+                    [36m<button[31m
+                      [33maria-controls[31m=[32m"radix-:r1:"[31m
+                      [33maria-expanded[31m=[32m"true"[31m
+                      [33mclass[31m=[32m"w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"[31m
+                      [33mdata-state[31m=[32m"open"[31m
+                      [33mtype[31m=[32m"button"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-3"[31m
+                      [36m>[31m
+                        [36m<svg[31m
+                          [33mclass[31m=[32m"lucide lucide-settings w-5 h-5 text-gray-300"[31m
+                          [33mfill[31m=[32m"none"[31m
+                          [33mheight[31m=[32m"24"[31m
+                          [33mstroke[31m=[32m"currentColor"[31m
+                          [33mstroke-linecap[31m=[32m"round"[31m
+                          [33mstroke-linejoin[31m=[32m"round"[31m
+                          [33mstroke-width[31m=[32m"2"[31m
+                          [33mviewBox[31m=[32m"0 0 24 24"[31m
+                          [33mwidth[31m=[32m"24"[31m
+                          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                        [36m>[31m
+                          [36m<path[31m
+                            [33md[31m=[32m"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"[31m
+                          [36m/>[31m
+                          [36m<circle[31m
+                            [33mcx[31m=[32m"12"[31m
+                            [33mcy[31m=[32m"12"[31m
+                            [33mr[31m=[32m"3"[31m
+                          [36m/>[31m
+                        [36m</svg>[31m
+                        [36m<span[31m
+                          [33mclass[31m=[32m"text-sm font-medium text-gray-300"[31m
+                        [36m>[31m
+                          [0mParamètres de configuration[0m
+                        [36m</span>[31m
+                      [36m</div>[31m
+                      [36m<svg[31m
+                        [33mclass[31m=[32m"lucide lucide-chevron-up w-5 h-5 text-gray-400"[31m
+                        [33mfill[31m=[32m"none"[31m
+                        [33mheight[31m=[32m"24"[31m
+                        [33mstroke[31m=[32m"currentColor"[31m
+                        [33mstroke-linecap[31m=[32m"round"[31m
+                        [33mstroke-linejoin[31m=[32m"round"[31m
+                        [33mstroke-width[31m=[32m"2"[31m
+                        [33mviewBox[31m=[...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould update resultsVisibility when radio buttons are clicked[39m[32m 46[2mms[22m[39m
+[31m     → Unable to find an element with the display value: creator-only.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m""[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                  [36m<button[31m
+                    [33maria-current[31m=[32m"true"[31m
+                    [33mclass[31m=[32m"rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"[31m
+                    [33mdata-index[31m=[32m"1"[31m
+                    [33mdata-qid[31m=[32m"nhvv7t47"[31m
+                    [33mdata-testid[31m=[32m"question-nav"[31m
+                    [33mtitle[31m=[32m"Nouvelle question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [0mQ1[0m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "[31m
+                  [36m>[31m
+                    [36m<div[31m
+                      [33mclass[31m=[32m"flex items-center justify-between gap-2"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-2 flex-wrap"[31m
+                      [36m>[31m
+                        [36m<select[31m
+                          [33maria-label[31m=[32m"Type de question"[31m
+                          [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"[31m
+                          [33mdata-qid[31m=[32m"nhvv7t47"[31m
+                          [33mdata-testid[31m=[32m"question-kind-select"[31m
+                        [36m>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"single"[31m
+                          [36m>[31m
+                            [0mChoix unique[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"multiple"[31m
+                          [36m>[31m
+                            [0mChoix multiples[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"text"[31m
+                          [36m>[31m
+                            [0mTexte court[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"long-text"[31m
+                          [36m>[31m
+                            [0mTexte long[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"matrix"[31m
+                          [36m>[31m
+                            [0mMatrice[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"rating"[31m
+                          [36m>[31m
+                            [0mÉchelle de notation[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"nps"[31m
+                          [36m>[31m
+                            [0mNet Promoter Score (NPS)[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"date"[31m
+                          [36m>[31m
+                            [0mDate[0m
+                 ...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould include resultsVisibility in draft when onSave is called[39m[32m 44[2mms[22m[39m
+[31m     → Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m""[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                  [36m<button[31m
+                    [33maria-current[31m=[32m"true"[31m
+                    [33mclass[31m=[32m"rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"[31m
+                    [33mdata-index[31m=[32m"1"[31m
+                    [33mdata-qid[31m=[32m"3q6aq6ud"[31m
+                    [33mdata-testid[31m=[32m"question-nav"[31m
+                    [33mtitle[31m=[32m"Nouvelle question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [0mQ1[0m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "[31m
+                  [36m>[31m
+                    [36m<div[31m
+                      [33mclass[31m=[32m"flex items-center justify-between gap-2"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-2 flex-wrap"[31m
+                      [36m>[31m
+                        [36m<select[31m
+                          [33maria-label[31m=[32m"Type de question"[31m
+                          [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"[31m
+                          [33mdata-qid[31m=[32m"3q6aq6ud"[31m
+                          [33mdata-testid[31m=[32m"question-kind-select"[31m
+                        [36m>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"single"[31m
+                          [36m>[31m
+                            [0mChoix unique[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"multiple"[31m
+                          [36m>[31m
+                            [0mChoix multiples[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"text"[31m
+                          [36m>[31m
+                            [0mTexte court[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"long-text"[31m
+                          [36m>[31m
+                            [0mTexte long[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"matrix"[31m
+                          [36m>[31m
+                            [0mMatrice[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"rating"[31m
+                          [36m>[31m
+                            [0mÉchelle de notation[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"nps"[31m
+                          [36m>[31m
+                            [0mNet Promoter Score (NPS)[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"date"[31m
+                          [36m>[31m
+                            [0mDate[0m
+                 ...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould include resultsVisibility in draft when onFinalize is called[39m[32m 41[2mms[22m[39m
+[31m     → Unable to find an element with the display value: public.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m""[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                  [36m<button[31m
+                    [33maria-current[31m=[32m"true"[31m
+                    [33mclass[31m=[32m"rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"[31m
+                    [33mdata-index[31m=[32m"1"[31m
+                    [33mdata-qid[31m=[32m"qnl7k5c6"[31m
+                    [33mdata-testid[31m=[32m"question-nav"[31m
+                    [33mtitle[31m=[32m"Nouvelle question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [0mQ1[0m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "[31m
+                  [36m>[31m
+                    [36m<div[31m
+                      [33mclass[31m=[32m"flex items-center justify-between gap-2"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-2 flex-wrap"[31m
+                      [36m>[31m
+                        [36m<select[31m
+                          [33maria-label[31m=[32m"Type de question"[31m
+                          [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"[31m
+                          [33mdata-qid[31m=[32m"qnl7k5c6"[31m
+                          [33mdata-testid[31m=[32m"question-kind-select"[31m
+                        [36m>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"single"[31m
+                          [36m>[31m
+                            [0mChoix unique[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"multiple"[31m
+                          [36m>[31m
+                            [0mChoix multiples[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"text"[31m
+                          [36m>[31m
+                            [0mTexte court[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"long-text"[31m
+                          [36m>[31m
+                            [0mTexte long[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"matrix"[31m
+                          [36m>[31m
+                            [0mMatrice[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"rating"[31m
+                          [36m>[31m
+                            [0mÉchelle de notation[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"nps"[31m
+                          [36m>[31m
+                            [0mNet Promoter Score (NPS)[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"date"[31m
+                          [36m>[31m
+                            [0mDate[0m
+                 ...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould show configuration panel when resultsVisibility options are displayed[39m[32m 54[2mms[22m[39m
+[31m     → Unable to find an element with the text: /Visibilité des résultats/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m""[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                  [36m<button[31m
+                    [33maria-current[31m=[32m"true"[31m
+                    [33mclass[31m=[32m"rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"[31m
+                    [33mdata-index[31m=[32m"1"[31m
+                    [33mdata-qid[31m=[32m"1uo4gxgu"[31m
+                    [33mdata-testid[31m=[32m"question-nav"[31m
+                    [33mtitle[31m=[32m"Nouvelle question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [0mQ1[0m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "[31m
+                  [36m>[31m
+                    [36m<div[31m
+                      [33mclass[31m=[32m"flex items-center justify-between gap-2"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-2 flex-wrap"[31m
+                      [36m>[31m
+                        [36m<select[31m
+                          [33maria-label[31m=[32m"Type de question"[31m
+                          [33mclass[31m=[32m"rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"[31m
+                          [33mdata-qid[31m=[32m"1uo4gxgu"[31m
+                          [33mdata-testid[31m=[32m"question-kind-select"[31m
+                        [36m>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"single"[31m
+                          [36m>[31m
+                            [0mChoix unique[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"multiple"[31m
+                          [36m>[31m
+                            [0mChoix multiples[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"text"[31m
+                          [36m>[31m
+                            [0mTexte court[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"long-text"[31m
+                          [36m>[31m
+                            [0mTexte long[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"matrix"[31m
+                          [36m>[31m
+                            [0mMatrice[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"rating"[31m
+                          [36m>[31m
+                            [0mÉchelle de notation[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"nps"[31m
+                          [36m>[31m
+                            [0mNet Promoter Score (NPS)[0m
+                          [36m</option>[31m
+                          [36m<option[31m
+                            [33mvalue[31m=[32m"date"[31m
+                          [36m>[31m
+                            [0mDate[0m
+                 ...[39m
+[31m   [31m×[31m FormPollCreator - resultsVisibility[2m > [22mshould maintain resultsVisibility state when other form fields change[39m[32m 28[2mms[22m[39m
+[31m     → Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-[#0a0a0a]"[31m
+      [33mdata-form-container[31m=[32m"true"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"px-4 md:px-6 pt-6 pb-40"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"max-w-none w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"bg-[#0a0a0a]"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"flex flex-col gap-3"[31m
+              [36m>[31m
+                [36m<div>[31m
+                  [36m<label[31m
+                    [33mclass[31m=[32m"block text-sm font-medium text-gray-300 mb-2"[31m
+                  [36m>[31m
+                    [0mTitre du formulaire [0m
+                    [36m<span[31m
+                      [33mclass[31m=[32m"text-red-400 text-sm"[31m
+                    [36m>[31m
+                      [0m*[0m
+                    [36m</span>[31m
+                  [36m</label>[31m
+                  [36m<input[31m
+                    [33mclass[31m=[32m"w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"[31m
+                    [33mdata-testid[31m=[32m"poll-title"[31m
+                    [33mplaceholder[31m=[32m"Ex: Questionnaire de satisfaction client"[31m
+                    [33mrequired[31m=[32m""[31m
+                    [33mvalue[31m=[32m"Initial Title"[31m
+                  [36m/>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-wrap items-center gap-2"[31m
+                [36m>[31m
+                  [36m<button[31m
+                    [33mclass[31m=[32m"flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"[31m
+                    [33mdata-testid[31m=[32m"nav-add-question"[31m
+                    [33mtitle[31m=[32m"Ajouter une question"[31m
+                    [33mtype[31m=[32m"button"[31m
+                  [36m>[31m
+                    [36m<svg[31m
+                      [33mclass[31m=[32m"lucide lucide-plus"[31m
+                      [33mfill[31m=[32m"none"[31m
+                      [33mheight[31m=[32m"18"[31m
+                      [33mstroke[31m=[32m"currentColor"[31m
+                      [33mstroke-linecap[31m=[32m"round"[31m
+                      [33mstroke-linejoin[31m=[32m"round"[31m
+                      [33mstroke-width[31m=[32m"2"[31m
+                      [33mviewBox[31m=[32m"0 0 24 24"[31m
+                      [33mwidth[31m=[32m"18"[31m
+                      [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                    [36m>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M5 12h14"[31m
+                      [36m/>[31m
+                      [36m<path[31m
+                        [33md[31m=[32m"M12 5v14"[31m
+                      [36m/>[31m
+                    [36m</svg>[31m
+                  [36m</button>[31m
+                [36m</div>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"flex flex-col gap-4"[31m
+                [36m/>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"pt-4"[31m
+                [36m>[31m
+                  [36m<div[31m
+                    [33mdata-state[31m=[32m"open"[31m
+                  [36m>[31m
+                    [36m<button[31m
+                      [33maria-controls[31m=[32m"radix-:r6:"[31m
+                      [33maria-expanded[31m=[32m"true"[31m
+                      [33mclass[31m=[32m"w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"[31m
+                      [33mdata-state[31m=[32m"open"[31m
+                      [33mtype[31m=[32m"button"[31m
+                    [36m>[31m
+                      [36m<div[31m
+                        [33mclass[31m=[32m"flex items-center gap-3"[31m
+                      [36m>[31m
+                        [36m<svg[31m
+                          [33mclass[31m=[32m"lucide lucide-settings w-5 h-5 text-gray-300"[31m
+                          [33mfill[31m=[32m"none"[31m
+                          [33mheight[31m=[32m"24"[31m
+                          [33mstroke[31m=[32m"currentColor"[31m
+                          [33mstroke-linecap[31m=[32m"round"[31m
+                          [33mstroke-linejoin[31m=[32m"round"[31m
+                          [33mstroke-width[31m=[32m"2"[31m
+                          [33mviewBox[31m=[32m"0 0 24 24"[31m
+                          [33mwidth[31m=[32m"24"[31m
+                          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                        [36m>[31m
+                          [36m<path[31m
+                            [33md[31m=[32m"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"[31m
+                          [36m/>[31m
+                          [36m<circle[31m
+                            [33mcx[31m=[32m"12"[31m
+                            [33mcy[31m=[32m"12"[31m
+                            [33mr[31m=[32m"3"[31m
+                          [36m/>[31m
+                        [36m</svg>[31m
+                        [36m<span[31m
+                          [33mclass[31m=[32m"text-sm font-medium text-gray-300"[31m
+                        [36m>[31m
+                          [0mParamètres de configuration[0m
+                        [36m</span>[31m
+                      [36m</div>[31m
+                      [36m<svg[31m
+                        [33mclass[31m=[32m"lucide lucide-chevron-up w-5 h-5 text-gray-400"[31m
+                        [33mfill[31m=[32m"none"[31m
+                        [33mheight[31m=[32m"24"[31m
+                        [33mstroke[31m=[32m"currentColor"[31m
+                        [33mstroke-linecap[31m=[32m"round"[31m
+                        [33mstroke-linejoin[31m=[32m"round"[31m
+                        [33mstroke-width[31m=[32m"2"[31m
+                        [33mviewBox[39...[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should initialize with creator-only visibility by default
+TestingLibraryElementError: Unable to find an element with the display value: creator-only.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value=""
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    aria-current="true"
+                    class="rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"
+                    data-index="1"
+                    data-qid="uvx1873v"
+                    data-testid="question-nav"
+                    title="Nouvelle question"
+                    type="button"
+                  >
+                    Q1
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                >
+                  <div
+                    class="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "
+                  >
+                    <div
+                      class="flex items-center justify-between gap-2"
+                    >
+                      <div
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <select
+                          aria-label="Type de question"
+                          class="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+                          data-qid="uvx1873v"
+                          data-testid="question-kind-select"
+                        >
+                          <option
+                            value="single"
+                          >
+                            Choix unique
+                          </option>
+                          <option
+                            value="multiple"
+                          >
+                            Choix multiples
+                          </option>
+                          <option
+                            value="text"
+                          >
+                            Texte court
+                          </option>
+                          <option
+                            value="long-text"
+                          >
+                            Texte long
+                          </option>
+                          <option
+                            value="matrix"
+                          >
+                            Matrice
+                          </option>
+                          <option
+                            value="rating"
+                          >
+                            Échelle de notation
+                          </option>
+                          <option
+                            value="nps"
+                          >
+                            Net Promoter Score (NPS)
+                          </option>
+                          <option
+                            value="date"
+                          >
+                            Date
+                 ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.expectVisibilityChecked src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:63:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:60:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should initialize with provided resultsVisibility from initialDraft
+TestingLibraryElementError: Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value="Test Form"
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                />
+                <div
+                  class="pt-4"
+                >
+                  <div
+                    data-state="open"
+                  >
+                    <button
+                      aria-controls="radix-:r1:"
+                      aria-expanded="true"
+                      class="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
+                      data-state="open"
+                      type="button"
+                    >
+                      <div
+                        class="flex items-center gap-3"
+                      >
+                        <svg
+                          class="lucide lucide-settings w-5 h-5 text-gray-300"
+                          fill="none"
+                          height="24"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          viewBox="0 0 24 24"
+                          width="24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                          />
+                        </svg>
+                        <span
+                          class="text-sm font-medium text-gray-300"
+                        >
+                          Paramètres de configuration
+                        </span>
+                      </div>
+                      <svg
+                        class="lucide lucide-chevron-up w-5 h-5 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox=[...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.expectVisibilityChecked src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:63:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:80:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should update resultsVisibility when radio buttons are clicked
+TestingLibraryElementError: Unable to find an element with the display value: creator-only.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value=""
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    aria-current="true"
+                    class="rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"
+                    data-index="1"
+                    data-qid="nhvv7t47"
+                    data-testid="question-nav"
+                    title="Nouvelle question"
+                    type="button"
+                  >
+                    Q1
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                >
+                  <div
+                    class="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "
+                  >
+                    <div
+                      class="flex items-center justify-between gap-2"
+                    >
+                      <div
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <select
+                          aria-label="Type de question"
+                          class="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+                          data-qid="nhvv7t47"
+                          data-testid="question-kind-select"
+                        >
+                          <option
+                            value="single"
+                          >
+                            Choix unique
+                          </option>
+                          <option
+                            value="multiple"
+                          >
+                            Choix multiples
+                          </option>
+                          <option
+                            value="text"
+                          >
+                            Texte court
+                          </option>
+                          <option
+                            value="long-text"
+                          >
+                            Texte long
+                          </option>
+                          <option
+                            value="matrix"
+                          >
+                            Matrice
+                          </option>
+                          <option
+                            value="rating"
+                          >
+                            Échelle de notation
+                          </option>
+                          <option
+                            value="nps"
+                          >
+                            Net Promoter Score (NPS)
+                          </option>
+                          <option
+                            value="date"
+                          >
+                            Date
+                 ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.expectVisibilityChecked src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:63:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:99:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should include resultsVisibility in draft when onSave is called
+TestingLibraryElementError: Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value=""
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    aria-current="true"
+                    class="rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"
+                    data-index="1"
+                    data-qid="3q6aq6ud"
+                    data-testid="question-nav"
+                    title="Nouvelle question"
+                    type="button"
+                  >
+                    Q1
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                >
+                  <div
+                    class="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "
+                  >
+                    <div
+                      class="flex items-center justify-between gap-2"
+                    >
+                      <div
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <select
+                          aria-label="Type de question"
+                          class="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+                          data-qid="3q6aq6ud"
+                          data-testid="question-kind-select"
+                        >
+                          <option
+                            value="single"
+                          >
+                            Choix unique
+                          </option>
+                          <option
+                            value="multiple"
+                          >
+                            Choix multiples
+                          </option>
+                          <option
+                            value="text"
+                          >
+                            Texte court
+                          </option>
+                          <option
+                            value="long-text"
+                          >
+                            Texte long
+                          </option>
+                          <option
+                            value="matrix"
+                          >
+                            Matrice
+                          </option>
+                          <option
+                            value="rating"
+                          >
+                            Échelle de notation
+                          </option>
+                          <option
+                            value="nps"
+                          >
+                            Net Promoter Score (NPS)
+                          </option>
+                          <option
+                            value="date"
+                          >
+                            Date
+                 ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.setResultsVisibility src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:53:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:124:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should include resultsVisibility in draft when onFinalize is called
+TestingLibraryElementError: Unable to find an element with the display value: public.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value=""
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    aria-current="true"
+                    class="rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"
+                    data-index="1"
+                    data-qid="qnl7k5c6"
+                    data-testid="question-nav"
+                    title="Nouvelle question"
+                    type="button"
+                  >
+                    Q1
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                >
+                  <div
+                    class="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "
+                  >
+                    <div
+                      class="flex items-center justify-between gap-2"
+                    >
+                      <div
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <select
+                          aria-label="Type de question"
+                          class="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+                          data-qid="qnl7k5c6"
+                          data-testid="question-kind-select"
+                        >
+                          <option
+                            value="single"
+                          >
+                            Choix unique
+                          </option>
+                          <option
+                            value="multiple"
+                          >
+                            Choix multiples
+                          </option>
+                          <option
+                            value="text"
+                          >
+                            Texte court
+                          </option>
+                          <option
+                            value="long-text"
+                          >
+                            Texte long
+                          </option>
+                          <option
+                            value="matrix"
+                          >
+                            Matrice
+                          </option>
+                          <option
+                            value="rating"
+                          >
+                            Échelle de notation
+                          </option>
+                          <option
+                            value="nps"
+                          >
+                            Net Promoter Score (NPS)
+                          </option>
+                          <option
+                            value="date"
+                          >
+                            Date
+                 ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.setResultsVisibility src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:53:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:153:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should show configuration panel when resultsVisibility options are displayed
+TestingLibraryElementError: Unable to find an element with the text: /Visibilité des résultats/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value=""
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    aria-current="true"
+                    class="rounded-full px-3 py-1 text-sm transition-all duration-300 bg-purple-600 text-white"
+                    data-index="1"
+                    data-qid="1uo4gxgu"
+                    data-testid="question-nav"
+                    title="Nouvelle question"
+                    type="button"
+                  >
+                    Q1
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                >
+                  <div
+                    class="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 "
+                  >
+                    <div
+                      class="flex items-center justify-between gap-2"
+                    >
+                      <div
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <select
+                          aria-label="Type de question"
+                          class="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+                          data-qid="1uo4gxgu"
+                          data-testid="question-kind-select"
+                        >
+                          <option
+                            value="single"
+                          >
+                            Choix unique
+                          </option>
+                          <option
+                            value="multiple"
+                          >
+                            Choix multiples
+                          </option>
+                          <option
+                            value="text"
+                          >
+                            Texte court
+                          </option>
+                          <option
+                            value="long-text"
+                          >
+                            Texte long
+                          </option>
+                          <option
+                            value="matrix"
+                          >
+                            Matrice
+                          </option>
+                          <option
+                            value="rating"
+                          >
+                            Échelle de notation
+                          </option>
+                          <option
+                            value="nps"
+                          >
+                            Net Promoter Score (NPS)
+                          </option>
+                          <option
+                            value="date"
+                          >
+                            Date
+                 ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByText node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.expectConfigurationAccordionVisible src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:115:19
+    113|   static expectConfigurationAccordionVisible(): void {
+    114|     this.openConfigurationAccordion();
+    115|     expect(screen.getByText(/Visibilité des résultats/)).toBeInTheDocu…
+       |                   ^
+    116|     expect(screen.getByText("Moi uniquement")).toBeInTheDocument();
+    117|     expect(screen.getByText("Personnes ayant voté")).toBeInTheDocument…
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:188:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/components/__tests__/FormPollCreator.test.tsx > FormPollCreator - resultsVisibility > should maintain resultsVisibility state when other form fields change
+TestingLibraryElementError: Unable to find an element with the display value: voters.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#0a0a0a]"
+      data-form-container="true"
+    >
+      <div
+        class="px-4 md:px-6 pt-6 pb-40"
+      >
+        <div
+          class="max-w-none w-full"
+        >
+          <div
+            class="bg-[#0a0a0a]"
+          >
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="flex flex-col gap-3"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Titre du formulaire 
+                    <span
+                      class="text-red-400 text-sm"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <input
+                    class="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+                    data-testid="poll-title"
+                    placeholder="Ex: Questionnaire de satisfaction client"
+                    required=""
+                    value="Initial Title"
+                  />
+                </div>
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <button
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                    data-testid="nav-add-question"
+                    title="Ajouter une question"
+                    type="button"
+                  >
+                    <svg
+                      class="lucide lucide-plus"
+                      fill="none"
+                      height="18"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 12h14"
+                      />
+                      <path
+                        d="M12 5v14"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-4"
+                />
+                <div
+                  class="pt-4"
+                >
+                  <div
+                    data-state="open"
+                  >
+                    <button
+                      aria-controls="radix-:r6:"
+                      aria-expanded="true"
+                      class="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
+                      data-state="open"
+                      type="button"
+                    >
+                      <div
+                        class="flex items-center gap-3"
+                      >
+                        <svg
+                          class="lucide lucide-settings w-5 h-5 text-gray-300"
+                          fill="none"
+                          height="24"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          viewBox="0 0 24 24"
+                          width="24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                          />
+                        </svg>
+                        <span
+                          class="text-sm font-medium text-gray-300"
+                        >
+                          Paramètres de configuration
+                        </span>
+                      </div>
+                      <svg
+                        class="lucide lucide-chevron-up w-5 h-5 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox[39...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByDisplayValue node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ Function.getResultsVisibilityRadio src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:32:19
+     30|    */
+     31|   static getResultsVisibilityRadio(visibility: "creator-only" | "voter…
+     32|     return screen.getByDisplayValue(visibility);
+       |                   ^
+     33|   }
+     34| 
+ ❯ Function.expectVisibilityChecked src/components/__tests__/helpers/FormPollCreatorTestHelper.ts:63:24
+ ❯ src/components/__tests__/FormPollCreator.test.tsx:209:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
 
 
-⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > détecte un vote via respondentId anonyme contenant deviceId
-AssertionError: expected false to be true // Object.is equality
-
-- Expected
-+ Received
-
-- true
-+ false
-
- ❯ src/lib/__tests__/pollStorage-visibility.test.ts:119:24
-    117| 
-    118|       const hasVoted = checkIfUserHasVoted(pollId);
-    119|       expect(hasVoted).toBe(true);
-       |                        ^
-    120|     });
-    121| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
-
- FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > checkIfUserHasVoted() > retourne false pour un vote avec un autre deviceId
-AssertionError: expected true to be false // Object.is equality
-
-- Expected
-+ Received
-
-- false
-+ true
-
- ❯ src/lib/__tests__/pollStorage-visibility.test.ts:134:24
-    132| 
-    133|       const hasVoted = checkIfUserHasVoted(pollId);
-    134|       expect(hasVoted).toBe(false);
-       |                        ^
-    135|     });
-    136| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
-
- FAIL  src/lib/__tests__/pollStorage-visibility.test.ts > Poll Storage Helpers - Visibility Features > getRespondentId() > génère un respondentId anonyme contenant le deviceId
-
-AssertionError: expected 'anon:unknown:resp-123' to be 'anon:dev-mj02pf80-txrmtf:resp-123' // Object.is equality
-
-Expected: "anon:dev-mj02pf80-txrmtf:resp-123"
- [2m Test Files  [22m  [1m [31m1 failed [39m [22m [90m (1) [39m
-Received: "anon:unknown:resp-123"
- [2m      Tests  [22m  [1m [31m3 failed [39m [22m [2m |  [22m [1m [32m11 passed [39m [22m [90m (14) [39m
-
- ❯ src/lib/__tests__/pollStorage-visibility.test.ts:233:28
-    231| 
-    232|       // Format: anon:<deviceId>:<responseId>
-    233|       expect(respondentId).toBe(`anon:${currentDeviceId}:${response.id…
-       |                            ^
-    234|     });
-    235|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
-
- [2m   Start at  [22m 14:56:56
- [2m   Duration  [22m 3.17s [2m (transform 159ms, setup 492ms, collect 126ms, tests 16ms, environment 1.44s, prepare 164ms) [22m
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[90m (7)[39m
+[2m   Start at [22m 08:54:35
+[2m   Duration [22m 3.37s[2m (transform 645ms, setup 206ms, collect 1.49s, tests 431ms, environment 613ms, prepare 110ms)[22m
 

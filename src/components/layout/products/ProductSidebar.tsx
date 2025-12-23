@@ -12,6 +12,7 @@ interface ProductSidebarProps {
   className?: string;
   isOpen?: boolean;
   onToggle?: () => void;
+  hideHamburger?: boolean;
 }
 
 export const ProductSidebar: React.FC<ProductSidebarProps> = ({
@@ -20,6 +21,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
   className,
   isOpen: propIsOpen,
   onToggle: propOnToggle,
+  hideHamburger = false,
 }) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
@@ -59,14 +61,16 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
   return (
     <>
       {/* Hamburger géré par la sidebar elle-même */}
-      <button
-        onClick={toggleSidebar}
-        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${isOpen ? "left-[272px]" : "left-4"
-          }`}
-        aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {!hideHamburger && (
+        <button
+          onClick={toggleSidebar}
+          className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${isOpen ? "left-[272px]" : "left-4"
+            }`}
+          aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
 
       {/* Sidebar - conditionnel selon l'état interne */}
       {isOpen && (

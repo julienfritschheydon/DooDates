@@ -88,7 +88,7 @@ export default function ConditionalRuleEditor({
       (r, idx) =>
         r.questionId === questionId &&
         existingRules.slice(0, idx + 1).filter((r2) => r2.questionId === questionId).length ===
-          localIndex + 1,
+        localIndex + 1,
     );
   };
 
@@ -105,7 +105,7 @@ export default function ConditionalRuleEditor({
       <button
         type="button"
         onClick={addRule}
-        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+        className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-800"
         data-testid="add-conditional-rule-button"
       >
         <Plus className="w-4 h-4" />
@@ -116,15 +116,15 @@ export default function ConditionalRuleEditor({
 
   return (
     <div
-      className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-md"
+      className="space-y-2 p-3 bg-purple-50 border border-purple-200 rounded-md"
       data-testid="conditional-rules-editor"
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-blue-900">
+        <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
           <GitBranch className="w-4 h-4" />
           Conditions d'affichage
           {!isEditing && (
-            <span className="text-xs font-normal text-blue-700">
+            <span className="text-xs font-normal text-purple-700">
               ({currentRules.length} règle{currentRules.length > 1 ? "s" : ""})
             </span>
           )}
@@ -133,7 +133,7 @@ export default function ConditionalRuleEditor({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
             data-testid="edit-conditional-rules-button"
           >
             Modifier
@@ -153,7 +153,7 @@ export default function ConditionalRuleEditor({
               className="text-xs text-gray-700 bg-white p-2 rounded border border-gray-200"
               data-testid={`conditional-rule-summary-${localIdx}`}
             >
-              <span className="text-blue-700 font-medium">
+              <span className="text-purple-700 font-medium">
                 "{dependsOnQuestion?.title || "Question"}"
               </span>{" "}
               <span>
@@ -314,7 +314,7 @@ export default function ConditionalRuleEditor({
           <button
             type="button"
             onClick={addRule}
-            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+            className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800"
             data-testid="add-another-conditional-rule-button"
           >
             <Plus className="w-4 h-4" />
@@ -323,7 +323,7 @@ export default function ConditionalRuleEditor({
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="text-sm px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
             data-testid="done-conditional-rules-button"
           >
             Terminé

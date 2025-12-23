@@ -300,9 +300,9 @@ export class Orchestrator {
                     this.memory.saveToDisk(); // Save navigation graph
 
                     // Save discovered features
-                    if (this.mode === 'feature-discovery') {
-                        this.featureDiscovery.exportToJSON();
-                    }
+                    // Always export feature catalog to allow monitoring progress in all modes
+                    this.featureDiscovery.exportToJSON();
+                    this.featureDiscovery.exportToMarkdown();
 
                     // Generate Hourly Report Snapshot
                     const hour = Math.round((Date.now() - this.startTime.getTime()) / (60 * 60 * 1000));

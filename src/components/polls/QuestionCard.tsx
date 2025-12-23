@@ -505,8 +505,8 @@ export default function QuestionCard({
               type="button"
               onClick={() => setShowConditionalEditor(!showConditionalEditor)}
               className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm transition-colors ${showConditionalEditor
-                  ? "bg-blue-500 border-blue-500 text-white"
-                  : "border-gray-700 text-gray-300 hover:bg-gray-800"
+                ? "bg-purple-500 border-purple-500 text-white"
+                : "border-gray-700 text-gray-300 hover:bg-gray-800"
                 }`}
               title="Règles conditionnelles"
               aria-label="Règles conditionnelles"
@@ -537,8 +537,8 @@ export default function QuestionCard({
               <div key={opt.id} className="flex items-center gap-2">
                 <input
                   className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${opt.isOther
-                      ? "bg-blue-900 border-blue-500 text-white"
-                      : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
+                    ? "bg-blue-900 border-blue-500 text-white"
+                    : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
                     }`}
                   value={opt.label || ""}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
@@ -650,8 +650,8 @@ export default function QuestionCard({
                   type="button"
                   onClick={toggleMatrixColumnsNumeric}
                   className={`inline-flex items-center rounded-md border h-7 px-2 text-xs transition-colors ${question.matrixColumnsNumeric
-                      ? "bg-blue-500 border-blue-500 text-white"
-                      : "border-gray-700 text-gray-300 hover:bg-gray-800"
+                    ? "bg-blue-500 border-blue-500 text-white"
+                    : "border-gray-700 text-gray-300 hover:bg-gray-800"
                     }`}
                   title={
                     question.matrixColumnsNumeric ? "Passer en texte" : "Passer en numérique (1-5)"

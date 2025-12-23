@@ -47,13 +47,15 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
       {/* Sidebar - toujours monté, caché avec CSS */}
       <aside
         className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${isSidebarOpen
-            ? "w-64 opacity-100"
-            : "w-0 opacity-0"
+          ? "w-64 opacity-100"
+          : "w-0 opacity-0"
           }`}
       >
         <ProductSidebar
           productType={productType}
           onClose={closeSidebar}
+          hideHamburger={true}
+          isOpen={isSidebarOpen}
           className={`h-full ${!isSidebarOpen ? 'pointer-events-none' : ''}`}
         />
       </aside>

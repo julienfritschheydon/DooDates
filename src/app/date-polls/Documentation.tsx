@@ -103,7 +103,7 @@ export default function DatePollsDocumentation() {
                 si besoin (matin, après-midi, soir).
               </p>
               <img
-                src="/docs/images/date-poll-selection.png"
+                src="/DooDates/docs/images/date-poll-selection.png"
                 alt="Sélection des dates"
                 className="mt-4 rounded-lg border border-white/10 w-full"
               />

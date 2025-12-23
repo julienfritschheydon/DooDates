@@ -162,14 +162,14 @@ export default function FormPollCreator({
     initialDraft?.questions?.length > 0
       ? initialDraft.questions
       : [
-          {
-            id: uid(),
-            type: "single",
-            title: "Nouvelle question",
-            required: false,
-            options: defaultOptions(),
-          } as SingleOrMultipleQuestion,
-        ],
+        {
+          id: uid(),
+          type: "single",
+          title: "Nouvelle question",
+          required: false,
+          options: defaultOptions(),
+        } as SingleOrMultipleQuestion,
+      ],
   );
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
     initialDraft?.conditionalRules || [],
@@ -743,150 +743,8 @@ export default function FormPollCreator({
                       )}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="mt-2 space-y-4">
-                      {/* Toggle Mode d'affichage */}
-                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-                        <label className="block text-sm font-medium text-gray-300 mb-3">
-                          Mode d'affichage du formulaire
-                        </label>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Option 1 : Classique */}
-                          <Button
-                            type="button"
-                            size="default"
-                            variant="outline"
-                            onClick={() => setDisplayMode("all-at-once")}
-                            className={`p-4 rounded-lg border-2 text-left transition-all ${
-                              displayMode === "all-at-once"
-                                ? "border-purple-500 bg-purple-900/20"
-                                : "border-gray-700 hover:border-gray-600"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <List className="w-5 h-5 text-purple-400" />
-                              <span className="font-medium text-white">Classique</span>
-                              {displayMode === "all-at-once" && (
-                                <Check className="w-4 h-4 text-purple-400 ml-auto" />
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-400 mb-2">
-                              Toutes les questions visibles en même temps
-                            </p>
-                            <div className="text-xs text-gray-500 space-y-1">
-                              <p>✓ Rapide à remplir</p>
-                              <p>✓ Vue d'ensemble</p>
-                              <p>⚠ Peut intimider si &gt;5 questions</p>
-                            </div>
-                          </Button>
 
-                          {/* Option 2 : Multi-step */}
-                          <Button
-                            type="button"
-                            size="default"
-                            variant="outline"
-                            onClick={() => setDisplayMode("multi-step")}
-                            className={`p-4 rounded-lg border-2 text-left transition-all ${
-                              displayMode === "multi-step"
-                                ? "border-purple-500 bg-purple-900/20"
-                                : "border-gray-700 hover:border-gray-600"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <ArrowRight className="w-5 h-5 text-purple-400" />
-                              <span className="font-medium text-white">Une par une</span>
-                              <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">
-                                Style Typeform
-                              </span>
-                              {displayMode === "multi-step" && (
-                                <Check className="w-4 h-4 text-purple-400 ml-auto" />
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-400 mb-2">
-                              Une question à la fois, plein écran
-                            </p>
-                            <div className="text-xs text-gray-500 space-y-1">
-                              <p>✓ +25% taux complétion</p>
-                              <p>✓ Moins intimidant</p>
-                              <p>✓ Parfait mobile</p>
-                            </div>
-                          </Button>
-                        </div>
-
-                        {/* Suggestion IA */}
-                        {suggestedDisplayMode !== displayMode && (
-                          <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg flex items-start gap-2">
-                            <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                            <div className="text-xs text-yellow-200">
-                              <p className="font-medium mb-1">💡 Suggestion IA</p>
-                              <p>
-                                {suggestedDisplayMode === "multi-step"
-                                  ? `Votre formulaire a ${questions.length} questions. Nous recommandons le mode "Une par une" pour maximiser le taux de complétion (+25%).`
-                                  : "Le mode Classique est recommandé pour les formulaires courts."}
-                              </p>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="link"
-                                onClick={() => setDisplayMode(suggestedDisplayMode)}
-                                className="mt-2 text-yellow-400 hover:text-yellow-300"
-                              >
-                                Utiliser la suggestion
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Paramètres de visibilité des résultats */}
-                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-                        <label className="block text-sm font-medium text-gray-300 mb-3">
-                          Visibilité des résultats
-                        </label>
-                        <div className="space-y-2">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="resultsVisibility"
-                              value="creator-only"
-                              checked={resultsVisibility === "creator-only"}
-                              onChange={(e) =>
-                                setResultsVisibility(e.target.value as "creator-only")
-                              }
-                              className="cursor-pointer"
-                            />
-                            <span className="text-white">Moi uniquement</span>
-                            <span className="text-xs text-gray-500">(par défaut)</span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="resultsVisibility"
-                              value="voters"
-                              checked={resultsVisibility === "voters"}
-                              onChange={(e) => setResultsVisibility(e.target.value as "voters")}
-                              className="cursor-pointer"
-                            />
-                            <span className="text-white">Personnes ayant voté</span>
-                            <span className="text-xs text-gray-500">(recommandé)</span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="resultsVisibility"
-                              value="public"
-                              checked={resultsVisibility === "public"}
-                              onChange={(e) => setResultsVisibility(e.target.value as "public")}
-                              className="cursor-pointer"
-                            />
-                            <span className="text-white">Public (tout le monde)</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Sélecteur de thème */}
-                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-                        <ThemeSelector selectedThemeId={themeId} onThemeChange={setThemeId} />
-                      </div>
 
                       {/* Paramètres du sondage */}
                       <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
@@ -894,6 +752,12 @@ export default function FormPollCreator({
                           settings={settings}
                           onSettingsChange={setSettings}
                           pollType="form"
+                          themeId={themeId}
+                          onThemeChange={setThemeId}
+                          displayMode={displayMode}
+                          onDisplayModeChange={setDisplayMode}
+                          resultsVisibility={resultsVisibility}
+                          onResultsVisibilityChange={setResultsVisibility}
                         />
                       </div>
                     </CollapsibleContent>

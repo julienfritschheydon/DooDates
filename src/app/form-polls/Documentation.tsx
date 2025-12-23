@@ -117,7 +117,7 @@ export default function FormPollsDocumentation() {
                 conditionnelle ou le mode multi-étapes.
               </p>
               <img
-                src="/docs/images/form-builder.png"
+                src="/DooDates/docs/images/form-builder.png"
                 alt="Création de formulaire"
                 className="mt-4 rounded-lg border border-white/10 w-full"
               />

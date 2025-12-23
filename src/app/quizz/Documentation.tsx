@@ -63,7 +63,7 @@ export default function QuizzDocumentation() {
                 bonnes réponses.
               </p>
               <img
-                src="/docs/images/quizz-creation.png"
+                src="/DooDates/docs/images/quizz-creation.png"
                 alt="Génération de Quiz par IA"
                 className="mt-4 rounded-lg border border-white/10 w-full"
               />
@@ -93,7 +93,7 @@ export default function QuizzDocumentation() {
                 Consultez les scores et le détail des réponses dans le tableau de bord.
               </p>
               <img
-                src="/docs/images/quizz-play.png"
+                src="/DooDates/docs/images/quizz-play.png"
                 alt="Interface de jeu Quiz"
                 className="mt-4 rounded-lg border border-white/10 w-full"
               />

@@ -116,7 +116,7 @@ export default function AvailabilityPollsDocumentation() {
                 cliquant sur les créneaux.
               </p>
               <img
-                src="/docs/images/availability-grid.png"
+                src="/DooDates/docs/images/availability-grid.png"
                 alt="Grille de disponibilité"
                 className="mt-4 rounded-lg border border-white/10 w-full"
               />

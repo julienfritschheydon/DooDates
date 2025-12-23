@@ -50,6 +50,33 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
         }
     };
 
+    // Helper pour les couleurs dynamiques
+    const getProductColor = (type: string) => {
+        switch (type) {
+            case "date": return "blue";
+            case "form": return "purple";
+            case "availability": return "green";
+            case "quizz": return "amber";
+            default: return "blue";
+        }
+    };
+
+    const color = getProductColor(productType);
+    // Maps de classes pour remplacer les injections dynamiques complexes non standards
+    const activeTabClasses = {
+        date: "bg-blue-600 text-white shadow-lg",
+        form: "bg-purple-600 text-white shadow-lg",
+        availability: "bg-green-600 text-white shadow-lg",
+        quizz: "bg-amber-600 text-white shadow-lg",
+    };
+
+    const toggleBgClasses = {
+        date: "peer-checked:bg-blue-600",
+        form: "peer-checked:bg-purple-600",
+        availability: "peer-checked:bg-green-600",
+        quizz: "peer-checked:bg-amber-600",
+    };
+
     return (
         <div className="min-h-screen bg-gray-900">
             <TopNav />
@@ -65,11 +92,11 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-2 mb-8 bg-gray-800 p-1 rounded-lg border border-gray-700">
+                    <div className="flex gap-2 mb-8 bg-gray-800 p-1 rounded-lg border border-gray-700 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab("settings")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all ${activeTab === "settings"
-                                ? "bg-blue-600 text-white shadow-lg"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "settings"
+                                ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
                         >
@@ -78,8 +105,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                         </button>
                         <button
                             onClick={() => setActiveTab("privacy")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all ${activeTab === "privacy"
-                                ? "bg-blue-600 text-white shadow-lg"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "privacy"
+                                ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
                         >
@@ -88,8 +115,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                         </button>
                         <button
                             onClick={() => setActiveTab("data")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all ${activeTab === "data"
-                                ? "bg-blue-600 text-white shadow-lg"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "data"
+                                ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
                         >
@@ -113,7 +140,7 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                                             </div>
                                             <label className="relative inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" className="sr-only peer" defaultChecked aria-label="Activer les notifications email" />
-                                                <div className="w-14 h-7 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div className={`w-14 h-7 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-${color}-300/30 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all ${toggleBgClasses[productType as keyof typeof toggleBgClasses]}`}></div>
                                             </label>
                                         </div>
                                     </div>

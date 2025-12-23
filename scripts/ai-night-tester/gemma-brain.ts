@@ -238,10 +238,11 @@ ${pageState.bodyText.substring(0, 800)}
 
 CHERCHE CES PROBLÈMES (REGARD CRITIQUE):
 1. Incohérence de style (Mélange Anglais/Français, Majuscules aléatoires)
-2. Menu ou Header encombré ou cassé
-3. Bouton sans texte explicite
+2. Menu ou Header encombré ou cassé (ex: double hamburger, menu vide)
+3. Bouton sans texte explicite ou avec mauvaise couleur (ex: bouton bleu dans un thème violet)
 4. Texte de remplacement ("Lorem ipsum")
 5. Message d'erreur visible
+6. Débordement de contenu hors de l'écran (surtout sur mobile)
 
 RÉPONDS: "OK" si le design semble solide.
 SINON: "ISSUE: [Critique du design/UX]"`;

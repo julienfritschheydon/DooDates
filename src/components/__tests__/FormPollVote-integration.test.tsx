@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import FormPollVote from '../polls/FormPollVote';
-import { getPollBySlugOrId, addFormResponse } from '../../lib/pollStorage';
+import { getPollBySlugOrId, addFormResponse, getFormResponses } from '../../lib/pollStorage';
 import { sendVoteConfirmationEmail } from '../../services/EmailService';
 
 vi.mock('../../lib/pollStorage');
@@ -13,7 +13,7 @@ vi.mock('../../lib/conditionalEvaluator', () => ({
 }));
 
 vi.mock('../../hooks/useThemeColor', () => ({
-  useThemeColor: () => ({ 
+  useThemeColor: () => ({
     primary: '#3B82F6',
     bgCard: '#FFFFFF',
     border: '#E2E8F0',
@@ -36,6 +36,7 @@ Object.defineProperty(window, 'location', {
 
 const mockGetPollBySlugOrId = vi.mocked(getPollBySlugOrId);
 const mockAddFormResponse = vi.mocked(addFormResponse);
+const mockGetFormResponses = vi.mocked(getFormResponses);
 const mockSendVoteConfirmationEmail = vi.mocked(sendVoteConfirmationEmail);
 
 describe('FormPollVote - Tests stables', () => {
@@ -72,18 +73,19 @@ describe('FormPollVote - Tests stables', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetPollBySlugOrId.mockReturnValue(mockPoll);
-    mockAddFormResponse.mockResolvedValue({ 
-      id: 'response-123', 
-      pollId: 'test-poll-1', 
-      created_at: new Date().toISOString(), 
-      items: [] 
+    mockGetFormResponses.mockReturnValue([]);
+    mockAddFormResponse.mockResolvedValue({
+      id: 'response-123',
+      pollId: 'test-poll-1',
+      created_at: new Date().toISOString(),
+      items: []
     });
     mockSendVoteConfirmationEmail.mockResolvedValue();
   });
 
   test('validation des champs requis', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <MemoryRouter>
         <FormPollVote idOrSlug="test-poll" />
@@ -104,7 +106,7 @@ describe('FormPollVote - Tests stables', () => {
 
   test('flow avec email simplifié', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <MemoryRouter>
         <FormPollVote idOrSlug="test-poll" />
@@ -122,7 +124,7 @@ describe('FormPollVote - Tests stables', () => {
 
     const emailCheckbox = screen.getByRole('checkbox');
     await user.click(emailCheckbox);
-    
+
     const emailInput = screen.getByPlaceholderText('votremail@example.com');
     await user.type(emailInput, 'marie@example.com');
 

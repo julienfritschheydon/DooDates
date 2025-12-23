@@ -37,7 +37,7 @@ export const config = {
         screenshotOnIssue: true,
         waitBetweenActions: 1000,     // 1s between actions
         maxConsecutiveErrors: 5,      // Stop if too many errors in a row
-        excludeText: ['Login', 'Sign in', 'Se connecter', 'Connexion', 'Sign up', 'S\'inscrire', 'Activer le micro', 'micro', 'Joindre un fichier', 'Attach file'], // Avoid auth and blocking actions
+        excludeText: ['Login', 'Sign in', 'Se connecter', 'Connexion', 'Sign up', 'S\'inscrire', 'Activer le micro', 'micro', 'Joindre un fichier', 'Attach file', 'Prendre une photo', 'Fichier (photo/PDF)', 'Fichier', 'Upload'], // Avoid auth and blocking actions
         // Randomly switch screen sizes
         randomizeViewport: true,
     },

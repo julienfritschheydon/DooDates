@@ -160,6 +160,8 @@ const Theme = lazy(() => import("./pages/Theme"));
 const AdminQuotaDashboard = lazy(() => import("./pages/AdminQuotaDashboard"));
 const AdminUserActivity = lazy(() => import("./pages/AdminUserActivity"));
 const Admin = lazy(() => import("./pages/Admin"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 // Page Performance pour le dashboard historique
 const PerformancePage = lazy(() => import("./pages/Performance"));
@@ -700,7 +702,9 @@ const App = () => {
                                 <Route path="/privacy" element={<Privacy />} />
                                 <Route path="/security" element={<Security />} />
                                 <Route path="/support-policy" element={<SupportPolicy />} />
-                                
+                                <Route path="/about" element={<About />} />
+                                <Route path="/contact" element={<Contact />} />
+
                                 {/* Essential Pages - Redirect to date-polls by default */}
                                 <Route
                                   path="/data-control"
