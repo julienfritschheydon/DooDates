@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 23/12/2025 13:30:24
+**Dernière mise à jour:** 23/12/2025 19:21:55
 
-_Workflow run #794 (ID 20460757609) — génération UTC 2025-12-23T12:30:24.138Z_
+_Workflow run #795 (ID 20468433128) — génération UTC 2025-12-23T18:21:55.925Z_
 
-## 🎯 Focus: Commit `be9d472`
+## 🎯 Focus: Commit `572d22b`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #794 (ID 20460757609) — génération UTC 2025-12-23T12:30:24.138
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `be9d472`.
+Tous les workflows surveillés ont réussi pour le commit `572d22b`.
 
 ---
 
@@ -41,13 +41,13 @@ Tous les workflows surveillés ont réussi pour le commit `be9d472`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `be9d472`.
+Tous les workflows surveillés ont réussi pour le commit `572d22b`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `be9d472`
+- 🎯 **Focus: Commit actuel** `572d22b`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
