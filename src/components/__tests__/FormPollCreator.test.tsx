@@ -45,7 +45,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     localStorageMock.clear();
   });
 
-  it("should initialize with creator-only visibility by default", () => {
+  it("should initialize with creator-only visibility by default", async () => {
     render(
       <TestWrapper>
         <FormPollCreator
@@ -57,10 +57,10 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Check that creator-only radio is selected by default
-    FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
   });
 
-  it("should initialize with provided resultsVisibility from initialDraft", () => {
+  it("should initialize with provided resultsVisibility from initialDraft", async () => {
     const initialDraft = FormPollCreatorTestHelper.createTestDraft({
       resultsVisibility: "voters",
     });
@@ -77,14 +77,14 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Verify voters is selected
-    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("voters");
 
     // Verify others are not selected
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
   });
 
-  it("should update resultsVisibility when radio buttons are clicked", () => {
+  it("should update resultsVisibility when radio buttons are clicked", async () => {
     render(
       <TestWrapper>
         <FormPollCreator
@@ -96,20 +96,20 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Initially creator-only should be selected
-    FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("creator-only");
 
     // Click on voters radio
-    FormPollCreatorTestHelper.setResultsVisibility("voters");
-    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
+    await FormPollCreatorTestHelper.setResultsVisibility("voters");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
 
     // Click on public radio
-    FormPollCreatorTestHelper.setResultsVisibility("public");
-    FormPollCreatorTestHelper.expectVisibilityChecked("public");
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("voters");
+    await FormPollCreatorTestHelper.setResultsVisibility("public");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("public");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("voters");
   });
 
-  it("should include resultsVisibility in draft when onSave is called", () => {
+  it("should include resultsVisibility in draft when onSave is called", async () => {
     render(
       <TestWrapper>
         <FormPollCreator
@@ -121,7 +121,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Change visibility to voters
-    FormPollCreatorTestHelper.setResultsVisibility("voters");
+    await FormPollCreatorTestHelper.setResultsVisibility("voters");
 
     // Add a title and question to make the draft valid
     FormPollCreatorTestHelper.fillMinimumRequiredFields();
@@ -150,7 +150,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Change visibility to public
-    FormPollCreatorTestHelper.setResultsVisibility("public");
+    await FormPollCreatorTestHelper.setResultsVisibility("public");
 
     // Add a title and question to make the draft valid
     FormPollCreatorTestHelper.fillMinimumRequiredFields();
@@ -173,7 +173,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
   });
 
-  it("should show configuration panel when resultsVisibility options are displayed", () => {
+  it("should show configuration panel when resultsVisibility options are displayed", async () => {
     render(
       <TestWrapper>
         <FormPollCreator
@@ -185,10 +185,10 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Look for the results visibility section
-    FormPollCreatorTestHelper.expectConfigurationAccordionVisible();
+    await FormPollCreatorTestHelper.expectConfigurationAccordionVisible();
   });
 
-  it("should maintain resultsVisibility state when other form fields change", () => {
+  it("should maintain resultsVisibility state when other form fields change", async () => {
     const initialDraft = FormPollCreatorTestHelper.createTestDraft({
       title: "Initial Title",
       resultsVisibility: "voters",
@@ -206,7 +206,7 @@ describe("FormPollCreator - resultsVisibility", () => {
     );
 
     // Verify initial state
-    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("voters");
 
     // Change title
     FormPollCreatorTestHelper.setTitle("New Title");
@@ -215,8 +215,8 @@ describe("FormPollCreator - resultsVisibility", () => {
     FormPollCreatorTestHelper.addQuestion();
 
     // Verify resultsVisibility is still voters
-    FormPollCreatorTestHelper.expectVisibilityChecked("voters");
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
-    FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
+    await FormPollCreatorTestHelper.expectVisibilityChecked("voters");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("creator-only");
+    await FormPollCreatorTestHelper.expectVisibilityNotChecked("public");
   });
 });

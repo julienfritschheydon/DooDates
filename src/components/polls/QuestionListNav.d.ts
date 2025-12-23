@@ -3,6 +3,7 @@ export type QuestionListNavProps = {
   questions: Question[];
   activeId: string | null;
   onSelect: (id: string) => void;
+  onAdd?: () => void;
   modifiedQuestionId?: string | null;
 };
 export default function QuestionListNav({

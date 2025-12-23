@@ -1,4 +1,4 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
 import type { FormPollDraft } from "../../polls/FormPollCreator";
 
 /**
@@ -7,19 +7,35 @@ import type { FormPollDraft } from "../../polls/FormPollCreator";
  */
 export class FormPollCreatorTestHelper {
   /**
-   * Opens the configuration accordion where resultsVisibility options are located
+   * Opens the configuration accordion
    */
-  static openConfigurationAccordion(): void {
-    const configButton = screen.getByText(/Paramètres de configuration/);
+  static async openConfigurationAccordion(): Promise<void> {
+    // Find the button using role to access aria-expanded
+    // Note: partial match because of icon/structure
+    const configButton = screen.getByRole('button', { name: /Paramètres de configuration/i });
 
-    // Check if accordion is already open by looking for visibility radio buttons
-    try {
-      screen.getByDisplayValue("creator-only");
-      // Already open, don't click again
-      return;
-    } catch {
-      // Not open, click to open
+    if (configButton.getAttribute('aria-expanded') === 'false') {
       fireEvent.click(configButton);
+      // Wait for the panel content (tablist) to appear
+      await waitFor(() => {
+        expect(screen.getByRole('tablist')).toBeInTheDocument();
+      });
+    }
+  }
+
+  /**
+   * Switches to the visibility tab in settings
+   */
+  static async switchToVisibilityTab(): Promise<void> {
+    await this.openConfigurationAccordion();
+    const tab = screen.getByRole('tab', { name: /Visibilité/i });
+
+    if (tab.getAttribute('aria-selected') === 'false') {
+      fireEvent.click(tab);
+      // Wait for visibility content
+      await waitFor(() => {
+        expect(screen.getByText('Visibilité des résultats')).toBeInTheDocument();
+      });
     }
   }
 
@@ -48,8 +64,8 @@ export class FormPollCreatorTestHelper {
    * Sets the results visibility by clicking the appropriate radio button
    * @param visibility - The visibility to set
    */
-  static setResultsVisibility(visibility: "creator-only" | "voters" | "public"): void {
-    this.openConfigurationAccordion();
+  static async setResultsVisibility(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+    await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     fireEvent.click(radio);
   }
@@ -58,8 +74,8 @@ export class FormPollCreatorTestHelper {
    * Verifies that a specific visibility radio button is checked
    * @param visibility - The visibility that should be checked
    */
-  static expectVisibilityChecked(visibility: "creator-only" | "voters" | "public"): void {
-    this.openConfigurationAccordion();
+  static async expectVisibilityChecked(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+    await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     expect(radio).toBeChecked();
   }
@@ -68,8 +84,8 @@ export class FormPollCreatorTestHelper {
    * Verifies that a specific visibility radio button is NOT checked
    * @param visibility - The visibility that should NOT be checked
    */
-  static expectVisibilityNotChecked(visibility: "creator-only" | "voters" | "public"): void {
-    this.openConfigurationAccordion();
+  static async expectVisibilityNotChecked(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+    await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     expect(radio).not.toBeChecked();
   }
@@ -87,7 +103,7 @@ export class FormPollCreatorTestHelper {
    * Adds a question to the form
    */
   static addQuestion(): void {
-    const addQuestionButton = screen.getByText(/Ajouter une question/);
+    const addQuestionButton = screen.getByTestId("nav-add-question");
     fireEvent.click(addQuestionButton);
   }
 
@@ -110,12 +126,12 @@ export class FormPollCreatorTestHelper {
   /**
    * Verifies that the configuration accordion is visible and contains expected elements
    */
-  static expectConfigurationAccordionVisible(): void {
-    this.openConfigurationAccordion();
+  static async expectConfigurationAccordionVisible(): Promise<void> {
+    await this.switchToVisibilityTab();
     expect(screen.getByText(/Visibilité des résultats/)).toBeInTheDocument();
-    expect(screen.getByText("Moi uniquement")).toBeInTheDocument();
-    expect(screen.getByText("Personnes ayant voté")).toBeInTheDocument();
-    expect(screen.getByText("Public (tout le monde)")).toBeInTheDocument();
+    expect(screen.getByText("Créateur uniquement")).toBeInTheDocument();
+    expect(screen.getByText("Participants après vote")).toBeInTheDocument();
+    expect(screen.getByText("Public")).toBeInTheDocument();
   }
 
   /**

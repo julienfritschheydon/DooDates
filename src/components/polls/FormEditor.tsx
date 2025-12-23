@@ -190,6 +190,7 @@ export default function FormEditor({
         questions={value.questions}
         activeId={activeId}
         onSelect={setActiveId}
+        onAdd={onAddQuestion}
         modifiedQuestionId={modifiedQuestionId}
       />
 
@@ -215,17 +216,7 @@ export default function FormEditor({
         )}
       </div>
 
-      {/* Bouton ajouter question */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={onAddQuestion}
-          className="w-full rounded-lg bg-[#3c4043] border border-gray-700 px-4 py-3 text-white hover:bg-gray-700 transition-colors font-medium"
-          data-testid="form-add-question-button"
-        >
-          + Ajouter une question
-        </button>
-      </div>
+
 
       {/* Panneau de configuration - Après "Ajouter une question", avant les boutons */}
       {configPanel && <div className="pt-4">{configPanel}</div>}
