@@ -27,6 +27,10 @@ export interface InteractiveElement {
     text: string;
     type?: string;        // button, link, input, etc.
     isVisible: boolean;
+    isDisabled?: boolean;
+    placeholder?: string;
+    ariaLabel?: string;
+    value?: string;
     boundingBox?: {
         x: number;
         y: number;
@@ -104,7 +108,7 @@ export interface TestStats {
 
 /** Gemma response for action decision */
 export interface GemmaActionResponse {
-    action: TestAction;
+    actions: TestAction[];
     reasoning: string;
 }
 

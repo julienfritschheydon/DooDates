@@ -239,16 +239,18 @@ Q3. [Visible si Q1 = Oui]
             </pre>
           </div>
 
-          <h3 className="text-lg font-medium mb-3">Règles ET / OU</h3>
+          <h3 className="text-lg font-medium mb-3">Logique ET (AND)</h3>
           <div className="p-4 bg-purple-500/10 rounded-lg mb-6">
             <pre className="text-sm text-gray-300">
               {`Afficher Q5 si :
   (Q1 = "Non" ET Q2 contient "Prix")
-  OU
-  (Q3 < 3)
 
-→ Q5 visible si client insatisfait du prix OU note < 3/5`}
+→ Q5 visible seulement si les DEUX conditions sont vraies`}
             </pre>
+            <p className="text-xs text-gray-500 mt-3">
+              ⚠️ Note : Seule la logique ET est supportée actuellement.
+              Toutes les conditions doivent être vraies pour afficher la question.
+            </p>
           </div>
 
           <h3 className="text-lg font-medium mb-3">Bonnes pratiques</h3>
@@ -408,7 +410,7 @@ Q3. [Visible si Q1 = Oui]
           <h3 className="text-lg font-medium mb-3">Quotas par plan</h3>
           <div className="grid gap-3 md:grid-cols-4">
             <div className="p-3 bg-white/[0.02] rounded-lg text-center">
-              <p className="text-lg font-bold">5</p>
+              <p className="text-lg font-bold">100</p>
               <p className="text-xs text-gray-400">Invité</p>
             </div>
             <div className="p-3 bg-white/[0.02] rounded-lg text-center">

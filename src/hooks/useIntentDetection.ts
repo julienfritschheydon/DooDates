@@ -100,7 +100,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
 
       // 🎯 PRIORITÉ 1 : Vérifier d'abord le changement de type de sondage
       // Cela permet de détecter quand l'utilisateur change d'avis en cours de chat
-      const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(trimmedText, currentPoll);
+      const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(trimmedText, currentPoll as import("../types/poll").Poll);
 
       // Si confiance élevée (> 0.6), on fait confiance au résultat
       if (typeSwitchResult.isTypeSwitch && typeSwitchResult.confidence > 0.6) {
@@ -132,7 +132,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
 
         const aiResult = await PollTypeSwitchDetector.detectTypeSwitchWithAI(
           trimmedText,
-          currentPoll,
+          currentPoll as import("../types/poll").Poll,
         );
 
         if (aiResult && aiResult.isTypeSwitch && aiResult.confidence > 0.7) {
@@ -156,7 +156,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
       if (!typeSwitchResult.isTypeSwitch) {
         const aiResult = await PollTypeSwitchDetector.detectTypeSwitchWithAI(
           trimmedText,
-          currentPoll,
+          currentPoll as import("../types/poll").Poll,
         );
 
         if (aiResult && aiResult.isTypeSwitch && aiResult.confidence > 0.7) {
@@ -202,8 +202,8 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
 
         // Dispatcher toutes les actions détectées
         for (const intent of multiIntent.intents) {
-          const isAlreadyInPoll = previousDates.includes(intent.payload);
-          const isNotInPoll = !previousDates.includes(intent.payload);
+          const isAlreadyInPoll = previousDates.includes(intent.payload as string);
+          const isNotInPoll = !previousDates.includes(intent.payload as string);
 
           // 🔧 FIX BUG #3: Vérifier les doublons AVANT de dispatcher
           const icon = dateActionIcons[intent.action] || "✅";
@@ -224,7 +224,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           if (shouldDispatch) {
             onDispatchActionRef.current({
               type: intent.action as string,
-              payload: intent.payload,
+              payload: intent.payload as Record<string, unknown>,
             });
           }
 
@@ -251,7 +251,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
                 payload: i.payload,
                 explanation: i.explanation,
               })),
-            },
+            } as unknown as import("../lib/gemini").PollSuggestion,
             pollContext: {
               pollId: currentPoll.id,
               pollTitle: currentPoll.title,
@@ -276,34 +276,15 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           formIntent =
             aiIntent as import("../services/FormPollIntentService").FormModificationIntent; // Convertir au format FormModificationIntent
         } else {
-          // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
-          logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
-            message: trimmedText,
+          // Ni regex ni IA n'ont réussi à détecter une intention de MODIFICATION
+          // → C'est probablement une demande de CRÉATION de nouveau sondage
+          // → Retourner handled: false pour laisser Gemini générer le sondage
+          logger.info("ℹ️ Pas de modification détectée, passage à Gemini pour génération", "poll", {
+            message: trimmedText.substring(0, 50),
             aiConfidence: aiIntent?.confidence || 0,
           });
 
-          // Message d'erreur avec lien pour signaler
-          const errorMessage: Message = {
-            id: `ai-${Date.now()}`,
-            content: `❌ Je n'ai pas compris cette demande de modification. 
-
-Vous pouvez :
-- Reformuler votre demande plus simplement
-- [Signaler ce problème](mailto:support@doodates.app?subject=Modification non reconnue&body=Message: "${trimmedText}"%0A%0APoll: ${currentPoll.title})
-
-Exemples de modifications supportées :
-- "ajoute une question sur [sujet]"
-- "rends la question 3 obligatoire"
-- "supprime la question 2"
-- "change la question 1 en choix multiple"`,
-            isAI: true,
-            timestamp: new Date(),
-          };
-
-          return {
-            handled: true,
-            confirmMessage: errorMessage,
-          };
+          return { handled: false };
         }
       }
 
@@ -347,7 +328,7 @@ Exemples de modifications supportées :
             | "SET_REQUIRED"
             | "RENAME_QUESTION"
             | "REPLACE_POLL",
-          payload: payload,
+          payload: payload as Record<string, unknown>,
         });
 
         // Message de confirmation avec icon selon l'action
@@ -379,7 +360,7 @@ Exemples de modifications supportées :
               action: formIntent.action,
               payload: payload,
               explanation: formIntent.explanation,
-            },
+            } as unknown as import("../lib/gemini").PollSuggestion,
             pollContext: {
               pollId: currentPoll.id,
               pollTitle: currentPoll.title,

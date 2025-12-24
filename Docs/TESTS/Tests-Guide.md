@@ -4,6 +4,10 @@
 > **Dernière mise à jour** : 22 décembre 2025 (ajout ultra-simple-dispo et ultra-simple-quizz)
 
 RAPPEL: 
+
+# DEBUG GEMINI
+Dans la console: localStorage.setItem('GEMINI_DEBUG', 'true')
+
 # ✅ Compteur dans terminal + erreurs dans fichier séparé
 npm run test -- --run 2> test_errors.txt
 

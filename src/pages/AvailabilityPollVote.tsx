@@ -115,8 +115,9 @@ const AvailabilityPollVote = () => {
       setPollState(poll);
 
       // Check enforcement initial
-      // On utilise 0 pour responseCount si on ne sait pas encore, ou on peut essayer de compter
-      setClosureReason(getPollClosureReason(poll, 0));
+      // Pour les sondages de disponibilité, on vérifie si une réponse (clientAvailabilities) existe déjà
+      const responseCount = poll.clientAvailabilities ? 1 : 0;
+      setClosureReason(getPollClosureReason(poll, responseCount));
 
       // Vérifier périodiquement si des créneaux ont été proposés
       const interval = setInterval(() => {
@@ -125,7 +126,7 @@ const AvailabilityPollVote = () => {
           if (updatedPoll.proposedSlots && updatedPoll.proposedSlots.length > 0) {
             setPollState(updatedPoll);
           }
-          setClosureReason(getPollClosureReason(updatedPoll, 0));
+          setClosureReason(getPollClosureReason(updatedPoll, updatedPoll.clientAvailabilities ? 1 : 0));
         }
       }, 2000);
       return () => clearInterval(interval);

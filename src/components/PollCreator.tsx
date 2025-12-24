@@ -840,7 +840,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         {state.selectedDates.length > 0 && (
                           <button
                             onClick={handleAnalyzeCalendar}
-                            disabled={isAnalyzingCalendar}
+                            disabled={isAnalyzingCalendar || !user}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-600"
                           >
                             {isAnalyzingCalendar ? (
@@ -1064,6 +1064,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               return (
                                 <button
                                   key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                  aria-label={`${timeSlot.label} le ${PollCreatorService.formatSelectedDateHeader(dateStr, true).dayName} ${PollCreatorService.formatSelectedDateHeader(dateStr, true).dayNumber} ${PollCreatorService.formatSelectedDateHeader(dateStr, true).month}`}
                                   data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
@@ -1225,6 +1226,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               return (
                                 <button
                                   key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                  aria-label={`${timeSlot.label} le ${PollCreatorService.formatSelectedDateHeader(dateStr, false).dayName} ${PollCreatorService.formatSelectedDateHeader(dateStr, false).dayNumber} ${PollCreatorService.formatSelectedDateHeader(dateStr, false).month}`}
                                   data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
@@ -1332,7 +1334,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         {/* Paramètres d'affichage */}
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium text-white">Paramètres d'affichage</h3>
-                          
+
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
@@ -1366,7 +1368,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         {/* Contrôle d'accès */}
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium text-white">Contrôle d'accès</h3>
-                          
+
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
@@ -1386,7 +1388,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <User className="w-5 h-5 text-gray-400" />
@@ -1405,7 +1407,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <Eye className="w-5 h-5 text-gray-400" />
@@ -1426,11 +1428,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Limites */}
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium text-white">Limites</h3>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-300 mb-1">
                               Nombre maximum de réponses
@@ -1461,7 +1463,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         {/* Visibilité des résultats */}
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium text-white">Visibilité des résultats</h3>
-                          
+
                           <div className="space-y-3">
                             {[
                               {
@@ -1512,7 +1514,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         {/* Paramètres d'expiration */}
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium text-white">Expiration du sondage</h3>
-                          
+
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">

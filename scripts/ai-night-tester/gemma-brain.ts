@@ -1,7 +1,10 @@
 /**
  * AI Night Tester - Gemma Brain
  * 
- * Interface with Ollama/Gemma for AI-powered decision making
+ * Interface with Ollama for AI-powered decision making.
+ * Uses a dual-model approach: 
+ * - Fast model (e.g. Qwen 0.5B) for rapid navigation
+ * - Deep model (e.g. Gemma 2B) for thorough issue analysis
  */
 
 import { config } from './ai-night-tester.config';
@@ -13,20 +16,23 @@ import type {
     PageState,
     InteractiveElement,
 } from './types';
+import fs from 'fs';
 
 export class GemmaBrain {
     private baseUrl: string;
-    private model: string;
+    private fastModel: string;
+    private deepModel: string;
     private timeout: number;
 
     constructor() {
         this.baseUrl = config.ollama.baseUrl;
-        this.model = config.ollama.model;
+        this.fastModel = config.ollama.fastModel;
+        this.deepModel = config.ollama.deepModel;
         this.timeout = config.ollama.timeout;
     }
 
     /**
-     * Check if Ollama is running and Gemma is available
+     * Check if Ollama is running and models are available
      */
     async checkConnection(): Promise<boolean> {
         try {
@@ -39,16 +45,14 @@ export class GemmaBrain {
 
             const data = await response.json();
             const models = data.models || [];
-            const hasGemma = models.some((m: { name: string }) =>
-                m.name.includes('gemma')
-            );
+            const hasFast = models.some((m: { name: string }) => m.name.includes(this.fastModel.split(':')[0]));
+            const hasDeep = models.some((m: { name: string }) => m.name.includes(this.deepModel.split(':')[0]));
 
-            if (!hasGemma) {
-                console.warn(`⚠️ Gemma not found. Available models: ${models.map((m: { name: string }) => m.name).join(', ')}`);
-                console.warn(`Run: ollama pull ${this.model}`);
+            if (!hasFast || !hasDeep) {
+                console.warn(`⚠️ Missing models. Fast: ${hasFast}, Deep: ${hasDeep}`);
             }
 
-            return hasGemma;
+            return hasFast;
         } catch (error) {
             console.error('❌ Cannot connect to Ollama:', error);
             return false;
@@ -56,49 +60,50 @@ export class GemmaBrain {
     }
 
     /**
-     * Warm up the model by making a simple request
-     * This loads the model into memory so subsequent calls are fast
+     * Warm up the models
      */
     async warmUp(): Promise<void> {
-        try {
-            const response = await fetch(`${this.baseUrl}/api/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: this.model,
-                    prompt: 'Say OK',
-                    stream: false,
-                    options: { num_predict: 5 },
-                }),
-                signal: AbortSignal.timeout(60000), // 60s timeout for cold start
-            });
-
-            if (!response.ok) {
-                console.warn('⚠️ Warm-up request failed');
-            }
-        } catch (error) {
-            console.warn('⚠️ Warm-up failed:', error);
+        const models = [this.fastModel, this.deepModel];
+        for (const model of models) {
+            try {
+                await fetch(`${this.baseUrl}/api/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: 'Say OK',
+                        stream: false,
+                        options: { num_predict: 5 },
+                    }),
+                    signal: AbortSignal.timeout(60000),
+                });
+            } catch { /* ignore */ }
         }
     }
 
     /**
-     * Send a prompt to Gemma and get a response
+     * Send a prompt to Ollama and get a response
      */
-    private async generate(prompt: string): Promise<string> {
+    private async generate(prompt: string, modelType: 'fast' | 'deep' = 'fast'): Promise<string> {
         const startTime = Date.now();
-        console.log(`   📤 Sending to Ollama (${this.model})...`);
+        const model = modelType === 'fast' ? this.fastModel : this.deepModel;
+        console.log(`   📤 Sending to Ollama (${model})...`);
 
         const response = await fetch(`${this.baseUrl}/api/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: this.model,
+                model: model,
                 prompt,
                 stream: false,
                 options: {
-                    temperature: 0.3,
-                    num_predict: 200,  // Reduced for faster response
+                    temperature: modelType === 'fast' ? 0.0 : 0.1,
+                    top_p: 0.9,
+                    num_ctx: modelType === 'fast' ? 2048 : 4096, // Smaller context for fast model
+                    num_predict: modelType === 'fast' ? 20 : 512, // Very short for navigation
+                    stop: modelType === 'fast' ? ['\n'] : [],     // Stop early for nav
                 },
+                keep_alive: '10m', // Keep in memory for 10 minutes
             }),
             signal: AbortSignal.timeout(this.timeout),
         });
@@ -107,7 +112,7 @@ export class GemmaBrain {
 
         if (!response.ok) {
             console.log(`   ❌ Ollama error after ${elapsed}s: ${response.status}`);
-            throw new Error(`Ollama error: ${response.status} ${response.statusText}`);
+            throw new Error(`Ollama error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -116,234 +121,153 @@ export class GemmaBrain {
     }
 
     /**
-     * Decide the next action to take based on current page state
+     * Decide the next action using the FAST model
      */
     async decideNextAction(context: GemmaContext): Promise<GemmaActionResponse> {
-        console.log(`   📝 Building prompt (${context.currentPage.interactiveElements.length} elements)...`);
         const prompt = this.buildActionPrompt(context);
-        console.log(`   📝 Prompt length: ${prompt.length} chars`);
-
         try {
-            const response = await this.generate(prompt);
-            console.log(`   🔍 Parsing response...`);
-            const result = this.parseActionResponse(response, context.currentPage);
-            console.log(`   ✅ Action decided: ${result.action.type}`);
-            return result;
+            const response = await this.generate(prompt, 'fast');
+            return this.parseActionResponse(response, context.currentPage);
         } catch (error) {
-            console.error('   ❌ Error getting action from Gemma:', error);
-            console.log(`   🔄 Using fallback action...`);
+            console.error('   ❌ Error getting action:', error);
             return this.getFallbackAction(context.currentPage);
         }
     }
 
     /**
-     * Analyze if current state indicates a bug/issue
+     * Analyze for issues using the DEEP model
      */
     async analyzeForIssues(pageState: PageState): Promise<GemmaIssueResponse> {
-        // First check for obvious issues (no AI needed)
-        if (pageState.consoleErrors.length > 0) {
-            return {
-                isIssue: true,
-                severity: 'major',
-                description: `Console errors detected: ${pageState.consoleErrors.join('; ')}`,
-            };
-        }
+        if (pageState.consoleErrors.length > 0) return { isIssue: true, severity: 'major', description: 'Console errors detected' };
 
-        if (pageState.httpErrors.length > 0) {
-            const critical = pageState.httpErrors.some(e => e.status >= 500);
-            return {
-                isIssue: true,
-                severity: critical ? 'critical' : 'major',
-                description: `HTTP errors: ${pageState.httpErrors.map(e => `${e.status} ${e.url}`).join('; ')}`,
-            };
-        }
-
-        // Use Gemma for visual/behavioral analysis
         const prompt = this.buildIssueAnalysisPrompt(pageState);
-
         try {
-            const response = await this.generate(prompt);
+            const response = await this.generate(prompt, 'deep');
             return this.parseIssueResponse(response);
-        } catch (error) {
-            console.error('Error analyzing issues with Gemma:', error);
+        } catch {
             return { isIssue: false };
         }
     }
 
     /**
      * Build prompt for action decision
-     * @param context - Current testing context
-     * @param noveltyScores - Optional map of selector -> novelty score (0-1)
      */
     buildActionPrompt(context: GemmaContext, noveltyScores?: Map<string, number>): string {
         const { currentPage, recentActions, activeMission } = context;
 
-        // Simplify elements list with optional novelty indicators
-        const elements = currentPage.interactiveElements
-            .slice(0, 20)  // Limit to 20 elements
+        // FILTER: Remove disabled elements - they're wasted clicks (especially past dates)
+        const enabledElements = currentPage.interactiveElements.filter(el => !el.isDisabled);
+
+        const elements = enabledElements
+            .slice(0, 40)
             .map((el, i) => {
                 let noveltyTag = '';
                 if (noveltyScores) {
                     const score = noveltyScores.get(el.selector) ?? 1;
-                    if (score >= 0.8) noveltyTag = '🆕 ';      // Never clicked
-                    else if (score <= 0.3) noveltyTag = '🔁 '; // Frequently clicked
+                    if (score >= 0.8) noveltyTag = '🆕 ';
+                    else if (score <= 0.3) noveltyTag = '🔁 ';
                 }
-                return `${i + 1}. ${noveltyTag}[${el.type || el.tagName}] "${el.text.substring(0, 50)}"`;
+
+                const isField = el.type?.startsWith('input') || el.tagName === 'textarea';
+                const typeLabel = isField ? '[FIELD]' : '[UI]';
+                const status = el.isDisabled ? ' [DISABLED]' : '';
+                const placeholder = el.placeholder ? ` [PLH: "${el.placeholder}"]` : '';
+                const value = el.value ? ` [VAL: "${el.value}"]` : (isField ? ' [EMPTY]' : '');
+
+                return `${i + 1}. ${noveltyTag}${typeLabel} [${el.type || el.tagName}] "${el.text.substring(0, 40)}"${status}${placeholder}${value}`;
             })
             .join('\n');
 
-        const recentActionsStr = recentActions
-            .slice(-5)
-            .map(a => `- ${a.type}: ${a.description || a.selector || a.url}`)
-            .join('\n');
+        // DEBUG: Check what we send
+        console.log(`\n📋 [Elements (Top 40)]:\n${elements}`);
 
-        let missionInfo = '';
-        if (activeMission) {
-            missionInfo = `
-MISSION: ${activeMission.name}
-OBJECTIF: ${activeMission.goal}
-`;
-        }
+        const recentActionsStr = recentActions.slice(-5).map(a => `- ${a.type}: ${a.description || a.selector}`).join('\n');
 
-        const noveltyRule = noveltyScores
-            ? 'RÈGLE: PRIORISE les éléments 🆕 (nouveaux). ÉVITE les éléments 🔁 (déjà cliqués plusieurs fois).'
-            : 'RÈGLE: Choisis un élément nouveau si possible et avance vers l\'objectif de la mission.';
-
-        return `Testeur QA. Choisis le NUMÉRO de l'élément à cliquer.${missionInfo}
+        return `TON BUT: Remplir les formulaires et EXPLORER pour accomplir la mission.
+NOTE: Pour créer un sondage, tu DOIS: 1. Saisir un TITRE, 2. Choisir une seule DATE, 3. Cliquer sur PUBLIER LE SONDAGE.
+RÉPONDS UNIQUEMENT PAR LES IDs (ex: 1 ou 1,2,3).
+SI BESOIN D'ÉCRIRE: ID:TEXTE (ex: 1:Réunion Equipe).
+MAX 3 ACTIONS SÉPARÉES PAR DES VIRGULES.
 
 PAGE: ${currentPage.url}
+MISSIONS: ${activeMission?.goal || 'Explorer l\'app'}
 
 ÉLÉMENTS:
 ${elements}
 
-DERNIÈRES ACTIONS: ${recentActionsStr || 'aucune'}
-
-${noveltyRule}
-
-TA RÉPONSE (JUSTE LE NUMÉRO, ex: 1):`;
+TA RÉPONSE (IDs UNIQUEMENT):`;
     }
 
-
-    /**
-     * Build prompt for issue analysis
-     */
     private buildIssueAnalysisPrompt(pageState: PageState): string {
-        return `Testeur UX/UI Critique. Analyse cette page pour des défauts de DESIGN.
-
+        return `Testeur UX Expert. Analyse cette page pour des bugs visuels ou fonctionnels.
 URL: ${pageState.url}
-TITRE: ${pageState.title}
-
-CONTENU TEXTUEL (extrait):
-${pageState.bodyText.substring(0, 800)}
-
-CHERCHE CES PROBLÈMES (REGARD CRITIQUE):
-1. Incohérence de style (Mélange Anglais/Français, Majuscules aléatoires)
-2. Menu ou Header encombré ou cassé (ex: double hamburger, menu vide)
-3. Bouton sans texte explicite ou avec mauvaise couleur (ex: bouton bleu dans un thème violet)
-4. Texte de remplacement ("Lorem ipsum")
-5. Message d'erreur visible
-6. Débordement de contenu hors de l'écran (surtout sur mobile)
-
-RÉPONDS: "OK" si le design semble solide.
-SINON: "ISSUE: [Critique du design/UX]"`;
+TEXTE: ${pageState.bodyText.substring(0, 800)}
+RÉPONDS: "OK" ou "ISSUE: [Description]"`;
     }
 
-    /**
-     * Parse Gemma's action response (Numeric)
-     */
     private parseActionResponse(response: string, pageState: PageState): GemmaActionResponse {
-        try {
-            // Find first number in response
-            const match = response.match(/\d+/);
-            if (!match) throw new Error('No number found');
+        const actions: TestAction[] = [];
+        const parts = response.split(',').map(p => p.trim());
 
-            const index = parseInt(match[0], 10) - 1; // 1-based to 0-based
-            const element = pageState.interactiveElements[index];
+        // CRITICAL: Must use the SAME filtered list as buildActionPrompt for correct indexing
+        const enabledElements = pageState.interactiveElements.filter(el => !el.isDisabled);
 
-            if (!element) throw new Error(`Invalid element index: ${index}`);
+        for (const part of parts) {
+            try {
+                // Type action (NUM: TEXT)
+                const typeMatch = part.match(/^(\d+)\s*:\s*(.*)$/);
+                if (typeMatch) {
+                    const index = parseInt(typeMatch[1], 10) - 1;
+                    const value = typeMatch[2].trim();
+                    const element = enabledElements[index];
+                    if (element && (element.type?.startsWith('input') || element.tagName === 'textarea')) {
+                        actions.push({ type: 'type', selector: element.selector, value, description: `Type "${value}"` });
+                        continue;
+                    }
+                    if (element) {
+                        actions.push({ type: 'click', selector: element.selector, description: `Click on ${element.text}` });
+                        continue;
+                    }
+                }
 
-            return {
-                action: {
-                    type: 'click',
-                    selector: element.selector,
-                    description: `Click on "${element.text.substring(0, 50)}"`,
-                },
-                reasoning: `Selected action #${index + 1} from list`,
-            };
-        } catch (error) {
-            console.warn(`Failed to parse response "${response}":`, error);
-            return this.getFallbackAction(pageState);
+                // Click action (NUM)
+                const clickMatch = part.match(/^(\d+)$/);
+                if (clickMatch) {
+                    const index = parseInt(clickMatch[1], 10) - 1;
+                    const element = enabledElements[index];
+                    if (element) {
+                        actions.push({ type: 'click', selector: element.selector, description: `Click on ${element.text}` });
+                    }
+                }
+            } catch { /* skip invalid partial */ }
         }
+
+        if (actions.length > 0) {
+            return { actions, reasoning: `Combo: ${response}` };
+        }
+
+        return this.getFallbackAction(pageState);
     }
 
-    /**
-     * Parse Gemma's issue response (Text based)
-     */
     private parseIssueResponse(response: string): GemmaIssueResponse {
-        try {
-            if (response.includes('ISSUE:')) {
-                return {
-                    isIssue: true,
-                    severity: 'minor', // Verify manually
-                    description: response.replace('ISSUE:', '').trim(),
-                    suggestion: 'Check UI for reported issue',
-                };
-            }
-            return { isIssue: false };
-        } catch {
-            return { isIssue: false };
+        if (response.includes('ISSUE:')) {
+            return { isIssue: true, severity: 'minor', description: response.replace('ISSUE:', '').trim() };
         }
+        return { isIssue: false };
     }
 
-    /**
-     * Fallback action when Gemma fails
-     */
     private getFallbackAction(pageState: PageState): GemmaActionResponse {
-        // Find first clickable element
-        const clickable = pageState.interactiveElements.find(
-            el => el.isVisible && (el.type === 'button' || el.type === 'link')
-        );
-
-        if (clickable) {
-            return {
-                action: {
-                    type: 'click',
-                    selector: clickable.selector,
-                    description: `Click on ${clickable.text.substring(0, 30)}`,
-                },
-                reasoning: 'Fallback: clicking first available element',
-            };
-        }
-
-        // If no clickable, try to navigate to a priority route
-        return {
-            action: {
-                type: 'navigate',
-                url: config.priorityRoutes[Math.floor(Math.random() * config.priorityRoutes.length)],
-                description: 'Navigate to priority route',
-            },
-            reasoning: 'Fallback: no interactive elements found',
-        };
+        const clickable = pageState.interactiveElements.find(el => el.isVisible && !el.isDisabled);
+        if (clickable) return { actions: [{ type: 'click', selector: clickable.selector, description: `Fallback click` }], reasoning: 'Fallback' };
+        return { actions: [{ type: 'navigate', url: config.app.baseUrl, description: 'Return home' }], reasoning: 'Stuck' };
     }
 
-    /**
-     * Summarize the entire session into a narrative
-     */
     async summarizeSession(history: string): Promise<string> {
-        const prompt = `Tu es un Expert UX/UI critique (Nielsen Norman Group).
-Résume cette session de test en te concentrant sur l'EXPÉRIENCE UTILISATEUR et le DESIGN.
-Critique les couleurs (si mentionnées), la clarté des menus et le "Flow".
-
-CONTENU:
-${history.substring(0, 3000)}
-
-RÉPONDS en 3-4 phrases percutantes. Sois direct sur ce qui ne va pas.`;
-
         try {
-            const response = await this.generate(prompt);
-            return response || "Résumé indisponible.";
+            const response = await this.generate(`Résume en 2 phrases UX les points forts et faibles :\n${history}`, 'deep');
+            return response || "Pas de résumé.";
         } catch {
-            return "Échec de la génération du résumé.";
+            return "Échec résumé.";
         }
     }
 }

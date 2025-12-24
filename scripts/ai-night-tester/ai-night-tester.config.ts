@@ -8,8 +8,9 @@ export const config = {
     // Ollama settings
     ollama: {
         baseUrl: 'http://localhost:11434',
-        model: 'qwen2.5:0.5b',
-        timeout: 30000, // 30s is plenty for this tiny model
+        fastModel: 'qwen2.5:0.5b', // Very fast for navigation
+        deepModel: 'gemma2:2b',    // Smarter for issue analysis
+        timeout: 60000,
     },
 
     // Test duration
@@ -23,10 +24,10 @@ export const config = {
     app: {
         baseUrl: process.env.BASE_URL || 'http://localhost:8080/DooDates',
         startPages: [
-            '/',
             '/date-polls',
             '/form-polls',
             '/availability-polls',
+            '/quizz',
         ],
     },
 
@@ -35,11 +36,11 @@ export const config = {
         maxActionsPerPage: 10,        // Force navigate after N actions on same page
         screenshotOnEveryAction: false,
         screenshotOnIssue: true,
-        waitBetweenActions: 1000,     // 1s between actions
+        waitBetweenActions: 500,     // 0.5s between actions (was 1s)
         maxConsecutiveErrors: 5,      // Stop if too many errors in a row
-        excludeText: ['Login', 'Sign in', 'Se connecter', 'Connexion', 'Sign up', 'S\'inscrire', 'Activer le micro', 'micro', 'Joindre un fichier', 'Attach file', 'Prendre une photo', 'Fichier (photo/PDF)', 'Fichier', 'Upload'], // Avoid auth and blocking actions
+        excludeText: ['Login', 'Sign in', 'Se connecter', 'Connexion', 'Sign up', 'S\'inscrire', 'Activer le micro', 'micro', 'Joindre un fichier', 'Attach file', 'Prendre une photo', 'Fichier (photo/PDF)', 'Fichier', 'Upload', 'Passer à Pro', 'Nous contacter', 'Informations sur la confidentialité', 'Email', 'Français', 'Anglais', 'English', 'French', 'Language', 'Langue', 'Mentions légales', 'Conditions d\'utilisation', 'Privacy Policy', 'Cookie'], // Avoid auth, blocking actions, and distractions
         // Randomly switch screen sizes
-        randomizeViewport: true,
+        randomizeViewport: false,    // Disabled for stability during LLM heavy runs
     },
 
     // Screen sizes (Viewports)
@@ -73,6 +74,7 @@ export const config = {
 
     // Testing Missions
     missions: [
+        /* 
         {
             id: 'create_date_poll',
             name: 'Le Créateur (Sondage Dates)',
@@ -87,6 +89,7 @@ export const config = {
             goal: 'Suis cette séquence logique : 1. Va sur "/form-polls". 2. Clique sur "Créer un formulaire". 3. Tape "Questionnaire de satisfaction" dans le chat IA. 4. Clique sur "Ajouter" pour valider la création du formulaire. 5. Vérifie que les questions apparaissent.',
             successCondition: '/workspace/form',
         },
+        */
         {
             id: 'vote_flow',
             name: 'Le Votant (Parcours complet)',
@@ -94,6 +97,7 @@ export const config = {
             goal: 'Simule un votant réel : 1. Trouve un sondage accessible (ou va sur "/poll/demo" si dispo). 2. Saisis ton nom "AI Tester". 3. Coche des options disponibles. 4. Valide ton vote. 5. Vérifie la confirmation.',
             successCondition: 'Merci pour votre vote',
         },
+        /*
         {
             id: 'create_and_play_quiz',
             name: 'Le Candidat (Quiz)',
@@ -108,6 +112,7 @@ export const config = {
             goal: '1. Go to /availability-polls/workspace/availability, 2. Fill title "Team Sync", 3. Add availability options, 4. Click "Créer le sondage", 5. Click "Voir le sondage" (Eye icon) to open poll, 6. Click "M\'inscrire comme participant" or fill name, 7. Select slots, 8. Click "Envoyer mes disponibilités".',
             successCondition: '/poll/'
         },
+        */
         {
             id: 'vote_flow_dashboard',
             name: 'Le Votant - Dashboard',
@@ -122,9 +127,68 @@ export const config = {
             goal: '1. Go to /docs, 2. Click on "Guide de démarrage", 3. Read about Polls, 4. Click on "Date Polls", 5. Click on "Settings".',
             successCondition: '/docs'
         },
+        {
+            id: 'data_control_check',
+            name: 'L\'Auditeur Data RGPD',
+            personaId: 'power_user',
+            goal: 'Visite la page "/data-control" (Data Control). 1. Vérifie que la page charge sans erreur console. 2. Identifie les boutons d\'export ("Exporter mes données"). 3. Identifie les zones de suppression ("Supprimer mon compte"). 4. Ne clique PAS sur supprimer, mais vérifie la présence des modales de confirmation.',
+            successCondition: '/data-control'
+        },
+        {
+            id: 'vote_access_public',
+            name: 'Le Visiteur Public (Vote)',
+            personaId: 'new_user',
+            goal: 'Teste l\'accès public aux votes. 1. Accède à une URL de vote connue (ex: "/poll/demo-vote" ou via un lien Dashboard). 2. Vérifie que la page est accessible sans login. 3. Tente une interaction simple (clic sur une option). 4. Vérifie que l\'UI réagit (sélection visible).',
+            successCondition: 'option'
+        },
     ],
 
-    // Routes to test (priority order)
+    // Product groups for sequential testing (Date → Form → Availability → Quizz)
+    productGroups: [
+        {
+            id: 'date',
+            name: 'Sondages de Dates',
+            routes: [
+                '/date-polls',
+                '/date-polls/workspace/date',
+                '/date-polls/dashboard',
+                '/date-polls/settings',
+                '/date-polls/docs',
+            ],
+        },
+        {
+            id: 'form',
+            name: 'Formulaires',
+            routes: [
+                '/form-polls',
+                '/form-polls/workspace/form',
+                '/form-polls/dashboard',
+                '/form-polls/settings',
+                '/form-polls/docs',
+            ],
+        },
+        {
+            id: 'availability',
+            name: 'Disponibilités',
+            routes: [
+                '/availability-polls',
+                '/availability-polls/workspace/availability',
+                '/availability-polls/dashboard',
+                '/availability-polls/settings',
+                '/availability-polls/docs',
+            ],
+        },
+        {
+            id: 'quizz',
+            name: 'Quiz',
+            routes: [
+                '/quizz',
+                '/quizz/create',
+            ],
+        },
+    ],
+
+    // Routes to test (priority order) - flattened from productGroups
     priorityRoutes: [
         // Landing pages
         '/date-polls',

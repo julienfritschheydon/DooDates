@@ -49,6 +49,7 @@ async function main() {
     let headless = false;
     let clearMemory = false;
     let isTurbo = false;
+    let workerId = 'main';
 
     for (let i = 0; i < args.length; i++) {
         if (args[i] === '--duration' && args[i + 1]) {
@@ -61,6 +62,9 @@ async function main() {
             } else {
                 mode = 'bug-hunting';
             }
+            i++;
+        } else if (args[i] === '--worker-id' && args[i + 1]) {
+            workerId = args[i + 1];
             i++;
         } else if (args[i] === '--debug') {
             isDebug = true;
@@ -119,7 +123,8 @@ Examples:
     console.log(`   - Mode: ${modeEmoji} ${modeLabel}`);
     console.log(`   - Duration: ${Math.round(duration / 60000)} minutes`);
     console.log(`   - App URL: ${config.app.baseUrl}`);
-    console.log(`   - Model: ${config.ollama.model}`);
+    console.log(`   - Model (Fast): ${config.ollama.fastModel}`);
+    console.log(`   - Model (Deep): ${config.ollama.deepModel}`);
     console.log(`   - Debug mode: ${isDebug ? 'ON' : 'OFF'}`);
     console.log(`   - Clear memory: ${clearMemory ? 'YES' : 'NO'}`);
     console.log('');
@@ -144,7 +149,7 @@ Examples:
 
 To fix:
   1. Start Ollama:     ollama serve
-  2. Pull Gemma:       ollama pull ${config.ollama.model}
+  2. Pull Models:      ollama pull ${config.ollama.fastModel} && ollama pull ${config.ollama.deepModel}
   3. Run this script again
 `);
         process.exit(1);
@@ -157,9 +162,10 @@ To fix:
         mode,
         duration,
         clearMemory,
+        workerId,
         browserOptions: {
             headless,
-            slowMo: isTurbo ? 0 : 100
+            slowMo: isDebug ? 500 : 0
         }
     });
 

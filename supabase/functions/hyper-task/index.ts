@@ -439,21 +439,21 @@ serve(async (req) => {
     const geminiStartTime = Date.now();
     const parts = attachedFile
       ? [
-          {
-            inlineData: {
-              mimeType: attachedFile.mimeType,
-              data: attachedFile.contentBase64,
-            },
+        {
+          inlineData: {
+            mimeType: attachedFile.mimeType,
+            data: attachedFile.contentBase64,
           },
-          {
-            text: geminiPrompt,
-          },
-        ]
+        },
+        {
+          text: geminiPrompt,
+        },
+      ]
       : [
-          {
-            text: geminiPrompt,
-          },
-        ];
+        {
+          text: geminiPrompt,
+        },
+      ];
 
     const geminiResponse = await fetch(
       `${GEMINI_API_URL}?key=${geminiApiKey}`,
@@ -468,6 +468,11 @@ serve(async (req) => {
               parts,
             },
           ],
+          generationConfig: {
+            temperature: 1,
+            topK: 40,
+            topP: 0.95,
+          },
         }),
       },
     );

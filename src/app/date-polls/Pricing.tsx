@@ -44,29 +44,29 @@ export default function DatePollsPricing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-extrabold text-white mb-4">Tarifs DooDates1</h1>
-            <p className="text-xl text-gray-400">Choisissez le plan qui correspond à vos besoins</p>
+            <p className="text-xl text-gray-300">Choisissez le plan qui correspond à vos besoins</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Free Plan */}
-            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-blue-900/30">
+            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-blue-900/30 shadow-lg hover:shadow-blue-900/10 transition-shadow">
               <h3 className="text-2xl font-bold text-white mb-2">Gratuit</h3>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-blue-400">0€</span>
-                <span className="text-gray-400">/mois</span>
+                <span className="text-gray-300">/mois</span>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">5 sondages par mois</span>
+                  <span className="text-gray-200 font-medium tracking-wide">5 sondages par mois</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Jusqu'à 10 participants</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Jusqu'à 10 participants</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Créneaux horaires basiques</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Créneaux horaires basiques</span>
                 </li>
               </ul>
               <ProductButton
@@ -87,28 +87,28 @@ export default function DatePollsPricing() {
               <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-blue-400">9€</span>
-                <span className="text-gray-400">/mois</span>
+                <span className="text-gray-300">/mois</span>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Sondages illimités</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Sondages illimités</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Participants illimités</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Participants illimités</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Créneaux horaires avancés</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Créneaux horaires avancés</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Intégration calendrier</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Intégration calendrier</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Support prioritaire</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Support prioritaire</span>
                 </li>
               </ul>
               <ProductButton
@@ -122,7 +122,7 @@ export default function DatePollsPricing() {
             </div>
 
             {/* Enterprise Plan */}
-            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-blue-900/30">
+            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-blue-900/30 shadow-lg hover:shadow-blue-900/10 transition-shadow">
               <h3 className="text-2xl font-bold text-white mb-2">Entreprise</h3>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-blue-400">Sur mesure</span>
@@ -130,19 +130,19 @@ export default function DatePollsPricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Tout de Pro +</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Tout de Pro +</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">SSO / SAML</span>
+                  <span className="text-gray-200 font-medium tracking-wide">SSO / SAML</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">API dédiée</span>
+                  <span className="text-gray-200 font-medium tracking-wide">API dédiée</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">Support 24/7</span>
+                  <span className="text-gray-200 font-medium tracking-wide">Support 24/7</span>
                 </li>
               </ul>
               <ProductButton

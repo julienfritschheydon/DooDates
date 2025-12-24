@@ -102,11 +102,6 @@ export default function DatePollsDocumentation() {
                 Cliquez sur les dates dans le calendrier interactif. Ajoutez des créneaux horaires
                 si besoin (matin, après-midi, soir).
               </p>
-              <img
-                src="/DooDates/docs/images/date-poll-selection.png"
-                alt="Sélection des dates"
-                className="mt-4 rounded-lg border border-white/10 w-full"
-              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-blue-500/30 transition-colors">
@@ -161,8 +156,8 @@ export default function DatePollsDocumentation() {
               <div>
                 <h3 className="font-semibold mb-1">Créneaux horaires flexibles</h3>
                 <p className="text-sm text-gray-400">
-                  Ajoutez des plages horaires pour chaque date. Utilisez les raccourcis (Matin
-                  9h-12h, Après-midi 14h-17h, Soir 18h-21h) ou personnalisez.
+                  Ajoutez des plages horaires pour chaque date. Cliquez sur la grille horaire
+                  pour sélectionner les créneaux souhaités. Choisissez la granularité (15min, 30min, 1h).
                 </p>
               </div>
             </div>
@@ -230,8 +225,8 @@ export default function DatePollsDocumentation() {
             <div>
               <h4 className="font-medium mb-2">Comment ajouter des créneaux horaires ?</h4>
               <p className="text-sm text-gray-400">
-                Après avoir sélectionné une date, cliquez sur "+ Ajouter un horaire" ou utilisez les
-                boutons rapides Matin/Après-midi/Soir.
+                Après avoir sélectionné une date, une grille horaire apparaît. Cliquez sur les
+                créneaux souhaités dans la grille. Vous pouvez changer la granularité (15min, 30min, 1h).
               </p>
             </div>
             <div>
@@ -244,8 +239,9 @@ export default function DatePollsDocumentation() {
             <div>
               <h4 className="font-medium mb-2">Comment gérer les fuseaux horaires ?</h4>
               <p className="text-sm text-gray-400">
-                DooDates détecte automatiquement votre fuseau horaire. Pour les événements
-                internationaux, précisez le fuseau dans la description.
+                Actuellement, les horaires sont affichés dans le fuseau horaire du créateur.
+                Pour les événements internationaux, nous recommandons de préciser le fuseau dans le titre
+                ou la description (ex: "Horaires en heure de Paris").
               </p>
             </div>
             <div>
@@ -258,20 +254,6 @@ export default function DatePollsDocumentation() {
           </div>
         </div>
 
-        {/* Documentation avancée */}
-        <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-8 mb-8">
-          <h2 className="text-xl font-semibold mb-4">📚 Aller plus loin</h2>
-          <p className="text-gray-400 mb-4">
-            Consultez la documentation avancée pour des guides détaillés sur les raccourcis clavier,
-            les gestures mobile, la vue matricielle des résultats, et plus encore.
-          </p>
-          <Link
-            to="/date-polls/documentation/advanced"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-400 hover:bg-blue-500/30 transition-colors"
-          >
-            Documentation avancée →
-          </Link>
-        </div>
 
         {/* Quick Links */}
         <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-2xl p-8">

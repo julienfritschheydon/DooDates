@@ -437,7 +437,9 @@ export default function QuestionCard({
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
+          <label htmlFor={`kind-select-${question.id}`} className="sr-only">Type de question</label>
           <select
+            id={`kind-select-${question.id}`}
             aria-label="Type de question"
             className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
             value={question.kind}
@@ -520,14 +522,20 @@ export default function QuestionCard({
         </div>
       </div>
 
-      <input
-        className="w-full rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
-        placeholder="Intitulé de la question"
-        value={question.title}
-        onChange={(e) => setTitle(e.target.value)}
-        data-testid="question-title-input"
-        data-qid={question.id}
-      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={`title-input-${question.id}`} className="text-sm font-medium text-gray-400">
+          Intitulé de la question
+        </label>
+        <input
+          id={`title-input-${question.id}`}
+          className="w-full rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 outline-none"
+          placeholder="Entrez votre question ici..."
+          value={question.title}
+          onChange={(e) => setTitle(e.target.value)}
+          data-testid="question-title-input"
+          data-qid={question.id}
+        />
+      </div>
 
       {(question.kind === "single" || question.kind === "multiple") && (
         <div className="flex flex-col gap-2">
@@ -572,12 +580,15 @@ export default function QuestionCard({
             ))}
           </div>
           {question.kind === "multiple" && (
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-400">Max choix</label>
+            <div className="flex items-center gap-3 bg-[#2a2a2a] p-2 rounded-lg border border-gray-700/50 w-fit">
+              <label htmlFor={`max-choices-${question.id}`} className="text-sm font-medium text-gray-300">
+                Choix maximum :
+              </label>
               <input
+                id={`max-choices-${question.id}`}
                 type="number"
                 min={1}
-                className="w-16 sm:w-20 rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
+                className="w-16 sm:w-20 rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 outline-none"
                 value={question.maxChoices ?? 1}
                 onChange={(e) => setMaxChoices(parseInt(e.target.value, 10))}
                 data-testid="question-maxchoices"
@@ -592,16 +603,19 @@ export default function QuestionCard({
       {question.kind === "matrix" && (
         <div className="flex flex-col gap-3">
           {/* Matrix type selector */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-400">Type de réponse</label>
+          <div className="flex items-center gap-3">
+            <label htmlFor={`matrix-type-${question.id}`} className="text-sm font-medium text-gray-300">
+              Type de réponse :
+            </label>
             <select
+              id={`matrix-type-${question.id}`}
               aria-label="Type de réponse matrice"
-              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
+              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               value={question.matrixType ?? "single"}
               onChange={(e) => setMatrixType(e.target.value as "single" | "multiple")}
             >
-              <option value="single">Une seule réponse par ligne</option>
-              <option value="multiple">Plusieurs réponses par ligne</option>
+              <option value="single">Une seule par ligne</option>
+              <option value="multiple">Plusieurs par ligne</option>
             </select>
           </div>
 
@@ -699,58 +713,66 @@ export default function QuestionCard({
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             {/* Scale selector */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Échelle</label>
-              <select
-                aria-label="Échelle de notation"
-                className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
-                value={question.ratingScale ?? 5}
-                onChange={(e) => onChange({ ratingScale: parseInt(e.target.value, 10) })}
-              >
-                <option value={5}>1 à 5</option>
-                <option value={10}>1 à 10</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Scale selector */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`rating-scale-${question.id}`} className="text-sm font-medium text-gray-400">
+                  Échelle
+                </label>
+                <select
+                  id={`rating-scale-${question.id}`}
+                  aria-label="Échelle de notation"
+                  className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={question.ratingScale ?? 5}
+                  onChange={(e) => onChange({ ratingScale: parseInt(e.target.value, 10) })}
+                >
+                  <option value={5}>1 à 5</option>
+                  <option value={10}>1 à 10</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`rating-style-${question.id}`} className="text-sm font-medium text-gray-400">
+                  Style
+                </label>
+                <select
+                  id={`rating-style-${question.id}`}
+                  aria-label="Style de notation"
+                  className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={question.ratingStyle ?? "numbers"}
+                  onChange={(e) =>
+                    onChange({ ratingStyle: e.target.value as "numbers" | "stars" | "emojis" })
+                  }
+                >
+                  <option value="numbers">Chiffres</option>
+                  <option value="stars">Étoiles</option>
+                  <option value="emojis">Emojis</option>
+                </select>
+              </div>
             </div>
 
-            {/* Style selector */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Style</label>
-              <select
-                aria-label="Style de notation"
-                className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
-                value={question.ratingStyle ?? "numbers"}
-                onChange={(e) =>
-                  onChange({ ratingStyle: e.target.value as "numbers" | "stars" | "emojis" })
-                }
-              >
-                <option value="numbers">Chiffres</option>
-                <option value="stars">Étoiles</option>
-                <option value="emojis">Emojis</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Labels min/max */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Label min (optionnel)</label>
-              <input
-                type="text"
-                className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
-                placeholder="Ex: Pas du tout"
-                value={question.ratingMinLabel ?? ""}
-                onChange={(e) => onChange({ ratingMinLabel: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Label max (optionnel)</label>
-              <input
-                type="text"
-                className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
-                placeholder="Ex: Tout à fait"
-                value={question.ratingMaxLabel ?? ""}
-                onChange={(e) => onChange({ ratingMaxLabel: e.target.value })}
-              />
+            {/* Labels min/max */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400">Label min (optionnel)</label>
+                <input
+                  type="text"
+                  className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
+                  placeholder="Ex: Pas du tout"
+                  value={question.ratingMinLabel ?? ""}
+                  onChange={(e) => onChange({ ratingMinLabel: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400">Label max (optionnel)</label>
+                <input
+                  type="text"
+                  className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
+                  placeholder="Ex: Tout à fait"
+                  value={question.ratingMaxLabel ?? ""}
+                  onChange={(e) => onChange({ ratingMaxLabel: e.target.value })}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -775,11 +797,14 @@ export default function QuestionCard({
       {/* Text editor - Validation type */}
       {(question.kind === "text" || question.kind === "long-text") && (
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-400">Type de validation (optionnel)</label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`validation-type-${question.id}`} className="text-sm font-medium text-gray-400">
+              Type de validation
+            </label>
             <select
+              id={`validation-type-${question.id}`}
               aria-label="Type de validation"
-              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
+              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               value={question.validationType ?? ""}
               onChange={(e) =>
                 onChange({
@@ -789,7 +814,7 @@ export default function QuestionCard({
             >
               <option value="">Aucune validation</option>
               <option value="email">Email</option>
-              <option value="phone">Téléphone (format français)</option>
+              <option value="phone">Téléphone</option>
               <option value="url">URL</option>
               <option value="number">Nombre</option>
               <option value="date">Date</option>

@@ -21,7 +21,10 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PollSettingsForm } from "@/components/polls/PollSettingsForm";
 import type { AvailabilityPollSettings } from "@/lib/products/availability-polls/availability-polls-service";
-import { Settings } from "lucide-react";
+import { Settings as SettingsIcon, ChevronDown, ChevronRight } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { motion } from "framer-motion";
+
 
 interface AvailabilityPollCreatorContentProps {
   onBack?: (createdPoll?: StoragePoll) => void;
@@ -60,6 +63,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
   });
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   const handleCreate = (asDraft = false) => {
     if (!title.trim()) {
@@ -161,7 +165,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     <CardTitle className="text-2xl text-white">
                       Sondage Disponibilités créé !
                     </CardTitle>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-gray-300 mt-1">
                       Partagez le lien avec vos clients pour qu'ils indiquent leurs disponibilités.
                     </p>
                   </div>
@@ -174,7 +178,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     {publishedPoll.title}
                   </h3>
                   {publishedPoll.description && (
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-300 text-sm">
                       {publishedPoll.description}
                     </p>
                   )}
@@ -252,23 +256,6 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     Créer un autre sondage
                   </Button>
                 </div>
-
-                {/* Note Version actuelle */}
-                <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-green-400 mb-1">
-                        Version v1.0 - Optimisation automatique activée
-                      </p>
-                      <p className="text-sm text-green-300">
-                        Vos clients indiquent leurs disponibilités en texte libre. Le système
-                        propose automatiquement les créneaux optimaux depuis votre calendrier Google
-                        Calendar, selon les règles configurées.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -289,7 +276,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                   <Calendar className="w-6 h-6 text-green-500" />
                   Créer un Sondage Disponibilités
                 </CardTitle>
-                <p className="text-gray-400 mt-1">
+                <p className="text-gray-300 mt-1">
                   Vos clients indiquent leurs disponibilités, vous proposez les créneaux optimaux.
                 </p>
               </div>
@@ -327,36 +314,35 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
             {/* Règles intelligentes d'optimisation */}
             <SchedulingRulesForm rules={schedulingRules} onChange={setSchedulingRules} />
 
-            {/* Paramètres avancés */}
-            <div className="border-t border-gray-700 pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Settings className="w-5 h-5 text-gray-400" />
-                <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
-              </div>
-              <PollSettingsForm
-                settings={advancedSettings}
-                onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as AvailabilityPollSettings)}
-                pollType="date"
-              />
-            </div>
+            {/* Paramètres avancés - Collapsible */}
+            <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+              <CollapsibleTrigger asChild>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center justify-between p-4 bg-gray-700/50 rounded-lg border border-gray-600 hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-green-500/50 outline-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <SettingsIcon className="w-5 h-5 text-gray-300" />
+                    <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
+                  </div>
+                  {isAdvancedOpen ? (
+                    <ChevronDown className="w-5 h-5 text-gray-300" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-gray-300" />
+                  )}
+                </motion.button>
+              </CollapsibleTrigger>
 
-            {/* Informations Version actuelle */}
-            <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-green-400 mb-1">
-                    Version v1.0 - Optimisation automatique activée
-                  </p>
-                  <p className="text-sm text-green-300">
-                    Vos clients indiquent leurs disponibilités en texte libre.{" "}
-                    <strong>L'optimisation automatique avec intégration calendrier</strong> est
-                    maintenant active et utilise les règles configurées ci-dessus pour proposer les
-                    créneaux optimaux.
-                  </p>
+              <CollapsibleContent className="mt-2">
+                <div className="border border-gray-700 rounded-lg p-4">
+                  <PollSettingsForm
+                    settings={advancedSettings}
+                    onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as AvailabilityPollSettings)}
+                    pollType="date"
+                  />
                 </div>
-              </div>
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-600">

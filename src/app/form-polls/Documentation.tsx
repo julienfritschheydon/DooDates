@@ -116,11 +116,6 @@ export default function FormPollsDocumentation() {
                 Modifiez les questions, ajoutez des champs obligatoires, activez la logique
                 conditionnelle ou le mode multi-étapes.
               </p>
-              <img
-                src="/DooDates/docs/images/form-builder.png"
-                alt="Création de formulaire"
-                className="mt-4 rounded-lg border border-white/10 w-full"
-              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-purple-500/30 transition-colors">
@@ -237,8 +232,8 @@ export default function FormPollsDocumentation() {
             <div>
               <h4 className="font-medium mb-2">Comment fonctionne la logique conditionnelle ?</h4>
               <p className="text-sm text-gray-400">
-                Créez des règles "Si Q1 = Non → Afficher Q2". Combinez avec ET/OU pour des logiques
-                complexes. Testez avec la prévisualisation.
+                Créez des règles "Si Q1 = Non → Afficher Q2". Combinez plusieurs conditions avec ET
+                (toutes doivent être vraies). Testez avec la prévisualisation.
               </p>
             </div>
             <div>

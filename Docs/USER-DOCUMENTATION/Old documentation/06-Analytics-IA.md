@@ -71,16 +71,297 @@ Analytics IA est un système d'analyse automatique qui :
 
 ```
 ┌────────────────────────────────────────┐
-│  🤖 Conversations IA : 12 / 50         │
-│  ████████████░░░░░░░░░░░░░░░ 24%      │
+│  🤖 Conversations IA : 12 / 100        │
+│  ████████████░░░░░░░░░░░░░░░ 12%      │
 └────────────────────────────────────────┘
 ```
 
 **Quotas selon votre plan :**
-- 🆓 **Mode Invité** : 20 conversations (à vie)
+- 🆓 **Mode Invité** : 10 conversations (100 messages max)
 - 👤 **Compte Gratuit** : 1000 conversations (pas de reset mensuel)
 - 💼 **Pro** : Illimité
 - 🚀 **Premium** : Illimité + fonctionnalités avancées
+
+---
+
+## 💡 Insights Automatiques
+
+### Qu'est-ce qu'un Insight ?
+
+Un **insight** est une observation pertinente détectée automatiquement par l'IA.
+
+### Types d'Insights
+
+#### 1. Tendances Générales 📈
+
+**Exemple :**
+```
+💡 Tendance forte détectée
+"78% des répondants sont satisfaits ou très satisfaits.
+ Taux de satisfaction en hausse de +15% vs dernier trimestre."
+```
+
+**Quand il apparaît :**
+- Consensus fort (>70% dans une direction)
+- Évolution temporelle significative
+- Comparaison avec benchmarks
+
+---
+
+#### 2. Corrélations 🔗
+
+**Exemple :**
+```
+💡 Corrélation identifiée
+"Les personnes donnant une note NPS ≥ 9 mentionnent 
+ systématiquement 'rapidité' dans leurs commentaires positifs.
+ Corrélation : 0.87 (très forte)"
+```
+
+**Quand il apparaît :**
+- Lien fort entre 2+ questions
+- Pattern répété dans réponses texte
+- Segmentation par critère
+
+---
+
+#### 3. Anomalies 🚨
+
+**Exemple :**
+```
+⚠️ Anomalie détectée
+"Les réponses du 15 novembre montrent un taux de satisfaction 
+ de 32%, significativement inférieur à la moyenne de 76%.
+ 18 réponses concernées."
+```
+
+**Quand il apparaît :**
+- Écart important vs moyenne
+- Changement soudain
+- Groupe de réponses atypique
+
+---
+
+#### 4. Segmentation 👥
+
+**Exemple :**
+```
+💡 Différence de segment
+"Les utilisateurs de 25-34 ans sont 2x plus susceptibles 
+ de recommander le produit (NPS moyen: 8.2) que les 55+ (NPS: 4.1)"
+```
+
+**Quand il apparaît :**
+- Différences marquées entre groupes
+- Critère démographique pertinent fourni
+- Minimum 15 réponses par segment
+
+---
+
+#### 5. Points d'Amélioration 🎯
+
+**Exemple :**
+```
+🎯 Axe d'amélioration prioritaire
+"'Délai de livraison' mentionné dans 64% des commentaires négatifs.
+ Impact estimé sur NPS : -12 points si résolu."
+```
+
+**Quand il apparaît :**
+- Thème récurrent dans texte libre
+- Impact mesurable sur satisfaction
+- Action corrective possible
+
+---
+
+### Rafraîchir les Insights
+
+Les insights se mettent à jour automatiquement :
+- ✅ Toutes les 5 nouvelles réponses
+- ✅ Toutes les 24h (si > 50 réponses)
+- ✅ Sur demande via bouton "Actualiser"
+
+---
+
+## ⚡ Quick Queries
+
+### Qu'est-ce qu'une Quick Query ?
+
+Des **questions prédéfinies** pour analyse rapide sans rédiger de prompt.
+
+### Liste des Quick Queries
+
+#### 📊 Métriques Générales
+```
+❓ Combien de personnes ont répondu ?
+   → "127 réponses reçues entre le 1er et le 15 novembre"
+
+❓ Quel est le taux de complétion ?
+   → "89% des participants ont complété le formulaire (113/127)"
+
+❓ Temps de réponse moyen ?
+   → "3 minutes 42 secondes (médiane : 2min 15s)"
+```
+
+#### 📈 Satisfaction & NPS
+```
+❓ Quel est le score NPS global ?
+   → "NPS = +42 (Excellent)
+       Promoteurs: 58% | Passifs: 26% | Détracteurs: 16%"
+
+❓ Quelle est la satisfaction moyenne ?
+   → "4.2/5 étoiles (84% de satisfaction)"
+```
+
+#### 🔝 Top Réponses
+```
+❓ Quelle est la réponse la plus fréquente ?
+   → "Pour Q3, 'Qualité du service' a été choisie par 78% des répondants"
+
+❓ Quels sont les 3 points forts ?
+   → "1. Rapidité (mentionnée 45x)
+       2. Qualité (38x)
+       3. Prix compétitif (32x)"
+
+❓ Quels sont les 3 axes d'amélioration ?
+   → "1. SAV (23 mentions négatives)
+       2. Livraison (18x)
+       3. Disponibilité produits (15x)"
+```
+
+#### 📊 Comparaisons
+```
+❓ Compare les réponses par tranche d'âge
+   → "18-24: NPS +65 (très positif)
+       25-34: NPS +48 (positif)
+       35-44: NPS +32 (modéré)
+       45+: NPS +18 (faible)"
+
+❓ Y a-t-il une différence entre hommes et femmes ?
+   → "Satisfaction femmes: 4.5/5 | Satisfaction hommes: 3.8/5
+       Écart significatif (p < 0.05)"
+```
+
+---
+
+### Utiliser les Quick Queries
+
+**Méthode 1 : Clic Direct**
+1. Ouvrez le panneau Analytics IA
+2. Cliquez sur la question dans la liste
+3. L'IA analyse et répond en ~3 secondes
+
+**Méthode 2 : Recherche**
+```
+🔍 Rechercher une quick query...
+    "taux"
+    
+Résultats :
+  → Quel est le taux de complétion ?
+  → Quel est le taux de satisfaction moyen ?
+```
+
+---
+
+## 💬 Questions Libres
+
+### Poser Votre Propre Question
+
+Vous pouvez poser **n'importe quelle question** sur vos données.
+
+### Exemples de Questions Efficaces
+
+#### ✅ Bonnes Questions (Spécifiques)
+
+```
+"Quelle est la corrélation entre l'âge et la satisfaction ?"
+→ Analyse statistique précise
+
+"Les personnes ayant choisi 'Prix' comme point fort 
+ ont-elles un NPS plus élevé ?"
+→ Segmentation croisée
+
+"Quels mots reviennent le plus dans les commentaires négatifs ?"
+→ Analyse sémantique
+
+"Y a-t-il une tendance temporelle dans les réponses ?"
+→ Analyse chronologique
+```
+
+#### ❌ Questions Trop Vagues
+
+```
+"Analyse les résultats"
+→ Trop général, l'IA ne saura pas quoi prioriser
+
+"C'est bien ?"
+→ Pas de critère clair
+
+"Compare"
+→ Compare quoi avec quoi ?
+```
+
+---
+
+### Format de Réponse IA
+
+L'IA structure ses réponses en 3 parties :
+
+```
+1️⃣ RÉPONSE DIRECTE (1-2 phrases)
+   "Oui, corrélation forte (r=0.76) entre âge et satisfaction."
+
+2️⃣ DÉTAILS & CHIFFRES
+   • 18-24 ans : 4.6/5
+   • 25-34 ans : 4.2/5
+   • 35-44 ans : 3.8/5
+   • 45+ ans : 3.1/5
+
+3️⃣ RECOMMANDATIONS (si pertinent)
+   💡 Conseil : Adaptez votre communication selon la tranche d'âge.
+       Les 45+ semblent moins satisfaits → enquête qualitative recommandée.
+```
+
+---
+
+## 📊 Quotas et Limites
+
+### Comprendre les Quotas
+
+Une **"action IA"** consomme 1 crédit pour :
+- 1 insight généré automatiquement
+- 1 quick query exécutée
+- 1 question libre posée
+- 1 message dans l'assistant
+
+**Exemple de consommation :**
+```
+Actions dans une session :
+  • Ouverture Analytics IA → 3 insights automatiques (3 crédits)
+  • Clic sur 2 quick queries (2 crédits)
+  • Pose de 1 question libre (1 crédit)
+  
+Total : 6 crédits consommés
+```
+
+---
+
+### Quotas par Plan
+
+| Plan | Quota Conversations | Quota Messages | Détails |
+|------|-------------------|----------------|---------|
+| **🆓 Invité** | 10 | 100 | 10 conversations, max 100 messages/requêtes |
+| **👤 Gratuit** | 1000 | 10,000 | 1000 conversations (environ 10k messages) |
+| **💼 Pro** | Illimité | Illimité | Pas de limite |
+| **🚀 Premium** | Illimité | Illimité | + Features avancées |
+
+---
+
+### Que se passe-t-il quand j'atteins la limite ?
+
+#### Mode Invité (crédits épuisés)
+```
+⚠️ Quota IA épuisé
 
 ---
 

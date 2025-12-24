@@ -14,6 +14,8 @@ import { ReportGenerator } from './report-generator';
 import { NavigationMemory } from './navigation-memory';
 import { FeatureDiscovery } from './feature-discovery';
 import { config } from './ai-night-tester.config';
+import * as path from 'path';
+import * as fs from 'fs';
 import type {
     TestAction,
     PageState,
@@ -21,12 +23,14 @@ import type {
     GemmaContext,
     IssueSeverity,
     TesterMode,
+    InteractiveElement,
 } from './types';
 
 export interface OrchestratorOptions {
     mode: TesterMode;
     duration?: number;
     clearMemory?: boolean;
+    workerId?: string;
     browserOptions?: {
         headless?: boolean;
         slowMo?: number;
@@ -54,8 +58,19 @@ export class Orchestrator {
     private issueIdCounter = 0;
     private loggedAccessibilityIssues = new Set<string>();
     private activeMission: any | null = null;
+    private blacklistedSelectors = new Set<string>();
+
+    // Product rotation for sequential testing
+    private currentProductIndex = 0;
+    private productStartTime: number = Date.now();
+    private actionsInCurrentProduct = 0;
+    private readonly ACTIONS_PER_PRODUCT = 20; // Rotate after N actions per product
+    private workerId: string = 'main';
+    private isChaosMode: boolean = false;
 
     private missions = config.missions;
+    private analysisPromise: Promise<void> | null = null;
+    private backgroundScreenshotPath: string | null = null;
 
     constructor(options: OrchestratorOptions | number) {
         // Support legacy constructor (just duration)
@@ -65,6 +80,7 @@ export class Orchestrator {
         } else {
             this.mode = options.mode;
             this.duration = options.duration || config.duration.default;
+            this.workerId = options.workerId || 'main';
             this.browserOptions = options.browserOptions || {};
 
             // Clear memory if requested
@@ -104,7 +120,7 @@ export class Orchestrator {
         const ollamaOk = await this.brain.checkConnection();
         if (!ollamaOk) {
             console.error('❌ Ollama not available. Please run: ollama serve');
-            console.error(`   Then: ollama pull ${config.ollama.model}`);
+            console.error(`   Then: ollama pull ${config.ollama.deepModel}`);
             return;
         }
         console.log('✅ Ollama connected');
@@ -164,6 +180,13 @@ export class Orchestrator {
                 this.visitedUrls.add(pageState.url);
                 this.reporter.logPageVisit(pageState.url);
 
+                // Track page visit and check for Chaos Mode (Curiosity Gradient)
+                const visitCount = this.memory.recordPageVisit(pageState.url);
+                this.isChaosMode = visitCount > 10;
+                if (this.isChaosMode) {
+                    console.log(`🔥 [Worker-${this.workerId}] CHAOS MODE ACTIVATED (Visit count: ${visitCount})`);
+                }
+
                 // 2. Feature Discovery (Always active in background)
                 this.featureDiscovery.registerFeatures(
                     pageState.interactiveElements,
@@ -179,55 +202,126 @@ export class Orchestrator {
                     }
                 }
 
-                // 3. Check for automatic issues (only in bug-hunting mode)
+                // 3. Check for automatic issues (only in bug-hunting mode) - ASYNCHRONOUS
                 if (this.mode === 'bug-hunting') {
-                    await this.checkForIssues(pageState);
+                    if (!this.analysisPromise) {
+                        // Deep analysis only every 5 actions OR on first page load
+                        const shouldDeepAnalyze = (this.currentPageActions === 1 || this.recentActions.length % 5 === 0);
+
+                        // We take a snapshot-specific name
+                        const timestamp = Date.now();
+                        const screenshotName = `bg-analysis-${timestamp}`;
+
+                        // Start background analysis
+                        this.analysisPromise = (async () => {
+                            // Take screenshot for context
+                            const preCapturedPath = await this.browser.screenshot(screenshotName);
+                            await this.checkForIssues(pageState, preCapturedPath, shouldDeepAnalyze);
+                        })().catch(e => console.error('⚠️ Background analysis error:', e))
+                            .finally(() => {
+                                this.analysisPromise = null;
+                            });
+                    }
                 }
 
-                // 4. Build novelty scores for smart navigation
-                const noveltyScores = new Map<string, number>();
-                for (const el of pageState.interactiveElements) {
-                    noveltyScores.set(el.selector, this.memory.getNoveltyScore(el.selector, pageState.url));
-                }
+                // 4. Build prioritised element list with semantic and visual scores
+                const priorities = new Map<string, number>();
+                pageState.interactiveElements = pageState.interactiveElements.filter(el => {
+                    if (this.blacklistedSelectors.has(el.selector)) return false;
+
+                    const novelty = this.memory.getNoveltyScore(el.selector, pageState.url);
+                    const semanticWeight = this.calculateSemanticWeight(el);
+                    const visualWeight = this.calculateVisualWeight(el, pageState.viewport);
+
+                    // --- STATE-CHANGE PENALTY ---
+                    let stateChangePenalty = 0;
+                    if (el.type === 'link') {
+                        // Penalize leaving the page too early (e.g. before 3 actions)
+                        if (this.currentPageActions < 3) {
+                            stateChangePenalty = 0.3;
+                        }
+
+                        // Heavier penalty if the link goes to a recently visited URL (anti-ping-pong)
+                        const lastUrl = this.recentActions.length > 0 ? this.recentActions[this.recentActions.length - 1].url : null;
+                        if (lastUrl && el.text.toLowerCase().includes('retour') || el.text.toLowerCase().includes('home')) {
+                            stateChangePenalty += 0.2;
+                        }
+                    }
+
+                    // Final priority score
+                    const totalPriority = (novelty * 0.4) + (semanticWeight * 0.4) + (visualWeight * 0.2) - stateChangePenalty;
+                    priorities.set(el.selector, totalPriority);
+                    return true;
+                });
+
+                // Sort elements by priority for the prompt
+                pageState.interactiveElements.sort((a, b) =>
+                    (priorities.get(b.selector) || 0) - (priorities.get(a.selector) || 0)
+                );
 
                 // 5. Ask Gemma for next action with novelty hints
+                let currentObjective = this.mode === 'feature-discovery'
+                    ? 'Explorer toutes les pages et découvrir tous les boutons/liens'
+                    : (this.activeMission?.goal || 'Explorer l\'application librement');
+
+                if (this.isChaosMode) {
+                    currentObjective = `🔥 STABLE PAGE DETECTED. GO CRAZY: ${currentObjective}. Trigger edge cases, rapid double-clicks, invalid inputs, and unexpected navigation patterns. Don't be professional, be a destructive tester.`;
+                }
+
                 const context: GemmaContext = {
                     currentPage: pageState,
                     recentActions: this.recentActions.slice(-5),
                     visitedUrls: Array.from(this.visitedUrls),
-                    currentObjective: this.mode === 'feature-discovery'
-                        ? 'Explorer toutes les pages et découvrir tous les boutons/liens'
-                        : (this.activeMission?.goal || 'Explorer l\'application librement'),
+                    currentObjective,
                     activeMission: this.mode === 'bug-hunting' ? this.activeMission : undefined,
                 };
 
                 console.log(`\n🤖 Asking Gemma for next action...`);
                 const decision = await this.brain.decideNextAction(context);
-                console.log(`   → ${decision.action.type}: ${decision.action.description || decision.action.selector}`);
+                console.log(`   📥 Decision: ${decision.actions.length} actions predicted`);
                 console.log(`   Reason: ${decision.reasoning}`);
 
-                // 6. Execute the action
-                const success = await this.browser.executeAction(decision.action);
+                // 6. Execute the action batch
+                let lastSuccess = true;
+                for (const action of decision.actions) {
+                    if (!this.isRunning || this.isTimeUp()) break;
 
-                // 7. Record interaction in memory
-                if (decision.action.type === 'click' && decision.action.selector) {
-                    const element = pageState.interactiveElements.find(el => el.selector === decision.action.selector);
-                    if (element) {
-                        this.memory.recordInteraction(element, pageState.url, success);
+                    console.log(`   🎯 Executing: ${action.type} - ${action.description || action.selector}`);
+                    const success = await this.browser.executeAction(action);
+                    lastSuccess = success;
+
+                    // 7. Record interaction in memory
+                    if (action.type === 'click' && action.selector) {
+                        const element = pageState.interactiveElements.find(el => el.selector === action.selector);
+                        if (element) {
+                            this.memory.recordInteraction(element, pageState.url, success);
+                        }
+
+                        // Also record in feature discovery
+                        if (action.selector) {
+                            this.featureDiscovery.recordInteraction(action.selector, pageState.url);
+                        }
                     }
 
-                    // Also record in feature discovery (always)
-                    if (decision.action.selector) {
-                        this.featureDiscovery.recordInteraction(decision.action.selector, pageState.url);
+                    // 8. Log the action
+                    this.recentActions.push(action);
+                    this.reporter.logAction(action, success);
+
+                    // 9. BREAK BATCH if navigation occurred (URL changed)
+                    const currentUrl = await this.browser.getCurrentUrl();
+                    if (currentUrl !== pageState.url) {
+                        console.log(`   📍 Navigation detected (${currentUrl}). Breaking batch.`);
+                        break;
                     }
+
+                    // Small wait between batch actions
+                    await new Promise(r => setTimeout(r, 100));
                 }
 
-                // 8. Log the action
-                this.recentActions.push(decision.action);
                 if (this.recentActions.length > 50) {
                     this.recentActions = this.recentActions.slice(-30);
                 }
-                this.reporter.logAction(decision.action, success);
+
                 this.currentPageActions++;
 
                 // Random viewport resize (15% chance)
@@ -236,10 +330,11 @@ export class Orchestrator {
                     await this.browser.executeAction({ type: 'resize' });
                 }
 
-                if (success) {
+                if (lastSuccess) {
                     this.consecutiveErrors = 0;
                 } else {
                     this.consecutiveErrors++;
+                    console.warn(`⚠️ Action failed (${this.consecutiveErrors}/5)`);
                     if (this.consecutiveErrors >= config.behavior.maxConsecutiveErrors) {
                         console.warn('⚠️ Too many consecutive errors, forcing navigation...');
                         await this.forceNavigate();
@@ -247,8 +342,9 @@ export class Orchestrator {
                 }
 
                 // Detect frustration (rage clicks) - only in bug-hunting mode
-                if (this.mode === 'bug-hunting') {
-                    this.detectFrustration(decision.action);
+                const lastAction = decision.actions[decision.actions.length - 1];
+                if (this.mode === 'bug-hunting' && lastAction) {
+                    this.detectFrustration(lastAction);
                 }
 
                 // Handle blocked file uploads
@@ -257,19 +353,19 @@ export class Orchestrator {
                     if (new Date().getTime() - lastBlocked.getTime() < 2000) {
                         console.log('🚫 Last action triggered a blocked file upload. Adding to exclusion list.');
 
-                        if (this.mode === 'bug-hunting') {
+                        if (this.mode === 'bug-hunting' && lastAction) {
                             await this.logIssue({
                                 type: 'behavior_bug',
                                 severity: 'major',
                                 title: 'Blocking Interaction: File Upload',
-                                description: `Action "${decision.action.description}" triggered a native file picker.`,
+                                description: `Action "${lastAction.description}" triggered a native file picker.`,
                                 pageUrl: pageState.url || 'unknown',
                                 aiAnalysis: 'Avoid interacting with this element type in automated tests.',
                             });
                         }
 
-                        if (decision.action.description) {
-                            const textMatch = decision.action.description.split(': ')[1];
+                        if (lastAction?.description) {
+                            const textMatch = lastAction.description.split(': ')[1];
                             if (textMatch) {
                                 config.behavior.excludeText.push(textMatch.trim());
                             }
@@ -328,7 +424,7 @@ export class Orchestrator {
     /**
      * Check current page for issues (bug-hunting mode)
      */
-    private async checkForIssues(pageState: PageState): Promise<void> {
+    private async checkForIssues(pageState: PageState, backgroundScreenshot?: string, forceDeepAnalyze?: boolean): Promise<void> {
         // Console errors
         for (const error of pageState.consoleErrors) {
             await this.logIssue({
@@ -337,6 +433,7 @@ export class Orchestrator {
                 title: 'Console Error',
                 description: error,
                 pageUrl: pageState.url,
+                explicitScreenshotPath: backgroundScreenshot
             });
         }
 
@@ -349,6 +446,7 @@ export class Orchestrator {
                 title: `HTTP ${httpError.status} Error`,
                 description: `${httpError.statusText}: ${httpError.url}`,
                 pageUrl: pageState.url,
+                explicitScreenshotPath: backgroundScreenshot
             });
         }
 
@@ -368,21 +466,29 @@ export class Orchestrator {
                     description: `${violation.description} (${violation.help}) on ${violation.nodes.length} elements`,
                     pageUrl: pageState.url,
                     aiAnalysis: `Fix: ${violation.help}`,
+                    explicitScreenshotPath: backgroundScreenshot
                 });
             }
         }
 
-        // AI Analysis
-        const analysis = await this.brain.analyzeForIssues(pageState);
-        if (analysis.isIssue) {
-            await this.logIssue({
-                type: 'behavior_bug',
-                severity: analysis.severity || 'minor',
-                title: 'UX/UI Issue (AI Detected)',
-                description: analysis.description || 'Potential issue detected by AI',
-                pageUrl: pageState.url,
-                aiAnalysis: analysis.suggestion,
-            });
+        // AI Analysis - Only every 5 actions or on specific triggers
+        const shouldAnalyze = forceDeepAnalyze ?? (this.currentPageActions === 1 || this.recentActions.length % 5 === 0);
+
+        if (shouldAnalyze) {
+            console.log(`🧠 [Background] Deep AI analysis starting for ${pageState.url}...`);
+            const analysis = await this.brain.analyzeForIssues(pageState);
+            if (analysis.isIssue) {
+                await this.logIssue({
+                    type: 'behavior_bug',
+                    severity: analysis.severity || 'minor',
+                    title: 'UX/UI Issue (AI Detected)',
+                    description: analysis.description || 'Potential issue detected by AI',
+                    pageUrl: pageState.url,
+                    aiAnalysis: analysis.suggestion,
+                    explicitScreenshotPath: backgroundScreenshot
+                });
+            }
+            console.log(`✅ [Background] Deep AI analysis complete.`);
         }
     }
 
@@ -396,11 +502,14 @@ export class Orchestrator {
         description: string;
         pageUrl: string;
         aiAnalysis?: string;
+        explicitScreenshotPath?: string;
     }): Promise<void> {
         const issueId = `issue-${++this.issueIdCounter}`;
 
-        let screenshotPath: string | undefined;
-        if (config.behavior.screenshotOnIssue) {
+        let screenshotPath: string | undefined = params.explicitScreenshotPath;
+
+        // If no pre-captured screenshot, take one now (only if we're not in the middle of a background analysis)
+        if (!screenshotPath && config.behavior.screenshotOnIssue) {
             try {
                 screenshotPath = await this.browser.screenshot(issueId);
             } catch { /* ignore */ }
@@ -424,28 +533,67 @@ export class Orchestrator {
     }
 
     /**
-     * Navigate to a new unexplored page
+     * Navigate to a new unexplored page (with product rotation)
      */
     private async navigateToNewPage(): Promise<void> {
-        const unvisited = config.priorityRoutes.filter(
+        // Check if we should rotate to the next product
+        this.actionsInCurrentProduct++;
+        if (this.actionsInCurrentProduct >= this.ACTIONS_PER_PRODUCT) {
+            this.rotateToNextProduct();
+        }
+
+        const currentProduct = config.productGroups[this.currentProductIndex];
+        const productRoutes = currentProduct?.routes || config.priorityRoutes;
+
+        // EXCLUSION LIST: Skip poll workspaces
+        const excludedPaths = [
+            '/date-polls/workspace'
+        ];
+
+        // Find unvisited routes within current product
+        const unvisited = productRoutes.filter(
             route => !this.visitedUrls.has(route) &&
-                !this.visitedUrls.has(config.app.baseUrl + route)
+                !this.visitedUrls.has(config.app.baseUrl + route) &&
+                !excludedPaths.some(p => route.startsWith(p))
         );
 
         if (unvisited.length > 0) {
             const next = unvisited[0];
-            console.log(`📍 Navigating to unvisited route: ${next}`);
+            console.log(`📍 [${currentProduct?.name || 'Global'}] Navigating to unvisited: ${next}`);
             await this.browser.navigate(next);
             this.visitedUrls.add(next);
         } else {
-            const random = config.priorityRoutes[
-                Math.floor(Math.random() * config.priorityRoutes.length)
-            ];
-            console.log(`📍 Revisiting route: ${random}`);
-            await this.browser.navigate(random);
+            // All routes in current product visited, pick random from current product
+            // Filter exclusions here too
+            const performantRoutes = productRoutes.filter(r => !excludedPaths.some(p => r.startsWith(p)));
+
+            if (performantRoutes.length > 0) {
+                const random = performantRoutes[Math.floor(Math.random() * performantRoutes.length)];
+                console.log(`📍 [${currentProduct?.name || 'Global'}] Revisiting: ${random}`);
+                await this.browser.navigate(random);
+            } else {
+                console.warn(`⚠️ No valid routes found for product ${currentProduct?.name}. Force navigating to home.`);
+                await this.forceNavigate();
+            }
         }
 
         this.currentPageActions = 0;
+    }
+
+    /**
+     * Rotate to the next product in the sequence
+     */
+    private rotateToNextProduct(): void {
+        const previousProduct = config.productGroups[this.currentProductIndex];
+        this.currentProductIndex = (this.currentProductIndex + 1) % config.productGroups.length;
+        const nextProduct = config.productGroups[this.currentProductIndex];
+
+        console.log(`\n🔄 ═══════════════════════════════════════════`);
+        console.log(`   PRODUCT ROTATION: ${previousProduct?.name} → ${nextProduct?.name}`);
+        console.log(`═══════════════════════════════════════════════\n`);
+
+        this.actionsInCurrentProduct = 0;
+        this.productStartTime = Date.now();
     }
 
     /**
@@ -510,6 +658,9 @@ export class Orchestrator {
             const mdPath = this.featureDiscovery.exportToMarkdown();
             console.log(`   JSON: ${jsonPath}`);
             console.log(`   Markdown: ${mdPath}`);
+
+            // Auto-update main documentation
+            this.featureDiscovery.updateDocumentation(this.featureDiscovery.buildCatalog());
         } else {
             console.log('   (No features discovered to export)');
         }
@@ -572,7 +723,8 @@ export class Orchestrator {
         );
 
         if (isRageClick) {
-            console.warn(`🤬 Rage Click détecté sur: ${action.selector}`);
+            console.warn(`🤬 Rage Click détecté sur: ${action.selector}. Ajout à la liste noire temporaire.`);
+            this.blacklistedSelectors.add(action.selector);
             this.logIssue({
                 type: 'behavior_bug',
                 severity: 'minor',
@@ -580,6 +732,74 @@ export class Orchestrator {
                 description: `L'utilisateur a cliqué 3 fois de suite sur "${action.selector}". Soit l'interface est lente, soit le bouton ne semble pas fonctionner.`,
                 pageUrl: 'current',
             });
+            return;
         }
+
+        // Detect Ping-Pong Loop (A -> B -> A -> B)
+        const last4 = this.recentActions.slice(-4);
+        if (last4.length === 4) {
+            const [a1, b1, a2, b2] = last4;
+            if (a1.selector && b1.selector && a1.selector === a2.selector && b1.selector === b2.selector && a1.selector === action.selector) {
+                console.warn(`🏓 Ping-Pong détecté entre: ${a1.selector} et ${b1.selector}. Blacklisting.`);
+                this.blacklistedSelectors.add(a1.selector);
+                this.blacklistedSelectors.add(b1.selector);
+                this.logIssue({
+                    type: 'behavior_bug',
+                    severity: 'minor',
+                    title: 'UX: Boucle Ping-Pong Détectée',
+                    description: `L'IA alterne en boucle entre "${a1.selector}" et "${b1.selector}". Ces éléments sont désormais ignorés pour forcer l'exploration.`,
+                    pageUrl: 'current',
+                });
+            }
+        }
+    }
+
+    /**
+     * Boost elements with "action" keywords, penalize "distraction" keywords
+     */
+    private calculateSemanticWeight(el: InteractiveElement): number {
+        const text = (el.text + ' ' + (el.ariaLabel || '') + ' ' + (el.placeholder || '')).toLowerCase();
+
+        const actionKeywords = ['créer', 'create', 'suivant', 'next', 'envoyer', 'send', 'publier', 'publish', 'découvrir', 'discover', 'continuer', 'continue', 'valider', 'submit', 'ok', 'participer', 'tester', 'save', 'enregistrer', 'titre', 'title'];
+        const distractionKeywords = ['fermer', 'close', 'annuler', 'cancel', 'menu', 'français', 'english', 'langue', 'language', 'mentions', 'cookies', 'vitesse', 'mode', 'propos', 'about', 'contact', 'légales', 'conditions', 'privacy', 'sécurité', 'security', 'aide', 'help', 'cgu', 'confidentialité', 'support'];
+
+        let weight = 0.5; // Base weight
+
+        if (actionKeywords.some(kw => text.includes(kw))) weight += 0.5;
+        if (distractionKeywords.some(kw => text.includes(kw))) weight -= 0.6; // Heavier penalty
+
+        if (text.includes('titre') || text.includes('title')) weight += 0.6;
+        if (text.includes('publier') || text.includes('publish')) weight += 0.8;
+
+        // CRITICAL: Heavy boost for "Mois suivant"
+        if (text.includes('mois suivant') || text.includes('next month')) {
+            weight += 0.8;
+        } else if (text.includes('mois') || /\d+/.test(text)) {
+            weight += 0.4;
+        }
+
+        // Bias: Inputs are usually more important than links during exploration
+        if (el.type?.startsWith('input')) weight += 0.2;
+
+        return Math.max(0.1, Math.min(1.0, weight));
+    }
+
+    /**
+     * Prioritize elements near the center-top of the screen (human-like visual bias)
+     */
+    private calculateVisualWeight(el: InteractiveElement, viewport?: { width: number, height: number }): number {
+        if (!el.boundingBox || !viewport) return 0.5;
+
+        const centerX = viewport.width / 2;
+        const centerY = viewport.height / 3;
+
+        const elCenterX = el.boundingBox.x + el.boundingBox.width / 2;
+        const elCenterY = el.boundingBox.y + el.boundingBox.height / 2;
+
+        const distMax = Math.sqrt(Math.pow(viewport.width, 2) + Math.pow(viewport.height, 2));
+        const dist = Math.sqrt(Math.pow(centerX - elCenterX, 2) + Math.pow(centerY - elCenterY, 2));
+
+        // Invert distance: 0 distance = 1.0 weight, max distance = 0.0 weight
+        return 1.0 - (dist / distMax);
     }
 }

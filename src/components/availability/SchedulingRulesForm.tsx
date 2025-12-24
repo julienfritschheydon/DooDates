@@ -183,7 +183,18 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card className="bg-[#2a2a2a] border-gray-700">
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-[#333] transition-all duration-200 group border-b border-gray-700">
+          <CardHeader
+            role="button"
+            tabIndex={0}
+            aria-expanded={isOpen}
+            className="cursor-pointer hover:bg-[#333] transition-all duration-200 group border-b border-gray-700 focus-visible:ring-2 focus-visible:ring-purple-500 outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsOpen(!isOpen);
+              }
+            }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
@@ -193,13 +204,13 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   <CardTitle className="text-lg text-white flex items-center gap-2 group-hover:text-purple-300 transition-colors">
                     Règles Intelligentes d'Optimisation
                   </CardTitle>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <p className="text-sm text-gray-300 mt-1">
                     Configurez les préférences pour l'optimisation automatique des créneaux
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors hidden sm:inline">
+                <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors hidden sm:inline">
                   {isOpen ? "Réduire" : "Développer"}
                 </span>
                 {isOpen ? (
@@ -215,11 +226,12 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
           <CardContent className="space-y-6 pt-0">
             {/* Durée standard des créneaux */}
             <div>
-              <Label className="text-gray-300 mb-2 flex items-center gap-2">
+              <Label htmlFor="slotDurationMinutes" className="text-gray-300 mb-2 flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 Durée standard des créneaux (minutes)
               </Label>
               <Input
+                id="slotDurationMinutes"
                 type="number"
                 min="15"
                 max="480"
@@ -231,7 +243,7 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                 placeholder="60"
                 className="bg-[#1e1e1e] border-gray-700 text-white"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Durée par défaut d'un créneau (ex: 60 min)
               </p>
             </div>
@@ -239,11 +251,12 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
             {/* Temps entre séances */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-gray-300 mb-2 block">
+                <Label htmlFor="minLatencyMinutes" className="text-gray-300 mb-2 block">
                   Temps minimum entre séances (min)
-                  <span className="text-xs text-gray-500 ml-2">(Règle 1 : Minimiser gaps)</span>
+                  <span className="text-xs text-gray-400 ml-2">(Règle 1 : Minimiser gaps)</span>
                 </Label>
                 <Input
+                  id="minLatencyMinutes"
                   type="number"
                   min="0"
                   max="120"
@@ -255,15 +268,16 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   placeholder="15"
                   className="bg-[#1e1e1e] border-gray-700 text-white"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Réduit les temps morts entre rendez-vous. Ex: 15-30 min recommandé.
                 </p>
               </div>
               <div>
-                <Label className="text-gray-300 mb-2 block">
+                <Label htmlFor="maxLatencyMinutes" className="text-gray-300 mb-2 block">
                   Temps maximum entre séances (min)
                 </Label>
                 <Input
+                  id="maxLatencyMinutes"
                   type="number"
                   min="0"
                   max="240"
@@ -275,7 +289,7 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   placeholder="30"
                   className="bg-[#1e1e1e] border-gray-700 text-white"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Limite l'espacement maximum entre deux séances consécutives.
                 </p>
               </div>
@@ -295,7 +309,7 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   <span className="text-xs text-gray-500 ml-2">(Règle 2)</span>
                 </Label>
               </div>
-              <p className="text-xs text-gray-500 ml-6 -mt-2">
+              <p className="text-xs text-gray-400 ml-6 -mt-2">
                 Planifie rapidement les rendez-vous. Bonus pour créneaux &lt; 7 jours.
               </p>
               <div className="flex items-center space-x-2">
@@ -310,7 +324,7 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   <span className="text-xs text-gray-500 ml-2">(Règle 3)</span>
                 </Label>
               </div>
-              <p className="text-xs text-gray-500 ml-6 -mt-2">
+              <p className="text-xs text-gray-400 ml-6 -mt-2">
                 Optimise la productivité en créant des blocs de temps complets (matin/après-midi).
               </p>
             </div>
@@ -321,10 +335,10 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                 <Label className="text-gray-300 flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Heures préférées par jour (optionnel)
-                  <span className="text-xs text-gray-500 ml-2">(Règle 4)</span>
+                  <span className="text-xs text-gray-400 ml-2">(Règle 4)</span>
                 </Label>
               </div>
-              <p className="text-xs text-gray-500 mb-3">
+              <p className="text-xs text-gray-400 mb-3">
                 Configurez des plages horaires spécifiques pour chaque jour de la semaine en
                 sélectionnant les créneaux disponibles.
               </p>

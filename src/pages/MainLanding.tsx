@@ -62,7 +62,7 @@ export default function MainLanding() {
               <h3 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
                 Sondages de Dates
               </h3>
-              <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
+              <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Trouvez la date parfaite pour vos réunions et événements en un clin d'œil.
               </p>
               <div className="flex items-center text-sm font-medium text-purple-400 group-hover:translate-x-1 transition-transform">
@@ -84,7 +84,7 @@ export default function MainLanding() {
               <h3 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">
                 Formulaires
               </h3>
-              <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
+              <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Créez des formulaires intelligents pour collecter des avis et des informations.
               </p>
               <div className="flex items-center text-sm font-medium text-blue-400 group-hover:translate-x-1 transition-transform">
@@ -106,7 +106,7 @@ export default function MainLanding() {
               <h3 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">
                 Disponibilités
               </h3>
-              <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
+              <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Partagez vos disponibilités et laissez les autres réserver des créneaux.
               </p>
               <div className="flex items-center text-sm font-medium text-green-400 group-hover:translate-x-1 transition-transform">
@@ -128,7 +128,7 @@ export default function MainLanding() {
               <h3 className="text-xl font-bold mb-2 text-white group-hover:text-yellow-400 transition-colors">
                 Quizz
               </h3>
-              <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
+              <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Créez des quiz éducatifs pour aider vos enfants dans leurs devoirs.
               </p>
               <div className="flex items-center text-sm font-medium text-yellow-400 group-hover:translate-x-1 transition-transform">

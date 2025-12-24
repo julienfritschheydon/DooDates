@@ -92,10 +92,15 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-2 mb-8 bg-gray-800 p-1 rounded-lg border border-gray-700 overflow-x-auto">
+                    <div className="flex gap-2 mb-8 bg-gray-800 p-1 rounded-lg border border-gray-700 overflow-x-auto" role="tablist" aria-label="Paramètres du produit">
                         <button
+                            type="button"
+                            role="tab"
+                            id="tab-settings"
+                            aria-selected={activeTab === "settings"}
+                            aria-controls="panel-settings"
                             onClick={() => setActiveTab("settings")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "settings"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === "settings"
                                 ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
@@ -104,8 +109,13 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                             Paramètres
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="tab-privacy"
+                            aria-selected={activeTab === "privacy"}
+                            aria-controls="panel-privacy"
                             onClick={() => setActiveTab("privacy")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "privacy"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === "privacy"
                                 ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
@@ -114,8 +124,13 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                             Confidentialité
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="tab-data"
+                            aria-selected={activeTab === "data"}
+                            aria-controls="panel-data"
                             onClick={() => setActiveTab("data")}
-                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap ${activeTab === "data"
+                            className={`flex-1 px-4 py-3 rounded-md font-medium transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === "data"
                                 ? activeTabClasses[productType as keyof typeof activeTabClasses]
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                                 }`}
@@ -126,7 +141,7 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                     </div>
 
                     {/* Tab Content */}
-                    <div className="space-y-6">
+                    <div className="space-y-6" role="tabpanel" id={`panel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
                         {/* Settings Tab */}
                         {activeTab === "settings" && (
                             <div className="space-y-6">

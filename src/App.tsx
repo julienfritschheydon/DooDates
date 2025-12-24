@@ -123,7 +123,6 @@ const AvailabilityPollsPricingSimple = lazy(() => import("./app/availability-pol
 
 // Simple documentation
 const DatePollsDocumentationSimple = lazy(() => import("./app/date-polls/DocumentationSimple"));
-const DatePollsDocumentationAdvancedSimple = lazy(() => import("./app/date-polls/DocumentationAdvancedSimple"));
 const FormPollsDocumentationSimple = lazy(() => import("./app/form-polls/DocumentationSimple"));
 const FormPollsDocumentationAdvancedSimple = lazy(() => import("./app/form-polls/DocumentationAdvancedSimple"));
 const AvailabilityPollsDocumentationSimple = lazy(() => import("./app/availability-polls/DocumentationSimple"));
@@ -139,7 +138,6 @@ const FormPollsDocumentation = lazy(() => import("./app/form-polls/Documentation
 const AvailabilityPollsDocumentation = lazy(() => import("./app/availability-polls/Documentation"));
 
 // Product-Specific Documentation Advanced Pages
-const DatePollsDocumentationAdvanced = lazy(() => import("./app/date-polls/DocumentationAdvanced"));
 const FormPollsDocumentationAdvanced = lazy(() => import("./app/form-polls/DocumentationAdvanced"));
 
 // Workspace components with proper layout
@@ -150,6 +148,7 @@ const AvailabilityWorkspace = lazy(() => import("./app/workspace/AvailabilityWor
 // Pages de navigation et paramètres
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const Security = lazy(() => import("./pages/Security"));
 const SupportPolicy = lazy(() => import("./pages/SupportPolicy"));
 const DataControl = lazy(() => import("./pages/DataControl"));
@@ -638,10 +637,6 @@ const App = () => {
                                   element={<DatePollsDocumentationSimple />}
                                 />
                                 <Route
-                                  path="/date-polls/documentation/advanced"
-                                  element={<DatePollsDocumentationAdvancedSimple />}
-                                />
-                                <Route
                                   path="/form-polls/docs"
                                   element={<FormPollsDocumentationSimple />}
                                 />
@@ -699,8 +694,10 @@ const App = () => {
                                 />
 
                                 {/* Pages globales (site principal) */}
+                                <Route path="/terms" element={<Terms />} />
                                 <Route path="/privacy" element={<Privacy />} />
                                 <Route path="/security" element={<Security />} />
+                                <Route path="/settings" element={<Settings />} />
                                 <Route path="/support-policy" element={<SupportPolicy />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/contact" element={<Contact />} />
@@ -754,6 +751,16 @@ const App = () => {
                                 <Route
                                   path="/create/ai"
                                   element={<Navigate to="/date-polls/workspace/date" replace />}
+                                />
+
+                                {/* Legacy workspace routes - redirect to new product-specific ones */}
+                                <Route
+                                  path="/workspace/date"
+                                  element={<Navigate to="/date-polls/workspace/date" replace />}
+                                />
+                                <Route
+                                  path="/workspace/form"
+                                  element={<Navigate to="/form-polls/workspace/form" replace />}
                                 />
 
                                 {/* 404 */}

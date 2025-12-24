@@ -1,5 +1,5 @@
-import { toast } from "@/hooks/use-toast";
-import { logError } from "@/lib/error-handling";
+import { toast } from "../hooks/use-toast";
+import { logError } from "../lib/error-handling";
 
 export interface DeletionWarning {
   type: 'chat' | 'poll' | 'account';
@@ -20,7 +20,7 @@ export interface RetentionSettings {
 
 export class DataRetentionService {
   private static instance: DataRetentionService;
-  
+
   static getInstance(): DataRetentionService {
     if (!DataRetentionService.instance) {
       DataRetentionService.instance = new DataRetentionService();
@@ -101,7 +101,7 @@ export class DataRetentionService {
   private async sendEmailWarning(warning: DeletionWarning): Promise<void> {
     // Simuler l'envoi d'email (à implémenter avec Supabase Functions ou Resend)
     const emailContent = this.generateEmailContent(warning);
-    
+
     // TODO: Implémenter avec vraie fonction d'envoi d'email
     console.log('ENVOI EMAIL:', {
       to: warning.userEmail,
@@ -194,10 +194,10 @@ export class DataRetentionService {
     try {
       // TODO: Implémenter avec Supabase
       console.log(`Suppression ${type} reportée de 30 jours pour l'utilisateur ${userId}`);
-      
+
       // Simuler le report
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       return true;
     } catch (error) {
       logError(new Error(`Erreur lors du report de suppression: ${error}`));
@@ -210,22 +210,22 @@ export class DataRetentionService {
    */
   async scheduleDailyWarnings(): Promise<void> {
     console.log('🔄 Démarrage du job quotidien d\'alertes de suppression...');
-    
+
     // TODO: Récupérer tous les utilisateurs avec suppression automatique activée
     const users = await this.getActiveUsers();
-    
+
     for (const user of users) {
       const settings = await this.getUserSettings(user.id);
       if (settings.autoDeleteEnabled && settings.emailNotifications) {
         const warnings = await this.calculateUpcomingDeletions(user.id, settings);
         const imminentWarnings = warnings.filter(w => w.daysUntilDeletion <= 30);
-        
+
         if (imminentWarnings.length > 0) {
           await this.sendDeletionWarnings(imminentWarnings);
         }
       }
     }
-    
+
     console.log(`✅ Job terminé : ${users.length} utilisateurs vérifiés`);
   }
 

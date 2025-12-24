@@ -28,14 +28,18 @@ export const Privacy: React.FC = () => {
           </div>
 
           {/* Contact DPO */}
-          <div className="bg-blue-900/30 border border-blue-700/50 rounded-lg p-6 mb-8">
+          <div className="bg-blue-900/30 border border-blue-700/50 rounded-lg p-6 mb-8 group hover:bg-blue-900/40 transition-colors">
             <div className="flex items-center gap-3 mb-3">
               <Mail className="w-5 h-5 text-blue-400" />
               <h2 className="text-lg font-semibold text-blue-300">Contact DPO</h2>
             </div>
             <p className="text-blue-200">
               Pour exercer vos droits ou toute question sur vos données :{" "}
-              <a href="mailto:privacy@doodates.com" className="font-semibold underline">
+              <a
+                href="mailto:privacy@doodates.com"
+                className="font-semibold text-blue-400 underline decoration-blue-400/30 underline-offset-4 hover:decoration-blue-400 transition-all"
+                aria-label="Contacter le DPO par email à privacy@doodates.com"
+              >
                 privacy@doodates.com
               </a>
             </p>

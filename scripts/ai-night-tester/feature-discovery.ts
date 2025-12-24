@@ -276,4 +276,59 @@ export class FeatureDiscovery {
             features: totalFeatures,
         };
     }
+
+    /**
+     * Update the main FEATURES-CATALOG.md documentation with latest stats
+     */
+    updateDocumentation(catalog: FeatureCatalog): void {
+        const docsPath = path.resolve(process.cwd(), 'Docs', '4. FEATURES-CATALOG.md');
+
+        if (!fs.existsSync(docsPath)) {
+            console.warn(`⚠️ Documentation file not found at ${docsPath}, skipping update.`);
+            return;
+        }
+
+        try {
+            let content = fs.readFileSync(docsPath, 'utf8');
+            const generatedDateStr = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const todayStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            // 1. Update Section 7 (Automated Report)
+            const newSection7 = `## 7. 📊 Rapport de Test Automatisé
+*Généré par AI Night Tester le ${generatedDateStr}*
+
+- **Couverture** : ${catalog.totalPages} pages explorées.
+- **Fonctionnalités** : ${catalog.totalFeatures} éléments interactifs détectés, dont ${catalog.uniqueFeatures} uniques.
+- **Interactions** : Simulation de clics, navigation et remplissage de formulaires sur l'ensemble du périmètre.`;
+
+            // Regex matches from "## 7." up to the footer or end of section
+            const sectionRegex = /## 7\. 📊 Rapport de Test Automatisé[\s\S]*?(?=(\*Dernière mise à jour)|$)/;
+
+            if (sectionRegex.test(content)) {
+                content = content.replace(sectionRegex, newSection7 + '\n\n');
+            } else {
+                // If section is missing, insert it before the footer
+                const lastUpdateMarker = '*Dernière mise à jour';
+                if (content.includes(lastUpdateMarker)) {
+                    content = content.replace(lastUpdateMarker, `\n---\n\n${newSection7}\n\n${lastUpdateMarker}`);
+                } else {
+                    content += `\n\n---\n\n${newSection7}\n`;
+                }
+            }
+
+            // 2. Update Footer Date
+            const footerRegex = /\*Dernière mise à jour : .*\*/;
+            if (footerRegex.test(content)) {
+                content = content.replace(footerRegex, `*Dernière mise à jour : ${todayStr}*`);
+            } else {
+                content += `\n\n*Dernière mise à jour : ${todayStr}*`;
+            }
+
+            fs.writeFileSync(docsPath, content);
+            console.log(`✅ Main documentation updated: ${docsPath}`);
+
+        } catch (error) {
+            console.error('❌ Failed to update documentation:', error);
+        }
+    }
 }

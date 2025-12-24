@@ -34,7 +34,8 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Caractéristiques :**
-- **20 crédits IA** à vie
+- **100 crédits IA** (messages, questions, insights)
+- **10 conversations max** (sessions)
 - Pas de reset mensuel
 - Pas de création de compte nécessaire
 - Données stockées localement (localStorage)
@@ -100,11 +101,12 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 
 | Action | Crédit | Détails |
 |--------|--------|---------|
-| 💬 **Créer un sondage via IA** | 1 | Toute la conversation compte pour 1 crédit |
-| ✏️ **Modifier un sondage via IA** | 1 | Par session de modification |
-| 💡 **Insight automatique** | 1 | Généré à l'ouverture des résultats |
-| ❓ **Question libre** | 1 | Par question posée à l'IA |
+| 💬 **Message à l'Assistant** | 1 | Chaque message envoyé à l'IA |
+| ✏️ **Modification via IA** | 1 | Chaque demande de modification |
+| 💡 **Insight automatique** | 1 | Un insight généré (par lot ou individuel) |
+| ❓ **Question libre** | 1 | Par question posée à l'Analytics |
 | 🎯 **Quick Query** | 1 | Par analyse rapide lancée |
+| 🗣️ **Commande Vocale** | 1 | Transcription + Traitement |
 
 ### Actions qui NE consomment PAS de crédit
 
@@ -120,13 +122,13 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 
 ## ⚠️ Que se passe-t-il quand j'atteins la limite ?
 
-### Mode Invité (20/20 crédits épuisés)
+### Mode Invité (Limites atteintes)
 
 ```
 ┌─────────────────────────────────────────────┐
 │  ⚠️ Crédits IA épuisés                      │
 │                                             │
-│  Vous avez utilisé vos 20 crédits gratuits │
+│  Vous avez atteint vos limites gratuites   │
 │                                             │
 │  Options :                                  │
 │  1. Créer un compte → +1000 crédits        │

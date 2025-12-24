@@ -370,12 +370,10 @@ Q3. [Visible si Q1 = Oui]
 ├─────────────────────────────────────────────┤
 │  Afficher cette question si :               │
 │                                             │
-│  [Q1: Satisfaction] [=] [Non]  [+ ET/OU]   │
+│  [Q1: Satisfaction] [=] [Non]               │
 │                                             │
 │  Actions :                                  │
 │  ⚫ Afficher la question                     │
-│  ○ Masquer la question                      │
-│  ○ Passer à une autre question              │
 │                                             │
 │  [Enregistrer la règle]                     │
 └─────────────────────────────────────────────┘
@@ -383,16 +381,19 @@ Q3. [Visible si Q1 = Oui]
 
 ---
 
-### Règles Multiples (ET / OU)
+### Règles Multiples (ET uniquement)
 
-**Exemple complexe :**
+**Fonctionnement :**
+Toutes les conditions doivent être remplies pour que la question s'affiche.
+
+**Exemple :**
 ```
 Afficher Q5 si :
-  (Q1 = "Non" ET Q2 contient "Prix")
-  OU
-  (Q3 < 3)
+  (Q1 = "Non")
+  ET
+  (Q2 contient "Prix")
 
-→ Q5 visible si client insatisfait du prix OU note < 3/5
+→ Q5 visible UNIQUEMENT si les deux conditions sont vraies.
 ```
 
 ---
@@ -406,7 +407,7 @@ Afficher Q5 si :
 
 ❌ **À Éviter :**
 - Boucles infinies (Q2 dépend de Q1, Q1 dépend de Q2)
-- Plus de 5 règles par question (trop complexe)
+- Trop de règles cumulées (complexité de gestion)
 - Conditions sur questions texte (imprécis)
 
 ---
@@ -492,41 +493,26 @@ Question 4 sur 10
 
 ---
 
-## 🎨 Thèmes et Personnalisation
+## 🎨 Thèmes
 
 ### Thèmes Disponibles
 
-#### 1. Par Défaut
+#### 1. Bleu Océan (Par défaut)
 ```
 Couleurs : Bleu & Gris
-Usage : Formulaires professionnels, B2B
+Usage : Professionnel, rassurant, B2B
 ```
 
-#### 2. Nature (Gratuit)
+#### 2. Vert Nature
 ```
-Couleurs : Vert & Brun
-Usage : Événements, associations, écologie
-```
-
-#### 3. Minimaliste Light/Dark (Premium)
-```
-Couleurs : Noir/Blanc avec accent Coral/Mint
-Usage : Design moderne, tech, startups
+Couleurs : Vert & Émeraude
+Usage : Écologie, santé, bien-être, apaisant
 ```
 
----
-
-### Personnalisation Avancée (Premium)
-
-**Options :**
+#### 3. Violet Créatif
 ```
-Logo : [Télécharger votre logo]
-Couleur primaire : [#FF6B6B]
-Couleur secondaire : [#4ECDC4]
-Police : Inter / Roboto / Open Sans / Custom
-
-Suppression branding :
-☑ Masquer "Créé avec DooDates"
+Couleurs : Violet & Indigo
+Usage : Innovation, design, startups, moderne
 ```
 
 ---

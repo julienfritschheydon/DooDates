@@ -11,15 +11,19 @@ import * as crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import type { ElementMemory, MemoryStats, InteractiveElement } from './types';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Persistence path based on process root to avoid import.meta issues
+const reportsDir = path.join(process.cwd(), 'scripts', 'ai-night-tester', 'reports');
+if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+}
 
 export class NavigationMemory {
     private memory: Map<string, ElementMemory> = new Map();
+    private pageVisits: Map<string, number> = new Map();
     private persistPath: string;
 
     constructor(persistPath?: string) {
-        this.persistPath = persistPath || path.join(__dirname, 'reports', '.navigation-memory.json');
+        this.persistPath = persistPath || path.join(reportsDir, '.global-memory.json');
         this.loadFromDisk();
     }
 
@@ -48,6 +52,9 @@ export class NavigationMemory {
      * Record an interaction with an element
      */
     recordInteraction(element: InteractiveElement, pageUrl: string, wasSuccessful: boolean = true): void {
+        // Reload to sync with other workers
+        this.loadFromDisk();
+
         const hash = this.hashElement(element.selector, pageUrl);
         const existing = this.memory.get(hash);
 
@@ -67,6 +74,28 @@ export class NavigationMemory {
                 wasSuccessful,
             });
         }
+
+        this.saveToDisk();
+    }
+
+    /**
+     * Record a visit to a page (for curiosity gradient)
+     */
+    recordPageVisit(pageUrl: string): number {
+        this.loadFromDisk();
+        const url = this.normalizeUrl(pageUrl);
+        const count = (this.pageVisits.get(url) || 0) + 1;
+        this.pageVisits.set(url, count);
+        this.saveToDisk();
+        return count;
+    }
+
+    /**
+     * Get visit count for a page
+     */
+    getVisitCount(pageUrl: string): number {
+        this.loadFromDisk();
+        return this.pageVisits.get(this.normalizeUrl(pageUrl)) || 0;
     }
 
     /**
@@ -134,11 +163,11 @@ export class NavigationMemory {
             const data = {
                 savedAt: new Date().toISOString(),
                 elements: Array.from(this.memory.entries()),
+                pageVisits: Array.from(this.pageVisits.entries()),
             };
             fs.writeFileSync(this.persistPath, JSON.stringify(data, null, 2));
-            console.log(`💾 Navigation memory saved (${this.memory.size} elements)`);
         } catch (error) {
-            console.warn('⚠️ Could not save navigation memory:', error);
+            // Silently fail to avoid worker noise
         }
     }
 
@@ -158,11 +187,14 @@ export class NavigationMemory {
                         value.lastInteraction = new Date(value.lastInteraction);
                         return [key, value];
                     }));
-                    console.log(`📂 Navigation memory loaded (${this.memory.size} elements)`);
+                }
+
+                if (data.pageVisits && Array.isArray(data.pageVisits)) {
+                    this.pageVisits = new Map(data.pageVisits);
                 }
             }
         } catch (error) {
-            console.warn('⚠️ Could not load navigation memory:', error);
+            // Ignore corrupted loads
         }
     }
 

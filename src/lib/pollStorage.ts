@@ -16,6 +16,7 @@ import {
 // import { compress, decompress } from "./compression"; // TODO: Implement compression module
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
+import { getPollClosureReason } from "./pollEnforcement";
 
 // Define proper types for time slots
 export interface TimeSlot {
@@ -1003,6 +1004,36 @@ export function addFormResponse(params: {
 }): FormResponse {
   const { pollId, respondentName, respondentEmail, items } = params;
 
+  // 1. Validation de l'existence du sondage
+  const poll = getFormPollById(pollId);
+  if (!poll) {
+    throw ErrorFactory.validation("Poll not found", "Sondage introuvable");
+  }
+
+  // 2. LOGIQUE D'ENFORCEMENT (Backend protection)
+  // Vérifier si le sondage est fermé (expiré ou quota atteint)
+  // On doit compter les réponses existantes pour vérifier le quota
+  const currentResponses = getFormResponses(pollId);
+  const closureReason = getPollClosureReason(poll, currentResponses.length);
+
+  if (closureReason) {
+    const reasonMsg =
+      closureReason === "expired"
+        ? "Ce sondage a expiré"
+        : closureReason === "capped"
+          ? "Ce sondage a atteint sa limite de réponses"
+          : "Ce sondage est fermé";
+
+    const error = ErrorFactory.validation("Poll is closed", reasonMsg);
+    logError(error, {
+      component: "pollStorage",
+      operation: "addFormResponse",
+      pollId,
+      metadata: { closureReason },
+    });
+    throw error;
+  }
+
   // Valider les entrées
   if (!pollId) {
     throw ErrorFactory.validation("pollId is required", "ID du sondage requis");
@@ -1016,7 +1047,8 @@ export function addFormResponse(params: {
 
   // Log pour déboguer les réponses de type date
   const dateItems = items.filter((item) => {
-    const question = getFormPollById(pollId)?.questions?.find((q) => q.id === item.questionId);
+    // poll est déjà récupéré plus haut
+    const question = poll?.questions?.find((q) => q.id === item.questionId);
     return question && (question.kind === "date" || question.type === "date");
   });
 

@@ -252,9 +252,9 @@ Cliquez 4 fois : Blanc (retour à l'état initial)
 
 **Swipe gestures :**
 ```
-←  Swipe gauche : Indisponible (🔴)
+←  Swipe gauche : Disponible (🟢)
 ↔  Tap : Peut-être (🟡)
-→  Swipe droite : Disponible (🟢)
+→  Swipe droite : Indisponible (🔴)
 ```
 
 **Vibration haptique :** Confirmation du vote (si supporté)
@@ -449,9 +449,6 @@ Dashboard → Sondage → Modifier
 ⚠️ **Déconseillé :**
 - Supprimer des dates (perte de votes)
 - Changer radicalement les horaires
-
-❌ **Bloqué :**
-- Supprimer des dates avec > 5 votes
 
 ---
 

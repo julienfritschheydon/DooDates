@@ -90,6 +90,24 @@ test.describe("Voice Recognition E2E", () => {
             window.SpeechRecognition = MockSpeechRecognition;
             // @ts-ignore
             window.webkitSpeechRecognition = MockSpeechRecognition;
+
+            // Mock getUserMedia for mobile permission check
+            if (navigator.mediaDevices) {
+                navigator.mediaDevices.getUserMedia = async () => {
+                    return {
+                        getTracks: () => [{ stop: () => { } }]
+                    } as any;
+                };
+            } else {
+                // @ts-ignore
+                navigator.mediaDevices = {
+                    getUserMedia: async () => {
+                        return {
+                            getTracks: () => [{ stop: () => { } }]
+                        } as any;
+                    }
+                };
+            }
         });
     });
 

@@ -35,6 +35,7 @@ const QuizzApp: React.FC = () => {
           <Route path="/create" element={<QuizzCreate />} />
           <Route path="/history" element={<ChildHistory />} />
           <Route path="/history/:childName" element={<ChildHistory />} />
+          <Route path="/docs" element={<QuizzDocumentation />} />
           <Route path="/documentation" element={<QuizzDocumentation />} />
           <Route path="/pricing" element={<QuizzPricing />} />
           <Route path="/:slug/results" element={<QuizzResults />} />

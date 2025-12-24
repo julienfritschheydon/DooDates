@@ -14,7 +14,7 @@ const retentionService = DataRetentionService.getInstance()
 
 async function testCalculSuppressions() {
   console.log('🧪 Test 1: Calcul des suppressions à venir')
-  
+
   const testSettings = {
     chatRetention: '30-days' as const,
     pollRetention: '12-months' as const,
@@ -25,12 +25,12 @@ async function testCalculSuppressions() {
 
   try {
     const warnings = await retentionService.calculateUpcomingDeletions('test-user-123', testSettings)
-    
+
     console.log(`✅ ${warnings.length} alertes trouvées`)
     warnings.forEach(warning => {
       console.log(`   - ${warning.type}: ${warning.itemCount} éléments dans ${warning.daysUntilDeletion} jours`)
     })
-    
+
     return warnings
   } catch (error) {
     console.error('❌ Erreur calcul suppressions:', error)
@@ -40,7 +40,7 @@ async function testCalculSuppressions() {
 
 async function testGenerationEmail() {
   console.log('\n🧪 Test 2: Génération des emails')
-  
+
   const testWarning = {
     type: 'chat' as const,
     daysUntilDeletion: 15,
@@ -53,7 +53,7 @@ async function testGenerationEmail() {
   try {
     // Simuler la génération d'email (sans l'envoyer)
     const emailContent = await (retentionService as any).generateEmailContent?.(testWarning)
-    
+
     if (emailContent) {
       console.log('✅ Email généré avec succès')
       console.log(`   Sujet: ${emailContent.subject}`)
@@ -68,7 +68,7 @@ async function testGenerationEmail() {
 
 async function testJobSimulation() {
   console.log('\n🧪 Test 3: Simulation du job quotidien')
-  
+
   try {
     // Simuler le job avec des données de test
     const mockUsers = [
@@ -78,9 +78,9 @@ async function testJobSimulation() {
     ]
 
     console.log(`📊 Simulation pour ${mockUsers.length} utilisateurs`)
-    
+
     let totalWarnings = 0
-    
+
     for (const user of mockUsers) {
       const settings = {
         chatRetention: user.chat_retention as any,
@@ -93,7 +93,7 @@ async function testJobSimulation() {
       if (user.auto_delete_enabled && user.email_notifications) {
         const warnings = await retentionService.calculateUpcomingDeletions(user.id, settings)
         const imminentWarnings = warnings.filter(w => w.daysUntilDeletion <= 30)
-        
+
         if (imminentWarnings.length > 0) {
           console.log(`⚠️ ${imminentWarnings.length} alertes pour ${user.email}`)
           imminentWarnings.forEach(w => {
@@ -105,7 +105,7 @@ async function testJobSimulation() {
     }
 
     console.log(`✅ Simulation terminée: ${totalWarnings} alertes à envoyer`)
-    
+
   } catch (error) {
     console.error('❌ Erreur simulation job:', error)
   }
@@ -113,7 +113,7 @@ async function testJobSimulation() {
 
 function testInterfaceDataControl() {
   console.log('\n🧪 Test 4: Interface DataControl (localStorage)')
-  
+
   try {
     // Tester la persistance localStorage
     const testSettings = {
@@ -131,9 +131,9 @@ function testInterfaceDataControl() {
       localStorage.setItem('doodates_auto_delete', testSettings.autoDeleteEnabled.toString())
       localStorage.setItem('doodates_email_notifications', testSettings.emailNotifications.toString())
       localStorage.setItem('doodates_allow_data_improvement', testSettings.allowDataForImprovement.toString())
-      
+
       console.log('✅ Paramètres sauvegardés dans localStorage')
-      
+
       // Vérifier la lecture
       const savedSettings = {
         chatRetention: localStorage.getItem('doodates_chat_retention'),
@@ -142,12 +142,12 @@ function testInterfaceDataControl() {
         emailNotifications: localStorage.getItem('doodates_email_notifications') !== 'false',
         allowDataForImprovement: localStorage.getItem('doodates_allow_data_improvement') === 'true'
       }
-      
+
       console.log('✅ Paramètres relus:', savedSettings)
     } else {
       console.log('⚠️ localStorage non disponible (test en dehors du navigateur)')
     }
-    
+
   } catch (error) {
     console.error('❌ Erreur test interface:', error)
   }
@@ -155,10 +155,10 @@ function testInterfaceDataControl() {
 
 async function testPostponement() {
   console.log('\n🧪 Test 5: Report de suppression')
-  
+
   try {
     const success = await retentionService.postponeDeletion('test-user-123', 'chat')
-    
+
     if (success) {
       console.log('✅ Report de suppression réussi')
     } else {
@@ -172,13 +172,13 @@ async function testPostponement() {
 // Fonction principale de test
 async function runAllTests() {
   console.log('🚀 Démarrage des tests du système d\'alertes email\n')
-  
+
   await testCalculSuppressions()
   await testGenerationEmail()
   await testJobSimulation()
   testInterfaceDataControl()
   await testPostponement()
-  
+
   console.log('\n✅ Tests terminés !')
   console.log('\n📋 Prochaines étapes:')
   console.log('1. Démarrer le serveur de développement: npm run dev')
@@ -188,8 +188,10 @@ async function runAllTests() {
   console.log('5. Activer le GitHub Actions workflow')
 }
 
+import { fileURLToPath } from 'url';
+
 // Exécuter les tests
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runAllTests()
     .then(() => {
       console.log('\n🎉 Tous les tests exécutés avec succès')

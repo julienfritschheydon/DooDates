@@ -4,7 +4,7 @@
  * Playwright-based browser automation for the AI tester
  */
 
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+import { chromium, Browser, Page, BrowserContext, Locator } from 'playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from './ai-night-tester.config';
@@ -148,6 +148,13 @@ export class BrowserController {
 
         // Wait for React to settle
         await this.page.waitForTimeout(1000);
+    }
+
+    /**
+     * Get the current page URL
+     */
+    async getCurrentUrl(): Promise<string> {
+        return this.page?.url() || '';
     }
 
     /**
@@ -431,131 +438,112 @@ export class BrowserController {
     private async getInteractiveElements(): Promise<InteractiveElement[]> {
         if (!this.page) return [];
 
+        // DEBUG: Check browser date
+        const browserDate = await this.page.evaluate(() => new Date().toString());
+        console.log(`🌐 [Browser Clock] ${browserDate}`);
+
         const elements: InteractiveElement[] = [];
 
-        // Get buttons
-        const buttons = await this.page.locator('button:visible').all();
-        for (let i = 0; i < Math.min(buttons.length, 15); i++) {
-            const btn = buttons[i];
+        // UNIFIED DISCOVERY: Capture everything interactive in one go to preserve DOM order
+        const selector = 'button:visible, input:not([type="hidden"]):visible, textarea:visible, a:visible, [role="button"]:visible, [role="gridcell"]:visible, [role="link"]:visible, [contenteditable="true"]:visible';
+        const locators = await this.page.locator(selector).all();
+
+        // Limit total elements to 100 to avoid prompt explosion
+        for (let i = 0; i < Math.min(locators.length, 100); i++) {
+            const el = locators[i];
             try {
-                // Robust text extraction
-                let text = (await btn.textContent())?.trim() || '';
-                let selector = '';
+                const tagName = await el.evaluate(node => node.tagName.toLowerCase());
+                const typeAttr = await el.getAttribute('type') || '';
 
-                // Fallbacks if text is empty
-                if (!text) {
-                    text = await btn.getAttribute('aria-label') || '';
-                }
-                if (!text) {
-                    text = await btn.getAttribute('title') || '';
-                }
-                if (!text) {
-                    const imgAlt = await btn.locator('img').first().getAttribute('alt').catch(() => null);
-                    if (imgAlt) text = `Img: ${imgAlt}`;
-                }
-                if (!text) {
-                    const id = await btn.getAttribute('id');
-                    if (id) text = `ID: ${id}`;
-                }
+                // Skip file uploads as requested
+                if (typeAttr === 'file') continue;
 
-                if (!text) continue; // Skip strictly empty buttons
-                if (this.shouldExclude(text)) continue;
+                const isInput = tagName === 'input' || tagName === 'textarea' || await el.evaluate(node => (node as HTMLElement).isContentEditable);
 
-                // Smart selector generation
-                if ((await btn.textContent())?.trim()) {
-                    selector = `button:has-text("${text.substring(0, 30).replace(/"/g, '\\"')}")`;
-                } else if (await btn.getAttribute('aria-label')) {
-                    selector = `button[aria-label="${await btn.getAttribute('aria-label')}"]`;
-                } else if (await btn.getAttribute('id')) {
-                    selector = `#${await btn.getAttribute('id')}`;
+                let text = '';
+                if (isInput) {
+                    const placeholder = await el.getAttribute('placeholder') || '';
+                    const ariaLabel = await el.getAttribute('aria-label') || '';
+                    const labelText = await el.evaluate(node => {
+                        const labels = (node as HTMLInputElement).labels;
+                        return labels && labels.length > 0 ? labels[0].innerText : '';
+                    }).catch(() => '');
+                    text = placeholder || ariaLabel || labelText || (tagName === 'textarea' ? 'Zone de texte' : 'Champ de saisie');
                 } else {
-                    // Fallback to order if no better selector
-                    selector = `button >> nth=${i}`;
+                    text = (await el.textContent())?.trim() || '';
+                    if (!text) text = await el.getAttribute('aria-label') || '';
+                    if (!text) text = await el.getAttribute('title') || '';
+                    if (!text) {
+                        const img = el.locator('img').first();
+                        text = await img.getAttribute('alt').catch(() => null) || '';
+                    }
                 }
 
-                const box = await btn.boundingBox();
-                elements.push({
-                    selector: selector,
-                    tagName: 'button',
-                    text: text.trim(),
-                    type: 'button',
-                    isVisible: true,
-                    boundingBox: box || undefined,
-                });
-            } catch { /* skip */ }
-        }
-
-        // Get links
-        const links = await this.page.locator('a:visible').all();
-        for (let i = 0; i < Math.min(links.length, 15); i++) {
-            const link = links[i];
-            try {
-                // Robust text extraction
-                let text = (await link.textContent())?.trim() || '';
-                const href = await link.getAttribute('href') || '';
-
-                if (!text) {
-                    text = await link.getAttribute('aria-label') || '';
-                }
-                if (!text) {
-                    text = await link.getAttribute('title') || '';
-                }
-                if (!text) {
-                    const imgAlt = await link.locator('img').first().getAttribute('alt').catch(() => null);
-                    if (imgAlt) text = `Img: ${imgAlt}`;
-                }
-
+                if (!text && !isInput) continue;
                 if (this.shouldExclude(text)) continue;
 
-                // Only skip if truly empty or mailto
-                if ((text || href) && !href.startsWith('mailto:')) {
-                    const display = text || href; // Fallback to href if no text
+                const boundingBox = await el.boundingBox();
+                if (!boundingBox) continue;
 
-                    let selector = '';
-                    if ((await link.textContent())?.trim()) {
-                        selector = `a:has-text("${text.substring(0, 30).replace(/"/g, '\\"')}")`;
-                    } else if (await link.getAttribute('aria-label')) {
-                        selector = `a[aria-label="${await link.getAttribute('aria-label')}"]`;
-                    } else {
-                        selector = `a[href="${href}"]`;
-                    }
+                // ULTIMATE DISABLED DETECTION
+                const detection = await el.evaluate(node => {
+                    const style = window.getComputedStyle(node);
+                    const isNativeDisabled = (node as any).disabled === true || node.getAttribute('disabled') !== null;
+                    const isAriaDisabled = node.getAttribute('aria-disabled') === 'true';
+                    const hasDataDisabled = node.getAttribute('data-disabled') === 'true';
+                    const hasDisabledClass = node.classList.contains('cursor-not-allowed') ||
+                        node.classList.contains('disabled') ||
+                        node.classList.contains('pointer-events-none') ||
+                        node.className.includes('opacity-50');
+                    const isFaded = parseFloat(style.opacity) < 0.7;
+                    const noPointer = style.pointerEvents === 'none';
+                    const cursorNotAllowed = style.cursor === 'not-allowed';
 
-                    elements.push({
-                        selector: selector,
-                        tagName: 'a',
-                        text: display.trim(),
-                        type: 'link',
-                        isVisible: true,
-                    });
+                    return {
+                        isDisabled: isNativeDisabled || isAriaDisabled || hasDataDisabled || hasDisabledClass || noPointer || (isFaded && cursorNotAllowed),
+                        reasons: { isNativeDisabled, isAriaDisabled, hasDataDisabled, hasDisabledClass, noPointer, isFaded, cursorNotAllowed }
+                    };
+                }).catch(() => ({ isDisabled: false, reasons: {} }));
+
+                // Specific debug for calendar dates
+                if (text === "5" || text === "10" || text === "12" || text === "27") {
+                    console.log(`🔍 [Discovery] Date "${text}": isDisabled=${detection.isDisabled}`, (detection as any).reasons);
                 }
-            } catch { /* skip */ }
-        }
-
-        // Get inputs
-        const inputs = await this.page.locator('input:visible, textarea:visible').all();
-        for (let i = 0; i < Math.min(inputs.length, 5); i++) {
-            const input = inputs[i];
-            try {
-                const placeholder = await input.getAttribute('placeholder') || '';
-                const name = await input.getAttribute('name') || '';
-                const id = await input.getAttribute('id') || '';
-                const ariaLabel = await input.getAttribute('aria-label') || '';
-                const type = await input.getAttribute('type') || 'text';
-
-                // User requested NO UPLOADS
-                if (type === 'file') continue;
 
                 elements.push({
-                    selector: id ? `#${id}` : (name ? `[name="${name}"]` : `input[placeholder="${placeholder}"]`),
-                    tagName: 'input',
-                    text: placeholder || ariaLabel || name || id || 'Input',
-                    type: `input-${type}`,
+                    selector: await this.getRobustSelector(el, text, tagName),
+                    tagName,
+                    text: text.substring(0, 100),
+                    type: isInput ? (tagName === 'textarea' ? 'textarea' : 'input') : (tagName === 'a' ? 'link' : 'button'),
                     isVisible: true,
+                    isDisabled: detection.isDisabled,
+                    boundingBox,
+                    ariaLabel: await el.getAttribute('aria-label') || undefined,
                 });
-            } catch { /* skip */ }
+            } catch { /* skip failed element */ }
         }
 
         return elements;
+    }
+
+    private async getRobustSelector(el: Locator, text: string, tagName: string): Promise<string> {
+        const id = await el.getAttribute('id');
+        if (id) return `${tagName}#${id}`;
+
+        const dataTestId = await el.getAttribute('data-testid');
+        if (dataTestId) return `${tagName}[data-testid="${dataTestId}"]`;
+
+        const name = await el.getAttribute('name');
+        if (name) return `${tagName}[name="${name}"]`;
+
+        const ariaLabel = await el.getAttribute('aria-label');
+        if (ariaLabel) return `${tagName}[aria-label="${ariaLabel}"]`;
+
+        if (text && text.length < 50 && !/\d+/.test(text)) {
+            return `${tagName}:has-text("${text.replace(/"/g, '\\"')}")`;
+        }
+
+        return tagName; // Last resort
     }
 
     /**
