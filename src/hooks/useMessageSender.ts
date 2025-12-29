@@ -50,6 +50,7 @@ interface Message {
   timestamp: Date;
   pollSuggestion?: import("../lib/gemini").PollSuggestion;
   isGenerating?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 // Limites et formats supportés pour les fichiers joints envoyés à Gemini
@@ -216,9 +217,8 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Ajouter un message informatif
           const switchMessage: Message = {
             id: `ai-${Date.now()}`,
-            content: `✨ Vous souhaitez créer un ${
-              intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
-            }. Je démarre une nouvelle conversation pour vous...`,
+            content: `✨ Vous souhaitez créer un ${intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
+              }. Je démarre une nouvelle conversation pour vous...`,
             isAI: true,
             timestamp: new Date(),
           };
@@ -696,6 +696,29 @@ export function useMessageSender(options: UseMessageSenderOptions) {
                 { metadata: { originalError: error, requestId, timestamp } },
               );
             });
+        }
+
+        // 🎯 NEW: Ask for consent to analyze specific failures (not quota/network)
+        const isAnalysisCandidate = ["parsing", "unknown", "api_error"].includes(pollResponse.errorType || "");
+        if (isAnalysisCandidate) {
+          const consentMessage: Message = {
+            id: `consent-${Date.now()}`,
+            content: "Je n'ai pas réussi à traiter votre demande. Voulez-vous envoyer les détails de cette erreur à notre équipe pour analyse humaine afin d'améliorer le service ?",
+            isAI: true,
+            timestamp: new Date(),
+            metadata: {
+              type: 'analysis_consent',
+              context: {
+                userMessage: trimmedInput,
+                error: pollResponse.error
+              }
+            }
+          };
+          // Add slight delay for natural feel
+          setTimeout(() => {
+            setMessages((prev) => [...prev, consentMessage]);
+            // We don't necessarily autosave this ephemeral request, but we could.
+          }, 500);
         }
       }
 
