@@ -90,7 +90,7 @@ export const LandingPage: React.FC = () => {
         <header className="relative z-10 border-b border-white/5">
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex justify-between items-center h-16">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 pl-12 sm:pl-0">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
@@ -173,10 +173,10 @@ export const LandingPage: React.FC = () => {
                       <div
                         key={i}
                         className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${[4, 5, 11, 12, 18, 19].includes(i)
-                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                            : i === 11
-                              ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                              : "bg-white/[0.02] text-gray-400 hover:bg-white/5"
+                          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                          : i === 11
+                            ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                            : "bg-white/[0.02] text-gray-400 hover:bg-white/5"
                           }`}
                       >
                         {i + 1}
