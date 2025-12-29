@@ -24,6 +24,8 @@ import type { AvailabilityPollSettings } from "@/lib/products/availability-polls
 import { Settings as SettingsIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion } from "framer-motion";
+import { Mail, X } from "lucide-react";
+import { guestEmailService } from "@/lib/guestEmailService";
 
 
 interface AvailabilityPollCreatorContentProps {
@@ -64,6 +66,24 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
+
+  // Charger l'email existant si guest
+  React.useEffect(() => {
+    if (!user) {
+      guestEmailService.getGuestEmail().then(email => {
+        if (email) setGuestEmail(email);
+      });
+      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      setIsEmailFieldDismissed(dismissed);
+    }
+  }, [user]);
+
+  const handleDismissEmailField = () => {
+    setIsEmailFieldDismissed(true);
+    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
+  };
 
   const handleCreate = (asDraft = false) => {
     if (!title.trim()) {
@@ -296,6 +316,37 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
+
+            {/* Champ Email Invité (RGPD) */}
+            {!user && !isEmailFieldDismissed && (
+              <div className="p-4 bg-gray-700/50 rounded-lg border border-gray-600 relative group">
+                <button
+                  onClick={handleDismissEmailField}
+                  className="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                  title="Ne plus afficher"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-2 mb-3">
+                  <Mail className="w-5 h-5 text-blue-400" />
+                  <Label className="text-sm font-medium text-blue-400">
+                    Email pour les alertes RGPD (recommandé)
+                  </Label>
+                </div>
+                <Input
+                  type="email"
+                  placeholder="votre@email.com"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+                  className="bg-gray-800 border-gray-700 text-gray-200"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  En tant qu'invité, vos données sont conservées 1 an.
+                  Renseignez votre email pour être alerté avant la suppression.
+                </p>
+              </div>
+            )}
 
             {/* Description */}
             <div>

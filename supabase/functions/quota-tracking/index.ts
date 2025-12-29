@@ -29,7 +29,7 @@ const ALLOWED_PATTERNS = [
 
 function getCorsHeaders(origin: string | null): HeadersInit {
   let allowedOrigin: string | null = null;
-  
+
   if (origin) {
     if (ALLOWED_ORIGINS.includes(origin)) {
       allowedOrigin = origin;
@@ -42,7 +42,7 @@ function getCorsHeaders(origin: string | null): HeadersInit {
       }
     }
   }
-  
+
   if (!allowedOrigin) {
     allowedOrigin = ALLOWED_ORIGINS[0];
   }
@@ -233,16 +233,20 @@ serve(async (req: Request) => {
         }[action] || 100;
 
         const currentTotal = currentQuota?.total_credits_consumed || 0;
-        const currentActionCount = {
-          conversation_created: currentQuota?.conversations_created || 0,
-          // poll_created supprimé - utiliser les compteurs séparés par type
-          ai_message: currentQuota?.ai_messages || 0,
-          analytics_query: currentQuota?.analytics_queries || 0,
-          simulation: currentQuota?.simulations || 0,
-          other: 0,
-        }[action] || 0;
+        const currentActionCount = (function () {
+          const q = currentQuota;
+          if (!q) return 0;
+          switch (action) {
+            case "conversation_created": return q.conversations_created || 0;
+            case "poll_created": return (q.date_polls_created || 0) + (q.form_polls_created || 0);
+            case "ai_message": return q.ai_messages || 0;
+            case "analytics_query": return q.analytics_queries || 0;
+            case "simulation": return q.simulations || 0;
+            default: return 0;
+          }
+        })() || 0;
 
-        const allowed = 
+        const allowed =
           currentTotal + credits <= totalLimit &&
           currentActionCount < actionLimit;
 
@@ -276,7 +280,7 @@ serve(async (req: Request) => {
       case "consumeCredits": {
         const { action, credits, metadata }: ConsumeCreditsRequest = body;
         console.log(`[${timestamp}] [${requestId}] 💳 Consume credits: ${action}, ${credits} crédits`);
-        
+
         // Log du mode de test pour debugging
         if (isTestMode) {
           console.log(`[${timestamp}] [${requestId}] 🧪 TEST MODE ACTIVATED - Using low hourly limits`);
@@ -359,7 +363,7 @@ serve(async (req: Request) => {
 
         // Parse JSONB response
         const result = typeof data === 'string' ? JSON.parse(data) : data;
-        
+
         if (!result.success) {
           console.log(`[${timestamp}] [${requestId}] ⚠️  Consommation refusée:`, result.error);
           return new Response(
@@ -439,7 +443,7 @@ serve(async (req: Request) => {
         return new Response(
           JSON.stringify({
             success: true,
-            journal: (journal || []).map((entry: any) => ({
+            journal: (journal || []).map((entry: { id: string; created_at: string; action: string; credits: number; user_id: string; metadata: Record<string, unknown> }) => ({
               id: entry.id,
               timestamp: entry.created_at,
               action: entry.action,
@@ -467,9 +471,9 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error(`[${timestamp}] [${requestId}] ❌ Erreur Edge Function:`, error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : "Internal server error" 
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : "Internal server error"
       }),
       {
         status: 500,

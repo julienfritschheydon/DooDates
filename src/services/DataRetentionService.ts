@@ -233,13 +233,9 @@ export class DataRetentionService {
    * Utilitaires
    */
   private getRetentionDays(retention: string): number {
-    const retentionMap = {
-      '30-days': 30,
-      '12-months': 365,
-      '6-years': 365 * 6,
-      'indefinite': 999999
-    };
-    return retentionMap[retention as keyof typeof retentionMap] || 365;
+    // Note: L'utilisateur a demandé 1 an pour tout le monde (365 jours)
+    // On conserve le mapping pour la compatibilité mais on privilégie 365
+    return 365;
   }
 
   private getDaysSince(date: Date): number {

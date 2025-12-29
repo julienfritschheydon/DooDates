@@ -1,5 +1,14 @@
+// @ts-expect-error: Deno URL imports are valid in Deno runtime
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-expect-error: Deno URL imports are valid in Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+
+// Deno global is available in the Edge Function runtime
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -8,7 +17,11 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 interface EmailPayload {
   pollId: string;
   pollType: "date" | "form";
-  responseData: any;
+  responseData: {
+    selectedDates?: Array<{ date: string; slots?: string[] }>;
+    responses?: Array<{ question: string; answer: string }>;
+    respondentName?: string;
+  };
   recipientEmail: string;
   pollTitle: string;
 }
@@ -29,11 +42,10 @@ function generateDatePollEmailHTML(data: {
         month: "long",
         day: "numeric",
       })}</strong>
-      ${
-        item.slots && item.slots.length > 0
+      ${item.slots && item.slots.length > 0
           ? `<br/><span style="color: #666; font-size: 14px;">Créneaux: ${item.slots.join(", ")}</span>`
           : ""
-      }
+        }
     </li>
   `
     )
@@ -67,11 +79,10 @@ function generateDatePollEmailHTML(data: {
                 ${data.pollTitle}
               </h2>
               
-              ${
-                data.respondentName
-                  ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
-                  : ""
-              }
+              ${data.respondentName
+      ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
+      : ""
+    }
               
               <p style="margin: 0 0 24px; color: #666; font-size: 16px;">
                 Merci d'avoir voté ! Voici un récapitulatif de vos disponibilités :
@@ -159,11 +170,10 @@ function generateFormPollEmailHTML(data: {
                 ${data.pollTitle}
               </h2>
               
-              ${
-                data.respondentName
-                  ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
-                  : ""
-              }
+              ${data.respondentName
+      ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
+      : ""
+    }
               
               <p style="margin: 0 0 24px; color: #666; font-size: 16px;">
                 Merci d'avoir répondu au formulaire ! Voici un récapitulatif de vos réponses :
@@ -199,7 +209,7 @@ function generateFormPollEmailHTML(data: {
   `;
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // CORS headers
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -298,7 +308,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error sending email:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: error.message }),
+      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

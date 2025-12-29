@@ -10,6 +10,7 @@ import {
   Loader2,
   ChevronDown,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { addQuizz, type Quizz, type QuizzQuestion } from "@/lib/products/quizz/quizz-service";
 import { quizzVisionService } from "@/services/QuizzVisionService";
@@ -17,10 +18,14 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ErrorFactory, logError } from "@/lib/error-handling";
 import { Button } from "@/components/ui/button";
+import { Settings, Mail } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { guestEmailService } from "@/lib/guestEmailService";
+import { useAuth } from "@/contexts/AuthContext";
 import { fileToGeminiAttachment } from "@/services/FileAttachmentService";
 import { PollSettingsForm } from "@/components/polls/PollSettingsForm";
 import type { QuizzSettings } from "@/lib/products/quizz/quizz-settings";
-import { Settings } from "lucide-react";
 
 // Limites et formats supportés pour les fichiers utilisés en génération de quizz
 const MAX_QUIZZ_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 Mo
@@ -66,6 +71,25 @@ export const QuizzCreate: React.FC = () => {
     allowRetry: false,
     showCorrectAnswers: true,
   });
+  const { user } = useAuth();
+  const [guestEmail, setGuestEmail] = useState("");
+  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
+
+  // Charger l'email existant si guest
+  React.useEffect(() => {
+    if (!user) {
+      guestEmailService.getGuestEmail().then(email => {
+        if (email) setGuestEmail(email);
+      });
+      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      setIsEmailFieldDismissed(dismissed);
+    }
+  }, [user]);
+
+  const handleDismissEmailField = () => {
+    setIsEmailFieldDismissed(true);
+    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
+  };
 
   // Toggle question expansion
   const toggleQuestion = (questionId: string) => {
@@ -435,6 +459,37 @@ export const QuizzCreate: React.FC = () => {
             />
           </div>
         </div>
+
+        {/* Champ Email Invité (RGPD) */}
+        {!user && !isEmailFieldDismissed && (
+          <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-700 relative group">
+            <button
+              onClick={handleDismissEmailField}
+              className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-300 transition-colors bg-gray-800/80 rounded-full"
+              title="Ne plus afficher ce message"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2 mb-3">
+              <Mail className="w-5 h-5 text-blue-400" />
+              <Label className="text-sm font-medium text-blue-400">
+                Email pour les alertes RGPD (recommandé)
+              </Label>
+            </div>
+            <Input
+              type="email"
+              placeholder="votre@email.com"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+              className="bg-gray-900 border-gray-700 text-gray-200"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              En tant qu'invité, vos données sont conservées pendant 1 an.
+              Renseignez votre email pour être alerté avant la suppression.
+            </p>
+          </div>
+        )}
 
         {/* Questions */}
         <div className="space-y-3 sm:space-y-4">

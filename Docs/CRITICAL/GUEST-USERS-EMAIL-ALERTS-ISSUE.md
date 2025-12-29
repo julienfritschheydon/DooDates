@@ -29,11 +29,11 @@
 - ⚠️ Nécessite modification UI/UX
 - ⚠️ Gestion des emails invalides
 
-### Solution 2 : Rétention Plus Longue
+### Solution 2 : Rétention Longue (1 an pour tous)
 **Implémentation :**
-- 90 jours pour invités vs 30 jours pour connectés
-- Alertes in-app plus visibles
-- Warning "Connectez-vous pour sauvegarder"
+- Uniformiser la rétention à 365 jours pour tous les utilisateurs (invités et connectés)
+- Garder les alertes in-app et email pour garantir la transparence
+- Warning "Connectez-vous pour sauvegarder vos données" pour la pérennité au-delà d'un an
 
 **Avantages :**
 - ✅ Simple à implémenter
