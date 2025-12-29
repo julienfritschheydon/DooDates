@@ -84,8 +84,12 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
         }, 10000);
       }
     } catch (error) {
-      setStatus("error");
-      onConnectionChange?.("error");
+      // Only update state if we're in a browser environment
+      // This prevents "window is not defined" errors during test teardown
+      if (typeof window !== "undefined") {
+        setStatus("error");
+        onConnectionChange?.("error");
+      }
 
       const processedError = handleError(
         error,
