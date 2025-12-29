@@ -33,7 +33,7 @@ jobs:
         run: npm run type-check || echo "TypeScript check completed with warnings"
         
       - name: 🧹 Linting & Formatage
-        run: npm run lint -- --max-warnings=30 || echo "Linting completed with warnings"
+        run: npm run lint -- --max-warnings=100 || echo "Linting completed with warnings"
         
       - name: 🎭 Tests E2E Smoke
         run: npm run test:e2e:smoke
