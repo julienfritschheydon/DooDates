@@ -127,7 +127,7 @@ export default function FormPollsDocumentationAdvanced() {
 ○ Jus de fruits
 ○ Eau`}
               </pre>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 Usage : Préférences exclusives, classification, Oui/Non
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function FormPollsDocumentationAdvanced() {
 ☐ Java
 ☑ TypeScript`}
               </pre>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 Config : Min/Max sélections, option "Autre"
               </p>
             </div>
@@ -153,14 +153,14 @@ export default function FormPollsDocumentationAdvanced() {
               <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
                 <h3 className="font-medium text-purple-300 mb-2">3. Texte Court</h3>
                 <p className="text-sm text-gray-400">Réponse sur une ligne (300 car.)</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Validation : Email, Téléphone, URL, Nombre
                 </p>
               </div>
               <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
                 <h3 className="font-medium text-purple-300 mb-2">4. Texte Long</h3>
                 <p className="text-sm text-gray-400">Réponse multiligne (2000 car.)</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Usage : Commentaires, suggestions, témoignages
                 </p>
               </div>
@@ -178,7 +178,7 @@ export default function FormPollsDocumentationAdvanced() {
               <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
                 <h3 className="font-medium text-purple-300 mb-2">6. NPS (0-10)</h3>
                 <p className="text-sm text-gray-400">Net Promoter Score</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Promoteurs (9-10) - Détracteurs (0-6) = Score NPS
                 </p>
               </div>
@@ -202,7 +202,7 @@ Service client         ○       ○      ○       ⚫`}
             <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
               <h3 className="font-medium text-purple-300 mb-2">8. Date (Calendrier)</h3>
               <p className="text-sm text-gray-400">Sélection de dates et horaires avec grille</p>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 Granularité : 15min, 30min, 1h | Options : Peut-être, Anonyme
               </p>
             </div>
@@ -247,7 +247,7 @@ Q3. [Visible si Q1 = Oui]
 
 → Q5 visible seulement si les DEUX conditions sont vraies`}
             </pre>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-gray-400 mt-3">
               ⚠️ Note : Seule la logique ET est supportée actuellement.
               Toutes les conditions doivent être vraies pour afficher la question.
             </p>
@@ -359,7 +359,7 @@ Q3. [Visible si Q1 = Oui]
               <p className="text-xs text-gray-400">Complet</p>
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-3">
+          <p className="text-xs text-gray-400 mt-3">
             Quota : 1 simulation (50 réponses) = 1 crédit IA. Données supprimées après 24h.
           </p>
         </div>
@@ -442,7 +442,7 @@ Q3. [Visible si Q1 = Oui]
             <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
               <h3 className="font-medium text-purple-300 mb-2">🔒 Moi uniquement (par défaut)</h3>
               <p className="text-sm text-gray-400">Seul le créateur voit les résultats.</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Usage : Enquêtes RH, feedback confidentiel
               </p>
             </div>
@@ -454,7 +454,7 @@ Q3. [Visible si Q1 = Oui]
               <p className="text-sm text-gray-400">
                 Créateur + votants peuvent voir les résultats.
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Usage : Sondages de groupe, décisions d'équipe
               </p>
             </div>
@@ -462,7 +462,7 @@ Q3. [Visible si Q1 = Oui]
             <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
               <h3 className="font-medium text-purple-300 mb-2">🌍 Public</h3>
               <p className="text-sm text-gray-400">Tout le monde peut voir (même sans voter).</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 ⚠️ Attention : peut créer un biais de réponses
               </p>
             </div>

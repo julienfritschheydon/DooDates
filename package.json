@@ -82,7 +82,8 @@
     "supabase:lint:local": "npx supabase db lint",
     "supabase:lint:local:check": "npx supabase db lint --level error",
     "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1",
-    "server": "tsx src/server/index.ts"
+    "server": "tsx src/server/index.ts",
+    "ai-audit": "cd ../max-doc-ai-test && venv\\Scripts\\python scripts/automate_contact_doc.py"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

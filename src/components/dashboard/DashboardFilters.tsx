@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 import {
   Search,
   LayoutGrid,
@@ -11,6 +12,7 @@ import {
   Calendar,
   ClipboardList,
   MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 import { FilterType, DashboardPoll, ContentTypeFilter } from "./types";
 import { getStatusLabel } from "./utils";
@@ -76,6 +78,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   const { toast } = useToast();
   const tagMenuRef = useRef<HTMLDivElement>(null);
   const folderMenuRef = useRef<HTMLDivElement>(null);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   // Fermer les menus en cliquant ailleurs
   useEffect(() => {
@@ -225,11 +228,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               data-testid="view-toggle-grid"
               onClick={() => onViewModeChange("grid")}
-              className={`p-2 rounded transition-colors ${
-                viewMode === "grid"
-                  ? `${currentTheme.activeBg} text-white`
-                  : "text-gray-300 hover:bg-[#2a2a2a]"
-              }`}
+              className={`p-2 rounded transition-colors ${viewMode === "grid"
+                ? `${currentTheme.activeBg} text-white`
+                : "text-gray-300 hover:bg-[#2a2a2a]"
+                }`}
               title="Vue grille"
               aria-label="Vue grille"
             >
@@ -238,11 +240,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               data-testid="view-toggle-table"
               onClick={() => onViewModeChange("table")}
-              className={`hidden md:block p-2 rounded transition-colors ${
-                viewMode === "table"
-                  ? `${currentTheme.activeBg} text-white`
-                  : "text-gray-300 hover:bg-[#2a2a2a]"
-              }`}
+              className={`hidden md:block p-2 rounded transition-colors ${viewMode === "table"
+                ? `${currentTheme.activeBg} text-white`
+                : "text-gray-300 hover:bg-[#2a2a2a]"
+                }`}
               title="Vue table"
               aria-label="Vue table"
             >
@@ -254,11 +255,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           {hasItems && (
             <button
               onClick={selectedIdsCount > 0 ? onClearSelection : onSelectAll}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 border ${
-                selectedIdsCount > 0
-                  ? `${currentTheme.bg} ${currentTheme.hoverBg} text-white ${currentTheme.border}`
-                  : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 border ${selectedIdsCount > 0
+                ? `${currentTheme.bg} ${currentTheme.hoverBg} text-white ${currentTheme.border}`
+                : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
+                }`}
               title={selectedIdsCount > 0 ? "Désélectionner tout" : "Sélectionner tout"}
               data-testid="selection-toggle-button"
             >
@@ -271,238 +271,251 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         </div>
       </div>
 
-      {/* Ligne 2: Filtres type de contenu */}
-      {!hideContentTypeFilter && (
-        <div className="flex flex-wrap gap-3 items-center">
-          {/* Filtres par type de contenu */}
-          <div className="flex gap-2 flex-wrap">
-            {contentTypeFilters.map(({ value, label, icon }) => {
-              const theme = getFilterColor(value);
-              return (
-                <button
-                  key={value}
-                  data-testid={`content-type-filter-${value}`}
-                  onClick={() => onContentTypeFilterChange(value)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    contentTypeFilter === value
+      {/* Mobile Filters Toggle */}
+      <div className="sm:hidden">
+        <button
+          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+          className="w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300"
+        >
+          <span className="text-sm font-medium">Filtres & Options</span>
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 transition-transform duration-200",
+              isMobileFiltersOpen ? "rotate-180" : ""
+            )}
+          />
+        </button>
+      </div>
+
+      {/* Collapsible Filter Content */}
+      <div className={cn("space-y-4", isMobileFiltersOpen ? "block" : "hidden sm:block")}>
+        {/* Ligne 2: Filtres type de contenu */}
+        {!hideContentTypeFilter && (
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Filtres par type de contenu */}
+            <div className="flex gap-2 flex-wrap">
+              {contentTypeFilters.map(({ value, label, icon }) => {
+                const theme = getFilterColor(value);
+                return (
+                  <button
+                    key={value}
+                    data-testid={`content-type-filter-${value}`}
+                    onClick={() => onContentTypeFilterChange(value)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${contentTypeFilter === value
                       ? `${theme.activeBg} text-white border-2 ${theme.activeBorder} shadow-lg ${theme.shadow} scale-105 font-semibold`
                       : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
-                  }`}
-                >
-                  {icon}
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Ligne 3: Filtres statut + Tags + Dossiers */}
-      <div className="flex flex-wrap gap-3 items-center">
-        {/* Filtres par statut */}
-        <div className="flex gap-2 flex-wrap">
-          {filters.map((f) => (
-            <button
-              key={f}
-              data-testid={`status-filter-${f}`}
-              onClick={() => onFilterChange(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                filter === f
-                  ? `${currentTheme.activeBg} text-white border-2 ${currentTheme.activeBorder} shadow-lg ${currentTheme.shadow} scale-105 font-semibold`
-                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
-              }`}
-            >
-              {f === "all" ? "Tous" : getStatusLabel(f as DashboardPoll["status"])}
-            </button>
-          ))}
-        </div>
-
-        {/* Tags et Dossiers */}
-        {/* Filtre par Tags */}
-        <div className="relative" ref={tagMenuRef}>
-          <button
-            onClick={() => setShowTagMenu(!showTagMenu)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
-              selectedTags.length > 0
-                ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
-                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
-            }`}
-          >
-            <Tag className="w-4 h-4" />
-            Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
-          </button>
-
-          {showTagMenu && (
-            <div
-              className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <div className="p-3 border-b border-gray-700">
-                <input
-                  type="text"
-                  placeholder="Nouveau tag..."
-                  value={newTagName}
-                  onChange={(e) => setNewTagName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateTag();
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
-                  autoFocus
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCreateTag();
-                  }}
-                  className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
-                >
-                  <Plus className="w-3 h-3" />
-                  Créer
-                </button>
-              </div>
-              <div className="p-2 space-y-1">
-                {tags.map((tag) => (
-                  <label
-                    key={tag.id}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2a2a] rounded cursor-pointer"
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
+                      }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedTags.includes(tag.name)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleTag(tag.name);
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      onMouseDown={(e) => e.stopPropagation()}
-                      className="w-4 h-4 rounded"
-                    />
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
-                    <span className="text-sm text-gray-300">{tag.name}</span>
-                  </label>
-                ))}
-                {tags.length === 0 && (
-                  <p className="px-3 py-2 text-sm text-gray-500">Aucun tag disponible</p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Filtre par Dossier */}
-        <div className="relative" ref={folderMenuRef}>
-          <button
-            onClick={() => setShowFolderMenu(!showFolderMenu)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
-              selectedFolderId
-                ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
-                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
-            }`}
-          >
-            <Folder className="w-4 h-4" />
-            {selectedFolderId
-              ? folders.find((f) => f.id === selectedFolderId)?.name || "Dossier"
-              : "Tous les dossiers"}
-          </button>
-
-          {showFolderMenu && (
-            <div
-              className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-3 border-b border-gray-700">
-                <input
-                  type="text"
-                  placeholder="Nouveau dossier..."
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateFolder();
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
-                  autoFocus
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCreateFolder();
-                  }}
-                  className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
-                >
-                  <Plus className="w-3 h-3" />
-                  Créer
-                </button>
-              </div>
-              <div className="p-2 space-y-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onFolderChange(undefined);
-                    setShowFolderMenu(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${
-                    !selectedFolderId
-                      ? `${currentTheme.bg} text-white`
-                      : "text-gray-300 hover:bg-[#2a2a2a]"
-                  }`}
-                >
-                  Tous les dossiers
-                </button>
-                {folders.map((folder) => (
-                  <button
-                    key={folder.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onFolderChange(folder.id);
-                      setShowFolderMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${
-                      selectedFolderId === folder.id
-                        ? `${currentTheme.bg} text-white`
-                        : "text-gray-300 hover:bg-[#2a2a2a]"
-                    }`}
-                  >
-                    <span>{folder.icon}</span>
-                    <span>{folder.name}</span>
+                    {icon}
+                    {label}
                   </button>
-                ))}
-                {folders.length === 0 && (
-                  <p className="px-3 py-2 text-sm text-gray-500">Aucun dossier disponible</p>
-                )}
-              </div>
+                );
+              })}
             </div>
-          )}
-        </div>
-
-        {/* Tags sélectionnés - affichage */}
-        {selectedTags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {selectedTags.map((tagName) => {
-              const tag = tags.find((t) => t.name === tagName);
-              return (
-                <span
-                  key={tagName}
-                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${currentTheme.bg} text-white`}
-                  style={{ backgroundColor: tag?.color || undefined }}
-                >
-                  {tagName}
-                  <button
-                    onClick={() => toggleTag(tagName)}
-                    className="hover:bg-black/20 rounded p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              );
-            })}
           </div>
         )}
+
+        {/* Ligne 3: Filtres statut + Tags + Dossiers */}
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Filtres par statut */}
+          <div className="flex gap-2 flex-wrap">
+            {filters.map((f) => (
+              <button
+                key={f}
+                data-testid={`status-filter-${f}`}
+                onClick={() => onFilterChange(f)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${filter === f
+                  ? `${currentTheme.activeBg} text-white border-2 ${currentTheme.activeBorder} shadow-lg ${currentTheme.shadow} scale-105 font-semibold`
+                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
+                  }`}
+              >
+                {f === "all" ? "Tous" : getStatusLabel(f as DashboardPoll["status"])}
+              </button>
+            ))}
+          </div>
+
+          {/* Tags et Dossiers */}
+          {/* Filtre par Tags */}
+          <div className="relative" ref={tagMenuRef}>
+            <button
+              onClick={() => setShowTagMenu(!showTagMenu)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${selectedTags.length > 0
+                ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
+                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
+                }`}
+            >
+              <Tag className="w-4 h-4" />
+              Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
+            </button>
+
+            {showTagMenu && (
+              <div
+                className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <div className="p-3 border-b border-gray-700">
+                  <input
+                    type="text"
+                    placeholder="Nouveau tag..."
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreateTag();
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
+                    autoFocus
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCreateTag();
+                    }}
+                    className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
+                  >
+                    <Plus className="w-3 h-3" />
+                    Créer
+                  </button>
+                </div>
+                <div className="p-2 space-y-1">
+                  {tags.map((tag) => (
+                    <label
+                      key={tag.id}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2a2a] rounded cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedTags.includes(tag.name)}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleTag(tag.name);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        className="w-4 h-4 rounded"
+                      />
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
+                      <span className="text-sm text-gray-300">{tag.name}</span>
+                    </label>
+                  ))}
+                  {tags.length === 0 && (
+                    <p className="px-3 py-2 text-sm text-gray-500">Aucun tag disponible</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Filtre par Dossier */}
+          <div className="relative" ref={folderMenuRef}>
+            <button
+              onClick={() => setShowFolderMenu(!showFolderMenu)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${selectedFolderId
+                ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
+                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
+                }`}
+            >
+              <Folder className="w-4 h-4" />
+              {selectedFolderId
+                ? folders.find((f) => f.id === selectedFolderId)?.name || "Dossier"
+                : "Tous les dossiers"}
+            </button>
+
+            {showFolderMenu && (
+              <div
+                className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-3 border-b border-gray-700">
+                  <input
+                    type="text"
+                    placeholder="Nouveau dossier..."
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreateFolder();
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
+                    autoFocus
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCreateFolder();
+                    }}
+                    className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
+                  >
+                    <Plus className="w-3 h-3" />
+                    Créer
+                  </button>
+                </div>
+                <div className="p-2 space-y-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFolderChange(undefined);
+                      setShowFolderMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded text-sm ${!selectedFolderId
+                      ? `${currentTheme.bg} text-white`
+                      : "text-gray-300 hover:bg-[#2a2a2a]"
+                      }`}
+                  >
+                    Tous les dossiers
+                  </button>
+                  {folders.map((folder) => (
+                    <button
+                      key={folder.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFolderChange(folder.id);
+                        setShowFolderMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${selectedFolderId === folder.id
+                        ? `${currentTheme.bg} text-white`
+                        : "text-gray-300 hover:bg-[#2a2a2a]"
+                        }`}
+                    >
+                      <span>{folder.icon}</span>
+                      <span>{folder.name}</span>
+                    </button>
+                  ))}
+                  {folders.length === 0 && (
+                    <p className="px-3 py-2 text-sm text-gray-500">Aucun dossier disponible</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tags sélectionnés - affichage */}
+          {selectedTags.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedTags.map((tagName) => {
+                const tag = tags.find((t) => t.name === tagName);
+                return (
+                  <span
+                    key={tagName}
+                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${currentTheme.bg} text-white`}
+                    style={{ backgroundColor: tag?.color || undefined }}
+                  >
+                    {tagName}
+                    <button
+                      onClick={() => toggleTag(tagName)}
+                      className="hover:bg-black/20 rounded p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

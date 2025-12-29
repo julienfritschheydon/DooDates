@@ -97,7 +97,7 @@ export const SupportPolicy: React.FC = () => {
                     <h3 className="font-semibold text-red-300">Priorité Critique</h3>
                   </div>
                   <p className="text-red-200 text-sm mb-2">
-                    <strong>Délai : &lt; 24 heures</strong>
+                    <strong>Traitement prioritaire immédiat</strong>
                   </p>
                   <p className="text-red-200 text-sm">
                     Application inaccessible, perte de données, problème de sécurité, erreur bloquante
@@ -109,7 +109,7 @@ export const SupportPolicy: React.FC = () => {
                     <h3 className="font-semibold text-orange-300">Priorité Haute</h3>
                   </div>
                   <p className="text-orange-200 text-sm mb-2">
-                    <strong>Délai : &lt; 48 heures</strong>
+                    <strong>Traitement prioritaire</strong>
                   </p>
                   <p className="text-orange-200 text-sm">
                     Fonctionnalité principale non fonctionnelle, problème de performance significatif
@@ -121,7 +121,7 @@ export const SupportPolicy: React.FC = () => {
                     <h3 className="font-semibold text-blue-300">Priorité Normale</h3>
                   </div>
                   <p className="text-blue-200 text-sm mb-2">
-                    <strong>Délai : &lt; 5 jours ouvrés</strong>
+                    <strong>Traitement standard</strong>
                   </p>
                   <p className="text-blue-200 text-sm">
                     Questions sur l'utilisation, demandes d'information, suggestions
@@ -133,7 +133,7 @@ export const SupportPolicy: React.FC = () => {
                     <h3 className="font-semibold text-gray-300">Priorité Basse</h3>
                   </div>
                   <p className="text-gray-300 text-sm mb-2">
-                    <strong>Délai : &lt; 10 jours ouvrés</strong>
+                    <strong>Traitement au fil de l'eau</strong>
                   </p>
                   <p className="text-gray-300 text-sm">
                     Feature requests, améliorations UX, optimisations non critiques
@@ -227,31 +227,7 @@ export const SupportPolicy: React.FC = () => {
               </div>
             </section>
 
-            {/* Taux de Résolution */}
-            <section className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <TrendingUp className="w-5 h-5 text-gray-400" />
-                <h2 className="text-2xl font-bold text-white">Taux de Résolution</h2>
-              </div>
-              <div className="space-y-3 text-gray-300">
-                <div>
-                  <h3 className="font-semibold text-white mb-1">Objectifs</h3>
-                  <ul className="list-disc list-inside text-sm space-y-1 ml-4">
-                    <li>Bugs critiques : Résolution sous 48h (objectif : 90%)</li>
-                    <li>Bugs majeurs : Résolution sous 7 jours (objectif : 85%)</li>
-                    <li>Questions générales : Réponse sous 5 jours (objectif : 95%)</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1">Suivi</h3>
-                  <ul className="list-disc list-inside text-sm space-y-1 ml-4">
-                    <li>Revue mensuelle des métriques</li>
-                    <li>Publication trimestrielle des statistiques (post-lancement)</li>
-                    <li>Amélioration continue selon les résultats</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
+            {/* Taux de Résolution - Interne -> Section supprimée pour le public */}
 
             {/* Types de Demandes */}
             <section className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6">

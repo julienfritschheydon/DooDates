@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { calculateTotalPollsCreated } from "@/lib/quotaTracking";
 import {
   LineChart,
   Line,
@@ -577,55 +578,92 @@ const AdminQuotaDashboard: React.FC = () => {
           )}
 
           <section className="rounded-lg border border-gray-200 bg-white/70 p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-              <div className="flex-1 flex gap-2 items-center">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setSelectedBar(null); // Clear chart selection when searching
-                  }}
-                  placeholder="Rechercher par fingerprint ou ID quota..."
-                  className="w-full md:w-80 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                />
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
+              <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setSelectedBar(null);
+                    }}
+                    placeholder="Rechercher (fingerprint, ID)..."
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  />
+                </div>
+
+                {/* Mobile Filter Toggle */}
+                <div className="sm:hidden">
+                  <details className="group border border-gray-200 rounded-md bg-white">
+                    <summary className="flex items-center justify-between p-2 cursor-pointer list-none text-sm font-medium text-gray-700 [&::-webkit-details-marker]:hidden">
+                      <span>Filtres & Options</span>
+                      <span className="transition group-open:rotate-180">▼</span>
+                    </summary>
+                    <div className="p-3 flex flex-col gap-3">
+                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={includeTestSessions}
+                          onChange={(e) => setIncludeTestSessions(e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        Inclure tests
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => void loadQuotas()}
+                        disabled={isLoadingData}
+                        className="w-full justify-center inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+                      >
+                        {isLoadingData ? "Chargement..." : "Rafraîchir les données"}
+                      </button>
+                    </div>
+                  </details>
+                </div>
+              </div>
+
+              {/* Desktop Filters */}
+              <div className="hidden sm:flex items-center gap-4 justify-end">
                 {selectedBar && (
-                  <div className="flex items-center gap-2 text-sm text-blue-600">
-                    <span>Filtré: {selectedBar}</span>
+                  <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    <span className="truncate max-w-[150px]">Filtre: {selectedBar}</span>
                     <button
                       onClick={() => setSelectedBar(null)}
-                      className="text-blue-400 hover:text-blue-600"
+                      className="text-blue-400 hover:text-blue-600 font-bold"
                     >
                       ×
                     </button>
                   </div>
                 )}
-              </div>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex items-center gap-2 text-sm whitespace-nowrap cursor-pointer">
                   <input
                     type="checkbox"
                     checked={includeTestSessions}
                     onChange={(e) => setIncludeTestSessions(e.target.checked)}
-                    className="rounded border-gray-300"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  Inclure les sessions de test
+                  <span className="text-gray-700">Inclure tests</span>
                 </label>
-              </div>
-              <div className="flex items-center gap-2 justify-end">
-                {loadError && (
-                  <span className="text-xs text-red-600 max-w-xs text-right">
-                    {loadError}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => void loadQuotas()}
-                  disabled={isLoadingData}
-                  className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoadingData ? "Rafraîchissement..." : "Rafraîchir"}
-                </button>
+
+                <div className="flex items-center gap-2">
+                  {loadError && (
+                    <span className="text-xs text-red-600 max-w-[150px] truncate" title={loadError}>
+                      {loadError}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void loadQuotas()}
+                    disabled={isLoadingData}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm"
+                    title="Rafraîchir les données"
+                  >
+                    <span className={`transition-transform duration-700 ${isLoadingData ? "animate-spin" : ""}`}>↻</span>
+                    <span className="hidden lg:inline">Rafraîchir</span>
+                  </button>
+                </div>
               </div>
             </div>
 

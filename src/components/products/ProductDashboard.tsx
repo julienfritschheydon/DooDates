@@ -13,6 +13,7 @@ import {
   Eye,
   BarChart3,
   Copy,
+  ChevronDown,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
@@ -59,6 +60,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterType>("all");
   const contentTypeFilter = productType;
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -321,10 +323,10 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
   const renderHeader = () => (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <h1 role="heading" className="text-3xl font-bold tracking-tight text-white">
+        <h1 role="heading" className="text-xl sm:text-3xl font-bold tracking-tight text-white">
           {config.dashboardTitle}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-gray-400">{config.dashboardDescription}</p>
+        <p className="mt-2 max-w-2xl text-sm text-gray-400 hidden sm:block">{config.dashboardDescription}</p>
       </div>
     </div>
   );
@@ -583,79 +585,100 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {renderHeader()}
 
-          {/* Quizz-specific stats (only for quizz) */}
-          {renderQuizzStats()}
+          {/* Mobile Stats Toggle */}
+          <div className="sm:hidden mb-4">
+            <button
+              onClick={() => setIsStatsOpen(!isStatsOpen)}
+              className="w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300"
+            >
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm font-medium">Statistiques & Quotas</span>
+              </div>
+              <ChevronDown
+                className={cn(
+                  "w-4 h-4 transition-transform duration-200",
+                  isStatsOpen ? "rotate-180" : ""
+                )}
+              />
+            </button>
+          </div>
 
-          {/* Quota indicator */}
-          <div
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
-              ? "bg-orange-900/20 border-orange-500/50"
-              : theme.quotaBg
-              }`}
-          >
-            <Info
-              className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
+          <div className={cn(isStatsOpen ? "block" : "hidden sm:block")}>
+            {/* Quizz-specific stats (only for quizz) */}
+            {renderQuizzStats()}
+
+            {/* Quota indicator */}
+            <div
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
+                ? "bg-orange-900/20 border-orange-500/50"
+                : theme.quotaBg
                 }`}
-            />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className="flex-1 cursor-pointer hover:opacity-80 transition-opacity group"
-                    onClick={() => navigate(config.journalRoute)}
-                  >
-                    <p className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">
-                      <span className="font-semibold">
-                        {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
-                      </span>{" "}
-                      crédits utilisés
-                      <span
-                        className={`ml-2 ${theme.quotaText} opacity-0 group-hover:opacity-100 transition-opacity`}
-                      >
-                        → Voir le journal
-                      </span>
-                      {!user && (
-                        <span className={`ml-2 ${theme.quotaText}`}>
-                          • Créez un compte pour synchroniser vos données
+            >
+              <Info
+                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
+                  }`}
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="flex-1 cursor-pointer hover:opacity-80 transition-opacity group"
+                      onClick={() => navigate(config.journalRoute)}
+                    >
+                      <p className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">
+                        <span className="font-semibold">
+                          {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
+                        </span>{" "}
+                        crédits utilisés
+                        <span
+                          className={`ml-2 ${theme.quotaText} opacity-0 group-hover:opacity-100 transition-opacity`}
+                        >
+                          → Voir le journal
                         </span>
-                      )}
-                    </p>
-                    <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
-                          }`}
-                        style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
-                      />
+                        {!user && (
+                          <span className={`ml-2 ${theme.quotaText}`}>
+                            • Créez un compte pour synchroniser vos données
+                          </span>
+                        )}
+                      </p>
+                      <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
+                            }`}
+                          style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Cliquez pour voir le journal de consommation des crédits</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cliquez pour voir le journal de consommation des crédits</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(config.journalRoute)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
-                title="Voir le journal de consommation"
-                aria-label="Voir le journal de consommation"
-              >
-                <FileText className="w-4 h-4" />
-                <span className="hidden sm:inline">Journal</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate(config.journalRoute)}
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
+                  title="Voir le journal de consommation"
+                  aria-label="Voir le journal de consommation"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Journal</span>
+                </button>
 
-              <button
-                onClick={() => navigate(config.pricingRoute)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
-                title="Voir les quotas et tarifs"
-                aria-label="Voir les quotas et tarifs"
-              >
-                <Info className="w-4 h-4" />
-                <span className="hidden sm:inline">En savoir plus</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
+                <button
+                  onClick={() => navigate(config.pricingRoute)}
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
+                  title="Voir les quotas et tarifs"
+                  aria-label="Voir les quotas et tarifs"
+                >
+                  <Info className="w-4 h-4" />
+                  <span className="hidden sm:inline">En savoir plus</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
 

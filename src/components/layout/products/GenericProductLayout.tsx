@@ -24,7 +24,7 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
   const { isSidebarOpen, toggleSidebar, closeSidebar, isMobile } = useSidebarState();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#0a0a0a]">
       {/* Overlay mobile - ferme le sidebar au click */}
       {isMobile && isSidebarOpen && (
         <div
@@ -62,7 +62,7 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
 
       {/* Zone contenu - pas de onClick, l'overlay gère la fermeture */}
       <main
-        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-0"
+        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 pt-16 md:pt-0 ${isSidebarOpen ? "ml-64" : "ml-0"
           }`}
       >
         {children}

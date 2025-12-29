@@ -5,10 +5,20 @@ const fs = require('fs');
 
 // Utiliser le même port que Playwright (via process.env.PORT ou --port), avec 8080 en fallback local
 const args = process.argv.slice(2);
-const portArg = args.find(arg => arg.startsWith('--port='));
-const PORT = portArg 
-  ? parseInt(portArg.split('=')[1], 10)
-  : parseInt(process.env.PORT || '8080', 10);
+let port = parseInt(process.env.PORT || '8080', 10);
+
+// Check for --port arg (handles both --port=XXXX and --port XXXX)
+const portArgIndex = args.findIndex(arg => arg === '--port' || arg.startsWith('--port='));
+if (portArgIndex !== -1) {
+  const arg = args[portArgIndex];
+  if (arg.startsWith('--port=')) {
+    port = parseInt(arg.split('=')[1], 10);
+  } else if (args[portArgIndex + 1]) {
+    port = parseInt(args[portArgIndex + 1], 10);
+  }
+}
+
+const PORT = port;
 const HOST = '0.0.0.0';
 const TIMEOUT = process.env.CI ? 180000 : 120000; // 3 min en CI, 2 min en local
 
@@ -73,9 +83,9 @@ function waitForServer(url, maxAttempts = 30, interval = 2000) {
 
 // Démarrer le serveur Vite
 function startVite() {
-  console.log('Starting Vite dev server...');
+  console.log(`Starting Vite dev server on port ${PORT}...`);
 
-  const viteProcess = exec('npx vite --mode test', {
+  const viteProcess = exec(`npx vite --mode test --port ${PORT}`, {
     env: {
       ...process.env,
       NODE_ENV: 'test',
@@ -117,7 +127,7 @@ async function main() {
     };
 
     const isRunning = await checkServer();
-    
+
     if (isRunning) {
       console.log(`Server is already running on port ${PORT}`);
       // Garder le processus en vie

@@ -59,9 +59,9 @@ export default function MainLanding() {
               <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Calendar className="w-6 h-6 text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
+              <h2 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
                 Sondages de Dates
-              </h3>
+              </h2>
               <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Trouvez la date parfaite pour vos réunions et événements en un clin d'œil.
               </p>
@@ -81,9 +81,9 @@ export default function MainLanding() {
               <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <FileText className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">
+              <h2 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">
                 Formulaires
-              </h3>
+              </h2>
               <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Créez des formulaires intelligents pour collecter des avis et des informations.
               </p>
@@ -103,9 +103,9 @@ export default function MainLanding() {
               <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <CheckCircle2 className="w-6 h-6 text-green-400" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">
+              <h2 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">
                 Disponibilités
-              </h3>
+              </h2>
               <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Partagez vos disponibilités et laissez les autres réserver des créneaux.
               </p>
@@ -125,9 +125,9 @@ export default function MainLanding() {
               <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Brain className="w-6 h-6 text-yellow-400" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-white group-hover:text-yellow-400 transition-colors">
+              <h2 className="text-xl font-bold mb-2 text-white group-hover:text-yellow-400 transition-colors">
                 Quizz
-              </h3>
+              </h2>
               <p className="text-gray-300 text-sm mb-4 min-h-[3rem]">
                 Créez des quiz éducatifs pour aider vos enfants dans leurs devoirs.
               </p>

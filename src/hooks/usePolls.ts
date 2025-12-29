@@ -11,7 +11,9 @@ import {
   deleteVotesByPollId,
   Poll as StoragePoll,
   getCurrentUserId,
+  savePolls,
 } from "../lib/pollStorage";
+import { addConversation, getConversation } from "../lib/storage/ConversationStorageSimple";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 import { supabaseInsert, getSupabaseToken, supabaseUpdate } from "../lib/supabaseApi";
@@ -356,13 +358,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                    ...basePoll,
-                    dates: pollData.selectedDates,
-                  }
+                  ...basePoll,
+                  dates: pollData.selectedDates,
+                }
                 : {
-                    ...basePoll,
-                    questions: pollData.questions,
-                  };
+                  ...basePoll,
+                  questions: pollData.questions,
+                };
 
             addPoll(mockPoll);
             window.dispatchEvent(
@@ -400,13 +402,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                    ...basePoll,
-                    dates: pollData.selectedDates,
-                  }
+                  ...basePoll,
+                  dates: pollData.selectedDates,
+                }
                 : {
-                    ...basePoll,
-                    questions: pollData.questions,
-                  };
+                  ...basePoll,
+                  questions: pollData.questions,
+                };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -445,13 +447,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                    ...basePoll,
-                    dates: pollData.selectedDates,
-                  }
+                  ...basePoll,
+                  dates: pollData.selectedDates,
+                }
                 : {
-                    ...basePoll,
-                    questions: pollData.questions,
-                  };
+                  ...basePoll,
+                  questions: pollData.questions,
+                };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -483,16 +485,16 @@ export function usePolls() {
             ...basePollFromConversation,
             ...(conversation.poll_type === "date"
               ? {
-                  settings: {
-                    ...conversation.poll_data?.settings,
-                    selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
-                  },
-                  dates: conversation.poll_data?.dates || [],
-                  dateGroups: conversation.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
-                }
+                settings: {
+                  ...conversation.poll_data?.settings,
+                  selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
+                },
+                dates: conversation.poll_data?.dates || [],
+                dateGroups: conversation.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
+              }
               : {
-                  questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
-                }),
+                questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
+              }),
           } as StoragePoll;
 
           // Sauvegarder aussi dans localStorage pour cache local
@@ -657,9 +659,6 @@ export function usePolls() {
               }));
 
               // Sauvegarder aussi les conversations dans localStorage
-              const { addConversation, getConversation } = await import(
-                "../lib/storage/ConversationStorageSimple"
-              );
               conversations.forEach((c) => {
                 // Vérifier si la conversation existe déjà
                 const existingConv = getConversation(c.id);
@@ -705,7 +704,6 @@ export function usePolls() {
                 }
               });
 
-              const { savePolls } = await import("../lib/pollStorage");
               savePolls(mergedPolls);
               userPolls = mergedPolls;
             } else {

@@ -29,8 +29,13 @@ const Contact = () => {
             </header>
 
             <div className="container mx-auto px-4 py-32 text-center relative z-10 flex-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
-                    <span className="text-sm text-purple-400 font-medium">Contact</span>
+                <div className="flex justify-center gap-3 mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                        <span className="text-sm text-purple-400 font-medium">Contact</span>
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                        <span className="text-sm text-green-400 font-medium">Assistance Prioritaire Active</span>
+                    </div>
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold mb-8 tracking-tight">
                     Une question ?{" "}
@@ -45,7 +50,7 @@ const Contact = () => {
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8 max-w-xl mx-auto backdrop-blur-sm mb-12">
                     <p className="text-2xl font-bold text-white mb-2">support@doodates.com</p>
-                    <p className="text-gray-400 text-sm">Réponse moyenne sous 24 heures</p>
+                    <p className="text-gray-400 text-sm">Nous vous répondrons dans les meilleurs délais</p>
                 </div>
 
                 <div className="flex justify-center gap-4">

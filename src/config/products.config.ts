@@ -43,7 +43,7 @@ export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
     createRoute: "/create/date",
     workspaceRoute: "/workspace/date",
     dashboardRoute: "/date-polls/dashboard",
-    listRoute: "/date-polls/list",
+    listRoute: "/date-polls/dashboard",
     settingsRoute: "/date-polls/settings",
     pricingRoute: "/date-polls/pricing",
     docsRoute: "/date-polls/docs",

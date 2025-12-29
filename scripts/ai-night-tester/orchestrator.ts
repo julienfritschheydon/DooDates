@@ -425,8 +425,11 @@ export class Orchestrator {
      * Check current page for issues (bug-hunting mode)
      */
     private async checkForIssues(pageState: PageState, backgroundScreenshot?: string, forceDeepAnalyze?: boolean): Promise<void> {
+        let issuesFound = false;
+
         // Console errors
         for (const error of pageState.consoleErrors) {
+            issuesFound = true;
             await this.logIssue({
                 type: 'console_error',
                 severity: 'major',
@@ -439,6 +442,7 @@ export class Orchestrator {
 
         // HTTP errors
         for (const httpError of pageState.httpErrors) {
+            issuesFound = true;
             const severity: IssueSeverity = httpError.status >= 500 ? 'critical' : 'major';
             await this.logIssue({
                 type: 'http_error',
@@ -459,6 +463,7 @@ export class Orchestrator {
                 if (this.loggedAccessibilityIssues.has(key)) continue;
                 this.loggedAccessibilityIssues.add(key);
 
+                issuesFound = true;
                 await this.logIssue({
                     type: 'accessibility',
                     severity: violation.impact === 'critical' ? 'major' : 'minor',
@@ -478,6 +483,7 @@ export class Orchestrator {
             console.log(`🧠 [Background] Deep AI analysis starting for ${pageState.url}...`);
             const analysis = await this.brain.analyzeForIssues(pageState);
             if (analysis.isIssue) {
+                issuesFound = true;
                 await this.logIssue({
                     type: 'behavior_bug',
                     severity: analysis.severity || 'minor',
@@ -489,6 +495,16 @@ export class Orchestrator {
                 });
             }
             console.log(`✅ [Background] Deep AI analysis complete.`);
+        }
+
+        // CLEANUP: If no issues found and we took a screenshot, delete it
+        if (!issuesFound && backgroundScreenshot && fs.existsSync(backgroundScreenshot)) {
+            try {
+                fs.unlinkSync(backgroundScreenshot);
+                // console.log('🗑️ Deleted clean background screenshot');
+            } catch (err) {
+                console.warn('⚠️ Failed to delete background screenshot:', err);
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   Calendar,
   ClipboardList,
@@ -19,6 +20,7 @@ import {
   Copy,
   Lock,
   Archive,
+  ChevronDown,
 } from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel, getThemeColors } from "./utils";
@@ -81,9 +83,15 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const folders = getAllFolders();
   const folder = item.folderId ? getFolderById(item.folderId) : null;
   const theme = getThemeColors(item.poll?.type || "date");
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleCardClick = () => {
-    // Ouvrir le workspace avec la conversation (route produit date-polls, basename /DooDates géré par le router)
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Mobile: Toggle accordion
+    if (window.innerWidth < 640) {
+      setIsExpanded(!isExpanded);
+      return;
+    }
+    // Desktop: Navigate
     navigate(`/workspace/date?conversationId=${item.id}`);
   };
 
@@ -342,11 +350,10 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
   return (
     <div
-      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${
-        isSelected
-          ? `${theme.activeBorder} ring-2 ${theme.ring}`
-          : "border-gray-700 hover:shadow-md"
-      }`}
+      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${isSelected
+        ? `${theme.activeBorder} ring-2 ${theme.ring}`
+        : "border-gray-700 hover:shadow-md"
+        }`}
       data-testid="poll-item"
     >
       {/* Checkbox de sélection */}
@@ -360,9 +367,8 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div
-            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
-              isSelected ? theme.checkbox : "bg-transparent border-gray-500 hover:border-blue-400"
-            }`}
+            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? theme.checkbox : "bg-transparent border-gray-500 hover:border-blue-400"
+              }`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -374,7 +380,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
         </div>
       )}
 
-      <div className="p-6" onClick={handleCardClick}>
+      <div className="p-3 sm:p-6" onClick={handleCardClick}>
         {/* Header : Titre du poll (priorité) ou conversation */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 pr-10">
@@ -390,7 +396,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               ) : (
                 <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0" />
               )}
-              <h3 className="text-lg font-semibold text-white line-clamp-2">
+              <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-1 sm:line-clamp-2">
                 {item.poll ? item.poll.title : item.conversationTitle}
               </h3>
 
@@ -404,367 +410,389 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                   {getStatusLabel(item.poll.status)}
                 </span>
               )}
+
+              {/* Chevron Mobile */}
+              <ChevronDown
+                className={cn(
+                  "w-5 h-5 text-gray-400 ml-auto sm:hidden transition-transform duration-200",
+                  isExpanded ? "rotate-180" : ""
+                )}
+              />
             </div>
 
-            {/* Description du poll */}
-            {item.poll?.description && (
-              <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.poll.description}</p>
-            )}
+            {/* Collapsible Content Wrapper */}
+            <div className={cn(!isExpanded && "hidden sm:block")}>
+              {/* Description du poll */}
+              {item.poll?.description && (
+                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.poll.description}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Statistiques (si poll existe) */}
-        {item.poll && (
-          <div className="mb-4">
-            <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-              <div className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                <span>
-                  {item.poll.participants_count || 0} participant
-                  {(item.poll.participants_count || 0) > 1 ? "s" : ""}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Vote className="w-4 h-4" />
-                <span>
-                  {item.poll.type === "form" ? (
-                    <>
-                      {item.poll.votes_count || 0} réponse
-                      {(item.poll.votes_count || 0) > 1 ? "s" : ""}
-                    </>
-                  ) : (
-                    <>
-                      {item.poll.votes_count || 0} vote
-                      {(item.poll.votes_count || 0) > 1 ? "s" : ""}
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
+        {/* Collapsible details (Stats, Tags, Dates, Actions) */}
+        <div className={cn(!isExpanded && "hidden sm:block")}>
 
-            {/* Meilleures dates (pour sondages de dates) */}
-            {item.poll.topDates && item.poll.topDates.length > 0 ? (
-              <div className="mb-3">
-                <div className="text-xs text-gray-400 mb-2 font-medium">🏆 Dates populaires :</div>
-                <div className="flex flex-wrap gap-2">
-                  {item.poll.topDates.map((dateInfo, index) => (
-                    <span
-                      key={index}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        index === 0
-                          ? "bg-blue-900/30 text-blue-400"
-                          : "bg-purple-900/30 text-purple-400"
-                      }`}
-                    >
-                      {index === 0 && "⭐ "}
-                      {dateInfo.date}
-                      <span className="ml-1 text-xs opacity-75">({dateInfo.score} pts)</span>
-                    </span>
-                  ))}
+          {/* Statistiques (si poll existe) */}
+          {item.poll && (
+            <div className="mb-4">
+              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
+                <div className="flex items-center gap-1">
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">
+                    {item.poll.participants_count || 0} participant
+                    {(item.poll.participants_count || 0) > 1 ? "s" : ""}
+                  </span>
+                  <span className="sm:hidden">
+                    {item.poll.participants_count || 0} part.
+                  </span>
                 </div>
-              </div>
-            ) : (
-              item.poll.votes_count > 0 &&
-              item.poll.type !== "form" && (
-                <div className="mb-3 text-xs text-gray-400">
-                  Aucune date n'a reçu de vote favorable
-                </div>
-              )
-            )}
-          </div>
-        )}
-
-        {/* Badge IA avec bouton reprendre conversation */}
-        {item.hasAI && (
-          <div className="mb-3 flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${theme.lightBadge}`}
-            >
-              💬 Créé par IA
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/workspace/date?conversationId=${item.id}`);
-              }}
-              className={`text-xs transition-colors ${theme.linkText}`}
-            >
-              Reprendre la conversation →
-            </button>
-          </div>
-        )}
-
-        {/* Tags et Dossier */}
-        {(item.tags && item.tags.length > 0) || folder ? (
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            {folder && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-700 text-gray-300">
-                <Folder className="w-3 h-3" />
-                {folder.icon} {folder.name}
-              </span>
-            )}
-            {item.tags?.map((tagName) => {
-              const tag = tags.find((t) => t.name === tagName);
-              return (
-                <span
-                  key={tagName}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-white"
-                  style={{ backgroundColor: tag?.color || "#3b82f6" }}
-                >
-                  <Tag className="w-3 h-3" />
-                  {tagName}
-                </span>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {/* Dates */}
-        <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
-          {item.poll && item.poll.created_at && (
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {new Date(item.poll.created_at).toLocaleDateString("fr-FR")}
-            </span>
-          )}
-          <span>
-            Conversation :{" "}
-            {item.conversationDate.toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </span>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-          {item.poll ? (
-            <>
-              {/* Actions principales pour poll : Résultats et Voter */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/poll/${item.poll!.slug}/results`);
-                }}
-                className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span className="hidden lg:inline">Résultats</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/poll/${item.poll!.slug}`);
-                }}
-                className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
-              >
-                <Vote className="w-4 h-4" />
-                <span className="hidden lg:inline">Voter</span>
-              </button>
-
-              {/* Menu avec toutes les autres actions */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowTagsFolderDialog(true);
-                    }}
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Gérer les tags/dossier
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyLink();
-                    }}
-                  >
-                    {isCopied ? (
+                <div className="flex items-center gap-1">
+                  <Vote className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">
+                    {item.poll.type === "form" ? (
                       <>
-                        <Check className="w-4 h-4 mr-2" />
-                        Lien copié !
+                        {item.poll.votes_count || 0} réponse
+                        {(item.poll.votes_count || 0) > 1 ? "s" : ""}
                       </>
                     ) : (
                       <>
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Copier le lien
+                        {item.poll.votes_count || 0} vote
+                        {(item.poll.votes_count || 0) > 1 ? "s" : ""}
                       </>
                     )}
-                  </DropdownMenuItem>
-                  {item.poll.type === "form" && hasExportableData(item.poll) && (
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <Download className="w-4 h-4 mr-2" />
-                        Exporter
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("csv");
-                          }}
-                        >
-                          📊 CSV
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("pdf");
-                          }}
-                        >
-                          📄 PDF
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("json");
-                          }}
-                        >
-                          🔧 JSON
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("markdown");
-                          }}
-                        >
-                          📝 Markdown
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                  )}
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit();
-                    }}
-                    onMouseEnter={handlePreloadEdit}
-                    onMouseLeave={handleMouseLeaveEdit}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Modifier
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDuplicate();
-                    }}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Dupliquer
-                  </DropdownMenuItem>
-                  {item.poll.status === "active" && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleClose();
-                      }}
-                    >
-                      <Lock className="w-4 h-4 mr-2" />
-                      Terminer
-                    </DropdownMenuItem>
-                  )}
-                  {item.poll.status !== "archived" && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleArchive();
-                      }}
-                    >
-                      <Archive className="w-4 h-4 mr-2" />
-                      Archiver
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePoll();
-                    }}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <>
-              {/* Actions pour conversation seule */}
+                  </span>
+                  <span className="sm:hidden">
+                    {item.poll.votes_count || 0} {item.poll.type === "form" ? "rép." : "votes"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Meilleures dates (pour sondages de dates) */}
+              {item.poll.topDates && item.poll.topDates.length > 0 ? (
+                <div className="mb-3">
+                  <div className="text-xs text-gray-400 mb-2 font-medium">🏆 Dates populaires :</div>
+                  <div className="flex flex-wrap gap-2">
+                    {item.poll.topDates.map((dateInfo, index) => (
+                      <span
+                        key={index}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${index === 0
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-purple-900/30 text-purple-400"
+                          }`}
+                      >
+                        {index === 0 && "⭐ "}
+                        {dateInfo.date}
+                        <span className="ml-1 text-xs opacity-75">({dateInfo.score} pts)</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                item.poll.votes_count > 0 &&
+                item.poll.type !== "form" && (
+                  <div className="mb-3 text-xs text-gray-400">
+                    Aucune date n'a reçu de vote favorable
+                  </div>
+                )
+              )}
+            </div>
+          )}
+
+          {/* Badge IA avec bouton reprendre conversation */}
+          {item.hasAI && (
+            <div className="mb-3 flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${theme.lightBadge}`}
+              >
+                💬 Créé par IA
+              </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/DooDates/workspace?conversationId=${item.id}`);
+                  navigate(`/workspace/date?conversationId=${item.id}`);
                 }}
-                className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
+                className={`text-xs transition-colors ${theme.linkText}`}
               >
-                <MessageSquare className="w-4 h-4" />
-                Reprendre
+                Reprendre la conversation →
               </button>
-
-              {/* Menu pour gérer tags/dossier */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowTagsFolderDialog(true);
-                    }}
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Gérer les tags/dossier
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteConversation();
-                    }}
-                    className="text-red-600 focus:text-red-600"
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            </div>
           )}
-        </div>
 
-        {/* Dialog pour gérer tags et dossier */}
-        <ManageTagsFolderDialog
-          conversationId={item.id}
-          currentTags={item.tags || []}
-          currentFolderId={item.folderId}
-          open={showTagsFolderDialog}
-          onOpenChange={setShowTagsFolderDialog}
-          onSuccess={onRefresh}
-        />
+          {/* Tags et Dossier */}
+          {(item.tags && item.tags.length > 0) || folder ? (
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {folder && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-700 text-gray-300">
+                  <Folder className="w-3 h-3" />
+                  {folder.icon} {folder.name}
+                </span>
+              )}
+              {item.tags?.map((tagName) => {
+                const tag = tags.find((t) => t.name === tagName);
+                return (
+                  <span
+                    key={tagName}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-white"
+                    style={{ backgroundColor: tag?.color || "#3b82f6" }}
+                  >
+                    <Tag className="w-3 h-3" />
+                    {tagName}
+                  </span>
+                );
+              })}
+            </div>
+          ) : null}
+
+          {/* Dates */}
+          <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+            {item.poll && item.poll.created_at && (
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {new Date(item.poll.created_at).toLocaleDateString("fr-FR")}
+              </span>
+            )}
+            <span>
+              Conversation :{" "}
+              {item.conversationDate.toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+            {item.poll ? (
+              <>
+                {/* Actions principales pour poll : Résultats et Voter */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/poll/${item.poll!.slug}/results`);
+                  }}
+                  className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="hidden lg:inline">Résultats</span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/poll/${item.poll!.slug}`);
+                  }}
+                  className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
+                >
+                  <Vote className="w-4 h-4" />
+                  <span className="hidden lg:inline">Voter</span>
+                </button>
+
+                {/* Menu avec toutes les autres actions */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Menu d'actions"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowTagsFolderDialog(true);
+                      }}
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Gérer les tags/dossier
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyLink();
+                      }}
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Lien copié !
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Copier le lien
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    {item.poll.type === "form" && hasExportableData(item.poll) && (
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Download className="w-4 h-4 mr-2" />
+                          Exporter
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExport("csv");
+                            }}
+                          >
+                            📊 CSV
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExport("pdf");
+                            }}
+                          >
+                            📄 PDF
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExport("json");
+                            }}
+                          >
+                            🔧 JSON
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExport("markdown");
+                            }}
+                          >
+                            📝 Markdown
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    )}
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit();
+                      }}
+                      onMouseEnter={handlePreloadEdit}
+                      onMouseLeave={handleMouseLeaveEdit}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Modifier
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate();
+                      }}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Dupliquer
+                    </DropdownMenuItem>
+                    {item.poll.status === "active" && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClose();
+                        }}
+                      >
+                        <Lock className="w-4 h-4 mr-2" />
+                        Terminer
+                      </DropdownMenuItem>
+                    )}
+                    {item.poll.status !== "archived" && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleArchive();
+                        }}
+                      >
+                        <Archive className="w-4 h-4 mr-2" />
+                        Archiver
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePoll();
+                      }}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                {/* Actions pour conversation seule */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/DooDates/workspace?conversationId=${item.id}`);
+                  }}
+                  className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Reprendre
+                </button>
+
+                {/* Menu pour gérer tags/dossier */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Menu d'actions"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowTagsFolderDialog(true);
+                      }}
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Gérer les tags/dossier
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteConversation();
+                      }}
+                      className="text-red-600 focus:text-red-600"
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
+
+          {/* Dialog pour gérer tags et dossier */}
+          <ManageTagsFolderDialog
+            conversationId={item.id}
+            currentTags={item.tags || []}
+            currentFolderId={item.folderId}
+            open={showTagsFolderDialog}
+            onOpenChange={setShowTagsFolderDialog}
+            onSuccess={onRefresh}
+          />
+        </div>
       </div>
     </div>
   );

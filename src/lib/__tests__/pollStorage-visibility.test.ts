@@ -4,6 +4,7 @@ import {
   getCurrentUserId,
   checkIfUserHasVoted,
   addFormResponse,
+  addPoll,
   getDeviceId,
   getRespondentId,
   resetMemoryStateForTests,
@@ -52,6 +53,20 @@ describe("Poll Storage Helpers - Visibility Features", () => {
 
     it("détecte un vote via deviceId stocké dans la réponse", () => {
       const pollId = "poll-123";
+
+      // Initialize poll
+      addPoll({
+        id: pollId,
+        title: "Test Poll",
+        type: "form",
+        slug: pollId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        creator_id: "creator",
+        questions: [],
+        status: "active"
+      });
+
       const currentDeviceId = getDeviceId();
 
       console.log("DEBUG: Storing response with deviceId:", currentDeviceId);
@@ -71,6 +86,20 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       // Ce test simule le cas des anciennes réponses ou des réponses créées sans champ deviceId explicite
       // mais dont le respondentId a été généré avec le deviceId
       const pollId = "poll-legacy-123";
+
+      // Initialize poll
+      addPoll({
+        id: pollId,
+        title: "Test Poll",
+        type: "form",
+        slug: pollId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        creator_id: "creator",
+        questions: [],
+        status: "active"
+      });
+
       const currentDeviceId = getDeviceId(); // Force generation/cache
 
       // Use addFormResponse to create a response (which will have deviceId)
@@ -81,7 +110,7 @@ describe("Poll Storage Helpers - Visibility Features", () => {
 
       // Simulate legacy format by adding respondentId field and removing deviceId
       // We modify the response object directly since it's stored in memory
-      (response as any).respondentId = `anon:${currentDeviceId}:${response.id}`;
+      (response as any).respondentId = `anon:${currentDeviceId}:${response.id} `;
       delete (response as any).deviceId;
 
       const hasVoted = checkIfUserHasVoted(pollId);
@@ -112,7 +141,7 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       const otherResponse = {
         id: "resp-diff",
         pollId,
-        respondentId: `anon:dev-other-device:resp-diff`,
+        respondentId: `anon: dev - other - device: resp - diff`,
         created_at: new Date().toISOString(),
         items: [{ questionId: "q1", value: "opt1" }],
       };
@@ -125,6 +154,20 @@ describe("Poll Storage Helpers - Visibility Features", () => {
 
     it("gère correctement les réponses mixtes (avec et sans deviceId)", () => {
       const pollId = "poll-mixed-123";
+
+      // Initialize poll to pass validation
+      addPoll({
+        id: pollId,
+        title: "Test Poll",
+        type: "form",
+        slug: pollId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        creator_id: "creator",
+        questions: [],
+        status: "active"
+      });
+
       const currentDeviceId = getDeviceId();
 
       // Add first response with different deviceId using addFormResponse

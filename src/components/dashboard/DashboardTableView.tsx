@@ -380,19 +380,17 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
             return (
               <tr
                 key={item.id}
-                className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
-                  isSelected ? theme.selectionBg : ""
-                } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
+                className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${isSelected ? theme.selectionBg : ""
+                  } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
                 onClick={() => navigate(`/workspace/date?conversationId=${item.id}`)}
               >
                 {/* Checkbox */}
                 <td className="py-3 px-2 md:px-3 lg:px-4" onClick={(e) => e.stopPropagation()}>
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${
-                      isSelected
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected
                         ? theme.checkbox
                         : "bg-transparent border-gray-500 hover:border-blue-400"
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggleSelection(item.id);
@@ -440,15 +438,14 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 <td className="py-3 px-2 md:px-3 lg:px-4">
                   {item.poll ? (
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        item.poll.status === "draft"
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${item.poll.status === "draft"
                           ? "bg-gray-700 text-gray-300"
                           : item.poll.status === "active"
                             ? "bg-blue-900/50 text-blue-300"
                             : item.poll.status === "closed"
                               ? "bg-blue-900/50 text-blue-300"
                               : "bg-red-900/50 text-red-300"
-                      }`}
+                        }`}
                     >
                       {getStatusLabel(item.poll.status)}
                     </span>
@@ -502,6 +499,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                           }}
                           className="p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation"
                           title="Résultats"
+                          aria-label="Voir les résultats"
                         >
                           <BarChart3 className="w-5 h-5 md:w-4 md:h-4" />
                         </button>
@@ -512,6 +510,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                           }}
                           className="p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation"
                           title="Voter"
+                          aria-label="Voter"
                         >
                           <Vote className="w-5 h-5 md:w-4 md:h-4" />
                         </button>
@@ -524,6 +523,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                               size="sm"
                               className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation"
                               onClick={(e) => e.stopPropagation()}
+                              aria-label="Menu d'actions"
                             >
                               <MoreVertical className="w-5 h-5 md:w-4 md:h-4" />
                             </Button>
@@ -676,6 +676,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                               size="sm"
                               className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation"
                               onClick={(e) => e.stopPropagation()}
+                              aria-label="Menu d'actions"
                             >
                               <MoreVertical className="w-5 h-5 md:w-4 md:h-4" />
                             </Button>

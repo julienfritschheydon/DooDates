@@ -1,0 +1,4426 @@
+{
+  "savedAt": "2025-12-24T22:14:26.730Z",
+  "elements": [
+    [
+      "7016088470bb",
+      {
+        "selectorHash": "7016088470bb",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Ouvrir le menu",
+        "clickCount": 260,
+        "firstInteraction": "2025-12-24T16:27:10.911Z",
+        "lastInteraction": "2025-12-24T22:14:01.612Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "58fec580ff76",
+      {
+        "selectorHash": "58fec580ff76",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Fermer le menu",
+        "clickCount": 45,
+        "firstInteraction": "2025-12-24T16:27:21.142Z",
+        "lastInteraction": "2025-12-24T22:08:30.472Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1243c32574cf",
+      {
+        "selectorHash": "1243c32574cf",
+        "selector": "a:has-text(\"Mes Sondages\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Mes Sondages",
+        "clickCount": 171,
+        "firstInteraction": "2025-12-24T16:27:34.067Z",
+        "lastInteraction": "2025-12-24T22:13:13.172Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "57550409d912",
+      {
+        "selectorHash": "57550409d912",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls/list",
+        "text": "Return to Home",
+        "clickCount": 153,
+        "firstInteraction": "2025-12-24T16:27:37.951Z",
+        "lastInteraction": "2025-12-24T22:13:16.518Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "231ae65241f0",
+      {
+        "selectorHash": "231ae65241f0",
+        "selector": "a",
+        "pageUrl": "/DooDates/",
+        "text": "Sondages de DatesTrouvez la date parfaite pour vos réunions et événements en un clin d'œil.Découvrir",
+        "clickCount": 149,
+        "firstInteraction": "2025-12-24T16:27:46.457Z",
+        "lastInteraction": "2025-12-24T22:13:54.078Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a718ed454a9e",
+      {
+        "selectorHash": "a718ed454a9e",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Tableau de bord",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:28:00.474Z",
+        "lastInteraction": "2025-12-24T17:44:57.343Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3f60d3661c1f",
+      {
+        "selectorHash": "3f60d3661c1f",
+        "selector": "button:has-text(\"Créer un sondage\")",
+        "pageUrl": "/DooDates/date-polls/dashboard",
+        "text": "Créer un sondage",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:28:05.635Z",
+        "lastInteraction": "2025-12-24T16:31:02.578Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0a62d599758a",
+      {
+        "selectorHash": "0a62d599758a",
+        "selector": "button[aria-label=\"Mois précédent\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "Mois précédent",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:28:28.112Z",
+        "lastInteraction": "2025-12-24T17:38:56.840Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "202bcaf0054e",
+      {
+        "selectorHash": "202bcaf0054e",
+        "selector": "button#tab-data",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Mes Données",
+        "clickCount": 17,
+        "firstInteraction": "2025-12-24T16:28:35.154Z",
+        "lastInteraction": "2025-12-24T17:23:10.910Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8b98c1f36bd7",
+      {
+        "selectorHash": "8b98c1f36bd7",
+        "selector": "button#tab-settings",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Paramètres",
+        "clickCount": 11,
+        "firstInteraction": "2025-12-24T16:28:40.895Z",
+        "lastInteraction": "2025-12-24T17:23:30.457Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d39c61eb105f",
+      {
+        "selectorHash": "d39c61eb105f",
+        "selector": "button:has-text(\"Exporter mes données\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Exporter mes données",
+        "clickCount": 6,
+        "firstInteraction": "2025-12-24T16:28:50.597Z",
+        "lastInteraction": "2025-12-24T17:16:15.114Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "34675a9b7e13",
+      {
+        "selectorHash": "34675a9b7e13",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "DDooDates",
+        "clickCount": 14,
+        "firstInteraction": "2025-12-24T16:29:25.961Z",
+        "lastInteraction": "2025-12-24T21:22:30.698Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "368e37ab475c",
+      {
+        "selectorHash": "368e37ab475c",
+        "selector": "a",
+        "pageUrl": "/DooDates",
+        "text": "Sondages de DatesTrouvez la date parfaite pour vos réunions et événements en un clin d'œil.Découvrir",
+        "clickCount": 77,
+        "firstInteraction": "2025-12-24T16:29:33.296Z",
+        "lastInteraction": "2025-12-24T22:11:31.351Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "cb32c1dc86c9",
+      {
+        "selectorHash": "cb32c1dc86c9",
+        "selector": "a[data-testid=\"create-date-poll\"]",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Nouveau Sondage",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:29:42.476Z",
+        "lastInteraction": "2025-12-24T17:45:25.520Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6027c521cd38",
+      {
+        "selectorHash": "6027c521cd38",
+        "selector": "button[aria-label=\"lundi 29 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "29",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:30:03.366Z",
+        "lastInteraction": "2025-12-24T20:38:27.213Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "dd2ea5743eb6",
+      {
+        "selectorHash": "dd2ea5743eb6",
+        "selector": "button[aria-label=\"mercredi 24 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "24",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:30:23.573Z",
+        "lastInteraction": "2025-12-24T20:39:02.851Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "490c98f66d04",
+      {
+        "selectorHash": "490c98f66d04",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Ouvrir le menu",
+        "clickCount": 18,
+        "firstInteraction": "2025-12-24T16:30:31.338Z",
+        "lastInteraction": "2025-12-24T21:22:14.425Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a858e92d6e55",
+      {
+        "selectorHash": "a858e92d6e55",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Fermer le menu",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:30:39.528Z",
+        "lastInteraction": "2025-12-24T21:22:07.375Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "21f9ab690e00",
+      {
+        "selectorHash": "21f9ab690e00",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Tableau de bord",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:30:53.918Z",
+        "lastInteraction": "2025-12-24T20:43:27.873Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "694107e8220e",
+      {
+        "selectorHash": "694107e8220e",
+        "selector": "button[aria-label=\"mardi 30 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "30",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:31:29.280Z",
+        "lastInteraction": "2025-12-24T20:39:39.632Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "d0d82a3104ca",
+      {
+        "selectorHash": "d0d82a3104ca",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Documentation",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:33:22.692Z",
+        "lastInteraction": "2025-12-24T17:48:17.111Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "395d647bc0cd",
+      {
+        "selectorHash": "395d647bc0cd",
+        "selector": "a:has-text(\"→ Créer un sondage\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "→ Créer un sondage",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:33:30.771Z",
+        "lastInteraction": "2025-12-24T20:44:40.383Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3f4ee5d23714",
+      {
+        "selectorHash": "3f4ee5d23714",
+        "selector": "button[aria-label=\"Mois suivant\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "Mois suivant",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:34:01.261Z",
+        "lastInteraction": "2025-12-24T20:40:16.913Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "ba8667bce71c",
+      {
+        "selectorHash": "ba8667bce71c",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Tarifs",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:35:51.068Z",
+        "lastInteraction": "2025-12-24T17:48:47.358Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "da4dfa74547e",
+      {
+        "selectorHash": "da4dfa74547e",
+        "selector": "a",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "DooDates1",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:36:00.459Z",
+        "lastInteraction": "2025-12-24T21:14:24.227Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ce7db9e29b58",
+      {
+        "selectorHash": "ce7db9e29b58",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:36:08.642Z",
+        "lastInteraction": "2025-12-24T16:36:12.467Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "751dc45b7ce0",
+      {
+        "selectorHash": "751dc45b7ce0",
+        "selector": "a:has-text(\"security@doodates.com\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "security@doodates.com",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:36:18.718Z",
+        "lastInteraction": "2025-12-24T16:36:25.569Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "88e1f9bb0656",
+      {
+        "selectorHash": "88e1f9bb0656",
+        "selector": "a:has-text(\"Politique de Sécurité\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Politique de Sécurité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:36:31.282Z",
+        "lastInteraction": "2025-12-24T16:36:37.560Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "809ab8cbbb08",
+      {
+        "selectorHash": "809ab8cbbb08",
+        "selector": "a:has-text(\"Politique de Confidentialité\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Politique de Confidentialité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:36:44.352Z",
+        "lastInteraction": "2025-12-24T16:36:50.774Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "989f922a674b",
+      {
+        "selectorHash": "989f922a674b",
+        "selector": "a:has-text(\"Gérer mes préférences\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Gérer mes préférences",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:37:00.009Z",
+        "lastInteraction": "2025-12-24T20:07:29.838Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9ba2c675d58f",
+      {
+        "selectorHash": "9ba2c675d58f",
+        "selector": "button",
+        "pageUrl": "/DooDates/settings",
+        "text": "🔒 Mes DonnéesContrôlez la durée de conservation, recevez des alertes avant suppression, exportez ou",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:37:18.617Z",
+        "lastInteraction": "2025-12-24T20:07:35.918Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c963a5684957",
+      {
+        "selectorHash": "c963a5684957",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/date-polls/data-control",
+        "text": "DDooDates",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:37:35.893Z",
+        "lastInteraction": "2025-12-24T20:07:43.228Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "46fc4cd5b929",
+      {
+        "selectorHash": "46fc4cd5b929",
+        "selector": "a:has-text(\"Sondages\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Sondages",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:37:50.275Z",
+        "lastInteraction": "2025-12-24T17:49:01.944Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1f9edef2acac",
+      {
+        "selectorHash": "1f9edef2acac",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Sécurité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:38:12.922Z",
+        "lastInteraction": "2025-12-24T16:38:22.880Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6afbce0264df",
+      {
+        "selectorHash": "6afbce0264df",
+        "selector": "a:has-text(\"security@doodates.com\")",
+        "pageUrl": "/DooDates/security",
+        "text": "security@doodates.com",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:38:29.842Z",
+        "lastInteraction": "2025-12-24T18:19:17.197Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9cd8f4723aba",
+      {
+        "selectorHash": "9cd8f4723aba",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/security",
+        "text": "DDooDates",
+        "clickCount": 11,
+        "firstInteraction": "2025-12-24T16:38:44.227Z",
+        "lastInteraction": "2025-12-24T18:36:31.792Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0c09681036bd",
+      {
+        "selectorHash": "0c09681036bd",
+        "selector": "a:has-text(\"/DooDates/\")",
+        "pageUrl": "/DooDates",
+        "text": "/DooDates/",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T16:39:03.033Z",
+        "lastInteraction": "2025-12-24T16:39:03.033Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6ed19e62ba0e",
+      {
+        "selectorHash": "6ed19e62ba0e",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Confidentialité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:39:48.288Z",
+        "lastInteraction": "2025-12-24T17:29:57.997Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "823c18e12b65",
+      {
+        "selectorHash": "823c18e12b65",
+        "selector": "button#tab-privacy",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Confidentialité",
+        "clickCount": 11,
+        "firstInteraction": "2025-12-24T16:41:46.654Z",
+        "lastInteraction": "2025-12-24T17:41:44.798Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c2fbdc3a4945",
+      {
+        "selectorHash": "c2fbdc3a4945",
+        "selector": "button:has-text(\"Supprimer toutes mes données\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Supprimer toutes mes données",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:42:12.717Z",
+        "lastInteraction": "2025-12-24T16:48:45.072Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0420c69fb03a",
+      {
+        "selectorHash": "0420c69fb03a",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/",
+        "text": "Support",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:42:57.076Z",
+        "lastInteraction": "2025-12-24T18:10:53.021Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0bb18a53d079",
+      {
+        "selectorHash": "0bb18a53d079",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Ouvrir le menu",
+        "clickCount": 16,
+        "firstInteraction": "2025-12-24T16:43:00.745Z",
+        "lastInteraction": "2025-12-24T21:23:20.903Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7c24a9fe0fde",
+      {
+        "selectorHash": "7c24a9fe0fde",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "DDooDates",
+        "clickCount": 10,
+        "firstInteraction": "2025-12-24T16:43:14.666Z",
+        "lastInteraction": "2025-12-24T22:11:23.757Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "badd434b83a9",
+      {
+        "selectorHash": "badd434b83a9",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Fermer le menu",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:43:19.991Z",
+        "lastInteraction": "2025-12-24T21:23:15.778Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c3a41f31e0e2",
+      {
+        "selectorHash": "c3a41f31e0e2",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates",
+        "text": "Support",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:43:25.527Z",
+        "lastInteraction": "2025-12-24T16:43:37.816Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6067bb0e159b",
+      {
+        "selectorHash": "6067bb0e159b",
+        "selector": "a:has-text(\"privacy@doodates.com\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "privacy@doodates.com",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:43:41.709Z",
+        "lastInteraction": "2025-12-24T17:19:54.120Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "06adef51e2dc",
+      {
+        "selectorHash": "06adef51e2dc",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates",
+        "text": "Sécurité",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:44:11.388Z",
+        "lastInteraction": "2025-12-24T17:17:28.850Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4f0f3c30f9a4",
+      {
+        "selectorHash": "4f0f3c30f9a4",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates",
+        "text": "Confidentialité",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:44:50.183Z",
+        "lastInteraction": "2025-12-24T17:17:12.352Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0b4d0698b767",
+      {
+        "selectorHash": "0b4d0698b767",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Documentation",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T16:44:55.539Z",
+        "lastInteraction": "2025-12-24T20:55:56.215Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d999c3e032a3",
+      {
+        "selectorHash": "d999c3e032a3",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Ouvrir le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:45:13.344Z",
+        "lastInteraction": "2025-12-24T16:45:28.818Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "52fe8b84e453",
+      {
+        "selectorHash": "52fe8b84e453",
+        "selector": "a:has-text(\"Mes Sondages\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Mes Sondages",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:45:24.651Z",
+        "lastInteraction": "2025-12-24T20:53:04.797Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "db7e9a50473f",
+      {
+        "selectorHash": "db7e9a50473f",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Fermer le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:45:35.441Z",
+        "lastInteraction": "2025-12-24T16:45:51.359Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2f522fcf2b05",
+      {
+        "selectorHash": "2f522fcf2b05",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Tableau de bord",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:45:55.315Z",
+        "lastInteraction": "2025-12-24T16:46:10.817Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "47354e1b5e7f",
+      {
+        "selectorHash": "47354e1b5e7f",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Tarifs",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:46:05.880Z",
+        "lastInteraction": "2025-12-24T17:41:57.897Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a3dea9e62c67",
+      {
+        "selectorHash": "a3dea9e62c67",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T16:46:24.843Z",
+        "lastInteraction": "2025-12-24T20:49:49.698Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0ea5bb2364f9",
+      {
+        "selectorHash": "0ea5bb2364f9",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Fermer le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:46:47.288Z",
+        "lastInteraction": "2025-12-24T17:27:29.178Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "00d1ac37e86d",
+      {
+        "selectorHash": "00d1ac37e86d",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Tableau de bord",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T16:47:08.475Z",
+        "lastInteraction": "2025-12-24T17:42:06.694Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d006ed86598b",
+      {
+        "selectorHash": "d006ed86598b",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Paramètres",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T16:48:28.125Z",
+        "lastInteraction": "2025-12-24T17:51:46.504Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f5cb2570b2a8",
+      {
+        "selectorHash": "f5cb2570b2a8",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/",
+        "text": "Sécurité",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:14:43.841Z",
+        "lastInteraction": "2025-12-24T18:14:35.445Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c41f443509dc",
+      {
+        "selectorHash": "c41f443509dc",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates",
+        "text": "CGU",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:14:58.971Z",
+        "lastInteraction": "2025-12-24T17:20:56.597Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5ed79f23a319",
+      {
+        "selectorHash": "5ed79f23a319",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "DDooDates",
+        "clickCount": 6,
+        "firstInteraction": "2025-12-24T17:15:05.440Z",
+        "lastInteraction": "2025-12-24T19:19:19.049Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "224c14acf53f",
+      {
+        "selectorHash": "224c14acf53f",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates",
+        "text": "Contact",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:15:12.828Z",
+        "lastInteraction": "2025-12-24T17:21:18.513Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9f666cd23834",
+      {
+        "selectorHash": "9f666cd23834",
+        "selector": "a:has-text(\"Retour à l'accueil\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "Retour à l'accueil",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:15:18.206Z",
+        "lastInteraction": "2025-12-24T21:39:24.052Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "df3ec09f0bb5",
+      {
+        "selectorHash": "df3ec09f0bb5",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates",
+        "text": "À propos",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:15:22.896Z",
+        "lastInteraction": "2025-12-24T17:21:32.121Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "899e27ede160",
+      {
+        "selectorHash": "899e27ede160",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "CGU",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:17:00.309Z",
+        "lastInteraction": "2025-12-24T17:17:00.544Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e1afcbfcb797",
+      {
+        "selectorHash": "e1afcbfcb797",
+        "selector": "a:has-text(\"Retour à l'accueil\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "Retour à l'accueil",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:17:05.845Z",
+        "lastInteraction": "2025-12-24T21:16:35.690Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4a863fe61cd8",
+      {
+        "selectorHash": "4a863fe61cd8",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "DDooDates",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:17:20.501Z",
+        "lastInteraction": "2025-12-24T18:17:48.089Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "79f9f0131921",
+      {
+        "selectorHash": "79f9f0131921",
+        "selector": "a:has-text(\"Sondages de Dates\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Sondages de Dates",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:17:36.534Z",
+        "lastInteraction": "2025-12-24T17:43:00.743Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "573f9ab6ea0c",
+      {
+        "selectorHash": "573f9ab6ea0c",
+        "selector": "button[aria-label=\"mercredi 31 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "31",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:19:08.818Z",
+        "lastInteraction": "2025-12-24T20:45:16.866Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "1df32e3e65f7",
+      {
+        "selectorHash": "1df32e3e65f7",
+        "selector": "button[aria-label=\"jeudi 25 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "25",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:19:13.942Z",
+        "lastInteraction": "2025-12-24T20:45:48.382Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "2c11f8c1136d",
+      {
+        "selectorHash": "2c11f8c1136d",
+        "selector": "button[aria-label=\"vendredi 26 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "26",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:19:19.064Z",
+        "lastInteraction": "2025-12-24T20:46:14.865Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "cda4e4609c33",
+      {
+        "selectorHash": "cda4e4609c33",
+        "selector": "button[aria-label=\"samedi 27 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "27",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:19:48.427Z",
+        "lastInteraction": "2025-12-24T20:56:13.613Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "581a23d51308",
+      {
+        "selectorHash": "581a23d51308",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Tableau de bord",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:20:19.307Z",
+        "lastInteraction": "2025-12-24T21:01:56.381Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0fbcfc80a316",
+      {
+        "selectorHash": "0fbcfc80a316",
+        "selector": "button[aria-label=\"dimanche 28 décembre 2025\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "28",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:20:19.369Z",
+        "lastInteraction": "2025-12-24T17:20:19.369Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "a59045b33adf",
+      {
+        "selectorHash": "a59045b33adf",
+        "selector": "button[aria-label=\"lundi 5 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "5",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:20:45.849Z",
+        "lastInteraction": "2025-12-24T17:20:45.849Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c47e57d3617b",
+      {
+        "selectorHash": "c47e57d3617b",
+        "selector": "a:has-text(\"← DooDates\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "← DooDates",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:20:49.580Z",
+        "lastInteraction": "2025-12-24T17:44:29.553Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e773d0052405",
+      {
+        "selectorHash": "e773d0052405",
+        "selector": "button[aria-label=\"lundi 12 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "12",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:21:13.791Z",
+        "lastInteraction": "2025-12-24T17:21:13.791Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1a75b3a483dc",
+      {
+        "selectorHash": "1a75b3a483dc",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "DDooDates",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:21:24.727Z",
+        "lastInteraction": "2025-12-24T18:42:42.211Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7acc91eb51ea",
+      {
+        "selectorHash": "7acc91eb51ea",
+        "selector": "button[aria-label=\"lundi 19 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "19",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:21:38.212Z",
+        "lastInteraction": "2025-12-24T17:21:38.212Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fc8709d89621",
+      {
+        "selectorHash": "fc8709d89621",
+        "selector": "a:has-text(\"Retour à l'accueil\")",
+        "pageUrl": "/DooDates/about",
+        "text": "Retour à l'accueil",
+        "clickCount": 12,
+        "firstInteraction": "2025-12-24T17:21:39.185Z",
+        "lastInteraction": "2025-12-24T21:50:06.216Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ba12953e4f49",
+      {
+        "selectorHash": "ba12953e4f49",
+        "selector": "button[aria-label=\"lundi 26 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "26",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:22:02.209Z",
+        "lastInteraction": "2025-12-24T17:22:02.209Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "63278e420106",
+      {
+        "selectorHash": "63278e420106",
+        "selector": "button[aria-label=\"mardi 6 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "6",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:22:33.289Z",
+        "lastInteraction": "2025-12-24T17:22:33.289Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8d51175ccb82",
+      {
+        "selectorHash": "8d51175ccb82",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Contact",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:22:36.445Z",
+        "lastInteraction": "2025-12-24T17:30:56.266Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f10645ba2dc3",
+      {
+        "selectorHash": "f10645ba2dc3",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "À propos",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:23:02.307Z",
+        "lastInteraction": "2025-12-24T17:31:25.419Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0014afb3ecef",
+      {
+        "selectorHash": "0014afb3ecef",
+        "selector": "button[aria-label=\"mardi 13 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "13",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:23:53.171Z",
+        "lastInteraction": "2025-12-24T17:23:53.171Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "22ff728f5760",
+      {
+        "selectorHash": "22ff728f5760",
+        "selector": "button[aria-label=\"mardi 20 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "20",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:24:18.951Z",
+        "lastInteraction": "2025-12-24T17:24:18.951Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4cecc5f18edf",
+      {
+        "selectorHash": "4cecc5f18edf",
+        "selector": "button[aria-label=\"mardi 27 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "27",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:24:44.609Z",
+        "lastInteraction": "2025-12-24T17:24:44.609Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e9b2e73d3233",
+      {
+        "selectorHash": "e9b2e73d3233",
+        "selector": "button[aria-label=\"mercredi 7 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "7",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:25:08.477Z",
+        "lastInteraction": "2025-12-24T17:25:08.477Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b519fd707ffc",
+      {
+        "selectorHash": "b519fd707ffc",
+        "selector": "button[aria-label=\"mercredi 14 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "14",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:25:37.301Z",
+        "lastInteraction": "2025-12-24T17:25:37.301Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6acd362f1be2",
+      {
+        "selectorHash": "6acd362f1be2",
+        "selector": "button[aria-label=\"mercredi 21 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "21",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:26:04.379Z",
+        "lastInteraction": "2025-12-24T17:26:04.379Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ffd8c7c25be9",
+      {
+        "selectorHash": "ffd8c7c25be9",
+        "selector": "button[aria-label=\"mercredi 28 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "28",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:26:30.887Z",
+        "lastInteraction": "2025-12-24T17:26:30.887Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "24bef993a48a",
+      {
+        "selectorHash": "24bef993a48a",
+        "selector": "button[aria-label=\"jeudi 1 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "1",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:26:57.476Z",
+        "lastInteraction": "2025-12-24T17:26:57.663Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fdfa7d75f28d",
+      {
+        "selectorHash": "fdfa7d75f28d",
+        "selector": "button[aria-label=\"jeudi 8 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "8",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:27:24.310Z",
+        "lastInteraction": "2025-12-24T17:27:24.310Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e61845f5311d",
+      {
+        "selectorHash": "e61845f5311d",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Tarifs",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:27:33.960Z",
+        "lastInteraction": "2025-12-24T17:42:30.995Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "bcd70afb8e18",
+      {
+        "selectorHash": "bcd70afb8e18",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Documentation",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:27:38.329Z",
+        "lastInteraction": "2025-12-24T17:42:41.471Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "798ccaef4b7d",
+      {
+        "selectorHash": "798ccaef4b7d",
+        "selector": "button[aria-label=\"jeudi 15 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "15",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:27:50.188Z",
+        "lastInteraction": "2025-12-24T17:27:50.188Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "11d8e105f6cd",
+      {
+        "selectorHash": "11d8e105f6cd",
+        "selector": "a:has-text(\"→ Créer un sondage\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "→ Créer un sondage",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:27:54.037Z",
+        "lastInteraction": "2025-12-24T17:27:54.037Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4fa8df72a2ea",
+      {
+        "selectorHash": "4fa8df72a2ea",
+        "selector": "button[aria-label=\"jeudi 22 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "22",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:28:13.548Z",
+        "lastInteraction": "2025-12-24T17:28:13.703Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "70523889b727",
+      {
+        "selectorHash": "70523889b727",
+        "selector": "button[aria-label=\"jeudi 29 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "29",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:28:34.417Z",
+        "lastInteraction": "2025-12-24T17:28:34.664Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "08e5c689cfaa",
+      {
+        "selectorHash": "08e5c689cfaa",
+        "selector": "button[aria-label=\"vendredi 2 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "2",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:28:59.192Z",
+        "lastInteraction": "2025-12-24T17:28:59.393Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fb9f48342677",
+      {
+        "selectorHash": "fb9f48342677",
+        "selector": "button[aria-label=\"vendredi 9 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "9",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:29:24.162Z",
+        "lastInteraction": "2025-12-24T17:29:24.304Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ce953f63eaf4",
+      {
+        "selectorHash": "ce953f63eaf4",
+        "selector": "button[aria-label=\"vendredi 16 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "16",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:29:51.046Z",
+        "lastInteraction": "2025-12-24T17:29:51.046Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f42efde1f445",
+      {
+        "selectorHash": "f42efde1f445",
+        "selector": "a:has-text(\"Politique de Confidentialité IA\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Politique de Confidentialité IA",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:30:03.803Z",
+        "lastInteraction": "2025-12-24T18:56:19.552Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8e09978e6bea",
+      {
+        "selectorHash": "8e09978e6bea",
+        "selector": "button[aria-label=\"vendredi 23 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "23",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:30:10.324Z",
+        "lastInteraction": "2025-12-24T17:30:10.324Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ca48a0b5e8c5",
+      {
+        "selectorHash": "ca48a0b5e8c5",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/settings",
+        "text": "DDooDates",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:30:20.934Z",
+        "lastInteraction": "2025-12-24T19:50:23.306Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1b8e02735a1b",
+      {
+        "selectorHash": "1b8e02735a1b",
+        "selector": "a:has-text(\"Mes Sondages\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Mes Sondages",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:31:53.470Z",
+        "lastInteraction": "2025-12-24T21:02:50.148Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0ad8dfa4eb87",
+      {
+        "selectorHash": "0ad8dfa4eb87",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/",
+        "text": "Confidentialité",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:32:10.765Z",
+        "lastInteraction": "2025-12-24T18:17:23.775Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b16fd7b87adf",
+      {
+        "selectorHash": "b16fd7b87adf",
+        "selector": "a[data-testid=\"create-date-poll\"]",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Nouveau Sondage",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:32:16.189Z",
+        "lastInteraction": "2025-12-24T21:04:23.773Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "239fbd263185",
+      {
+        "selectorHash": "239fbd263185",
+        "selector": "a[aria-label=\"Contacter le DPO par email à privacy@doodates.com\"]",
+        "pageUrl": "/DooDates/privacy",
+        "text": "privacy@doodates.com",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:32:21.353Z",
+        "lastInteraction": "2025-12-24T18:42:23.554Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "550e1570f085",
+      {
+        "selectorHash": "550e1570f085",
+        "selector": "button[aria-label=\"vendredi 30 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "30",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:32:53.670Z",
+        "lastInteraction": "2025-12-24T17:32:53.670Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e8755fbeca13",
+      {
+        "selectorHash": "e8755fbeca13",
+        "selector": "a:has-text(\"Accueil DooDates\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Accueil DooDates",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:33:00.181Z",
+        "lastInteraction": "2025-12-24T17:48:33.694Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6797d441d673",
+      {
+        "selectorHash": "6797d441d673",
+        "selector": "button[aria-label=\"samedi 10 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "10",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:33:14.916Z",
+        "lastInteraction": "2025-12-24T17:33:14.916Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "de407fb133cc",
+      {
+        "selectorHash": "de407fb133cc",
+        "selector": "button[aria-label=\"samedi 3 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "3",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:33:43.074Z",
+        "lastInteraction": "2025-12-24T17:33:43.074Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a26d3ff2ae3f",
+      {
+        "selectorHash": "a26d3ff2ae3f",
+        "selector": "button[aria-label=\"samedi 17 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "17",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:34:11.749Z",
+        "lastInteraction": "2025-12-24T17:34:11.749Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "708a19462eb8",
+      {
+        "selectorHash": "708a19462eb8",
+        "selector": "button[aria-label=\"samedi 24 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "24",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:34:39.715Z",
+        "lastInteraction": "2025-12-24T17:34:39.715Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b838d53e0339",
+      {
+        "selectorHash": "b838d53e0339",
+        "selector": "button[aria-label=\"samedi 31 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "31",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:35:05.801Z",
+        "lastInteraction": "2025-12-24T17:35:05.801Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6cb4155629a1",
+      {
+        "selectorHash": "6cb4155629a1",
+        "selector": "button[aria-label=\"dimanche 11 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "11",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:35:30.562Z",
+        "lastInteraction": "2025-12-24T17:35:30.562Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "eefda6a0613b",
+      {
+        "selectorHash": "eefda6a0613b",
+        "selector": "button[aria-label=\"dimanche 4 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "4",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:35:52.715Z",
+        "lastInteraction": "2025-12-24T17:35:52.715Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8f2d2c48cf9e",
+      {
+        "selectorHash": "8f2d2c48cf9e",
+        "selector": "button[aria-label=\"dimanche 18 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "18",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:38:14.649Z",
+        "lastInteraction": "2025-12-24T17:38:14.649Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8a412508eb42",
+      {
+        "selectorHash": "8a412508eb42",
+        "selector": "button[aria-label=\"dimanche 25 janvier 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "25",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:38:42.250Z",
+        "lastInteraction": "2025-12-24T17:38:42.250Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "275e5c2addff",
+      {
+        "selectorHash": "275e5c2addff",
+        "selector": "button[aria-label=\"lundi 2 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "2",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:39:07.473Z",
+        "lastInteraction": "2025-12-24T17:39:07.473Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b0de5070ad18",
+      {
+        "selectorHash": "b0de5070ad18",
+        "selector": "button[aria-label=\"lundi 9 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "9",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:39:23.267Z",
+        "lastInteraction": "2025-12-24T17:39:31.889Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4d4353f0199d",
+      {
+        "selectorHash": "4d4353f0199d",
+        "selector": "button[aria-label=\"lundi 16 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "16",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:39:49.871Z",
+        "lastInteraction": "2025-12-24T17:39:50.678Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "bc2da313b7ee",
+      {
+        "selectorHash": "bc2da313b7ee",
+        "selector": "button[aria-label=\"lundi 23 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "23",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:14.938Z",
+        "lastInteraction": "2025-12-24T17:40:16.025Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1731db0ad837",
+      {
+        "selectorHash": "1731db0ad837",
+        "selector": "button[aria-label=\"mardi 3 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "3",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:32.901Z",
+        "lastInteraction": "2025-12-24T17:40:33.119Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a085dbb50fe9",
+      {
+        "selectorHash": "a085dbb50fe9",
+        "selector": "button[aria-label=\"mardi 10 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "10",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:33.634Z",
+        "lastInteraction": "2025-12-24T17:40:35.054Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e862334ec715",
+      {
+        "selectorHash": "e862334ec715",
+        "selector": "button[aria-label=\"mardi 17 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "17",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:34.385Z",
+        "lastInteraction": "2025-12-24T17:40:37.112Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8ac51fa3a4e5",
+      {
+        "selectorHash": "8ac51fa3a4e5",
+        "selector": "button[aria-label=\"mardi 24 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "24",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:52.000Z",
+        "lastInteraction": "2025-12-24T17:40:52.406Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b9f774a89217",
+      {
+        "selectorHash": "b9f774a89217",
+        "selector": "button[aria-label=\"mercredi 4 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "4",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:52.827Z",
+        "lastInteraction": "2025-12-24T17:40:54.554Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2e92c8ad1cea",
+      {
+        "selectorHash": "2e92c8ad1cea",
+        "selector": "button[aria-label=\"mercredi 11 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "11",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:40:53.650Z",
+        "lastInteraction": "2025-12-24T17:40:56.409Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7137f10fce8b",
+      {
+        "selectorHash": "7137f10fce8b",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:41:14.066Z",
+        "lastInteraction": "2025-12-24T17:41:14.066Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c6091de6a031",
+      {
+        "selectorHash": "c6091de6a031",
+        "selector": "button[aria-label=\"mercredi 18 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "18",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:41:24.574Z",
+        "lastInteraction": "2025-12-24T17:41:24.574Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1c76206063dc",
+      {
+        "selectorHash": "1c76206063dc",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Tarifs",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:41:29.313Z",
+        "lastInteraction": "2025-12-24T17:41:29.313Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "520ce9329d28",
+      {
+        "selectorHash": "520ce9329d28",
+        "selector": "a:has-text(\"Sondages de Dates\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "Sondages de Dates",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:42:50.753Z",
+        "lastInteraction": "2025-12-24T17:42:50.753Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4cfb39c3d8fb",
+      {
+        "selectorHash": "4cfb39c3d8fb",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/",
+        "text": "CGU",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:44:52.536Z",
+        "lastInteraction": "2025-12-24T18:20:25.317Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5a8bdab3d7bd",
+      {
+        "selectorHash": "5a8bdab3d7bd",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Ouvrir le menu",
+        "clickCount": 64,
+        "firstInteraction": "2025-12-24T17:45:34.916Z",
+        "lastInteraction": "2025-12-24T22:09:01.754Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "938e6d2f987e",
+      {
+        "selectorHash": "938e6d2f987e",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Fermer le menu",
+        "clickCount": 23,
+        "firstInteraction": "2025-12-24T17:45:45.595Z",
+        "lastInteraction": "2025-12-24T22:01:04.652Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "676fcf42c816",
+      {
+        "selectorHash": "676fcf42c816",
+        "selector": "a:has-text(\"Mes Formulaires\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Mes Formulaires",
+        "clickCount": 10,
+        "firstInteraction": "2025-12-24T17:46:03.874Z",
+        "lastInteraction": "2025-12-24T22:09:12.174Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "713257f576fe",
+      {
+        "selectorHash": "713257f576fe",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/form-polls/list",
+        "text": "Return to Home",
+        "clickCount": 15,
+        "firstInteraction": "2025-12-24T17:46:09.744Z",
+        "lastInteraction": "2025-12-24T22:09:18.014Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "67b706c74a67",
+      {
+        "selectorHash": "67b706c74a67",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/",
+        "text": "Contact",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:46:17.895Z",
+        "lastInteraction": "2025-12-24T18:22:45.737Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "68393207203d",
+      {
+        "selectorHash": "68393207203d",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Tableau de bord",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:46:22.477Z",
+        "lastInteraction": "2025-12-24T21:21:53.671Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3ce8d3bfe8ad",
+      {
+        "selectorHash": "3ce8d3bfe8ad",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:46:24.420Z",
+        "lastInteraction": "2025-12-24T22:11:11.564Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "393821c87e2d",
+      {
+        "selectorHash": "393821c87e2d",
+        "selector": "button:has-text(\"Créer un formulaire\")",
+        "pageUrl": "/DooDates/form-polls/dashboard",
+        "text": "Créer un formulaire",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:46:28.220Z",
+        "lastInteraction": "2025-12-24T17:49:23.339Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "99276dbd8bb8",
+      {
+        "selectorHash": "99276dbd8bb8",
+        "selector": "a:has-text(\"support@doodates.com\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "support@doodates.com",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:46:31.251Z",
+        "lastInteraction": "2025-12-24T21:30:49.901Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "78abb489f2cb",
+      {
+        "selectorHash": "78abb489f2cb",
+        "selector": "button[data-testid=\"question-nav\"]",
+        "pageUrl": "/DooDates/form-polls/workspace/form",
+        "text": "Q1",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:46:35.001Z",
+        "lastInteraction": "2025-12-24T17:46:41.345Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ae5289dd9b01",
+      {
+        "selectorHash": "ae5289dd9b01",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Ouvrir le menu",
+        "clickCount": 25,
+        "firstInteraction": "2025-12-24T17:47:21.594Z",
+        "lastInteraction": "2025-12-24T22:08:43.986Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b73b55a42340",
+      {
+        "selectorHash": "b73b55a42340",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Fermer le menu",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:47:33.450Z",
+        "lastInteraction": "2025-12-24T22:03:19.407Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "64f4f6a7219c",
+      {
+        "selectorHash": "64f4f6a7219c",
+        "selector": "a:has-text(\"Mes Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Mes Formulaires",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:47:53.390Z",
+        "lastInteraction": "2025-12-24T21:51:21.470Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5ed4fb8ad9ac",
+      {
+        "selectorHash": "5ed4fb8ad9ac",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/",
+        "text": "À propos",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:48:10.221Z",
+        "lastInteraction": "2025-12-24T18:22:59.497Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d98103890d99",
+      {
+        "selectorHash": "d98103890d99",
+        "selector": "a:has-text(\"→ Tarifs\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "→ Tarifs",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:48:25.191Z",
+        "lastInteraction": "2025-12-24T17:48:25.191Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "162793e3b01c",
+      {
+        "selectorHash": "162793e3b01c",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Ouvrir le menu",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:48:56.986Z",
+        "lastInteraction": "2025-12-24T22:07:17.727Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "62d8a679ede5",
+      {
+        "selectorHash": "62d8a679ede5",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Fermer le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:49:08.080Z",
+        "lastInteraction": "2025-12-24T17:59:48.200Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7a1ce106d14b",
+      {
+        "selectorHash": "7a1ce106d14b",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Tableau de bord",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:49:28.140Z",
+        "lastInteraction": "2025-12-24T20:01:06.953Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c06966f5ac5a",
+      {
+        "selectorHash": "c06966f5ac5a",
+        "selector": "a[data-testid=\"create-form-poll\"]",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Nouveau Formulaire",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:50:03.223Z",
+        "lastInteraction": "2025-12-24T21:25:54.905Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "394c431c6bcc",
+      {
+        "selectorHash": "394c431c6bcc",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Ouvrir le menu",
+        "clickCount": 58,
+        "firstInteraction": "2025-12-24T17:50:59.207Z",
+        "lastInteraction": "2025-12-24T22:12:50.467Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f8863501f9a3",
+      {
+        "selectorHash": "f8863501f9a3",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Fermer le menu",
+        "clickCount": 21,
+        "firstInteraction": "2025-12-24T17:51:08.897Z",
+        "lastInteraction": "2025-12-24T22:12:44.109Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9f4164a54221",
+      {
+        "selectorHash": "9f4164a54221",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Documentation",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:51:13.496Z",
+        "lastInteraction": "2025-12-24T21:29:02.443Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "54728970ff39",
+      {
+        "selectorHash": "54728970ff39",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Documentation",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:51:21.167Z",
+        "lastInteraction": "2025-12-24T21:29:12.561Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "07096cc9e8b8",
+      {
+        "selectorHash": "07096cc9e8b8",
+        "selector": "a:has-text(\"Mes Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Mes Disponibilités",
+        "clickCount": 7,
+        "firstInteraction": "2025-12-24T17:51:27.312Z",
+        "lastInteraction": "2025-12-24T22:12:55.878Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ce9a1464e01b",
+      {
+        "selectorHash": "ce9a1464e01b",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T17:51:31.452Z",
+        "lastInteraction": "2025-12-24T17:51:31.452Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ea584c71b5b6",
+      {
+        "selectorHash": "ea584c71b5b6",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/availability-polls/list",
+        "text": "Return to Home",
+        "clickCount": 10,
+        "firstInteraction": "2025-12-24T17:51:32.978Z",
+        "lastInteraction": "2025-12-24T22:13:44.582Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "657979185943",
+      {
+        "selectorHash": "657979185943",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "DDooDates",
+        "clickCount": 7,
+        "firstInteraction": "2025-12-24T17:52:08.164Z",
+        "lastInteraction": "2025-12-24T21:43:49.222Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fc631ce16f1d",
+      {
+        "selectorHash": "fc631ce16f1d",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Tarifs",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:53:43.172Z",
+        "lastInteraction": "2025-12-24T21:28:07.867Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fcc1d3cc1118",
+      {
+        "selectorHash": "fcc1d3cc1118",
+        "selector": "a",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "DooDates2",
+        "clickCount": 4,
+        "firstInteraction": "2025-12-24T17:53:50.324Z",
+        "lastInteraction": "2025-12-24T21:38:52.958Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "95443bbbf0f9",
+      {
+        "selectorHash": "95443bbbf0f9",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Tarifs",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:54:09.683Z",
+        "lastInteraction": "2025-12-24T21:35:55.382Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0a736ade5084",
+      {
+        "selectorHash": "0a736ade5084",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:54:25.165Z",
+        "lastInteraction": "2025-12-24T21:16:02.857Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0f460fe71120",
+      {
+        "selectorHash": "0f460fe71120",
+        "selector": "a:has-text(\"Politique de Confidentialité\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Politique de Confidentialité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:54:36.670Z",
+        "lastInteraction": "2025-12-24T21:16:14.380Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3b3a7aaf252d",
+      {
+        "selectorHash": "3b3a7aaf252d",
+        "selector": "a:has-text(\"Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Formulaires",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:54:40.914Z",
+        "lastInteraction": "2025-12-24T21:29:47.208Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2e934c631d4b",
+      {
+        "selectorHash": "2e934c631d4b",
+        "selector": "a:has-text(\"Conditions Générales d'Utilisation\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Conditions Générales d'Utilisation",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:54:46.580Z",
+        "lastInteraction": "2025-12-24T21:16:27.962Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "030e8aa293a3",
+      {
+        "selectorHash": "030e8aa293a3",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Sécurité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:55:07.506Z",
+        "lastInteraction": "2025-12-24T21:30:18.139Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8dcc5fcc7124",
+      {
+        "selectorHash": "8dcc5fcc7124",
+        "selector": "a:has-text(\"← DooDates\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "← DooDates",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:55:15.356Z",
+        "lastInteraction": "2025-12-24T21:37:40.186Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "109bb5797fed",
+      {
+        "selectorHash": "109bb5797fed",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:56:00.010Z",
+        "lastInteraction": "2025-12-24T21:30:38.289Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "89766ada0faf",
+      {
+        "selectorHash": "89766ada0faf",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T17:56:05.500Z",
+        "lastInteraction": "2025-12-24T21:38:00.980Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "07905d101009",
+      {
+        "selectorHash": "07905d101009",
+        "selector": "a:has-text(\"Formulaires\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Formulaires",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T17:56:31.559Z",
+        "lastInteraction": "2025-12-24T21:37:36.388Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "546566805d62",
+      {
+        "selectorHash": "546566805d62",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Paramètres",
+        "clickCount": 6,
+        "firstInteraction": "2025-12-24T17:56:54.524Z",
+        "lastInteraction": "2025-12-24T21:43:45.091Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f413ba8a38cf",
+      {
+        "selectorHash": "f413ba8a38cf",
+        "selector": "a:has-text(\"→ Créer un formulaire\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "→ Créer un formulaire",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T17:58:18.440Z",
+        "lastInteraction": "2025-12-24T21:57:28.185Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "009fd067677d",
+      {
+        "selectorHash": "009fd067677d",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Ouvrir le menu",
+        "clickCount": 83,
+        "firstInteraction": "2025-12-24T17:59:14.861Z",
+        "lastInteraction": "2025-12-24T22:11:08.153Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "09874c53abe2",
+      {
+        "selectorHash": "09874c53abe2",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Fermer le menu",
+        "clickCount": 33,
+        "firstInteraction": "2025-12-24T17:59:22.699Z",
+        "lastInteraction": "2025-12-24T22:11:00.483Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b8c1a70938d3",
+      {
+        "selectorHash": "b8c1a70938d3",
+        "selector": "a:has-text(\"Historique enfants\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Historique enfants",
+        "clickCount": 20,
+        "firstInteraction": "2025-12-24T17:59:41.430Z",
+        "lastInteraction": "2025-12-24T22:11:17.719Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ac33696cc03a",
+      {
+        "selectorHash": "ac33696cc03a",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Tableau de bord",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:03:32.815Z",
+        "lastInteraction": "2025-12-24T20:19:49.154Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2f8b5c4b6e2c",
+      {
+        "selectorHash": "2f8b5c4b6e2c",
+        "selector": "button:has-text(\"Créer une disponibilité\")",
+        "pageUrl": "/DooDates/availability-polls/dashboard",
+        "text": "Créer une disponibilité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:03:44.768Z",
+        "lastInteraction": "2025-12-24T18:28:30.028Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a57d064019cd",
+      {
+        "selectorHash": "a57d064019cd",
+        "selector": "div",
+        "pageUrl": "/DooDates/availability-polls/workspace/availability",
+        "text": "Règles Intelligentes d'OptimisationConfigurez les préférences pour l'optimisation automatique des cr",
+        "clickCount": 11,
+        "firstInteraction": "2025-12-24T18:03:54.095Z",
+        "lastInteraction": "2025-12-24T18:49:16.798Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4a6f313c0cdb",
+      {
+        "selectorHash": "4a6f313c0cdb",
+        "selector": "button:has-text(\"Paramètres avancés\")",
+        "pageUrl": "/DooDates/availability-polls/workspace/availability",
+        "text": "Paramètres avancés",
+        "clickCount": 14,
+        "firstInteraction": "2025-12-24T18:04:00.122Z",
+        "lastInteraction": "2025-12-24T20:27:41.037Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "161b2ed75bd1",
+      {
+        "selectorHash": "161b2ed75bd1",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Tableau de bord",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:06:20.722Z",
+        "lastInteraction": "2025-12-24T21:53:19.331Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "663bce603f2f",
+      {
+        "selectorHash": "663bce603f2f",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:07:04.912Z",
+        "lastInteraction": "2025-12-24T18:07:04.912Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "64d598e290c5",
+      {
+        "selectorHash": "64d598e290c5",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "Tarifs",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:07:08.566Z",
+        "lastInteraction": "2025-12-24T18:07:08.566Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "17ed3c9a31a9",
+      {
+        "selectorHash": "17ed3c9a31a9",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Tableau de bord",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:07:12.361Z",
+        "lastInteraction": "2025-12-24T22:03:37.993Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "82006007397e",
+      {
+        "selectorHash": "82006007397e",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:08:13.028Z",
+        "lastInteraction": "2025-12-24T21:28:15.784Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1fcec5e7f03f",
+      {
+        "selectorHash": "1fcec5e7f03f",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Fermer le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:08:19.763Z",
+        "lastInteraction": "2025-12-24T21:28:27.256Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "73b1cd628723",
+      {
+        "selectorHash": "73b1cd628723",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Tarifs",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:08:24.184Z",
+        "lastInteraction": "2025-12-24T21:28:35.628Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f71db0fe8188",
+      {
+        "selectorHash": "f71db0fe8188",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Documentation",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:08:27.193Z",
+        "lastInteraction": "2025-12-24T21:36:07.560Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9f4f3a9549b2",
+      {
+        "selectorHash": "9f4f3a9549b2",
+        "selector": "a:has-text(\"Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "Formulaires",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:08:31.781Z",
+        "lastInteraction": "2025-12-24T18:08:31.781Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9b8cc000659c",
+      {
+        "selectorHash": "9b8cc000659c",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Confidentialité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:08:35.729Z",
+        "lastInteraction": "2025-12-24T21:37:45.064Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3d022ae0d02b",
+      {
+        "selectorHash": "3d022ae0d02b",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:08:43.135Z",
+        "lastInteraction": "2025-12-24T21:37:53.459Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "de633500b802",
+      {
+        "selectorHash": "de633500b802",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:08:58.017Z",
+        "lastInteraction": "2025-12-24T18:08:58.017Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c7e8217c93c2",
+      {
+        "selectorHash": "c7e8217c93c2",
+        "selector": "a:has-text(\"Politique de Support\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Politique de Support",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:09:09.414Z",
+        "lastInteraction": "2025-12-24T18:09:09.414Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9d53357e277a",
+      {
+        "selectorHash": "9d53357e277a",
+        "selector": "a:has-text(\"Accueil DooDates\")",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Accueil DooDates",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:10:12.378Z",
+        "lastInteraction": "2025-12-24T21:28:45.844Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "dafaae3bcc40",
+      {
+        "selectorHash": "dafaae3bcc40",
+        "selector": "a[data-testid=\"create-availability-poll\"]",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Nouvelle Dispo",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:10:27.141Z",
+        "lastInteraction": "2025-12-24T20:27:34.523Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "28542b734e93",
+      {
+        "selectorHash": "28542b734e93",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Tableau de bord",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:12:00.391Z",
+        "lastInteraction": "2025-12-24T19:56:07.391Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "09d79e0a941f",
+      {
+        "selectorHash": "09d79e0a941f",
+        "selector": "button:has-text(\"Créer un quiz\")",
+        "pageUrl": "/DooDates/quizz/dashboard",
+        "text": "Créer un quiz",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:12:10.084Z",
+        "lastInteraction": "2025-12-24T18:47:14.766Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5b89fa0a51e8",
+      {
+        "selectorHash": "5b89fa0a51e8",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Tarifs",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:12:16.949Z",
+        "lastInteraction": "2025-12-24T20:28:51.761Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6ad668622ec5",
+      {
+        "selectorHash": "6ad668622ec5",
+        "selector": "a",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "DooDates3",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:12:23.388Z",
+        "lastInteraction": "2025-12-24T19:18:57.075Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "468f771fc864",
+      {
+        "selectorHash": "468f771fc864",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Support",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:12:31.108Z",
+        "lastInteraction": "2025-12-24T20:02:41.437Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fa0a54688196",
+      {
+        "selectorHash": "fa0a54688196",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:12:42.329Z",
+        "lastInteraction": "2025-12-24T18:12:42.329Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e3e7f4e9b5b1",
+      {
+        "selectorHash": "e3e7f4e9b5b1",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:12:54.171Z",
+        "lastInteraction": "2025-12-24T18:12:54.171Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7f411d3ce0e2",
+      {
+        "selectorHash": "7f411d3ce0e2",
+        "selector": "a[data-testid=\"create-quizz-poll\"]",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Nouveau Quiz",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:15:05.798Z",
+        "lastInteraction": "2025-12-24T19:59:24.001Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "95a6efbe0e79",
+      {
+        "selectorHash": "95a6efbe0e79",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Tarifs",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:16:33.504Z",
+        "lastInteraction": "2025-12-24T20:01:12.118Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "11c98d76e00a",
+      {
+        "selectorHash": "11c98d76e00a",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/quizz/pricing",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:16:40.688Z",
+        "lastInteraction": "2025-12-24T19:27:10.540Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2ed8d83d8b45",
+      {
+        "selectorHash": "2ed8d83d8b45",
+        "selector": "a:has-text(\"Commencer gratuitement\")",
+        "pageUrl": "/DooDates/quizz/pricing",
+        "text": "Commencer gratuitement",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:16:52.460Z",
+        "lastInteraction": "2025-12-24T20:01:17.547Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9febe674c643",
+      {
+        "selectorHash": "9febe674c643",
+        "selector": "a:has-text(\"privacy@doodates.com\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "privacy@doodates.com",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:18:05.795Z",
+        "lastInteraction": "2025-12-24T20:14:39.663Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "342dba62cfb4",
+      {
+        "selectorHash": "342dba62cfb4",
+        "selector": "a[data-testid=\"create-form-poll\"]",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Nouveau Formulaire",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:18:24.385Z",
+        "lastInteraction": "2025-12-24T21:56:41.184Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "907b7070d092",
+      {
+        "selectorHash": "907b7070d092",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "CGU",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:18:53.405Z",
+        "lastInteraction": "2025-12-24T21:39:00.822Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7f0128136cbb",
+      {
+        "selectorHash": "7f0128136cbb",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "Sécurité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:19:04.801Z",
+        "lastInteraction": "2025-12-24T21:39:09.071Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7810855f4fe6",
+      {
+        "selectorHash": "7810855f4fe6",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:20:38.911Z",
+        "lastInteraction": "2025-12-24T18:20:38.911Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8a2c31456e9a",
+      {
+        "selectorHash": "8a2c31456e9a",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:20:54.083Z",
+        "lastInteraction": "2025-12-24T18:20:54.083Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "bc09ad3288ad",
+      {
+        "selectorHash": "bc09ad3288ad",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:21:07.885Z",
+        "lastInteraction": "2025-12-24T18:21:07.885Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "959bd31014fd",
+      {
+        "selectorHash": "959bd31014fd",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:21:16.953Z",
+        "lastInteraction": "2025-12-24T18:21:16.953Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ab9d25f0d062",
+      {
+        "selectorHash": "ab9d25f0d062",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Paramètres",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:21:45.793Z",
+        "lastInteraction": "2025-12-24T19:50:14.265Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "26db97d0347e",
+      {
+        "selectorHash": "26db97d0347e",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Documentation",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:21:58.569Z",
+        "lastInteraction": "2025-12-24T21:57:17.336Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7430942c7ca0",
+      {
+        "selectorHash": "7430942c7ca0",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Tarifs",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:25:18.221Z",
+        "lastInteraction": "2025-12-24T22:03:31.498Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "61782efd861d",
+      {
+        "selectorHash": "61782efd861d",
+        "selector": "a:has-text(\"Mes Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/pricing",
+        "text": "Mes Formulaires",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:25:43.495Z",
+        "lastInteraction": "2025-12-24T18:25:43.495Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9c875c08a9e3",
+      {
+        "selectorHash": "9c875c08a9e3",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Documentation",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:28:08.194Z",
+        "lastInteraction": "2025-12-24T20:32:28.438Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "cba82c81119a",
+      {
+        "selectorHash": "cba82c81119a",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:28:13.900Z",
+        "lastInteraction": "2025-12-24T19:06:56.853Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0a5c772b0883",
+      {
+        "selectorHash": "0a5c772b0883",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Tableau de bord",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:28:22.597Z",
+        "lastInteraction": "2025-12-24T19:46:28.926Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8f3678d6b5b5",
+      {
+        "selectorHash": "8f3678d6b5b5",
+        "selector": "a:has-text(\"Quiz\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Quiz",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:30:20.225Z",
+        "lastInteraction": "2025-12-24T20:06:48.216Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "168a351db253",
+      {
+        "selectorHash": "168a351db253",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Ouvrir le menu",
+        "clickCount": 11,
+        "firstInteraction": "2025-12-24T18:33:39.306Z",
+        "lastInteraction": "2025-12-24T22:13:32.434Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a70f5fd9d6d9",
+      {
+        "selectorHash": "a70f5fd9d6d9",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Fermer le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:33:47.312Z",
+        "lastInteraction": "2025-12-24T19:18:32.216Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9c4cc2629d86",
+      {
+        "selectorHash": "9c4cc2629d86",
+        "selector": "a:has-text(\"Mes Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Mes Disponibilités",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:33:59.928Z",
+        "lastInteraction": "2025-12-24T22:13:40.203Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5bfb4808a99a",
+      {
+        "selectorHash": "5bfb4808a99a",
+        "selector": "a:has-text(\"Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Disponibilités",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:35:26.829Z",
+        "lastInteraction": "2025-12-24T21:49:38.875Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f8e40f57f459",
+      {
+        "selectorHash": "f8e40f57f459",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Sécurité",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:35:33.224Z",
+        "lastInteraction": "2025-12-24T21:49:47.051Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "993daf7c08b1",
+      {
+        "selectorHash": "993daf7c08b1",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Support",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:35:43.823Z",
+        "lastInteraction": "2025-12-24T18:35:43.823Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3f1b230fde38",
+      {
+        "selectorHash": "3f1b230fde38",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:35:56.206Z",
+        "lastInteraction": "2025-12-24T18:35:56.206Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4baea0e25094",
+      {
+        "selectorHash": "4baea0e25094",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:36:08.667Z",
+        "lastInteraction": "2025-12-24T18:36:08.667Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b4b7c2137949",
+      {
+        "selectorHash": "b4b7c2137949",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:36:17.012Z",
+        "lastInteraction": "2025-12-24T18:36:17.012Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "29442bddabf1",
+      {
+        "selectorHash": "29442bddabf1",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Paramètres",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:36:56.736Z",
+        "lastInteraction": "2025-12-24T21:58:12.150Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a31fb9b7cb81",
+      {
+        "selectorHash": "a31fb9b7cb81",
+        "selector": "a:has-text(\"DDooDates\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "DDooDates",
+        "clickCount": 6,
+        "firstInteraction": "2025-12-24T18:37:07.388Z",
+        "lastInteraction": "2025-12-24T21:58:18.690Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f4859d3ee648",
+      {
+        "selectorHash": "f4859d3ee648",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/workspace/availability",
+        "text": "Ouvrir le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:38:27.762Z",
+        "lastInteraction": "2025-12-24T18:40:41.910Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "cf4e57d2127b",
+      {
+        "selectorHash": "cf4e57d2127b",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/workspace/availability",
+        "text": "Fermer le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:38:40.543Z",
+        "lastInteraction": "2025-12-24T18:40:53.209Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "bd637b9b6d4b",
+      {
+        "selectorHash": "bd637b9b6d4b",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "Contact",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:42:01.441Z",
+        "lastInteraction": "2025-12-24T22:11:04.884Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c6a13ffa9bd1",
+      {
+        "selectorHash": "c6a13ffa9bd1",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:42:11.236Z",
+        "lastInteraction": "2025-12-24T18:42:11.236Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3f81e4a5570f",
+      {
+        "selectorHash": "3f81e4a5570f",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:42:34.828Z",
+        "lastInteraction": "2025-12-24T18:42:34.828Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0ed2656112f0",
+      {
+        "selectorHash": "0ed2656112f0",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Documentation",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:45:01.671Z",
+        "lastInteraction": "2025-12-24T20:05:02.909Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "abc48aca8539",
+      {
+        "selectorHash": "abc48aca8539",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/quizz/docs",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:45:12.911Z",
+        "lastInteraction": "2025-12-24T19:26:21.260Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "252f5ca049b0",
+      {
+        "selectorHash": "252f5ca049b0",
+        "selector": "a:has-text(\"→ Créer un quiz\")",
+        "pageUrl": "/DooDates/quizz/docs",
+        "text": "→ Créer un quiz",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:45:24.938Z",
+        "lastInteraction": "2025-12-24T20:05:10.229Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0433c626d33a",
+      {
+        "selectorHash": "0433c626d33a",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Fermer le menu",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:47:31.007Z",
+        "lastInteraction": "2025-12-24T18:47:31.007Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "899027043901",
+      {
+        "selectorHash": "899027043901",
+        "selector": "a:has-text(\"→ Créer un sondage\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "→ Créer un sondage",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T18:47:40.469Z",
+        "lastInteraction": "2025-12-24T20:32:36.681Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9a3f6bcd5563",
+      {
+        "selectorHash": "9a3f6bcd5563",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/workspace/availability",
+        "text": "Return to Home",
+        "clickCount": 5,
+        "firstInteraction": "2025-12-24T18:47:46.171Z",
+        "lastInteraction": "2025-12-24T20:32:42.875Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ddf8c89418d3",
+      {
+        "selectorHash": "ddf8c89418d3",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Documentation",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:50:07.744Z",
+        "lastInteraction": "2025-12-24T19:14:12.929Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fd126e39752b",
+      {
+        "selectorHash": "fd126e39752b",
+        "selector": "a:has-text(\"Historique enfants\")",
+        "pageUrl": "/DooDates/quizz/docs",
+        "text": "Historique enfants",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:55:46.437Z",
+        "lastInteraction": "2025-12-24T18:55:46.437Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8360b942de7f",
+      {
+        "selectorHash": "8360b942de7f",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Ouvrir le menu",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:55:50.330Z",
+        "lastInteraction": "2025-12-24T18:57:56.925Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "994f423f0b18",
+      {
+        "selectorHash": "994f423f0b18",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:56:08.048Z",
+        "lastInteraction": "2025-12-24T18:56:08.048Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "dcb653f2206b",
+      {
+        "selectorHash": "dcb653f2206b",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/privacy",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:56:30.888Z",
+        "lastInteraction": "2025-12-24T18:56:30.888Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "20d10233abaf",
+      {
+        "selectorHash": "20d10233abaf",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Tarifs",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:57:50.312Z",
+        "lastInteraction": "2025-12-24T19:16:31.737Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2d8b504c4789",
+      {
+        "selectorHash": "2d8b504c4789",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Fermer le menu",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:58:05.277Z",
+        "lastInteraction": "2025-12-24T18:58:05.277Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "add6a5322297",
+      {
+        "selectorHash": "add6a5322297",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Tableau de bord",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T18:58:11.527Z",
+        "lastInteraction": "2025-12-24T19:53:01.593Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9b4fe3e79de4",
+      {
+        "selectorHash": "9b4fe3e79de4",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T18:58:58.269Z",
+        "lastInteraction": "2025-12-24T18:58:58.269Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c901eb39dd2b",
+      {
+        "selectorHash": "c901eb39dd2b",
+        "selector": "a:has-text(\"Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Disponibilités",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:00:41.340Z",
+        "lastInteraction": "2025-12-24T19:18:27.933Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "21d944031c55",
+      {
+        "selectorHash": "21d944031c55",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:01:13.460Z",
+        "lastInteraction": "2025-12-24T19:01:13.460Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "decc0ceb41b0",
+      {
+        "selectorHash": "decc0ceb41b0",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/terms",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:01:24.538Z",
+        "lastInteraction": "2025-12-24T19:01:24.538Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7a9eabbed245",
+      {
+        "selectorHash": "7a9eabbed245",
+        "selector": "a:has-text(\"← DooDates\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "← DooDates",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:02:50.761Z",
+        "lastInteraction": "2025-12-24T19:21:24.946Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1bc2e7a45525",
+      {
+        "selectorHash": "1bc2e7a45525",
+        "selector": "a:has-text(\"privacy@doodates.com\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "privacy@doodates.com",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T19:04:11.575Z",
+        "lastInteraction": "2025-12-24T20:05:24.943Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4a94036a0f23",
+      {
+        "selectorHash": "4a94036a0f23",
+        "selector": "a[data-testid=\"create-availability-poll\"]",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Nouvelle Dispo",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:04:31.126Z",
+        "lastInteraction": "2025-12-24T19:04:31.126Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "de9f20603bfd",
+      {
+        "selectorHash": "de9f20603bfd",
+        "selector": "a:has-text(\"Mes Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls/docs",
+        "text": "Mes Disponibilités",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:07:07.672Z",
+        "lastInteraction": "2025-12-24T19:07:07.672Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f42b496ef17f",
+      {
+        "selectorHash": "f42b496ef17f",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:09:41.233Z",
+        "lastInteraction": "2025-12-24T19:09:41.233Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6bdac797840e",
+      {
+        "selectorHash": "6bdac797840e",
+        "selector": "a:has-text(\"Historique enfants\")",
+        "pageUrl": "/DooDates/quizz/pricing",
+        "text": "Historique enfants",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:11:45.875Z",
+        "lastInteraction": "2025-12-24T19:11:45.875Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a453d0a2a033",
+      {
+        "selectorHash": "a453d0a2a033",
+        "selector": "a:has-text(\"dpo@doodates.com\")",
+        "pageUrl": "/DooDates/date-polls/data-control",
+        "text": "dpo@doodates.com",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T19:13:21.628Z",
+        "lastInteraction": "2025-12-24T19:13:28.407Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5a5eee01e7bc",
+      {
+        "selectorHash": "5a5eee01e7bc",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Tarifs",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:15:20.671Z",
+        "lastInteraction": "2025-12-24T19:15:20.671Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ccc0a50836f6",
+      {
+        "selectorHash": "ccc0a50836f6",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Tarifs",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:15:31.402Z",
+        "lastInteraction": "2025-12-24T20:28:59.116Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "36e0d7e086d6",
+      {
+        "selectorHash": "36e0d7e086d6",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:15:42.298Z",
+        "lastInteraction": "2025-12-24T19:15:42.298Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5520d5676e84",
+      {
+        "selectorHash": "5520d5676e84",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/availability-polls/documentation",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:15:53.605Z",
+        "lastInteraction": "2025-12-24T19:15:53.605Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1aa1f75928cd",
+      {
+        "selectorHash": "1aa1f75928cd",
+        "selector": "a:has-text(\"Accueil DooDates\")",
+        "pageUrl": "/DooDates/availability-polls/pricing",
+        "text": "Accueil DooDates",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:16:43.308Z",
+        "lastInteraction": "2025-12-24T20:29:04.885Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ac36dccb7c31",
+      {
+        "selectorHash": "ac36dccb7c31",
+        "selector": "a:has-text(\"Disponibilités\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Disponibilités",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:18:53.415Z",
+        "lastInteraction": "2025-12-24T19:18:53.415Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f968cc3fd15e",
+      {
+        "selectorHash": "f968cc3fd15e",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "Contact",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:19:01.767Z",
+        "lastInteraction": "2025-12-24T19:19:02.729Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "91750b491261",
+      {
+        "selectorHash": "91750b491261",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "CGU",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:19:10.063Z",
+        "lastInteraction": "2025-12-24T19:19:10.328Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "322c1bfa22c2",
+      {
+        "selectorHash": "322c1bfa22c2",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/availability-polls",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:20:36.512Z",
+        "lastInteraction": "2025-12-24T19:20:36.512Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9461c68b2bc3",
+      {
+        "selectorHash": "9461c68b2bc3",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/quizz/docs",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:26:30.310Z",
+        "lastInteraction": "2025-12-24T19:26:30.310Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ed106cfb377e",
+      {
+        "selectorHash": "ed106cfb377e",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/quizz/pricing",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:27:23.443Z",
+        "lastInteraction": "2025-12-24T19:27:23.443Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0ba129d32d18",
+      {
+        "selectorHash": "0ba129d32d18",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/availability-polls/settings",
+        "text": "Paramètres",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:29:18.997Z",
+        "lastInteraction": "2025-12-24T19:29:18.997Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "83583ef4dde8",
+      {
+        "selectorHash": "83583ef4dde8",
+        "selector": "a",
+        "pageUrl": "/DooDates/settings",
+        "text": "Politique de confidentialitéConsultez notre politique complète",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:30:55.469Z",
+        "lastInteraction": "2025-12-24T19:30:55.469Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "e194236dfc08",
+      {
+        "selectorHash": "e194236dfc08",
+        "selector": "a:has-text(\"privacy@doodates.com\")",
+        "pageUrl": "/DooDates/settings",
+        "text": "privacy@doodates.com",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T19:50:17.644Z",
+        "lastInteraction": "2025-12-24T19:50:18.174Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f53d006f4368",
+      {
+        "selectorHash": "f53d006f4368",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Support",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:51:54.247Z",
+        "lastInteraction": "2025-12-24T19:51:54.247Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8b6304c55652",
+      {
+        "selectorHash": "8b6304c55652",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:52:08.623Z",
+        "lastInteraction": "2025-12-24T19:52:08.623Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7a9aed735db7",
+      {
+        "selectorHash": "7a9aed735db7",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:52:16.589Z",
+        "lastInteraction": "2025-12-24T19:52:16.589Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "de5229239c6e",
+      {
+        "selectorHash": "de5229239c6e",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/contact",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T19:52:25.469Z",
+        "lastInteraction": "2025-12-24T19:52:25.469Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "51e093116414",
+      {
+        "selectorHash": "51e093116414",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/support-policy",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:02:48.892Z",
+        "lastInteraction": "2025-12-24T20:02:48.892Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "eb59c09869ac",
+      {
+        "selectorHash": "eb59c09869ac",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:06:58.848Z",
+        "lastInteraction": "2025-12-24T20:06:58.848Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "da014a616ad9",
+      {
+        "selectorHash": "da014a616ad9",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:07:09.815Z",
+        "lastInteraction": "2025-12-24T20:07:09.815Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fe5f4a91343c",
+      {
+        "selectorHash": "fe5f4a91343c",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Confidentialité",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:07:19.263Z",
+        "lastInteraction": "2025-12-24T20:07:19.263Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2793217a587a",
+      {
+        "selectorHash": "2793217a587a",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/form-polls",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:09:06.410Z",
+        "lastInteraction": "2025-12-24T20:09:06.410Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fa36b75926c5",
+      {
+        "selectorHash": "fa36b75926c5",
+        "selector": "a:has-text(\"→ Tableau de bord\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "→ Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:35:02.869Z",
+        "lastInteraction": "2025-12-24T20:35:02.869Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1cdf9e26ad79",
+      {
+        "selectorHash": "1cdf9e26ad79",
+        "selector": "a[data-testid=\"create-date-poll\"]",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Nouveau Sondage",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T20:37:50.919Z",
+        "lastInteraction": "2025-12-24T21:07:43.427Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7f02c43b676d",
+      {
+        "selectorHash": "7f02c43b676d",
+        "selector": "button[aria-label=\"mercredi 25 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "25",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:40:49.447Z",
+        "lastInteraction": "2025-12-24T20:40:49.447Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7a1c78259edd",
+      {
+        "selectorHash": "7a1c78259edd",
+        "selector": "button[aria-label=\"jeudi 5 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "5",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:41:16.496Z",
+        "lastInteraction": "2025-12-24T20:41:16.496Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2c132e10ed9e",
+      {
+        "selectorHash": "2c132e10ed9e",
+        "selector": "button[aria-label=\"jeudi 12 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "12",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:41:35.569Z",
+        "lastInteraction": "2025-12-24T20:41:35.569Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2e578358423e",
+      {
+        "selectorHash": "2e578358423e",
+        "selector": "button[aria-label=\"jeudi 19 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "19",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:42:03.312Z",
+        "lastInteraction": "2025-12-24T20:42:03.312Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d16585064d86",
+      {
+        "selectorHash": "d16585064d86",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:44:31.662Z",
+        "lastInteraction": "2025-12-24T20:44:31.662Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "93172fca5f53",
+      {
+        "selectorHash": "93172fca5f53",
+        "selector": "button[aria-label=\"jeudi 26 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "26",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:46:37.325Z",
+        "lastInteraction": "2025-12-24T20:46:37.325Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2cf19d519659",
+      {
+        "selectorHash": "2cf19d519659",
+        "selector": "button[aria-label=\"vendredi 6 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "6",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:47:08.285Z",
+        "lastInteraction": "2025-12-24T20:47:08.285Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "25d729cfecc9",
+      {
+        "selectorHash": "25d729cfecc9",
+        "selector": "button[aria-label=\"vendredi 13 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "13",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:47:40.775Z",
+        "lastInteraction": "2025-12-24T20:47:40.775Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a357b97a293c",
+      {
+        "selectorHash": "a357b97a293c",
+        "selector": "button[aria-label=\"vendredi 20 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "20",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:48:11.897Z",
+        "lastInteraction": "2025-12-24T20:48:11.897Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "21c6631dcd95",
+      {
+        "selectorHash": "21c6631dcd95",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Tarifs",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T20:49:39.275Z",
+        "lastInteraction": "2025-12-24T21:14:15.664Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "63fd005589f0",
+      {
+        "selectorHash": "63fd005589f0",
+        "selector": "a:has-text(\"Mes Sondages\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Mes Sondages",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:50:00.977Z",
+        "lastInteraction": "2025-12-24T20:50:00.977Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "03532a16468f",
+      {
+        "selectorHash": "03532a16468f",
+        "selector": "a:has-text(\"Sondages\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Sondages",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T20:51:04.817Z",
+        "lastInteraction": "2025-12-24T21:15:58.966Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "3200b88e57fb",
+      {
+        "selectorHash": "3200b88e57fb",
+        "selector": "a:has-text(\"Sondages\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Sondages",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T20:51:37.569Z",
+        "lastInteraction": "2025-12-24T21:23:29.199Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "01369454dd43",
+      {
+        "selectorHash": "01369454dd43",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Paramètres",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T20:52:19.637Z",
+        "lastInteraction": "2025-12-24T21:22:24.192Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "50d38a5772a5",
+      {
+        "selectorHash": "50d38a5772a5",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Paramètres",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:52:39.939Z",
+        "lastInteraction": "2025-12-24T20:52:39.939Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "81a251768558",
+      {
+        "selectorHash": "81a251768558",
+        "selector": "a:has-text(\"← DooDates\")",
+        "pageUrl": "/DooDates/date-polls/documentation",
+        "text": "← DooDates",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:56:14.952Z",
+        "lastInteraction": "2025-12-24T20:56:14.952Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6b4029a88f39",
+      {
+        "selectorHash": "6b4029a88f39",
+        "selector": "button[aria-label=\"vendredi 27 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "27",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:56:44.970Z",
+        "lastInteraction": "2025-12-24T20:56:44.970Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a13df064a9a8",
+      {
+        "selectorHash": "a13df064a9a8",
+        "selector": "button[aria-label=\"samedi 7 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "7",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:57:13.027Z",
+        "lastInteraction": "2025-12-24T20:57:13.027Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "f28cf08b2240",
+      {
+        "selectorHash": "f28cf08b2240",
+        "selector": "button[aria-label=\"samedi 14 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "14",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:57:46.310Z",
+        "lastInteraction": "2025-12-24T20:57:46.310Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5ca82c0bea72",
+      {
+        "selectorHash": "5ca82c0bea72",
+        "selector": "button[aria-label=\"samedi 21 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "21",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:58:19.473Z",
+        "lastInteraction": "2025-12-24T20:58:19.473Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c9ba33242fed",
+      {
+        "selectorHash": "c9ba33242fed",
+        "selector": "button[aria-label=\"dimanche 1 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "1",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:58:52.612Z",
+        "lastInteraction": "2025-12-24T20:58:52.612Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "aaefbaa9b440",
+      {
+        "selectorHash": "aaefbaa9b440",
+        "selector": "button[aria-label=\"dimanche 8 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "8",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:59:17.261Z",
+        "lastInteraction": "2025-12-24T20:59:17.261Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "74fbba442a6f",
+      {
+        "selectorHash": "74fbba442a6f",
+        "selector": "button[aria-label=\"samedi 28 février 2026\"]",
+        "pageUrl": "/DooDates/date-polls/workspace/date",
+        "text": "28",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T20:59:51.159Z",
+        "lastInteraction": "2025-12-24T20:59:51.159Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "96e43b17c983",
+      {
+        "selectorHash": "96e43b17c983",
+        "selector": "a:has-text(\"Mes Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Mes Formulaires",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:13:54.926Z",
+        "lastInteraction": "2025-12-24T21:13:54.926Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d224da80370c",
+      {
+        "selectorHash": "d224da80370c",
+        "selector": "a:has-text(\"Formulaires\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Formulaires",
+        "clickCount": 3,
+        "firstInteraction": "2025-12-24T21:15:52.582Z",
+        "lastInteraction": "2025-12-24T22:08:54.325Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a3b883b28ec3",
+      {
+        "selectorHash": "a3b883b28ec3",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/form-polls/settings",
+        "text": "Paramètres",
+        "clickCount": 2,
+        "firstInteraction": "2025-12-24T21:26:45.911Z",
+        "lastInteraction": "2025-12-24T21:51:02.354Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "32fc8a3acf6f",
+      {
+        "selectorHash": "32fc8a3acf6f",
+        "selector": "a:has-text(\"← DooDates\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "← DooDates",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:29:24.214Z",
+        "lastInteraction": "2025-12-24T21:29:24.214Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "350d6b82b6ee",
+      {
+        "selectorHash": "350d6b82b6ee",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/security",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:30:29.130Z",
+        "lastInteraction": "2025-12-24T21:30:29.130Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4267b4b1ca1c",
+      {
+        "selectorHash": "4267b4b1ca1c",
+        "selector": "a:has-text(\"→ Créer un formulaire\")",
+        "pageUrl": "/DooDates/form-polls/documentation",
+        "text": "→ Créer un formulaire",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:36:21.332Z",
+        "lastInteraction": "2025-12-24T21:36:21.332Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "66689dd097ac",
+      {
+        "selectorHash": "66689dd097ac",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/security",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:39:19.273Z",
+        "lastInteraction": "2025-12-24T21:39:19.273Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "670e61f3bea3",
+      {
+        "selectorHash": "670e61f3bea3",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/security",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T21:49:58.178Z",
+        "lastInteraction": "2025-12-24T21:49:58.178Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "8800a4e7dd09",
+      {
+        "selectorHash": "8800a4e7dd09",
+        "selector": "a[data-testid=\"create-form-poll\"]",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Nouveau Formulaire",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T22:07:26.976Z",
+        "lastInteraction": "2025-12-24T22:07:26.976Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "896a16962d1c",
+      {
+        "selectorHash": "896a16962d1c",
+        "selector": "a:has-text(\"Documentation avancée →\")",
+        "pageUrl": "/DooDates/form-polls/docs",
+        "text": "Documentation avancée →",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T22:10:16.610Z",
+        "lastInteraction": "2025-12-24T22:10:16.610Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "01e90c1552aa",
+      {
+        "selectorHash": "01e90c1552aa",
+        "selector": "button[aria-label=\"Ouvrir le menu\"]",
+        "pageUrl": "/DooDates/form-polls/documentation/advanced",
+        "text": "Ouvrir le menu",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T22:10:30.196Z",
+        "lastInteraction": "2025-12-24T22:10:30.196Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "034a7d198ced",
+      {
+        "selectorHash": "034a7d198ced",
+        "selector": "button[aria-label=\"Fermer le menu\"]",
+        "pageUrl": "/DooDates/form-polls/documentation/advanced",
+        "text": "Fermer le menu",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T22:10:45.962Z",
+        "lastInteraction": "2025-12-24T22:10:45.962Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "60ab359d0b19",
+      {
+        "selectorHash": "60ab359d0b19",
+        "selector": "a",
+        "pageUrl": "/DooDates/form-polls/documentation/advanced",
+        "text": "1. Types de questions (8)",
+        "clickCount": 1,
+        "firstInteraction": "2025-12-24T22:10:56.485Z",
+        "lastInteraction": "2025-12-24T22:10:56.485Z",
+        "wasSuccessful": true
+      }
+    ]
+  ],
+  "pageVisits": [
+    [
+      "/DooDates/date-polls",
+      519
+    ],
+    [
+      "/DooDates/date-polls/list",
+      152
+    ],
+    [
+      "/DooDates/",
+      168
+    ],
+    [
+      "/DooDates/date-polls/dashboard",
+      308
+    ],
+    [
+      "/DooDates/date-polls/workspace/date",
+      98
+    ],
+    [
+      "/DooDates/date-polls/settings",
+      101
+    ],
+    [
+      "/DooDates",
+      97
+    ],
+    [
+      "/DooDates/date-polls/docs",
+      58
+    ],
+    [
+      "/DooDates/date-polls/pricing",
+      18
+    ],
+    [
+      "/DooDates/support-policy",
+      27
+    ],
+    [
+      "/DooDates/security",
+      24
+    ],
+    [
+      "/DooDates/privacy",
+      24
+    ],
+    [
+      "/DooDates/settings",
+      11
+    ],
+    [
+      "/DooDates/date-polls/data-control",
+      7
+    ],
+    [
+      "/DooDates/date-polls/documentation",
+      11
+    ],
+    [
+      "/DooDates/terms",
+      18
+    ],
+    [
+      "/DooDates/contact",
+      15
+    ],
+    [
+      "/DooDates/about",
+      12
+    ],
+    [
+      "/DooDates/form-polls",
+      139
+    ],
+    [
+      "/DooDates/form-polls/list",
+      15
+    ],
+    [
+      "/DooDates/form-polls/dashboard",
+      230
+    ],
+    [
+      "/DooDates/form-polls/workspace/form",
+      149
+    ],
+    [
+      "/DooDates/form-polls/settings",
+      60
+    ],
+    [
+      "/DooDates/form-polls/docs",
+      28
+    ],
+    [
+      "/DooDates/availability-polls",
+      125
+    ],
+    [
+      "/DooDates/form-polls/documentation",
+      6
+    ],
+    [
+      "/DooDates/availability-polls/list",
+      10
+    ],
+    [
+      "/DooDates/form-polls/pricing",
+      19
+    ],
+    [
+      "/DooDates/quizz",
+      168
+    ],
+    [
+      "/DooDates/quizz/history",
+      110
+    ],
+    [
+      "/DooDates/availability-polls/dashboard",
+      158
+    ],
+    [
+      "/DooDates/availability-polls/workspace/availability",
+      95
+    ],
+    [
+      "/DooDates/quizz/dashboard",
+      32
+    ],
+    [
+      "/DooDates/quizz/create",
+      170
+    ],
+    [
+      "/DooDates/availability-polls/pricing",
+      13
+    ],
+    [
+      "/DooDates/quizz/pricing",
+      8
+    ],
+    [
+      "/DooDates/availability-polls/docs",
+      19
+    ],
+    [
+      "/DooDates/availability-polls/settings",
+      31
+    ],
+    [
+      "/DooDates/quizz/docs",
+      8
+    ],
+    [
+      "/DooDates/workspace/availability",
+      5
+    ],
+    [
+      "/DooDates/availability-polls/documentation",
+      1
+    ],
+    [
+      "/DooDates/form-polls/documentation/advanced",
+      3
+    ]
+  ]
+}
