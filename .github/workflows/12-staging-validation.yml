@@ -35,14 +35,117 @@ jobs:
       - name: 🧹 Linting & Formatage
         run: npm run lint -- --max-warnings=30 || echo "Linting completed with warnings"
         
+      - name: 🎭 Tests E2E Smoke
+        run: npm run test:e2e:smoke
+        timeout-minutes: 10
+        continue-on-error: false
+        
+      - name: 🧪 Tests Ultra-Simple (4 produits)
+        run: npm run test:ultra-simple
+        timeout-minutes: 15
+        continue-on-error: false
+        
       - name: 🏗️ Build Validation
         run: npm run build
         
-      - name: 📊 Tests Coverage Summary
+  # 2) E2E isolés dashboard (tests corrigés)
+  e2e-isolated:
+    runs-on: ubuntu-latest
+    needs: staging-validation
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright (Chromium only)
+        run: |
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
+            npx playwright install chromium
+          else
+            echo "⚠️ Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps chromium
+          fi
+
+      - name: 🎯 Run Dashboard Tests (Tests corrigés)
+        run: |
+          npx playwright test \
+            tests/e2e/dashboard-complete.spec.ts \
+            tests/e2e/tags-folders.spec.ts \
+            --config=playwright.config.optimized.ts \
+            --project=chromium \
+            --grep="@functional - (Sélectionner|Assigner)" \
+            --reporter=html,json
+        env:
+          CI: true
+          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
+
+      - name: 📊 Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-staging
+          path: playwright-report
+          retention-days: 3
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-staging
+          path: test-results
+          retention-days: 3
+
+      - name: 📸 Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots-staging
+          path: test-results/**/*.png
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: 🎥 Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-videos-staging
+          path: test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: 📋 Upload traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-traces-staging
+          path: test-results/**/*.zip
+          if-no-files-found: ignore
+          retention-days: 3
+        
+      - name: 📊 Staging Validation Summary
         if: always()
         run: |
-          echo "## Staging Branch Validation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Unitaires: 1070 tests" >> $GITHUB_STEP_SUMMARY
+          echo "## Staging → Pre-prod Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests Unitaires: Passés" >> $GITHUB_STEP_SUMMARY
           echo "✅ Build: Succès" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Linting: Validé avec warnings" >> $GITHUB_STEP_SUMMARY
-          echo "📝 Phase: Staging (5-10 min)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ E2E Smoke: Validés" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Ultra-Simple (4 produits): Validés" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Phase: Staging (20-45 min)" >> $GITHUB_STEP_SUMMARY
