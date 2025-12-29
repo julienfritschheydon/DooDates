@@ -113,7 +113,7 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
       }
 
       // Afficher le message d'erreur seulement la première fois
-      if (!hasShownOfflineMessage.current) {
+      if (!hasShownOfflineMessage.current && typeof window !== "undefined") {
         const errorMessage =
           "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...";
 
