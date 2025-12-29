@@ -36,6 +36,10 @@ import { useFormPollCreation } from "../../hooks/useFormPollCreation";
 import { PollSettingsForm } from "./PollSettingsForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { guestEmailService } from "@/lib/guestEmailService";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Mail } from "lucide-react";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType =
@@ -178,6 +182,27 @@ export default function FormPollCreator({
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
   const isFinalizingRef = useRef(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
+
+  // Charger l'email existant si guest
+  useEffect(() => {
+    if (!user) {
+      setIsLoadingEmail(true);
+      guestEmailService.getGuestEmail().then(email => {
+        if (email) setGuestEmail(email);
+        setIsLoadingEmail(false);
+      });
+      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      setIsEmailFieldDismissed(dismissed);
+    }
+  }, [user]);
+
+  const handleDismissEmailField = () => {
+    setIsEmailFieldDismissed(true);
+    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
+  };
 
   // Suggestion IA intelligente pour displayMode
   const suggestedDisplayMode = useMemo(() => {
@@ -745,6 +770,37 @@ export default function FormPollCreator({
                     <CollapsibleContent className="mt-2 space-y-4">
 
 
+
+                      {/* Champ Email Invité (RGPD) */}
+                      {!user && !isEmailFieldDismissed && (
+                        <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-700 relative group">
+                          <button
+                            onClick={handleDismissEmailField}
+                            className="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            title="Ne plus afficher"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Mail className="w-5 h-5 text-blue-400" />
+                            <Label className="text-sm font-medium text-blue-400">
+                              Email pour les alertes RGPD (recommandé)
+                            </Label>
+                          </div>
+                          <Input
+                            type="email"
+                            placeholder="votre@email.com"
+                            value={guestEmail}
+                            onChange={(e) => setGuestEmail(e.target.value)}
+                            onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+                            className="bg-[#0a0a0a] border-gray-700 text-gray-200"
+                          />
+                          <p className="text-xs text-gray-500 mt-2">
+                            En tant qu'invité, vos données sont conservées pendant 1 an.
+                            Renseignez votre email pour être alerté avant la suppression.
+                          </p>
+                        </div>
+                      )}
 
                       {/* Paramètres du sondage */}
                       <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">

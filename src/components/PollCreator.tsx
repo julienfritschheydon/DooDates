@@ -46,6 +46,9 @@ import { useDragToSelect } from "@/hooks/useDragToSelect";
 import { usePollCreatorState } from "@/hooks/usePollCreatorState";
 import type { TimeSlot, PollCreationState } from "@/services/PollCreationBusinessLogic";
 import { PollSettingsForm } from "./polls/PollSettingsForm";
+import { guestEmailService } from "@/lib/guestEmailService";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import type { DatePollSettings } from "@/lib/products/date-polls/date-polls-service";
 
 // Type pour identifier un slot avec sa date (défini en dehors du composant)
@@ -137,6 +140,24 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const targetTimeSlotRefMobile = useRef<HTMLDivElement>(null); // 12:00 mobile
   const targetTimeSlotRefDesktop = useRef<HTMLDivElement>(null); // 12:00 desktop
   const hasAutoScrolled = useRef<boolean>(false);
+  const [guestEmail, setGuestEmail] = useState("");
+
+  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      guestEmailService.getGuestEmail().then(email => {
+        if (email) setGuestEmail(email);
+      });
+      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      setIsEmailFieldDismissed(dismissed);
+    }
+  }, [user]);
+
+  const handleDismissEmailField = () => {
+    setIsEmailFieldDismissed(true);
+    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
+  };
 
   const { state, setState, visibleMonths, setVisibleMonths, timeSlotsByDate, setTimeSlotsByDate } =
     usePollCreatorState({
@@ -706,6 +727,37 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   required
                 />
               </div>
+
+              {/* Champ Email Invité (RGPD) */}
+              {!user && !isEmailFieldDismissed && (
+                <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-700 relative group">
+                  <button
+                    onClick={handleDismissEmailField}
+                    className="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                    title="Ne plus afficher"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                    <Label className="text-sm font-medium text-blue-400">
+                      Email pour les alertes RGPD (recommandé)
+                    </Label>
+                  </div>
+                  <Input
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+                    className="bg-[#0a0a0a] border-gray-700 text-gray-200"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    En tant qu'invité, vos données sont conservées pendant 1 an.
+                    Renseignez votre email pour être alerté avant la suppression.
+                  </p>
+                </div>
+              )}
 
               <div className="w-full overflow-hidden">
                 <Calendar
