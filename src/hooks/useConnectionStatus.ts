@@ -32,6 +32,11 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
 
   const testConnection = useCallback(async () => {
     try {
+      // Prevent execution during test teardown when window is undefined
+      if (typeof window === "undefined") {
+        return;
+      }
+
       if (isE2ETesting) {
         const newStatus: ConnectionStatus = "connected";
         setStatus(newStatus);
