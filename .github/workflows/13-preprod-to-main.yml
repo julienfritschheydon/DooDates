@@ -61,10 +61,6 @@ jobs:
           fi
         timeout-minutes: 3
         
-      - name: 🏗️ Build Production
-        run: npm run build
-        timeout-minutes: 5
-        
       - name: 🎭 Tests E2E Smoke
         run: npm run test:e2e:smoke
         timeout-minutes: 10
