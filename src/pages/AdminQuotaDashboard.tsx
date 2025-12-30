@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   CreditCard,
   Search,
@@ -58,7 +58,7 @@ interface QuotaJournalEntry {
   cost: number;
   resource_id: string | null;
   created_at: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 const POLL_TYPE_COLORS = {
@@ -84,23 +84,7 @@ const AdminQuotaDashboard: React.FC = () => {
   const [includeTestSessions, setIncludeTestSessions] = useState(false);
   const [selectedBar, setSelectedBar] = useState<string | null>(null);
 
-  // Vérification basique admin (à renforcer backend)
-  useEffect(() => {
-    const hasRoleAdmin =
-      !!user && (profile?.preferences as { role?: string } | null)?.role === "admin";
-
-    const hasEmailAdmin =
-      !!user && (user.email?.endsWith("@doodates.com") || user.email === "admin@doodates.com");
-
-    const nextIsAdmin = hasRoleAdmin || hasEmailAdmin;
-
-    setIsAdmin(nextIsAdmin);
-    if (nextIsAdmin) {
-      void loadQuotas();
-    }
-  }, [user, profile]);
-
-  const loadQuotas = async () => {
+  const loadQuotas = useCallback(async () => {
     setIsLoadingData(true);
     setLoadError(null);
     try {
@@ -132,13 +116,30 @@ const AdminQuotaDashboard: React.FC = () => {
 
       setQuotas(qData || []);
       setJournal(jData || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
       logger.error("Failed to load admin quota data", "quota", err);
-      setLoadError(err.message || "Erreur de chargement");
+      setLoadError(errorMessage || "Erreur de chargement");
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [timeRange]);
+
+  // Vérification basique admin (à renforcer backend)
+  useEffect(() => {
+    const hasRoleAdmin =
+      !!user && (profile?.preferences as { role?: string } | null)?.role === "admin";
+
+    const hasEmailAdmin =
+      !!user && (user.email?.endsWith("@doodates.com") || user.email === "admin@doodates.com");
+
+    const nextIsAdmin = hasRoleAdmin || hasEmailAdmin;
+
+    setIsAdmin(nextIsAdmin);
+    if (nextIsAdmin) {
+      void loadQuotas();
+    }
+  }, [user, profile, loadQuotas]);
 
   const handleBlockUser = async (fingerprint: string) => {
     if (!confirm("Bloquer cet utilisateur pour 24h ?")) return;
@@ -309,7 +310,7 @@ const AdminQuotaDashboard: React.FC = () => {
     return { totalRequests, uniqueUsers, totalCredits, distribution, chartData, topConsumers };
   }, [journal, filteredQuotas, includeTestSessions]);
 
-  const handleBarClick = (data: any) => {
+  const handleBarClick = (data: { activePayload?: Array<{ payload: { fullFingerprint?: string } }> }) => {
     if (data && data.activePayload && data.activePayload.length > 0) {
       const payload = data.activePayload[0].payload;
       // If clicking on top consumers chart

@@ -123,9 +123,9 @@ export function validateProductionEnv(): void {
     if (!validation.isValid) {
       const error = new Error(
         `Variables d'environnement de production manquantes: ${validation.missing.join(", ")}`,
-      );
-      (error as any).code = "MISSING_ENV_VARS";
-      (error as any).missing = validation.missing;
+      ) as Error & { code: string; missing: string[] };
+      error.code = "MISSING_ENV_VARS";
+      error.missing = validation.missing;
       throw error;
     }
   }

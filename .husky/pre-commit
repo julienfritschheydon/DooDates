@@ -357,6 +357,15 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# 0. Validation qualité du code (nouvelle règle)
+echo "🔍 Validation qualité du code..."
+npm run validate
+if [ $? -ne 0 ]; then
+  echo "❌ Validation qualité échouée - Commit bloqué"
+  echo "💡 Consultez Docs/DEVELOPMENT-GUIDELINES.md"
+  exit 1
+fi
+
 # 1. Tests unitaires rapides (< 30s)
 echo "🧪 Tests unitaires rapides..."
 npm run test:unit:fast

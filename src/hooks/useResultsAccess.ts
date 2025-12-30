@@ -20,7 +20,7 @@ export function useResultsAccess(
   }
 
   // Récupérer la visibilité des résultats (défaut: public)
-  const visibility = (poll.settings as any)?.resultsVisibility || "public";
+  const visibility = (poll.settings as { resultsVisibility?: string })?.resultsVisibility || "public";
 
   // Mode "Public" : tout le monde peut voir
   if (visibility === "public") {

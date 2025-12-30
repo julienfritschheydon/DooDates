@@ -29,8 +29,7 @@ import {
   type QuizzQuestion,
   type QuizzResponse,
   type Badge,
-  BADGE_DEFINITIONS,
-} from "../../lib/products/quizz/quizz-service";
+} from "@/lib/products/quizz/quizz-service";
 import { secureGeminiService } from "../../services/SecureGeminiService";
 import { cn } from "../../lib/utils";
 import { logError, ErrorFactory } from "../../lib/error-handling";

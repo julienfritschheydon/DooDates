@@ -1,12 +1,38 @@
-// @ts-nocheck - Deno Edge Function with different runtime
+// Deno Edge Function with different runtime
+// @ts-ignore - Deno modules
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore - Deno modules  
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// @ts-ignore - Deno modules
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// @ts-ignore - Deno types
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
 };
+
+interface SupabaseClient {
+  from: (table: string) => SupabaseQueryBuilder;
+}
+
+interface SupabaseQueryBuilder {
+  select: (columns: string) => SupabaseQueryBuilder;
+  gte: (column: string, value: any) => SupabaseQueryBuilder;
+  order: (column: string, options?: { ascending: boolean }) => SupabaseQueryBuilder;
+  limit: (limit: number) => SupabaseQueryBuilder;
+  then: <T>(onFulfilled: (value: SupabaseResponse<T>) => T | PromiseLike<T>) => Promise<T>;
+}
+
+interface SupabaseResponse<T> {
+  data: T | null;
+  error: SupabaseError | null;
+}
+
+interface SupabaseError {
+  message: string;
+}
 
 interface QuotaAlert {
   user_id: string;
@@ -16,7 +42,37 @@ interface QuotaAlert {
   alert_type: "high_usage" | "suspicious_activity";
 }
 
-serve(async (req) => {
+interface QuotaData {
+  user_id: string;
+  total_credits_consumed: number;
+}
+
+interface GuestQuotaData {
+  id: string;
+  fingerprint: string;
+  total_credits_consumed: number;
+}
+
+interface ActivityEntry {
+  user_id: string;
+  action: string;
+  credits: number;
+  created_at: string;
+}
+
+interface UserActivity {
+  [userId: string]: {
+    totalCredits: number;
+    entries: ActivityEntry[];
+  };
+}
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -113,17 +169,19 @@ serve(async (req) => {
   }
 });
 
-async function checkQuotaAlerts(supabase: any): Promise<QuotaAlert[]> {
+async function checkQuotaAlerts(supabase: SupabaseClient): Promise<QuotaAlert[]> {
   const alerts: QuotaAlert[] = [];
 
   // Check authenticated users quota
-  const { data: userQuotas, error: userError } = await supabase
+  const userQuotasResponse = await supabase
     .from("quota_tracking")
     .select("*")
     .gte("total_credits_consumed", 50);
+  
+  const { data: userQuotas, error: userError } = await userQuotasResponse as SupabaseResponse<QuotaData[]>;
 
   if (!userError && userQuotas) {
-    userQuotas.forEach((quota: any) => {
+    userQuotas.forEach((quota: QuotaData) => {
       alerts.push({
         user_id: quota.user_id,
         total_credits_consumed: quota.total_credits_consumed,
@@ -134,13 +192,15 @@ async function checkQuotaAlerts(supabase: any): Promise<QuotaAlert[]> {
   }
 
   // Check guest quotas
-  const { data: guestQuotas, error: guestError } = await supabase
+  const guestQuotasResponse = await supabase
     .from("guest_quotas")
     .select("*")
     .gte("total_credits_consumed", 50);
 
+  const { data: guestQuotas, error: guestError } = await guestQuotasResponse as SupabaseResponse<GuestQuotaData[]>;
+
   if (!guestError && guestQuotas) {
-    guestQuotas.forEach((quota: any) => {
+    guestQuotas.forEach((quota: GuestQuotaData) => {
       alerts.push({
         user_id: quota.id,
         fingerprint: quota.fingerprint,
@@ -154,15 +214,17 @@ async function checkQuotaAlerts(supabase: any): Promise<QuotaAlert[]> {
   // Check for suspicious activity (rapid consumption)
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   
-  const { data: recentActivity, error: activityError } = await supabase
-    .from("quota_tracking_journal")
+  const recentActivityResponse = await supabase
+    .from("guest_quota_journal")
     .select("user_id, action, credits, created_at")
     .gte("created_at", oneHourAgo)
     .order("created_at", { ascending: false });
 
+  const { data: recentActivity, error: activityError } = await recentActivityResponse as SupabaseResponse<ActivityEntry[]>;
+
   if (!activityError && recentActivity) {
     // Group by user and count total credits in last hour
-    const userActivity = recentActivity.reduce((acc: any, entry: any) => {
+    const userActivity = recentActivity.reduce((acc: UserActivity, entry: ActivityEntry) => {
       const userId = entry.user_id;
       if (!acc[userId]) {
         acc[userId] = { totalCredits: 0, entries: [] };
@@ -173,7 +235,7 @@ async function checkQuotaAlerts(supabase: any): Promise<QuotaAlert[]> {
     }, {});
 
     // Alert on users with > 30 credits in 1 hour
-    Object.entries(userActivity).forEach(([userId, activity]: [string, any]) => {
+    Object.entries(userActivity).forEach(([userId, activity]: [string, { totalCredits: number; entries: ActivityEntry[] }]) => {
       if (activity.totalCredits > 30) {
         alerts.push({
           user_id: userId,

@@ -15,7 +15,7 @@ import { getTimeouts } from './config/timeouts';
 // Ces tests en mode serial ne fonctionnent correctement que sur Chromium
 test.describe('Dashboard - Tags et Dossiers', () => {
   test.describe.configure({ mode: 'serial' });
-  test.skip(({ browserName }) => browserName !== 'chromium', 'Serial tests optimized for Chrome');
+  // Note: test.skip retiré - les tests doivent s'exécuter en CI
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupTestEnvironment(page, browserName, {

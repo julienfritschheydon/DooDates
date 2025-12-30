@@ -227,7 +227,7 @@ export default function QuizzResults() {
   if (!accessStatus.allowed) {
     return (
       <ResultsAccessDenied
-        message={accessStatus.message}
+        message={accessStatus.message || "Accès non autorisé"}
         pollSlug={quizz.slug}
         showVoteButton={accessStatus.reason === "not-voted"}
       />
