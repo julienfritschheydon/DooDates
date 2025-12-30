@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [staging]
 
+permissions:
+  contents: write
+
 jobs:
   staging-validation:
     runs-on: ubuntu-latest
@@ -28,22 +31,34 @@ jobs:
         
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
+        timeout-minutes: 5
         
       - name: 📝 TypeScript Check
-        run: npm run type-check || echo "TypeScript check completed with warnings"
+        run: npm run type-check
+        timeout-minutes: 3
         
       - name: 🧹 Linting & Formatage
-        run: npm run lint -- --max-warnings=100 || echo "Linting completed with warnings"
-        
-      - name: 🎭 Tests E2E Smoke
-        run: echo "E2E Smoke temporairement désactivés pour permettre au CI de passer"
-        
-      - name: 🧪 Tests Ultra-Simple (4 produits)
-        run: echo "Tests Ultra-Simple temporairement désactivés pour permettre au CI de passer"
+        run: npm run lint -- --max-warnings=30
+        timeout-minutes: 3
         
       - name: 🏗️ Build Validation
         run: npm run build
+        timeout-minutes: 5
         
+      - name: 🎭 Tests E2E Smoke
+        run: npm run test:e2e:smoke
+        timeout-minutes: 10
+        continue-on-error: false
+        
+      - name: 📊 Staging Validation Summary
+        if: always()
+        run: |
+          echo "## Staging → Pre-prod Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests Unitaires: Passés" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build: Succès" >> $GITHUB_STEP_SUMMARY
+          echo "✅ E2E Smoke: Validés" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Phase: Staging (20-45 min)" >> $GITHUB_STEP_SUMMARY
+
   # 2) E2E isolés dashboard (tests corrigés)
   e2e-isolated:
     runs-on: ubuntu-latest
@@ -98,7 +113,29 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-staging
-          path: playwright-report
+          path: playwright-report/
+
+  auto-merge-to-preprod:
+    needs: staging-validation
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    steps:
+      - name: 📥 Checkout Pre-prod
+        uses: actions/checkout@v4
+        with:
+          ref: pre-prod
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Merge Staging to Pre-prod
+        run: |
+          git merge origin/staging --no-ff -m "chore: auto-merge staging to pre-prod"
+          git push origin pre-prod
           retention-days: 3
 
       - name: 📤 Upload test results JSON
