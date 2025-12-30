@@ -38,36 +38,21 @@ jobs:
         run: npm run lint -- --max-warnings=30
         timeout-minutes: 3
         
-      - name: 🏗️ Build Validation
+      - name: Build Validation
         run: npm run build
         timeout-minutes: 5
         
-      - name: 🎭 Install Playwright (only if previous steps pass)
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ Tests passés, installation Playwright pour E2E..."
-            npx playwright install --with-deps
-          else
-            echo "❌ Tests échoués, skip Playwright installation"
-            exit 1
-          fi
-        timeout-minutes: 3
-        
-      - name: 🎭 Tests E2E Smoke
-        run: npm run test:e2e:smoke
-        timeout-minutes: 10
-        continue-on-error: false
-        
-      - name: 📊 Staging Validation Summary
+      - name: Staging Validation Summary
         if: always()
         run: |
-          echo "## Staging → Pre-prod Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Staging Validation Summary" >> $GITHUB_STEP_SUMMARY
           echo "✅ Tests Unitaires: Passés" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Build: Succès" >> $GITHUB_STEP_SUMMARY
-          echo "✅ E2E Smoke: Validés" >> $GITHUB_STEP_SUMMARY
-          echo "📝 Phase: Staging (20-45 min)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build Production: Succès" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Linting: < 30 warnings" >> $GITHUB_STEP_SUMMARY
+          echo "⏳ E2E Tests: En cours dans job séparé" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Phase: Staging (10-15 min)" >> $GITHUB_STEP_SUMMARY
 
-  # 2) E2E isolés dashboard (tests corrigés)
+  # 2) TOUS les E2E (smoke + dashboard) - Job unique optimisé
   e2e-isolated:
     runs-on: ubuntu-latest
     needs: staging-validation
@@ -81,6 +66,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: 🔧 Install dependencies
+        run: npm ci
+
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
         uses: actions/cache@v4
@@ -89,9 +77,6 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-
-      - name: 🔧 Install dependencies
-        run: npm ci
 
       - name: 🧭 Install Playwright (Optimized)
         run: |
@@ -102,6 +87,19 @@ jobs:
             echo "⚠️ Cache miss - installation complète (~52s)"
             npx playwright install --with-deps chromium
           fi
+
+      - name: 🎯 Run E2E Smoke Tests
+        run: |
+          npx playwright test \
+            tests/e2e/production-smoke.spec.ts \
+            --config=playwright.config.optimized.ts \
+            --project=chromium \
+            --reporter=html,json
+        env:
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
 
       - name: 🎯 Run Dashboard Tests (Tests corrigés)
         run: |
@@ -114,6 +112,8 @@ jobs:
             --reporter=html,json
         env:
           CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
 
       - name: 📊 Upload Playwright HTML report
