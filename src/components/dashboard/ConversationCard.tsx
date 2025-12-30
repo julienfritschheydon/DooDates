@@ -753,6 +753,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                       className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
                       onClick={(e) => e.stopPropagation()}
                       aria-label="Menu d'actions"
+                      data-testid="conversation-menu-button"
                     >
                       <MoreVertical className="w-4 h-4" />
                     </Button>
@@ -763,6 +764,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                         e.stopPropagation();
                         setShowTagsFolderDialog(true);
                       }}
+                      data-testid="manage-tags-folder-menu-item"
                     >
                       <Settings className="w-4 h-4 mr-2" />
                       Gérer les tags/dossier
@@ -775,6 +777,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                       }}
                       className="text-red-600 focus:text-red-600"
                       disabled={isDeleting}
+                      data-testid="delete-conversation-menu-item"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Supprimer
@@ -793,6 +796,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             open={showTagsFolderDialog}
             onOpenChange={setShowTagsFolderDialog}
             onSuccess={onRefresh}
+            data-testid="manage-tags-dialog"
           />
         </div>
       </div>
