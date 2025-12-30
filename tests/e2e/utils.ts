@@ -111,6 +111,8 @@ export function attachConsoleGuard(
     /The above error occurred in the <Route\.Provider> component/i,
     /The above error occurred in one of your React components/i,
     /JSHandle@object/i, // Firefox log des objets comme "JSHandle@object" au lieu du message réel
+    /❌ 💳 Error in getGuestEmail.*Failed to fetch/i, // Erreurs Supabase en CI
+    /❌ 💳 Error in.*supabaseApi.*Failed to fetch/i, // Erreurs Supabase génériques
   ];
   // Dev-noise (activé seulement si E2E_DEV_NOISE=1): erreurs réseau externes, Vite/React transitoires, etc.
   const devNoiseAllow = [
@@ -128,6 +130,8 @@ export function attachConsoleGuard(
     /The above error occurred in the <Route\.Provider> component/i,
     /The above error occurred in one of your React components/i,
     /JSHandle@object/i, // Firefox log des objets comme "JSHandle@object" au lieu du message réel
+    /❌ 💳 Error in getGuestEmail.*Failed to fetch/i, // Erreurs Supabase en CI
+    /❌ 💳 Error in.*supabaseApi.*Failed to fetch/i, // Erreurs Supabase génériques
   ];
   const defaultAllow = process.env.E2E_DEV_NOISE === '1' ? [...baseAllow, ...devNoiseAllow] : baseAllow;
   const allow = options?.allowlist ? [...defaultAllow, ...options.allowlist] : defaultAllow;
