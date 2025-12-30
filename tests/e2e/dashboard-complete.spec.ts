@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import { withConsoleGuard } from './utils';
 import { setupTestEnvironment } from './helpers/test-setup';
 import { seedDashboard, type DashboardSeedOptions, type DashboardSeedPayload } from './fixtures/dashboardSeed';
+import { setupTestData } from './helpers/test-data';
 import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
@@ -98,7 +99,17 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     const timeouts = getTimeouts(browserName);
     
     await withConsoleGuard(page, async () => {
-      await setupTestData(page);
+      await setupTestData(page, { 
+        conversations: [{
+          title: 'Conversation active de test',
+          status: 'active',
+          firstMessage: 'Créer un sondage pour tester',
+          messageCount: 3,
+          isFavorite: false,
+          tags: [],
+          metadata: { pollId: 'test-poll-search-1' },
+        }]
+      });
       await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);

@@ -209,7 +209,7 @@ export function usePollCreatorState({
     return () => {
       isMounted = false;
     };
-  }, [editPollId, initialData]);
+  }, [editPollId, initialData, toast]);
 
   useEffect(() => {
     if (initialData?.dates && initialData.dates.length > 0) {
@@ -233,7 +233,7 @@ export function usePollCreatorState({
         showTimeSlots: true,
       }));
     }
-  }, [initialData]);
+  }, [initialData, state.selectedDates.length]);
 
   useEffect(() => {
     if (!initialData?.timeSlots || initialData.timeSlots.length === 0) {

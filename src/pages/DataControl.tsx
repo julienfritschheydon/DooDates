@@ -48,54 +48,65 @@ export const DataControl: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   // Charger les préférences au montage
-  const calculateUpcomingDeletions = useCallback(async (currentSettings: RetentionSettings) => {
-    try {
-      // Utiliser le service pour calculer les suppressions
-      const userId = "current-user"; // TODO: Récupérer l'ID utilisateur réel
-      const warnings = await retentionService.calculateUpcomingDeletions(userId, currentSettings);
+  const calculateUpcomingDeletions = useCallback(
+    async (currentSettings: RetentionSettings) => {
+      try {
+        // Utiliser le service pour calculer les suppressions
+        const userId = "current-user"; // TODO: Récupérer l'ID utilisateur réel
+        const warnings = await retentionService.calculateUpcomingDeletions(userId, currentSettings);
 
-      // Mapper vers le format local
-      const localWarnings: LocalDeletionWarning[] = warnings.map((w) => ({
-        type: w.type,
-        daysUntilDeletion: w.daysUntilDeletion,
-        itemCount: w.itemCount,
-        deletionDate: w.deletionDate,
-      }));
+        // Mapper vers le format local
+        const localWarnings: LocalDeletionWarning[] = warnings.map((w) => ({
+          type: w.type,
+          daysUntilDeletion: w.daysUntilDeletion,
+          itemCount: w.itemCount,
+          deletionDate: w.deletionDate,
+        }));
 
-      setUpcomingDeletions(localWarnings);
-    } catch (error) {
-      logError(new Error(`Erreur calcul suppressions: ${error}`));
-      // Fallback avec données simulées
-      const warnings: LocalDeletionWarning[] = [];
-      const now = new Date();
+        setUpcomingDeletions(localWarnings);
+      } catch (error) {
+        logError(new Error(`Erreur calcul suppressions: ${error}`));
+        // Fallback avec données simulées
+        const warnings: LocalDeletionWarning[] = [];
+        const now = new Date();
 
-      if (currentSettings.chatRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
-        warnings.push({
-          type: "chat",
-          daysUntilDeletion: 15,
-          itemCount: 23,
-          deletionDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
-        });
+        if (currentSettings.chatRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
+          warnings.push({
+            type: "chat",
+            daysUntilDeletion: 15,
+            itemCount: 23,
+            deletionDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
+          });
+        }
+
+        if (currentSettings.pollRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
+          warnings.push({
+            type: "poll",
+            daysUntilDeletion: 45,
+            itemCount: 5,
+            deletionDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000),
+          });
+        }
+
+        setUpcomingDeletions(warnings);
       }
-
-      if (currentSettings.pollRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
-        warnings.push({
-          type: "poll",
-          daysUntilDeletion: 45,
-          itemCount: 5,
-          deletionDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000),
-        });
-      }
-
-      setUpcomingDeletions(warnings);
-    }
-  }, [retentionService]);
+    },
+    [retentionService],
+  );
 
   // Charger les préférences au montage
   useEffect(() => {
     const savedSettings = {
-      chatRetention: (localStorage.getItem("doodates_chat_retention") as "30-days" | "12-months" | "indefinite") || "30-days",
-      pollRetention: (localStorage.getItem("doodates_poll_retention") as "12-months" | "6-years" | "indefinite") || "12-months",
+      chatRetention:
+        (localStorage.getItem("doodates_chat_retention") as
+          | "30-days"
+          | "12-months"
+          | "indefinite") || "30-days",
+      pollRetention:
+        (localStorage.getItem("doodates_poll_retention") as
+          | "12-months"
+          | "6-years"
+          | "indefinite") || "12-months",
       autoDeleteEnabled: localStorage.getItem("doodates_auto_delete") !== "false",
       emailNotifications: localStorage.getItem("doodates_email_notifications") !== "false",
       allowDataForImprovement: localStorage.getItem("doodates_allow_data_improvement") === "true",

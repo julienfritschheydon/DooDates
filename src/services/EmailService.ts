@@ -131,7 +131,10 @@ export async function sendFormPollConfirmationEmail(
 /**
  * Vérifie si l'envoi d'email est activé pour un poll
  */
-export function shouldSendConfirmationEmail(settings: { sendEmailCopy?: boolean; emailForCopy?: string }): boolean {
+export function shouldSendConfirmationEmail(settings: {
+  sendEmailCopy?: boolean;
+  emailForCopy?: string;
+}): boolean {
   return !!(settings?.sendEmailCopy && settings?.emailForCopy);
 }
 
@@ -221,7 +224,16 @@ function escapeHtml(text: string): string {
 /**
  * Formate la réponse selon le type de question
  */
-function formatAnswer(value: unknown, question: { kind?: string; options?: Array<{ id: string; label: string }>; matrixRows?: Array<{ id: string; label: string }>; matrixColumns?: Array<{ id: string; label: string }>; ratingScale?: number }): string {
+function formatAnswer(
+  value: unknown,
+  question: {
+    kind?: string;
+    options?: Array<{ id: string; label: string }>;
+    matrixRows?: Array<{ id: string; label: string }>;
+    matrixColumns?: Array<{ id: string; label: string }>;
+    ratingScale?: number;
+  },
+): string {
   // Si la question n'est pas trouvée, retourner la valeur telle quelle
   if (!question) {
     return String(value);
@@ -230,7 +242,9 @@ function formatAnswer(value: unknown, question: { kind?: string; options?: Array
   if (typeof value === "string") {
     // Pour les questions single, trouver le label de l'option
     if (question.kind === "single" && question.options) {
-      const option = question.options?.find((opt: { id: string; label: string }) => opt.id === value);
+      const option = question.options?.find(
+        (opt: { id: string; label: string }) => opt.id === value,
+      );
       return option?.label || value;
     }
     return value;
@@ -239,7 +253,9 @@ function formatAnswer(value: unknown, question: { kind?: string; options?: Array
     if (question.kind === "multiple" && question.options) {
       return value
         .map((optId: string) => {
-          const option = question.options?.find((opt: { id: string; label: string }) => opt.id === optId);
+          const option = question.options?.find(
+            (opt: { id: string; label: string }) => opt.id === optId,
+          );
           return option?.label || optId;
         })
         .join(", ");
@@ -251,21 +267,27 @@ function formatAnswer(value: unknown, question: { kind?: string; options?: Array
       const entries = Object.entries(value);
       return entries
         .map(([rowId, colValue]) => {
-          const row = question.matrixRows?.find((r: { id: string; label: string }) => r.id === rowId);
+          const row = question.matrixRows?.find(
+            (r: { id: string; label: string }) => r.id === rowId,
+          );
           const rowLabel = row?.label || rowId;
 
           if (Array.isArray(colValue)) {
             // Multiple choice matrix
             const colLabels = colValue
               .map((colId: string) => {
-                const col = question.matrixColumns?.find((c: { id: string; label: string }) => c.id === colId);
+                const col = question.matrixColumns?.find(
+                  (c: { id: string; label: string }) => c.id === colId,
+                );
                 return col?.label || colId;
               })
               .join(", ");
             return `${rowLabel}: ${colLabels}`;
           } else {
             // Single choice matrix
-            const col = question.matrixColumns?.find((c: { id: string; label: string }) => c.id === colValue);
+            const col = question.matrixColumns?.find(
+              (c: { id: string; label: string }) => c.id === colValue,
+            );
             const colLabel = col?.label || colValue;
             return `${rowLabel}: ${colLabel}`;
           }
@@ -289,9 +311,25 @@ function formatAnswer(value: unknown, question: { kind?: string; options?: Array
  * Fonction wrapper pour FormPollVote (compatibilité avec l'ancien code)
  */
 export async function sendVoteConfirmationEmail(params: {
-  poll: { id: string; title: string; settings?: { sendEmailCopy?: boolean; emailForCopy?: string } };
-  response: { items?: Array<{ questionId: string; value: unknown }>; respondentEmail?: string; respondentName?: string };
-  questions: Array<{ id: string; title: string; kind?: string; options?: Array<{ id: string; label: string }>; matrixRows?: Array<{ id: string; label: string }>; matrixColumns?: Array<{ id: string; label: string }>; ratingScale?: number }>;
+  poll: {
+    id: string;
+    title: string;
+    settings?: { sendEmailCopy?: boolean; emailForCopy?: string };
+  };
+  response: {
+    items?: Array<{ questionId: string; value: unknown }>;
+    respondentEmail?: string;
+    respondentName?: string;
+  };
+  questions: Array<{
+    id: string;
+    title: string;
+    kind?: string;
+    options?: Array<{ id: string; label: string }>;
+    matrixRows?: Array<{ id: string; label: string }>;
+    matrixColumns?: Array<{ id: string; label: string }>;
+    ratingScale?: number;
+  }>;
 }): Promise<void> {
   const { poll, response, questions } = params;
 
@@ -314,7 +352,17 @@ export async function sendVoteConfirmationEmail(params: {
   const formattedResponses: Array<{ question: string; answer: string }> = [];
 
   for (const item of items) {
-    const question = questions.find((q: { id: string; title: string; kind?: string; options?: Array<{ id: string; label: string }>; matrixRows?: Array<{ id: string; label: string }>; matrixColumns?: Array<{ id: string; label: string }>; ratingScale?: number }) => q.id === item.questionId);
+    const question = questions.find(
+      (q: {
+        id: string;
+        title: string;
+        kind?: string;
+        options?: Array<{ id: string; label: string }>;
+        matrixRows?: Array<{ id: string; label: string }>;
+        matrixColumns?: Array<{ id: string; label: string }>;
+        ratingScale?: number;
+      }) => q.id === item.questionId,
+    );
     const questionTitle = question?.title || "Question";
     const answerText = formatAnswer(item.value, question);
 

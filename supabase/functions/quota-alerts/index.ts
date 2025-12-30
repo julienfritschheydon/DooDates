@@ -1,12 +1,12 @@
 // Deno Edge Function with different runtime
-// @ts-ignore - Deno modules
+// @ts-expect-error - Deno modules
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-ignore - Deno modules  
+// @ts-expect-error - Deno modules  
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-ignore - Deno modules
+// @ts-expect-error - Deno modules
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
-// @ts-ignore - Deno types
+// @ts-expect-error - Deno types
 declare const Deno: {
   env: {
     get(key: string): string | undefined;
@@ -19,7 +19,7 @@ interface SupabaseClient {
 
 interface SupabaseQueryBuilder {
   select: (columns: string) => SupabaseQueryBuilder;
-  gte: (column: string, value: any) => SupabaseQueryBuilder;
+  gte: (column: string, value: unknown) => SupabaseQueryBuilder;
   order: (column: string, options?: { ascending: boolean }) => SupabaseQueryBuilder;
   limit: (limit: number) => SupabaseQueryBuilder;
   then: <T>(onFulfilled: (value: SupabaseResponse<T>) => T | PromiseLike<T>) => Promise<T>;

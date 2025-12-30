@@ -149,7 +149,7 @@ export class Orchestrator {
         console.log('\n───────────────────────────────────────────────\n');
 
         try {
-            await this.runTestLoop();
+            await this.handleTestResult({} as any, {} as any);
         } catch (error) {
             console.error('❌ Fatal error:', error);
             await this.logIssue({
@@ -167,7 +167,7 @@ export class Orchestrator {
     /**
      * Main test loop
      */
-    private async runTestLoop(): Promise<void> {
+    private async handleTestResult(testResult: any, context: any): Promise<void> {
         const startPage = config.app.startPages[0];
         await this.browser.navigate(startPage);
         this.visitedUrls.add(startPage);

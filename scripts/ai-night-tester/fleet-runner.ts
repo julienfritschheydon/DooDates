@@ -81,7 +81,7 @@ async function main() {
         }));
 
         // Stagger starts to avoid Ollama congestion
-        await new Promise(r => setTimeout(r, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     await Promise.all(workers);

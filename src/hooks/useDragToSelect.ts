@@ -217,7 +217,6 @@ export function useDragToSelect<T>({
     setDragDirection(null);
     setIsLongPressActivated(false);
   }, [
-    isDragging,
     draggedItems,
     hasMoved,
     dragStartItem,

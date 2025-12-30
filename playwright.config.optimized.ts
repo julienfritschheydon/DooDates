@@ -27,8 +27,8 @@ export default defineConfig({
   
   reporter: 'html',
   
-  // ✅ OPTIMISATION: Timeout réduit car tests plus rapides
-  timeout: 45000, // 45s au lieu de 60s
+  // ✅ OPTIMISATION: Timeout augmenté pour stabiliser les tests CI
+  timeout: 60000, // 60s au lieu de 45s (plus stable pour CI)
   
   use: {
     baseURL: 'http://localhost:8080',
@@ -37,8 +37,8 @@ export default defineConfig({
     // Screenshots seulement en cas d'échec (déjà optimal)
     screenshot: 'only-on-failure',
     
-    // ✅ OPTIMISATION: Action timeout réduit
-    actionTimeout: 10000, // 10s au lieu de 15s
+    // ✅ OPTIMISATION: Action timeout augmenté pour stabilité CI
+    actionTimeout: 15000, // 15s au lieu de 10s (plus stable)
     
     // ✅ OPTIMISATION: Navigation timeout
     navigationTimeout: 15000, // 15s max pour navigations

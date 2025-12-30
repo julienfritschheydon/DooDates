@@ -310,7 +310,9 @@ const AdminQuotaDashboard: React.FC = () => {
     return { totalRequests, uniqueUsers, totalCredits, distribution, chartData, topConsumers };
   }, [journal, filteredQuotas, includeTestSessions]);
 
-  const handleBarClick = (data: { activePayload?: Array<{ payload: { fullFingerprint?: string } }> }) => {
+  const handleBarClick = (data: {
+    activePayload?: Array<{ payload: { fullFingerprint?: string } }>;
+  }) => {
     if (data && data.activePayload && data.activePayload.length > 0) {
       const payload = data.activePayload[0].payload;
       // If clicking on top consumers chart

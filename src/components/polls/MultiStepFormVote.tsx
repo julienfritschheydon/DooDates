@@ -46,7 +46,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
           simplifiedAnswers[qId] = hasVote ? "answered" : "";
         } else {
           // Matrix: vérifier si au moins une ligne est remplie
-        const hasAnswer = Object.values(value).some((v) =>
+          const hasAnswer = Object.values(value).some((v) =>
             Array.isArray(v) ? v.length > 0 : Boolean(v),
           );
           simplifiedAnswers[qId] = hasAnswer ? "answered" : "";
