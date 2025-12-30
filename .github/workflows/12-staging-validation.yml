@@ -48,7 +48,7 @@ jobs:
       - name: 🎭 Tests E2E Smoke
         run: npm run test:e2e:smoke
         timeout-minutes: 10
-        continue-on-error: true
+        continue-on-error: false
         
       - name: 📊 Staging Validation Summary
         if: always()
@@ -116,7 +116,7 @@ jobs:
           path: playwright-report/
 
   auto-merge-to-preprod:
-    needs: staging-validation
+    needs: [staging-validation, e2e-isolated]
     runs-on: ubuntu-latest
     if: success() && github.event_name == 'push' && github.ref == 'refs/heads/staging'
     steps:
