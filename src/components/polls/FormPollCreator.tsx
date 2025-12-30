@@ -194,7 +194,7 @@ export default function FormPollCreator({
         if (email) setGuestEmail(email);
         setIsLoadingEmail(false);
       });
-      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      const dismissed = typeof window !== "undefined" && localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
       setIsEmailFieldDismissed(dismissed);
     }
   }, [user]);
