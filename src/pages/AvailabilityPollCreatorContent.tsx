@@ -27,7 +27,6 @@ import { motion } from "framer-motion";
 import { Mail, X } from "lucide-react";
 import { guestEmailService } from "@/lib/guestEmailService";
 
-
 interface AvailabilityPollCreatorContentProps {
   onBack?: (createdPoll?: StoragePoll) => void;
   initialData?: {
@@ -61,7 +60,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
     oneResponsePerPerson: false,
     allowEditAfterSubmit: true,
     maxResponses: undefined,
-    resultsVisibility: 'public',
+    resultsVisibility: "public",
   });
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
@@ -72,7 +71,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
   // Charger l'email existant si guest
   React.useEffect(() => {
     if (!user) {
-      guestEmailService.getGuestEmail().then(email => {
+      guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
       });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
@@ -194,13 +193,9 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               <CardContent className="space-y-6">
                 {/* Informations du sondage */}
                 <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
-                  <h3 className="text-white font-semibold mb-2">
-                    {publishedPoll.title}
-                  </h3>
+                  <h3 className="text-white font-semibold mb-2">{publishedPoll.title}</h3>
                   {publishedPoll.description && (
-                    <p className="text-gray-300 text-sm">
-                      {publishedPoll.description}
-                    </p>
+                    <p className="text-gray-300 text-sm">{publishedPoll.description}</p>
                   )}
                 </div>
 
@@ -342,8 +337,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                   className="bg-gray-800 border-gray-700 text-gray-200"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  En tant qu'invité, vos données sont conservées 1 an.
-                  Renseignez votre email pour être alerté avant la suppression.
+                  En tant qu'invité, vos données sont conservées 1 an. Renseignez votre email pour
+                  être alerté avant la suppression.
                 </p>
               </div>
             )}
@@ -388,7 +383,9 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 <div className="border border-gray-700 rounded-lg p-4">
                   <PollSettingsForm
                     settings={advancedSettings}
-                    onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as AvailabilityPollSettings)}
+                    onSettingsChange={(newSettings) =>
+                      setAdvancedSettings(newSettings as AvailabilityPollSettings)
+                    }
                     pollType="date"
                   />
                 </div>

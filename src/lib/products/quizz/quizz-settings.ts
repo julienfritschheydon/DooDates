@@ -12,7 +12,7 @@ export interface QuizzSettings {
   maxResponses?: number;
   expiresAt?: string;
   // Results visibility
-  resultsVisibility?: 'creator-only' | 'voters' | 'public';
+  resultsVisibility?: "creator-only" | "voters" | "public";
   // Quizz-specific
   allowRetry?: boolean;
   showCorrectAnswers?: boolean;

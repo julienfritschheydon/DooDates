@@ -79,8 +79,12 @@ export function calculateTotalPollsCreated(quota: {
   quizzCreated: number;
   availabilityPollsCreated: number;
 }): number {
-  return quota.datePollsCreated + quota.formPollsCreated + 
-         quota.quizzCreated + quota.availabilityPollsCreated;
+  return (
+    quota.datePollsCreated +
+    quota.formPollsCreated +
+    quota.quizzCreated +
+    quota.availabilityPollsCreated
+  );
 }
 
 interface AllQuotaData {
@@ -434,9 +438,7 @@ export async function getQuotaConsumed(
  * Helper UI: obtenir uniquement le total de crédits consommés pour un utilisateur
  * Réutilise getQuotaConsumed pour respecter toute la logique existante (Edge Function, fallback, reset)
  */
-export async function getTotalCreditsConsumed(
-  userId: string | null | undefined,
-): Promise<number> {
+export async function getTotalCreditsConsumed(userId: string | null | undefined): Promise<number> {
   const quota = await getQuotaConsumed(userId);
   return quota.totalCreditsConsumed;
 }

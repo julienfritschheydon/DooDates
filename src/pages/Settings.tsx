@@ -13,7 +13,9 @@ export const Settings: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2" data-testid="settings-title">Paramètres</h1>
+            <h1 className="text-3xl font-bold text-white mb-2" data-testid="settings-title">
+              Paramètres
+            </h1>
             <p className="text-gray-400">Gérez vos préférences et vos données personnelles</p>
           </div>
 
@@ -26,12 +28,14 @@ export const Settings: React.FC = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Contrôle total de vos données</h2>
-                  <p className="text-gray-300">Gérez la conservation, l'export et la suppression de vos données</p>
+                  <p className="text-gray-300">
+                    Gérez la conservation, l'export et la suppression de vos données
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => navigate('/data-control')}
+                onClick={() => navigate("/data-control")}
                 className="w-full flex items-center justify-between p-6 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all group border border-gray-700"
               >
                 <div className="flex items-center gap-4">

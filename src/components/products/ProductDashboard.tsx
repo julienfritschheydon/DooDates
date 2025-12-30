@@ -326,7 +326,9 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
         <h1 role="heading" className="text-xl sm:text-3xl font-bold tracking-tight text-white">
           {config.dashboardTitle}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-gray-400 hidden sm:block">{config.dashboardDescription}</p>
+        <p className="mt-2 max-w-2xl text-sm text-gray-400 hidden sm:block">
+          {config.dashboardDescription}
+        </p>
       </div>
     </div>
   );
@@ -598,7 +600,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
               <ChevronDown
                 className={cn(
                   "w-4 h-4 transition-transform duration-200",
-                  isStatsOpen ? "rotate-180" : ""
+                  isStatsOpen ? "rotate-180" : "",
                 )}
               />
             </button>
@@ -610,14 +612,16 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
 
             {/* Quota indicator */}
             <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
-                ? "bg-orange-900/20 border-orange-500/50"
-                : theme.quotaBg
-                }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
+                quotaStatus.conversations.isNearLimit
+                  ? "bg-orange-900/20 border-orange-500/50"
+                  : theme.quotaBg
+              }`}
             >
               <Info
-                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
-                  }`}
+                className={`w-5 h-5 ${
+                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.quotaText
+                }`}
               />
               <TooltipProvider>
                 <Tooltip>
@@ -644,9 +648,12 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                       </p>
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
-                            }`}
-                          style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
+                          className={`h-2 rounded-full transition-all ${
+                            quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
+                          }`}
+                          style={{
+                            width: `${Math.min(quotaStatus.conversations.percentage, 100)}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -689,7 +696,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
             filter={filter}
             onFilterChange={setFilter}
             contentTypeFilter={contentTypeFilter}
-            onContentTypeFilterChange={() => { }}
+            onContentTypeFilterChange={() => {}}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             selectedTags={selectedTags}

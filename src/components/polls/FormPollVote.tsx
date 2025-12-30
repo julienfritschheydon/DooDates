@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getPollBySlugOrId, addFormResponse, getCurrentUserId, getFormResponses } from "../../lib/pollStorage";
+import {
+  getPollBySlugOrId,
+  addFormResponse,
+  getCurrentUserId,
+  getFormResponses,
+} from "../../lib/pollStorage";
 import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type {
@@ -343,14 +348,19 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
     return (
       <div className="min-h-screen bg-gray-50 pt-32 px-4">
-        <div className={`max-w-md mx-auto rounded-3xl shadow-sm border ${info.borderColor} ${info.bgColor} p-10 text-center`}>
+        <div
+          className={`max-w-md mx-auto rounded-3xl shadow-sm border ${info.borderColor} ${info.bgColor} p-10 text-center`}
+        >
           <div className="inline-flex items-center justify-center p-5 rounded-full bg-white shadow-sm mb-8">
             <Icon className={`w-12 h-12 ${info.color}`} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{info.title}</h1>
           <p className="text-gray-600 text-lg mb-10 leading-relaxed">{info.message}</p>
           <div className="flex flex-col gap-4">
-            <Link to="/" className="inline-flex items-center justify-center px-8 py-4 bg-white border border-gray-200 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-all active:scale-95 shadow-sm">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center px-8 py-4 bg-white border border-gray-200 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
+            >
               Retour à l'accueil
             </Link>
           </div>
@@ -427,10 +437,13 @@ export default function FormPollVote({ idOrSlug }: Props) {
             data-testid="rgpd-formpoll-info-toggle"
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-[11px] font-medium text-slate-700">Vos données pour ce questionnaire</span>
+              <span className="text-[11px] font-medium text-slate-700">
+                Vos données pour ce questionnaire
+              </span>
               {showDataInfo && (
                 <span className="text-[10px] text-slate-500">
-                  Nom, email et réponses sont utilisés pour analyser les résultats et permettre au créateur de ce formulaire d'y répondre.
+                  Nom, email et réponses sont utilisés pour analyser les résultats et permettre au
+                  créateur de ce formulaire d'y répondre.
                 </span>
               )}
             </div>
@@ -445,10 +458,12 @@ export default function FormPollVote({ idOrSlug }: Props) {
               data-testid="rgpd-formpoll-info"
             >
               <p className="mb-1">
-                Vos nom, email et réponses à ce formulaire sont stockés pour permettre au créateur de consulter et analyser les résultats.
+                Vos nom, email et réponses à ce formulaire sont stockés pour permettre au créateur
+                de consulter et analyser les résultats.
               </p>
               <p className="mb-1">
-                Vous pouvez demander la suppression de vos données en contactant le créateur de ce formulaire.
+                Vous pouvez demander la suppression de vos données en contactant le créateur de ce
+                formulaire.
               </p>
               <p>
                 Pour en savoir plus, consultez la{" "}

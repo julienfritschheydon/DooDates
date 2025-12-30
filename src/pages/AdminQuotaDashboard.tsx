@@ -217,14 +217,14 @@ const AdminQuotaDashboard: React.FC = () => {
   const isTestUserSession = (fingerprint: string): boolean => {
     // Known test patterns
     const testPatterns = [
-      'guest_suspicious_',
-      'guest_active_',
-      'guest_test_',
-      'guest_demo_',
-      'guest_high_usage_',
-      'guest_medium_',
-      'guest_normal_',
-      'guest_low_',
+      "guest_suspicious_",
+      "guest_active_",
+      "guest_test_",
+      "guest_demo_",
+      "guest_high_usage_",
+      "guest_medium_",
+      "guest_normal_",
+      "guest_low_",
     ];
 
     // Check if fingerprint matches any test pattern
@@ -262,7 +262,7 @@ const AdminQuotaDashboard: React.FC = () => {
   const displayQuotas = useMemo(() => {
     let filtered = filteredQuotas;
     if (selectedBar) {
-      filtered = filtered.filter(q => q.fingerprint === selectedBar);
+      filtered = filtered.filter((q) => q.fingerprint === selectedBar);
     }
     return filtered;
   }, [filteredQuotas, selectedBar]);
@@ -276,7 +276,7 @@ const AdminQuotaDashboard: React.FC = () => {
     // Filter journal entries to exclude test sessions for stats if needed
     const relevantJournal = includeTestSessions
       ? journal
-      : journal.filter(j => !isTestUserSession(j.fingerprint));
+      : journal.filter((j) => !isTestUserSession(j.fingerprint));
 
     const distribution = relevantJournal.reduce(
       (acc, curr) => {
@@ -327,8 +327,10 @@ const AdminQuotaDashboard: React.FC = () => {
   };
 
   const getFingerprintType = (fp: string) => {
-    if (fp.startsWith("guest_suspicious_")) return { type: "Suspicious Test", color: "text-red-600", icon: "⚠️" };
-    if (fp.startsWith("guest_active_")) return { type: "Active Test", color: "text-blue-600", icon: "🧪" };
+    if (fp.startsWith("guest_suspicious_"))
+      return { type: "Suspicious Test", color: "text-red-600", icon: "⚠️" };
+    if (fp.startsWith("guest_active_"))
+      return { type: "Active Test", color: "text-blue-600", icon: "🧪" };
     if (fp.startsWith("guest_test_")) return { type: "Test", color: "text-gray-600", icon: "🧪" };
     if (fp.startsWith("guest_demo_")) return { type: "Demo", color: "text-purple-600", icon: "🎓" };
     if (fp.startsWith("dev-")) return { type: "Real User", color: "text-green-600", icon: "👤" };
@@ -356,7 +358,8 @@ const AdminQuotaDashboard: React.FC = () => {
     if (q.simulations > 2) insights.push("Expérimente simulations");
 
     // Analyze Activity
-    const hoursSinceLastActivity = (Date.now() - new Date(q.last_activity_at).getTime()) / (1000 * 60 * 60);
+    const hoursSinceLastActivity =
+      (Date.now() - new Date(q.last_activity_at).getTime()) / (1000 * 60 * 60);
     if (hoursSinceLastActivity < 1) insights.push("🟢 Actif maintenant");
     else if (hoursSinceLastActivity < 24) insights.push("🟡 Actif aujourd'hui");
 
@@ -381,9 +384,7 @@ const AdminQuotaDashboard: React.FC = () => {
       <div className="flex h-[50vh] flex-col items-center justify-center p-8 text-center bg-gray-50">
         <ShieldAlert className="mb-4 h-12 w-12 text-red-500" />
         <h2 className="text-xl font-bold text-gray-900">Accès restreint</h2>
-        <p className="mt-2 text-gray-600">
-          Ce tableau de bord est réservé aux administrateurs.
-        </p>
+        <p className="mt-2 text-gray-600">Ce tableau de bord est réservé aux administrateurs.</p>
       </div>
     );
   }
@@ -405,10 +406,9 @@ const AdminQuotaDashboard: React.FC = () => {
             <button
               key={r}
               onClick={() => setTimeRange(r)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === r
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-gray-100"
-                }`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                timeRange === r ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
               {r}
             </button>
@@ -419,14 +419,39 @@ const AdminQuotaDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Utilisateurs Uniques", value: stats.uniqueUsers, icon: UserX, color: "text-blue-600 bg-blue-50 border-blue-100" },
-          { label: "Requêtes Totales", value: stats.totalRequests, icon: Fingerprint, color: "text-purple-600 bg-purple-50 border-purple-100" },
-          { label: "Crédits Consommés", value: stats.totalCredits, icon: CreditCard, color: "text-amber-600 bg-amber-50 border-amber-100" },
-          { label: "Utilisateurs Bloqués", value: quotas.filter((q) => q.is_blocked).length, icon: AlertTriangle, color: "text-red-600 bg-red-50 border-red-100" },
+          {
+            label: "Utilisateurs Uniques",
+            value: stats.uniqueUsers,
+            icon: UserX,
+            color: "text-blue-600 bg-blue-50 border-blue-100",
+          },
+          {
+            label: "Requêtes Totales",
+            value: stats.totalRequests,
+            icon: Fingerprint,
+            color: "text-purple-600 bg-purple-50 border-purple-100",
+          },
+          {
+            label: "Crédits Consommés",
+            value: stats.totalCredits,
+            icon: CreditCard,
+            color: "text-amber-600 bg-amber-50 border-amber-100",
+          },
+          {
+            label: "Utilisateurs Bloqués",
+            value: quotas.filter((q) => q.is_blocked).length,
+            icon: AlertTriangle,
+            color: "text-red-600 bg-red-50 border-red-100",
+          },
         ].map((stat) => (
-          <div key={stat.label} className={`rounded-xl border p-4 shadow-sm flex items-center justify-between ${stat.color.split(" ").slice(1).join(" ")} bg-white`}>
+          <div
+            key={stat.label}
+            className={`rounded-xl border p-4 shadow-sm flex items-center justify-between ${stat.color.split(" ").slice(1).join(" ")} bg-white`}
+          >
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {stat.label}
+              </p>
               <p className="mt-1 text-2xl font-bold text-gray-900">{stat.value}</p>
             </div>
             <stat.icon className={`h-8 w-8 ${stat.color.split(" ")[0]} opacity-80`} />
@@ -441,12 +466,24 @@ const AdminQuotaDashboard: React.FC = () => {
           <h3 className="mb-4 text-sm font-semibold text-gray-900 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
             Top 5 Consommateurs de crédits
-            {includeTestSessions && <span className="text-xs font-normal text-gray-500 ml-2">(incl. tests)</span>}
+            {includeTestSessions && (
+              <span className="text-xs font-normal text-gray-500 ml-2">(incl. tests)</span>
+            )}
           </h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.topConsumers} layout="vertical" onClick={handleBarClick} className="cursor-pointer">
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+              <BarChart
+                data={stats.topConsumers}
+                layout="vertical"
+                onClick={handleBarClick}
+                className="cursor-pointer"
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  horizontal={true}
+                  vertical={false}
+                  stroke="#e5e7eb"
+                />
                 <XAxis type="number" hide />
                 <YAxis
                   dataKey="name"
@@ -457,13 +494,13 @@ const AdminQuotaDashboard: React.FC = () => {
                   tickLine={false}
                 />
                 <Tooltip
-                  cursor={{ fill: '#f3f4f6' }}
+                  cursor={{ fill: "#f3f4f6" }}
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    fontSize: '12px'
+                    backgroundColor: "#fff",
+                    borderRadius: "6px",
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    fontSize: "12px",
                   }}
                 />
                 <Bar dataKey="credits" radius={[0, 4, 4, 0]} barSize={20}>
@@ -503,11 +540,11 @@ const AdminQuotaDashboard: React.FC = () => {
                 <YAxis hide />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    fontSize: '12px'
+                    backgroundColor: "#fff",
+                    borderRadius: "6px",
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    fontSize: "12px",
                   }}
                 />
                 <Line
@@ -538,8 +575,8 @@ const AdminQuotaDashboard: React.FC = () => {
               </div>
               <h3 className="text-lg font-medium text-gray-900">Aucun utilisateur actif visible</h3>
               <p className="mt-1 text-sm text-gray-500 max-w-sm mx-auto">
-                Toutes les sessions détectées ({quotas.length}) semblent être des tests automatisés ou des bots.
-                Activez l'option ci-dessous pour les afficher.
+                Toutes les sessions détectées ({quotas.length}) semblent être des tests automatisés
+                ou des bots. Activez l'option ci-dessous pour les afficher.
               </p>
               <div className="mt-6">
                 <button
@@ -554,28 +591,30 @@ const AdminQuotaDashboard: React.FC = () => {
           )}
 
           {/* Test Sessions Hidden Banner */}
-          {!includeTestSessions && quotas.length > filteredQuotas.length && filteredQuotas.length > 0 && (
-            <div className="rounded-md bg-blue-50 p-4 border border-blue-100">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <Info className="h-5 w-5 text-blue-400" aria-hidden="true" />
-                </div>
-                <div className="ml-3 flex-1 md:flex md:justify-between">
-                  <p className="text-sm text-blue-700">
-                    {quotas.length - filteredQuotas.length} sessions de test masquées pour clarté.
-                  </p>
-                  <p className="mt-3 text-sm md:mt-0 md:ml-6">
-                    <button
-                      onClick={() => setIncludeTestSessions(true)}
-                      className="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600"
-                    >
-                      Afficher tout <span aria-hidden="true">&rarr;</span>
-                    </button>
-                  </p>
+          {!includeTestSessions &&
+            quotas.length > filteredQuotas.length &&
+            filteredQuotas.length > 0 && (
+              <div className="rounded-md bg-blue-50 p-4 border border-blue-100">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Info className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                  </div>
+                  <div className="ml-3 flex-1 md:flex md:justify-between">
+                    <p className="text-sm text-blue-700">
+                      {quotas.length - filteredQuotas.length} sessions de test masquées pour clarté.
+                    </p>
+                    <p className="mt-3 text-sm md:mt-0 md:ml-6">
+                      <button
+                        onClick={() => setIncludeTestSessions(true)}
+                        className="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600"
+                      >
+                        Afficher tout <span aria-hidden="true">&rarr;</span>
+                      </button>
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           <section className="rounded-lg border border-gray-200 bg-white/70 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
@@ -660,7 +699,11 @@ const AdminQuotaDashboard: React.FC = () => {
                     className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm"
                     title="Rafraîchir les données"
                   >
-                    <span className={`transition-transform duration-700 ${isLoadingData ? "animate-spin" : ""}`}>↻</span>
+                    <span
+                      className={`transition-transform duration-700 ${isLoadingData ? "animate-spin" : ""}`}
+                    >
+                      ↻
+                    </span>
                     <span className="hidden lg:inline">Rafraîchir</span>
                   </button>
                 </div>
@@ -672,7 +715,9 @@ const AdminQuotaDashboard: React.FC = () => {
                 <thead>
                   <tr className="border-b bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500">
                     <th className="px-2 py-2">Info</th>
-                    <th className="px-2 py-2">Fingerprint <span className="text-gray-400">(cliquer pour investiguer)</span></th>
+                    <th className="px-2 py-2">
+                      Fingerprint <span className="text-gray-400">(cliquer pour investiguer)</span>
+                    </th>
                     <th className="px-2 py-2">Conversations</th>
                     <th className="px-2 py-2">Polls (tot / date / form / quiz / dispo)</th>
                     <th className="px-2 py-2">IA / Analytics / Simulations</th>
@@ -688,8 +733,7 @@ const AdminQuotaDashboard: React.FC = () => {
                           ? `Aucun guest ne correspond au filtre "${selectedBar}".`
                           : quotas
                             ? "Aucun guest ne correspond à ce filtre."
-                            : "Aucune donnée de quota disponible."
-                        }
+                            : "Aucune donnée de quota disponible."}
                       </td>
                     </tr>
                   ) : (
@@ -715,12 +759,15 @@ const AdminQuotaDashboard: React.FC = () => {
                                 className="text-blue-600 hover:text-blue-800 text-[10px] font-medium"
                                 title="Voir les détails"
                               >
-                                {isExpanded ? '📖' : '📋'}
+                                {isExpanded ? "📖" : "📋"}
                               </button>
                             </td>
                             <td className="px-2 py-2">
                               <div className="flex flex-col">
-                                <span className="font-mono text-[11px] text-gray-800" title={q.fingerprint}>
+                                <span
+                                  className="font-mono text-[11px] text-gray-800"
+                                  title={q.fingerprint}
+                                >
                                   {fpShort}
                                 </span>
                                 <span className={`text-[10px] ${fpType.color}`}>
@@ -731,14 +778,18 @@ const AdminQuotaDashboard: React.FC = () => {
                             <td className="px-2 py-2 text-[11px]">{q.conversations_created}</td>
                             <td className="px-2 py-2 text-[11px]">
                               <div className="space-y-0.5">
-                                <div>Total : {calculateTotalPollsCreated({
-                                  datePollsCreated: datePolls,
-                                  formPollsCreated: formPolls,
-                                  quizzCreated: quizzPolls,
-                                  availabilityPollsCreated: availabilityPolls,
-                                })}</div>
+                                <div>
+                                  Total :{" "}
+                                  {calculateTotalPollsCreated({
+                                    datePollsCreated: datePolls,
+                                    formPollsCreated: formPolls,
+                                    quizzCreated: quizzPolls,
+                                    availabilityPollsCreated: availabilityPolls,
+                                  })}
+                                </div>
                                 <div className="text-[10px] text-gray-500">
-                                  date {datePolls} · form {formPolls} · quiz {quizzPolls} · dispo {availabilityPolls}
+                                  date {datePolls} · form {formPolls} · quiz {quizzPolls} · dispo{" "}
+                                  {availabilityPolls}
                                 </div>
                               </div>
                             </td>
@@ -761,7 +812,9 @@ const AdminQuotaDashboard: React.FC = () => {
                             <tr className="bg-blue-50 border-b">
                               <td colSpan={7} className="px-4 py-3">
                                 <div className="space-y-2">
-                                  <div className="font-medium text-sm text-gray-800 mb-2">📊 Analyse détaillée du fingerprint</div>
+                                  <div className="font-medium text-sm text-gray-800 mb-2">
+                                    📊 Analyse détaillée du fingerprint
+                                  </div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
                                     {insights.map((insight, index) => (
                                       <div key={index} className="flex items-center gap-1">
@@ -772,11 +825,16 @@ const AdminQuotaDashboard: React.FC = () => {
                                   </div>
                                   <div className="mt-3 pt-3 border-t border-blue-200">
                                     <div className="text-xs text-gray-600">
-                                      <strong>Fingerprint complet:</strong> <code className="bg-gray-100 px-1 py-0.5 rounded">{q.fingerprint}</code>
+                                      <strong>Fingerprint complet:</strong>{" "}
+                                      <code className="bg-gray-100 px-1 py-0.5 rounded">
+                                        {q.fingerprint}
+                                      </code>
                                     </div>
                                     <div className="text-xs text-gray-600 mt-1">
-                                      <strong>Première activité:</strong> {new Date(q.first_seen_at).toLocaleString()} •
-                                      <strong> Dernière activité:</strong> {new Date(q.last_activity_at).toLocaleString()}
+                                      <strong>Première activité:</strong>{" "}
+                                      {new Date(q.first_seen_at).toLocaleString()} •
+                                      <strong> Dernière activité:</strong>{" "}
+                                      {new Date(q.last_activity_at).toLocaleString()}
                                     </div>
                                   </div>
                                 </div>
@@ -791,7 +849,7 @@ const AdminQuotaDashboard: React.FC = () => {
               </table>
             </div>
           </section>
-        </div >
+        </div>
       )}
     </div>
   );

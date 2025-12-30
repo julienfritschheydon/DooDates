@@ -25,7 +25,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 // Mock savePolls function
 vi.mock("@/lib/pollStorage", async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     savePolls: vi.fn(),
@@ -46,12 +46,8 @@ describe("FormPollCreator - Debug", () => {
   it("should test visibility without adding questions", () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Open configuration accordion
@@ -59,7 +55,7 @@ describe("FormPollCreator - Debug", () => {
     fireEvent.click(configButton);
 
     // Switch to visibility tab
-    const visibilityTab = screen.getByRole('tab', { name: /Visibilité/i });
+    const visibilityTab = screen.getByRole("tab", { name: /Visibilité/i });
     fireEvent.click(visibilityTab);
 
     // Test visibility interaction
@@ -82,12 +78,8 @@ describe("FormPollCreator - Debug", () => {
   it("should test visibility with adding questions", () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Add a question FIRST (using new testid)
@@ -99,7 +91,7 @@ describe("FormPollCreator - Debug", () => {
     fireEvent.click(configButton);
 
     // Switch to visibility tab
-    const visibilityTab = screen.getByRole('tab', { name: /Visibilité/i });
+    const visibilityTab = screen.getByRole("tab", { name: /Visibilité/i });
     fireEvent.click(visibilityTab);
 
     // Check if visibility options are still available

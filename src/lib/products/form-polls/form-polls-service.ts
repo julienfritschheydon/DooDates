@@ -125,7 +125,7 @@ export interface FormPollSettings {
   sendEmailCopy?: boolean;
   emailForCopy?: string;
   // Results visibility
-  resultsVisibility?: 'creator-only' | 'voters' | 'public';
+  resultsVisibility?: "creator-only" | "voters" | "public";
 }
 
 export interface FormPoll {

@@ -12,7 +12,7 @@ export interface AvailabilityPollSettings {
   maxResponses?: number;
   expiresAt?: string;
   // Results visibility
-  resultsVisibility?: 'creator-only' | 'voters' | 'public';
+  resultsVisibility?: "creator-only" | "voters" | "public";
   // Scheduling rules
   minLatencyMinutes?: number;
   maxLatencyMinutes?: number;
@@ -28,10 +28,10 @@ export interface AvailabilityPoll {
   description?: string;
   slug: string;
   settings?: AvailabilityPollSettings;
-  status: 'draft' | 'active' | 'closed' | 'archived';
+  status: "draft" | "active" | "closed" | "archived";
   created_at: string;
   updated_at: string;
-  type: 'availability';
+  type: "availability";
   clientAvailabilities?: string;
   parsedAvailabilities?: Array<{
     date: string;

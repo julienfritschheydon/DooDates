@@ -216,8 +216,6 @@ export default function FormEditor({
         )}
       </div>
 
-
-
       {/* Panneau de configuration - Après "Ajouter une question", avant les boutons */}
       {configPanel && <div className="pt-4">{configPanel}</div>}
 

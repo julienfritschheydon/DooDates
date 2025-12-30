@@ -1,5 +1,5 @@
-import React from 'react';
-import { PerformanceDashboard } from '../components/performance/PerformanceDashboard';
+import React from "react";
+import { PerformanceDashboard } from "../components/performance/PerformanceDashboard";
 
 const Performance = () => {
   return (

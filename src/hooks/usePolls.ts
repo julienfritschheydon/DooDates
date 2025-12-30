@@ -358,13 +358,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                  ...basePoll,
-                  dates: pollData.selectedDates,
-                }
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
                 : {
-                  ...basePoll,
-                  questions: pollData.questions,
-                };
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             window.dispatchEvent(
@@ -402,13 +402,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                  ...basePoll,
-                  dates: pollData.selectedDates,
-                }
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
                 : {
-                  ...basePoll,
-                  questions: pollData.questions,
-                };
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -447,13 +447,13 @@ export function usePolls() {
             const mockPoll: StoragePoll =
               pollData.type === "date"
                 ? {
-                  ...basePoll,
-                  dates: pollData.selectedDates,
-                }
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
                 : {
-                  ...basePoll,
-                  questions: pollData.questions,
-                };
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -485,16 +485,16 @@ export function usePolls() {
             ...basePollFromConversation,
             ...(conversation.poll_type === "date"
               ? {
-                settings: {
-                  ...conversation.poll_data?.settings,
-                  selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
-                },
-                dates: conversation.poll_data?.dates || [],
-                dateGroups: conversation.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
-              }
+                  settings: {
+                    ...conversation.poll_data?.settings,
+                    selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
+                  },
+                  dates: conversation.poll_data?.dates || [],
+                  dateGroups: conversation.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
+                }
               : {
-                questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
-              }),
+                  questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
+                }),
           } as StoragePoll;
 
           // Sauvegarder aussi dans localStorage pour cache local

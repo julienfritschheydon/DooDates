@@ -100,7 +100,10 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
 
       // 🎯 PRIORITÉ 1 : Vérifier d'abord le changement de type de sondage
       // Cela permet de détecter quand l'utilisateur change d'avis en cours de chat
-      const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(trimmedText, currentPoll as import("../types/poll").Poll);
+      const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(
+        trimmedText,
+        currentPoll as import("../types/poll").Poll,
+      );
 
       // Si confiance élevée (> 0.6), on fait confiance au résultat
       if (typeSwitchResult.isTypeSwitch && typeSwitchResult.confidence > 0.6) {

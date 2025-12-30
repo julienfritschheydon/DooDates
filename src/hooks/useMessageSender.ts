@@ -217,8 +217,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Ajouter un message informatif
           const switchMessage: Message = {
             id: `ai-${Date.now()}`,
-            content: `✨ Vous souhaitez créer un ${intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
-              }. Je démarre une nouvelle conversation pour vous...`,
+            content: `✨ Vous souhaitez créer un ${
+              intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
+            }. Je démarre une nouvelle conversation pour vous...`,
             isAI: true,
             timestamp: new Date(),
           };
@@ -313,14 +314,11 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
         try {
           geminiAttachment = await fileToGeminiAttachment(attachedFile);
-          console.log(
-            `[${timestamp}] [${requestId}] 📎 Fichier attaché préparé pour Gemini`,
-            {
-              name: geminiAttachment.name,
-              mimeType: geminiAttachment.mimeType,
-              size: geminiAttachment.size,
-            },
-          );
+          console.log(`[${timestamp}] [${requestId}] 📎 Fichier attaché préparé pour Gemini`, {
+            name: geminiAttachment.name,
+            mimeType: geminiAttachment.mimeType,
+            size: geminiAttachment.size,
+          });
         } catch (error) {
           const processedError = ErrorFactory.validation(
             "Erreur conversion fichier pour Gemini",
@@ -699,20 +697,23 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         }
 
         // 🎯 NEW: Ask for consent to analyze specific failures (not quota/network)
-        const isAnalysisCandidate = ["parsing", "unknown", "api_error"].includes(pollResponse.errorType || "");
+        const isAnalysisCandidate = ["parsing", "unknown", "api_error"].includes(
+          pollResponse.errorType || "",
+        );
         if (isAnalysisCandidate) {
           const consentMessage: Message = {
             id: `consent-${Date.now()}`,
-            content: "Je n'ai pas réussi à traiter votre demande. Voulez-vous envoyer les détails de cette erreur à notre équipe pour analyse humaine afin d'améliorer le service ?",
+            content:
+              "Je n'ai pas réussi à traiter votre demande. Voulez-vous envoyer les détails de cette erreur à notre équipe pour analyse humaine afin d'améliorer le service ?",
             isAI: true,
             timestamp: new Date(),
             metadata: {
-              type: 'analysis_consent',
+              type: "analysis_consent",
               context: {
                 userMessage: trimmedInput,
-                error: pollResponse.error
-              }
-            }
+                error: pollResponse.error,
+              },
+            },
           };
           // Add slight delay for natural feel
           setTimeout(() => {

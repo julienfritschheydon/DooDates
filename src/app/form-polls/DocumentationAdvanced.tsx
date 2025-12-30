@@ -248,8 +248,8 @@ Q3. [Visible si Q1 = Oui]
 → Q5 visible seulement si les DEUX conditions sont vraies`}
             </pre>
             <p className="text-xs text-gray-400 mt-3">
-              ⚠️ Note : Seule la logique ET est supportée actuellement.
-              Toutes les conditions doivent être vraies pour afficher la question.
+              ⚠️ Note : Seule la logique ET est supportée actuellement. Toutes les conditions
+              doivent être vraies pour afficher la question.
             </p>
           </div>
 

@@ -28,7 +28,7 @@ interface FormPollEmailData {
  * Envoie un email de confirmation pour un Date Poll
  */
 export async function sendDatePollConfirmationEmail(
-  data: DatePollEmailData
+  data: DatePollEmailData,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     logger.info("Sending date poll confirmation email", "api", {
@@ -49,7 +49,7 @@ export async function sendDatePollConfirmationEmail(
           },
           recipientEmail: data.recipientEmail,
         },
-      }
+      },
     );
 
     if (error) {
@@ -79,7 +79,7 @@ export async function sendDatePollConfirmationEmail(
  * Envoie un email de confirmation pour un Form Poll
  */
 export async function sendFormPollConfirmationEmail(
-  data: FormPollEmailData
+  data: FormPollEmailData,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     logger.info("Sending form poll confirmation email", "api", {
@@ -100,7 +100,7 @@ export async function sendFormPollConfirmationEmail(
           },
           recipientEmail: data.recipientEmail,
         },
-      }
+      },
     );
 
     if (error) {
@@ -153,7 +153,7 @@ function generateFormPollEmailHTML(data: {
         ${escapeHtml(item.answer)}
       </p>
     </div>
-  `
+  `,
     )
     .join("");
 
@@ -203,15 +203,15 @@ function generateFormPollEmailHTML(data: {
  * Échappe les caractères HTML pour éviter les injections XSS
  */
 function escapeHtml(text: string): string {
-  if (typeof text !== 'string') {
+  if (typeof text !== "string") {
     return String(text);
   }
   const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
   };
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
@@ -224,7 +224,7 @@ function formatAnswer(value: any, question: any): string {
   if (!question) {
     return String(value);
   }
-  
+
   if (typeof value === "string") {
     // Pour les questions single, trouver le label de l'option
     if (question.kind === "single" && question.options) {
@@ -251,7 +251,7 @@ function formatAnswer(value: any, question: any): string {
         .map(([rowId, colValue]) => {
           const row = question.matrixRows?.find((r: any) => r.id === rowId);
           const rowLabel = row?.label || rowId;
-          
+
           if (Array.isArray(colValue)) {
             // Multiple choice matrix
             const colLabels = colValue
@@ -292,26 +292,30 @@ export async function sendVoteConfirmationEmail(params: {
   questions: any[];
 }): Promise<void> {
   const { poll, response, questions } = params;
-  
+
   // Valider que l'email est présent
   if (!response.respondentEmail) {
     const metadata: Record<string, unknown> = {
-      component: 'EmailService',
-      operation: 'sendVoteConfirmationEmail',
+      component: "EmailService",
+      operation: "sendVoteConfirmationEmail",
     };
-    const validationError = ErrorFactory.validation('Email du votant manquant', 'Email du votant manquant', metadata);
+    const validationError = ErrorFactory.validation(
+      "Email du votant manquant",
+      "Email du votant manquant",
+      metadata,
+    );
     throw validationError;
   }
 
   // Construire le tableau de réponses avec formatage approprié
   const items = response.items || [];
   const formattedResponses: Array<{ question: string; answer: string }> = [];
-  
+
   for (const item of items) {
     const question = questions.find((q: any) => q.id === item.questionId);
     const questionTitle = question?.title || "Question";
     const answerText = formatAnswer(item.value, question);
-    
+
     formattedResponses.push({
       question: questionTitle,
       answer: answerText,
@@ -326,15 +330,16 @@ export async function sendVoteConfirmationEmail(params: {
   });
 
   // En mode test/dev, logger à la console
-  const isTestOrDev = (typeof process !== "undefined" && process.env?.NODE_ENV === "test") || !import.meta.env?.PROD;
+  const isTestOrDev =
+    (typeof process !== "undefined" && process.env?.NODE_ENV === "test") || !import.meta.env?.PROD;
   if (isTestOrDev) {
-    console.log('📧 Email à envoyer:', {
+    console.log("📧 Email à envoyer:", {
       to: response.respondentEmail,
       subject: `Vos réponses : ${poll.title}`,
       html,
     });
   }
-  
+
   // En production, appeler la fonction principale
   if (import.meta.env?.PROD) {
     await sendFormPollConfirmationEmail({

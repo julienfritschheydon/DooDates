@@ -38,10 +38,10 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         simplifiedAnswers[qId] = value.toString();
       } else if (typeof value === "object" && !Array.isArray(value)) {
         // Vérifier si c'est un DateVoteValue
-        if (value && Array.isArray(value) && value.length > 0 && 'date' in value[0]) {
+        if (value && Array.isArray(value) && value.length > 0 && "date" in value[0]) {
           // DateVoteValue: vérifier si au moins un vote "yes" ou "maybe"
-          const hasVote = (value as any).some((item: any) => 
-            item.vote === "yes" || item.vote === "maybe"
+          const hasVote = (value as any).some(
+            (item: any) => item.vote === "yes" || item.vote === "maybe",
           );
           simplifiedAnswers[qId] = hasVote ? "answered" : "";
         } else {
@@ -51,13 +51,20 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
           );
           simplifiedAnswers[qId] = hasAnswer ? "answered" : "";
         }
-      } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && 'date' in value[0]) {
+      } else if (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        typeof value[0] === "object" &&
+        "date" in value[0]
+      ) {
         // C'est un DateVoteValue - vérifier s'il y a des votes "yes" ou "maybe"
-        const hasVote = (value as DateVoteValue).some(item => item.vote === "yes" || item.vote === "maybe");
+        const hasVote = (value as DateVoteValue).some(
+          (item) => item.vote === "yes" || item.vote === "maybe",
+        );
         simplifiedAnswers[qId] = hasVote ? "answered" : "";
       } else {
         // Pour les types restants, s'assurer que c'est bien string | string[]
-        if (typeof value === 'string' || Array.isArray(value)) {
+        if (typeof value === "string" || Array.isArray(value)) {
           simplifiedAnswers[qId] = value;
         } else {
           // Cas par défaut : traiter comme vide

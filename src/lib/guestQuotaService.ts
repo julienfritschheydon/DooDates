@@ -60,8 +60,12 @@ export function calculateTotalPollsCreated(quota: {
   quizzCreated: number;
   availabilityPollsCreated: number;
 }): number {
-  return quota.datePollsCreated + quota.formPollsCreated + 
-         quota.quizzCreated + quota.availabilityPollsCreated;
+  return (
+    quota.datePollsCreated +
+    quota.formPollsCreated +
+    quota.quizzCreated +
+    quota.availabilityPollsCreated
+  );
 }
 
 interface GuestQuotaJournalSupabaseRow {

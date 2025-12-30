@@ -239,9 +239,9 @@ export default function AvailabilityPollsDocumentation() {
             <div>
               <h4 className="font-medium mb-2">Comment gérer plusieurs fuseaux horaires ?</h4>
               <p className="text-sm text-gray-300">
-                Actuellement, les horaires sont affichés dans le fuseau horaire du créateur.
-                Pour les équipes internationales, précisez le fuseau dans le titre ou la description
-                (ex: "Horaires en heure de Paris").
+                Actuellement, les horaires sont affichés dans le fuseau horaire du créateur. Pour
+                les équipes internationales, précisez le fuseau dans le titre ou la description (ex:
+                "Horaires en heure de Paris").
               </p>
             </div>
             <div>

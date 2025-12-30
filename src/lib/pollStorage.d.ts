@@ -156,9 +156,7 @@ export declare function saveVotes(votes: Vote[]): void;
 export declare function getVotesByPollId(pollId: string): Vote[];
 export declare function deleteVotesByPollId(pollId: string): void;
 export declare function getRespondentId(resp: FormResponse): string;
-export declare function anonymizeFormResponsesForPoll(
-  pollId: string,
-): { anonymizedCount: number };
+export declare function anonymizeFormResponsesForPoll(pollId: string): { anonymizedCount: number };
 /**
  * Récupère l'ID de l'utilisateur actuel (device ID ou user ID si authentifié)
  *

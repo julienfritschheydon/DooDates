@@ -67,7 +67,7 @@ export const QuizzCreate: React.FC = () => {
     requireAuth: false,
     oneResponsePerPerson: true,
     maxResponses: undefined,
-    resultsVisibility: 'creator-only',
+    resultsVisibility: "creator-only",
     allowRetry: false,
     showCorrectAnswers: true,
   });
@@ -78,7 +78,7 @@ export const QuizzCreate: React.FC = () => {
   // Charger l'email existant si guest
   React.useEffect(() => {
     if (!user) {
-      guestEmailService.getGuestEmail().then(email => {
+      guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
       });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
@@ -233,7 +233,10 @@ export const QuizzCreate: React.FC = () => {
     try {
       console.log("[QuizzCreate] Analyse image:", file.name, file.type);
       const attachment = await fileToGeminiAttachment(file);
-      const result = await quizzVisionService.extractFromImage(attachment.contentBase64, attachment.mimeType);
+      const result = await quizzVisionService.extractFromImage(
+        attachment.contentBase64,
+        attachment.mimeType,
+      );
       console.log("[QuizzCreate] Résultat:", result);
 
       if (result.success && result.data) {
@@ -485,8 +488,8 @@ export const QuizzCreate: React.FC = () => {
               className="bg-gray-900 border-gray-700 text-gray-200"
             />
             <p className="text-xs text-gray-500 mt-2">
-              En tant qu'invité, vos données sont conservées pendant 1 an.
-              Renseignez votre email pour être alerté avant la suppression.
+              En tant qu'invité, vos données sont conservées pendant 1 an. Renseignez votre email
+              pour être alerté avant la suppression.
             </p>
           </div>
         )}

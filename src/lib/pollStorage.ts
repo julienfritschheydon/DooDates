@@ -816,7 +816,10 @@ function writeAllResponses(resps: FormResponse[]): void {
 
 export function deleteFormResponsesForPoll(pollId: string): void {
   if (!pollId) {
-    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour supprimer les réponses du formulaire");
+    throw ErrorFactory.validation(
+      "pollId is required",
+      "ID du sondage requis pour supprimer les réponses du formulaire",
+    );
   }
 
   try {
@@ -1288,7 +1291,10 @@ export function getFormResponses(pollId: string): FormResponse[] {
  */
 export function anonymizeFormResponsesForPoll(pollId: string): { anonymizedCount: number } {
   if (!pollId) {
-    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour l'anonymisation");
+    throw ErrorFactory.validation(
+      "pollId is required",
+      "ID du sondage requis pour l'anonymisation",
+    );
   }
 
   try {
@@ -1433,7 +1439,10 @@ export function getVotesByPollId(pollId: string): Vote[] {
 
 export function anonymizeVotesForPoll(pollId: string): { anonymizedCount: number } {
   if (!pollId) {
-    throw ErrorFactory.validation("pollId is required", "ID du sondage requis pour l'anonymisation des votes");
+    throw ErrorFactory.validation(
+      "pollId is required",
+      "ID du sondage requis pour l'anonymisation des votes",
+    );
   }
 
   try {
@@ -1549,7 +1558,7 @@ export function checkIfUserHasVoted(pollId: string): boolean {
   return responses.some((r) => {
     // Vérifier d'abord s'il y a un respondentId legacy stocké directement
     const legacyRespondentId = (r as any).respondentId;
-    if (legacyRespondentId && typeof legacyRespondentId === 'string') {
+    if (legacyRespondentId && typeof legacyRespondentId === "string") {
       // Format legacy: anon:<deviceId>:<responseId>
       if (legacyRespondentId.startsWith(`anon:${deviceId}:`)) {
         return true;

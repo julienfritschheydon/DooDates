@@ -25,7 +25,7 @@ describe("VoteCompletionScreen", () => {
         voterName="John Doe"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     expect(screen.getByText("Vote enregistré !")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("VoteCompletionScreen", () => {
         voterName="John"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     const resultsButton = screen.getByText("Voir les résultats");
@@ -47,12 +47,7 @@ describe("VoteCompletionScreen", () => {
   });
 
   it("should NOT show 'Voir les résultats' button when onViewResults is not provided", () => {
-    render(
-      <VoteCompletionScreen
-        voterName="John"
-        onBack={mockOnBack}
-      />
-    );
+    render(<VoteCompletionScreen voterName="John" onBack={mockOnBack} />);
 
     expect(screen.queryByText("Voir les résultats")).not.toBeInTheDocument();
   });
@@ -63,7 +58,7 @@ describe("VoteCompletionScreen", () => {
         voterName="Jane"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     const resultsButton = screen.getByText("Voir les résultats");
@@ -78,7 +73,7 @@ describe("VoteCompletionScreen", () => {
         voterName="Bob"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     const backButton = screen.getByText("Retour à l'accueil");
@@ -95,7 +90,7 @@ describe("VoteCompletionScreen", () => {
         onViewResults={mockOnViewResults}
         title="Vote terminé !"
         subtitle="Merci pour votre participation."
-      />
+      />,
     );
 
     expect(screen.getByText("Vote terminé !")).toBeInTheDocument();
@@ -110,7 +105,7 @@ describe("VoteCompletionScreen", () => {
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
         title="Custom Title"
-      />
+      />,
     );
 
     expect(screen.getByText("Custom Title")).toBeInTheDocument();
@@ -118,12 +113,7 @@ describe("VoteCompletionScreen", () => {
   });
 
   it("should use default voter name 'Participant' when not provided", () => {
-    render(
-      <VoteCompletionScreen
-        onBack={mockOnBack}
-        onViewResults={mockOnViewResults}
-      />
-    );
+    render(<VoteCompletionScreen onBack={mockOnBack} onViewResults={mockOnViewResults} />);
 
     expect(screen.getByText(/Merci Participant pour votre participation/)).toBeInTheDocument();
   });
@@ -135,7 +125,7 @@ describe("VoteCompletionScreen", () => {
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
         color="blue"
-      />
+      />,
     );
 
     // Check that the component renders with blue theme
@@ -148,7 +138,7 @@ describe("VoteCompletionScreen", () => {
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
         color="violet"
-      />
+      />,
     );
 
     expect(screen.getByText("Vote enregistré !")).toBeInTheDocument();
@@ -160,7 +150,7 @@ describe("VoteCompletionScreen", () => {
         voterName="User"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     expect(screen.getByText("Information bêta")).toBeInTheDocument();
@@ -173,7 +163,7 @@ describe("VoteCompletionScreen", () => {
         voterName="User"
         onBack={mockOnBack}
         onViewResults={mockOnViewResults}
-      />
+      />,
     );
 
     // Both buttons should be present
@@ -186,12 +176,7 @@ describe("VoteCompletionScreen", () => {
   });
 
   it("should render only back button when onViewResults is not provided", () => {
-    render(
-      <VoteCompletionScreen
-        voterName="User"
-        onBack={mockOnBack}
-      />
-    );
+    render(<VoteCompletionScreen voterName="User" onBack={mockOnBack} />);
 
     // Only back button should be present
     expect(screen.queryByText("Voir les résultats")).not.toBeInTheDocument();

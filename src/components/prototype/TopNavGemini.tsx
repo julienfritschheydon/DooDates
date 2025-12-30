@@ -20,7 +20,7 @@ const TopNavGemini = () => {
   // Déterminer la documentation selon le produit courant
   const getDocumentationUrl = () => {
     const pathname = location.pathname;
-    
+
     if (pathname.includes("/date-polls")) {
       return "/docs/01-Guide-Demarrage-Rapide#sondages-de-dates";
     } else if (pathname.includes("/form-polls")) {
@@ -57,18 +57,13 @@ const TopNavGemini = () => {
 
         {/* Bouton Documentation */}
         <button
-          onClick={() => window.open(getDocumentationUrl(), '_blank')}
+          onClick={() => window.open(getDocumentationUrl(), "_blank")}
           className="p-4 hover:bg-white/10 rounded-lg transition-all duration-200 border border-white/10"
           data-testid="docs-button"
           aria-label="Documentation"
           title="Voir la documentation"
         >
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -106,12 +101,7 @@ const TopNavGemini = () => {
           data-testid="settings-button"
           aria-label="Settings"
         >
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -133,12 +123,7 @@ const TopNavGemini = () => {
           data-testid="account-button"
           aria-label="Account"
         >
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

@@ -125,8 +125,12 @@ const AvailabilityPollsPricingSimple = lazy(() => import("./app/availability-pol
 // Simple documentation
 const DatePollsDocumentationSimple = lazy(() => import("./app/date-polls/DocumentationSimple"));
 const FormPollsDocumentationSimple = lazy(() => import("./app/form-polls/DocumentationSimple"));
-const FormPollsDocumentationAdvancedSimple = lazy(() => import("./app/form-polls/DocumentationAdvancedSimple"));
-const AvailabilityPollsDocumentationSimple = lazy(() => import("./app/availability-polls/DocumentationSimple"));
+const FormPollsDocumentationAdvancedSimple = lazy(
+  () => import("./app/form-polls/DocumentationAdvancedSimple"),
+);
+const AvailabilityPollsDocumentationSimple = lazy(
+  () => import("./app/availability-polls/DocumentationSimple"),
+);
 
 // Product-Specific Pricing Pages
 const DatePollsPricing = lazy(() => import("./app/date-polls/Pricing"));
@@ -169,16 +173,20 @@ const PerformancePage = lazy(() => import("./pages/Performance"));
 // Product-specific Privacy pages
 const DatePollsPrivacy = lazy(() => import("./pages/products/date-polls/DatePollsPrivacy"));
 const FormPollsPrivacy = lazy(() => import("./pages/products/form-polls/FormPollsPrivacy"));
-const AvailabilityPollsPrivacy = lazy(() => import("./pages/products/availability-polls/AvailabilityPollsPrivacy"));
+const AvailabilityPollsPrivacy = lazy(
+  () => import("./pages/products/availability-polls/AvailabilityPollsPrivacy"),
+);
 const QuizzPollsPrivacy = lazy(() => import("./pages/products/quizz-polls/QuizzPollsPrivacy"));
 
 // Product-specific Data Control pages
 const DatePollsDataControl = lazy(() => import("./pages/products/date-polls/DatePollsDataControl"));
 const FormPollsDataControl = lazy(() => import("./pages/products/form-polls/FormPollsDataControl"));
-const AvailabilityPollsDataControl = lazy(() => import("./pages/products/availability-polls/AvailabilityPollsDataControl"));
-const QuizzPollsDataControl = lazy(() => import("./pages/products/quizz-polls/QuizzPollsDataControl"));
-
-
+const AvailabilityPollsDataControl = lazy(
+  () => import("./pages/products/availability-polls/AvailabilityPollsDataControl"),
+);
+const QuizzPollsDataControl = lazy(
+  () => import("./pages/products/quizz-polls/QuizzPollsDataControl"),
+);
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -659,14 +667,8 @@ const App = () => {
                                 />
 
                                 {/* Product-specific Privacy Pages */}
-                                <Route
-                                  path="/date-polls/privacy"
-                                  element={<DatePollsPrivacy />}
-                                />
-                                <Route
-                                  path="/form-polls/privacy"
-                                  element={<FormPollsPrivacy />}
-                                />
+                                <Route path="/date-polls/privacy" element={<DatePollsPrivacy />} />
+                                <Route path="/form-polls/privacy" element={<FormPollsPrivacy />} />
                                 <Route
                                   path="/availability-polls/privacy"
                                   element={<AvailabilityPollsPrivacy />}
@@ -713,11 +715,20 @@ const App = () => {
                                 {/* Admin Routes */}
                                 <Route path="/admin" element={<Admin />} />
                                 {/* Legacy admin routes - redirect to new tabbed interface */}
-                                <Route path="/admin/quotas" element={<Navigate to="/admin?tab=quotas" replace />} />
-                                <Route path="/admin/user-activity" element={<Navigate to="/admin?tab=activity" replace />} />
+                                <Route
+                                  path="/admin/quotas"
+                                  element={<Navigate to="/admin?tab=quotas" replace />}
+                                />
+                                <Route
+                                  path="/admin/user-activity"
+                                  element={<Navigate to="/admin?tab=activity" replace />}
+                                />
 
                                 {/* Performance Dashboard - Legacy route, redirect to admin */}
-                                <Route path="/performance" element={<Navigate to="/admin?tab=performance" replace />} />
+                                <Route
+                                  path="/performance"
+                                  element={<Navigate to="/admin?tab=performance" replace />}
+                                />
 
                                 {/* Sondages - Routes utilisées par les date polls */}
                                 <Route path="/poll/:slug" element={<Vote />} />

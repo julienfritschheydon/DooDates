@@ -46,7 +46,7 @@ export interface DatePollSettings {
   sendEmailCopy?: boolean;
   emailForCopy?: string;
   // Results visibility
-  resultsVisibility?: 'creator-only' | 'voters' | 'public';
+  resultsVisibility?: "creator-only" | "voters" | "public";
 }
 
 export interface DatePoll {

@@ -71,7 +71,6 @@ export function PricingPage() {
   return (
     <CreatePageLayout>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 pb-8">
-
         <div className="py-12 px-4">
           {/* Hero Section */}
           <div className="max-w-4xl mx-auto text-center mb-12">
@@ -91,19 +90,21 @@ export function PricingPage() {
             <div className="inline-flex items-center gap-4 bg-white dark:bg-gray-800 rounded-full p-2 shadow-md">
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`px-6 py-2 rounded-full transition-all ${billingCycle === "monthly"
+                className={`px-6 py-2 rounded-full transition-all ${
+                  billingCycle === "monthly"
                     ? "bg-blue-600 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  }`}
+                }`}
               >
                 Mensuel
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
-                className={`px-6 py-2 rounded-full transition-all ${billingCycle === "annual"
+                className={`px-6 py-2 rounded-full transition-all ${
+                  billingCycle === "annual"
                     ? "bg-blue-600 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  }`}
+                }`}
               >
                 Annuel
                 <span className="ml-2 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full font-semibold">
@@ -134,7 +135,7 @@ export function PricingPage() {
                 { text: "Support garanti", included: false },
               ]}
               cta={currentTier === "free" ? "Plan actuel" : "Commencer gratuitement"}
-              onCTA={currentTier === "free" ? () => { } : handleGetStarted}
+              onCTA={currentTier === "free" ? () => {} : handleGetStarted}
               highlighted={false}
               isCurrentPlan={currentTier === "free"}
             />
@@ -173,7 +174,7 @@ export function PricingPage() {
                     : "Essayer Premium"
               }
               onCTA={
-                currentTier === "premium" ? () => { } : () => handleUpgrade("premium", billingCycle)
+                currentTier === "premium" ? () => {} : () => handleUpgrade("premium", billingCycle)
               }
               highlighted={true}
               betaBadge={true}
@@ -208,7 +209,7 @@ export function PricingPage() {
                 },
               ]}
               cta={currentTier === "pro" ? "Plan actuel" : user ? "Passer en Pro" : "Essayer Pro"}
-              onCTA={currentTier === "pro" ? () => { } : () => handleUpgrade("pro", billingCycle)}
+              onCTA={currentTier === "pro" ? () => {} : () => handleUpgrade("pro", billingCycle)}
               highlighted={false}
               betaBadge={true}
               isCurrentPlan={currentTier === "pro"}
@@ -301,8 +302,9 @@ function PricingCard({
 }: PricingCardProps) {
   return (
     <div
-      className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-transform hover:scale-105 ${highlighted ? "ring-4 ring-blue-600 dark:ring-blue-500" : ""
-        }`}
+      className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-transform hover:scale-105 ${
+        highlighted ? "ring-4 ring-blue-600 dark:ring-blue-500" : ""
+      }`}
     >
       {highlighted && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
@@ -352,10 +354,11 @@ function PricingCard({
               <X className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
             )}
             <span
-              className={`${feature.included
+              className={`${
+                feature.included
                   ? "text-gray-900 dark:text-gray-100"
                   : "text-gray-400 dark:text-gray-500"
-                } ${feature.highlight ? "font-semibold" : ""}`}
+              } ${feature.highlight ? "font-semibold" : ""}`}
             >
               {feature.text}
             </span>

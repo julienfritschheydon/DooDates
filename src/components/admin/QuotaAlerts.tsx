@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
-import { ErrorFactory } from '../../lib/error-handling';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Bell, CheckCircle, RefreshCw, Mail } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+import { ErrorFactory } from "../../lib/error-handling";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, Bell, CheckCircle, RefreshCw, Mail } from "lucide-react";
 
 interface QuotaAlert {
   user_id: string;
@@ -38,21 +38,20 @@ export default function QuotaAlerts() {
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
-        throw ErrorFactory.authentication('Not authenticated');
+        throw ErrorFactory.authentication("Not authenticated");
       }
 
-      const response = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/quota-alerts`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quota-alerts`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
@@ -61,7 +60,7 @@ export default function QuotaAlerts() {
       const data = await response.json();
       setAlertStatus(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to check alert status');
+      setError(err instanceof Error ? err.message : "Failed to check alert status");
     } finally {
       setLoading(false);
     }
@@ -73,21 +72,20 @@ export default function QuotaAlerts() {
     setSuccess(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
-        throw ErrorFactory.authentication('Not authenticated');
+        throw ErrorFactory.authentication("Not authenticated");
       }
 
-      const response = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/quota-alerts`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quota-alerts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
@@ -97,7 +95,7 @@ export default function QuotaAlerts() {
       setAlertStatus(data);
       setSuccess(`Alert check completed. Found ${data.alerts_found} alerts.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to trigger alert check');
+      setError(err instanceof Error ? err.message : "Failed to trigger alert check");
     } finally {
       setChecking(false);
     }
@@ -109,29 +107,28 @@ export default function QuotaAlerts() {
     setSuccess(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
-        throw ErrorFactory.authentication('Not authenticated');
+        throw ErrorFactory.authentication("Not authenticated");
       }
 
-      const response = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/quota-alerts`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quota-alerts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw ErrorFactory.api(`HTTP error! status: ${response.status}`);
       }
 
-      setSuccess('Test alert email sent successfully!');
+      setSuccess("Test alert email sent successfully!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send test alert');
+      setError(err instanceof Error ? err.message : "Failed to send test alert");
     } finally {
       setSending(false);
     }
@@ -139,9 +136,9 @@ export default function QuotaAlerts() {
 
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case 'high_usage':
+      case "high_usage":
         return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'suspicious_activity':
+      case "suspicious_activity":
         return <Bell className="h-4 w-4 text-red-600" />;
       default:
         return <AlertTriangle className="h-4 w-4 text-gray-600" />;
@@ -150,9 +147,9 @@ export default function QuotaAlerts() {
 
   const getAlertBadge = (type: string) => {
     switch (type) {
-      case 'high_usage':
+      case "high_usage":
         return <Badge variant="secondary">High Usage</Badge>;
-      case 'suspicious_activity':
+      case "suspicious_activity":
         return <Badge variant="destructive">Suspicious</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
@@ -174,7 +171,9 @@ export default function QuotaAlerts() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Quota Anomaly Alerts</h2>
-          <p className="text-gray-600">Monitor and send email alerts for unusual quota consumption</p>
+          <p className="text-gray-600">
+            Monitor and send email alerts for unusual quota consumption
+          </p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -183,7 +182,7 @@ export default function QuotaAlerts() {
             disabled={loading}
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Button
@@ -191,8 +190,8 @@ export default function QuotaAlerts() {
             disabled={checking}
             className="flex items-center gap-2"
           >
-            <Bell className={`h-4 w-4 ${checking ? 'animate-pulse' : ''}`} />
-            {checking ? 'Checking...' : 'Check Now'}
+            <Bell className={`h-4 w-4 ${checking ? "animate-pulse" : ""}`} />
+            {checking ? "Checking..." : "Check Now"}
           </Button>
           <Button
             variant="outline"
@@ -200,8 +199,8 @@ export default function QuotaAlerts() {
             disabled={sending}
             className="flex items-center gap-2"
           >
-            <Mail className={`h-4 w-4 ${sending ? 'animate-pulse' : ''}`} />
-            {sending ? 'Sending...' : 'Send Test'}
+            <Mail className={`h-4 w-4 ${sending ? "animate-pulse" : ""}`} />
+            {sending ? "Sending..." : "Send Test"}
           </Button>
         </div>
       </div>
@@ -239,7 +238,7 @@ export default function QuotaAlerts() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {alertStatus?.alerts.filter(a => a.alert_type === 'high_usage').length || 0}
+              {alertStatus?.alerts.filter((a) => a.alert_type === "high_usage").length || 0}
             </div>
             <p className="text-xs text-muted-foreground">&gt; 50 credits</p>
           </CardContent>
@@ -251,7 +250,8 @@ export default function QuotaAlerts() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {alertStatus?.alerts.filter(a => a.alert_type === 'suspicious_activity').length || 0}
+              {alertStatus?.alerts.filter((a) => a.alert_type === "suspicious_activity").length ||
+                0}
             </div>
             <p className="text-xs text-muted-foreground">&gt; 30 credits/hour</p>
           </CardContent>
@@ -262,9 +262,7 @@ export default function QuotaAlerts() {
       <Card>
         <CardHeader>
           <CardTitle>Active Alerts</CardTitle>
-          <CardDescription>
-            Users triggering quota anomaly detection
-          </CardDescription>
+          <CardDescription>Users triggering quota anomaly detection</CardDescription>
         </CardHeader>
         <CardContent>
           {alertStatus?.alerts.length === 0 ? (
@@ -276,7 +274,10 @@ export default function QuotaAlerts() {
           ) : (
             <div className="space-y-4">
               {alertStatus?.alerts.map((alert, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     {getAlertIcon(alert.alert_type)}
                     <div>
@@ -289,10 +290,9 @@ export default function QuotaAlerts() {
                         )}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {alert.alert_type === 'high_usage' 
+                        {alert.alert_type === "high_usage"
                           ? `Total consumption: ${alert.total_credits_consumed} credits`
-                          : `Rapid consumption: ${alert.total_credits_consumed} credits in 1 hour`
-                        }
+                          : `Rapid consumption: ${alert.total_credits_consumed} credits in 1 hour`}
                       </p>
                     </div>
                   </div>

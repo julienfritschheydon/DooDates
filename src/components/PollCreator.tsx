@@ -146,7 +146,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   useEffect(() => {
     if (!user) {
-      guestEmailService.getGuestEmail().then(email => {
+      guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
       });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
@@ -177,7 +177,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     oneResponsePerPerson: false,
     allowEditAfterSubmit: true,
     maxResponses: undefined,
-    resultsVisibility: 'public',
+    resultsVisibility: "public",
   });
 
   const handleAnalyzeCalendar = useCallback(async () => {
@@ -240,7 +240,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       // Afficher un toast UNIQUEMENT s'il y a des conflits
       if (conflicts.length > 0) {
         toast({
-          title: `${conflicts.length} conflit${conflicts.length > 1 ? 's' : ''} détecté${conflicts.length > 1 ? 's' : ''}`,
+          title: `${conflicts.length} conflit${conflicts.length > 1 ? "s" : ""} détecté${conflicts.length > 1 ? "s" : ""}`,
           description: "Consultez le panneau des conflits pour les résoudre.",
           variant: "destructive",
           duration: 5000, // 5 secondes pour laisser le temps de lire
@@ -355,9 +355,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       let expiresAt: string | undefined;
 
       if (state.expirationDays) {
-        expiresAt = new Date(
-          Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
-        ).toISOString();
+        expiresAt = new Date(Date.now() + state.expirationDays * 24 * 60 * 60 * 1000).toISOString();
       } else if (state.selectedDates && state.selectedDates.length > 0) {
         // Par défaut : 12 mois après la dernière date de l'événement
         const sortedDates = [...state.selectedDates].sort();
@@ -753,8 +751,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     className="bg-[#0a0a0a] border-gray-700 text-gray-200"
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    En tant qu'invité, vos données sont conservées pendant 1 an.
-                    Renseignez votre email pour être alerté avant la suppression.
+                    En tant qu'invité, vos données sont conservées pendant 1 an. Renseignez votre
+                    email pour être alerté avant la suppression.
                   </p>
                 </div>
               )}
@@ -1001,12 +999,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 }
                                 disabled={!compatible}
                                 className={`px-3 py-1 text-sm rounded-full transition-colors
-                                ${state.timeGranularity === option.value
+                                ${
+                                  state.timeGranularity === option.value
                                     ? "bg-blue-500 text-white"
                                     : compatible
                                       ? "bg-[#1e1e1e] border border-gray-700 hover:border-blue-500 text-white"
                                       : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
-                                  }
+                                }
                               `}
                               >
                                 {option.label}
@@ -1083,9 +1082,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const currentBlock = blocks.find(
                                 (block) =>
                                   timeSlot.hour * 60 + timeSlot.minute >=
-                                  block.start.hour * 60 + block.start.minute &&
+                                    block.start.hour * 60 + block.start.minute &&
                                   timeSlot.hour * 60 + timeSlot.minute <=
-                                  block.end.hour * 60 + block.end.minute,
+                                    block.end.hour * 60 + block.end.minute,
                               );
                               const isBlockStart = blocks.some(
                                 (block) =>
@@ -1102,7 +1101,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   (timeSlot.hour * 60 + timeSlot.minute <
                                     currentBlock.end.hour * 60 + currentBlock.end.minute &&
                                     timeSlot.hour * 60 + timeSlot.minute + state.timeGranularity >=
-                                    currentBlock.end.hour * 60 + currentBlock.end.minute));
+                                      currentBlock.end.hour * 60 + currentBlock.end.minute));
                               const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
 
                               // Vérifier si ce slot est en cours de drag (MOBILE)
@@ -1144,12 +1143,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     handleDragEnd();
                                   }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                                  ${isSlotDraggedOver && isDragging
+                                  ${
+                                    isSlotDraggedOver && isDragging
                                       ? "bg-blue-500/50 border-2 border-blue-400"
                                       : slot?.enabled
                                         ? "bg-blue-900/30"
                                         : "bg-[#1e1e1e]"
-                                    }
+                                  }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
                                   style={{ touchAction: "none" }}
@@ -1245,9 +1245,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const currentBlock = blocks.find(
                                 (block) =>
                                   timeSlot.hour * 60 + timeSlot.minute >=
-                                  block.start.hour * 60 + block.start.minute &&
+                                    block.start.hour * 60 + block.start.minute &&
                                   timeSlot.hour * 60 + timeSlot.minute <=
-                                  block.end.hour * 60 + block.end.minute,
+                                    block.end.hour * 60 + block.end.minute,
                               );
                               const isBlockStart = blocks.some(
                                 (block) =>
@@ -1264,7 +1264,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   (timeSlot.hour * 60 + timeSlot.minute <
                                     currentBlock.end.hour * 60 + currentBlock.end.minute &&
                                     timeSlot.hour * 60 + timeSlot.minute + state.timeGranularity >=
-                                    currentBlock.end.hour * 60 + currentBlock.end.minute));
+                                      currentBlock.end.hour * 60 + currentBlock.end.minute));
                               const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
 
                               // Vérifier si ce slot est en cours de drag (DESKTOP)
@@ -1306,12 +1306,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     handleDragEnd();
                                   }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                                  ${isSlotDraggedOver && isDragging
+                                  ${
+                                    isSlotDraggedOver && isDragging
                                       ? "bg-blue-500/50 border-2 border-blue-400"
                                       : slot?.enabled
                                         ? "bg-blue-900/30"
                                         : "bg-[#1e1e1e]"
-                                    }
+                                  }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
                                   style={{ touchAction: "none" }}
@@ -1392,8 +1393,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               <div className="flex items-center space-x-3">
                                 <Eye className="w-5 h-5 text-gray-400" />
                                 <div>
-                                  <p className="font-medium text-white">Afficher le logo DooDates</p>
-                                  <p className="text-sm text-gray-400">Montrer le branding DooDates sur le formulaire</p>
+                                  <p className="font-medium text-white">
+                                    Afficher le logo DooDates
+                                  </p>
+                                  <p className="text-sm text-gray-400">
+                                    Montrer le branding DooDates sur le formulaire
+                                  </p>
                                 </div>
                               </div>
                               <label className="relative inline-flex items-center cursor-pointer">
@@ -1401,7 +1406,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   type="checkbox"
                                   className="sr-only peer"
                                   checked={advancedSettings.showLogo ?? true}
-                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, showLogo: e.target.checked }))}
+                                  onChange={(e) =>
+                                    setAdvancedSettings((prev) => ({
+                                      ...prev,
+                                      showLogo: e.target.checked,
+                                    }))
+                                  }
                                 />
                                 <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
@@ -1427,7 +1437,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 <Shield className="w-5 h-5 text-gray-400" />
                                 <div>
                                   <p className="font-medium text-white">Connexion requise</p>
-                                  <p className="text-sm text-gray-400">Les utilisateurs doivent se connecter avec Google</p>
+                                  <p className="text-sm text-gray-400">
+                                    Les utilisateurs doivent se connecter avec Google
+                                  </p>
                                 </div>
                               </div>
                               <label className="relative inline-flex items-center cursor-pointer">
@@ -1435,7 +1447,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   type="checkbox"
                                   className="sr-only peer"
                                   checked={advancedSettings.requireAuth ?? false}
-                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, requireAuth: e.target.checked }))}
+                                  onChange={(e) =>
+                                    setAdvancedSettings((prev) => ({
+                                      ...prev,
+                                      requireAuth: e.target.checked,
+                                    }))
+                                  }
                                 />
                                 <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
@@ -1446,7 +1463,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 <User className="w-5 h-5 text-gray-400" />
                                 <div>
                                   <p className="font-medium text-white">Une réponse par personne</p>
-                                  <p className="text-sm text-gray-400">Prévenir les réponses multiples (cookie)</p>
+                                  <p className="text-sm text-gray-400">
+                                    Prévenir les réponses multiples (cookie)
+                                  </p>
                                 </div>
                               </div>
                               <label className="relative inline-flex items-center cursor-pointer">
@@ -1454,7 +1473,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   type="checkbox"
                                   className="sr-only peer"
                                   checked={advancedSettings.oneResponsePerPerson ?? false}
-                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, oneResponsePerPerson: e.target.checked }))}
+                                  onChange={(e) =>
+                                    setAdvancedSettings((prev) => ({
+                                      ...prev,
+                                      oneResponsePerPerson: e.target.checked,
+                                    }))
+                                  }
                                 />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
@@ -1464,8 +1488,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               <div className="flex items-center space-x-3">
                                 <Eye className="w-5 h-5 text-gray-400" />
                                 <div>
-                                  <p className="font-medium text-white">Modification après soumission</p>
-                                  <p className="text-sm text-gray-400">Permettre de modifier sa réponse</p>
+                                  <p className="font-medium text-white">
+                                    Modification après soumission
+                                  </p>
+                                  <p className="text-sm text-gray-400">
+                                    Permettre de modifier sa réponse
+                                  </p>
                                 </div>
                               </div>
                               <label className="relative inline-flex items-center cursor-pointer">
@@ -1473,7 +1501,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   type="checkbox"
                                   className="sr-only peer"
                                   checked={advancedSettings.allowEditAfterSubmit ?? false}
-                                  onChange={(e) => setAdvancedSettings(prev => ({ ...prev, allowEditAfterSubmit: e.target.checked }))}
+                                  onChange={(e) =>
+                                    setAdvancedSettings((prev) => ({
+                                      ...prev,
+                                      allowEditAfterSubmit: e.target.checked,
+                                    }))
+                                  }
                                 />
                                 <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                               </label>
@@ -1493,10 +1526,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               type="number"
                               min="1"
                               placeholder="Illimité"
-                              value={advancedSettings.maxResponses || ''}
+                              value={advancedSettings.maxResponses || ""}
                               onChange={(e) => {
-                                const value = e.target.value ? parseInt(e.target.value, 10) : undefined;
-                                setAdvancedSettings(prev => ({ ...prev, maxResponses: value }));
+                                const value = e.target.value
+                                  ? parseInt(e.target.value, 10)
+                                  : undefined;
+                                setAdvancedSettings((prev) => ({ ...prev, maxResponses: value }));
                               }}
                               className="w-full px-3 py-2 border border-gray-600 bg-[#1e1e1e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -1514,24 +1549,26 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       <div className="space-y-6">
                         {/* Visibilité des résultats */}
                         <div className="space-y-4">
-                          <h3 className="text-lg font-medium text-white">Visibilité des résultats</h3>
+                          <h3 className="text-lg font-medium text-white">
+                            Visibilité des résultats
+                          </h3>
 
                           <div className="space-y-3">
                             {[
                               {
-                                value: 'creator-only',
-                                label: 'Créateur uniquement',
-                                description: 'Seul le créateur peut voir les résultats'
+                                value: "creator-only",
+                                label: "Créateur uniquement",
+                                description: "Seul le créateur peut voir les résultats",
                               },
                               {
-                                value: 'voters',
-                                label: 'Participants après vote',
-                                description: 'Visible après avoir voté'
+                                value: "voters",
+                                label: "Participants après vote",
+                                description: "Visible après avoir voté",
                               },
                               {
-                                value: 'public',
-                                label: 'Public',
-                                description: 'Tout le monde peut voir les résultats'
+                                value: "public",
+                                label: "Public",
+                                description: "Tout le monde peut voir les résultats",
                               },
                             ].map((option) => (
                               <div key={option.value} className="flex items-center">
@@ -1540,9 +1577,18 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   id={option.value}
                                   name="resultsVisibility"
                                   value={option.value}
-                                  checked={(advancedSettings.resultsVisibility || 'public') === option.value}
+                                  checked={
+                                    (advancedSettings.resultsVisibility || "public") ===
+                                    option.value
+                                  }
                                   onChange={(e) => {
-                                    setAdvancedSettings(prev => ({ ...prev, resultsVisibility: e.target.value as 'creator-only' | 'voters' | 'public' }));
+                                    setAdvancedSettings((prev) => ({
+                                      ...prev,
+                                      resultsVisibility: e.target.value as
+                                        | "creator-only"
+                                        | "voters"
+                                        | "public",
+                                    }));
                                   }}
                                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 bg-gray-700"
                                 />
@@ -1572,7 +1618,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               <div className="flex items-center space-x-3">
                                 <Clock className="w-5 h-5 text-gray-400" />
                                 <div>
-                                  <p className="font-medium text-white">Le sondage expirera après</p>
+                                  <p className="font-medium text-white">
+                                    Le sondage expirera après
+                                  </p>
                                   <p className="text-sm text-gray-400">Par défaut: 30 jours</p>
                                 </div>
                               </div>
@@ -1624,8 +1672,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                       sendNotifications: state.notificationsEnabled,
                                       expiresAt: state.expirationDays
                                         ? new Date(
-                                          Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
-                                        ).toISOString()
+                                            Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
+                                          ).toISOString()
                                         : undefined,
                                     },
                                   };

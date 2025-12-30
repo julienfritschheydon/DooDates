@@ -13,13 +13,13 @@ interface GenericProductLayoutProps {
  * Layout générique pour tous les produits (Date Polls, Form Polls, Availability, Quizz)
  * Gère uniquement le sidebar + overlay + responsive
  * Le contenu (children) est passé tel quel sans modification
- * 
+ *
  * IMPORTANT : Ce layout ne touche PAS au contenu (agent IA, dashboard, etc.)
  * Il gère uniquement le menu de gauche (sidebar)
  */
 export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
   children,
-  productType
+  productType,
 }) => {
   const { isSidebarOpen, toggleSidebar, closeSidebar, isMobile } = useSidebarState();
 
@@ -37,8 +37,9 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
       {/* Bouton hamburger - position calculée avec CSS variable */}
       <button
         onClick={toggleSidebar}
-        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${isSidebarOpen ? "left-[272px]" : "left-4"
-          }`}
+        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
+          isSidebarOpen ? "left-[272px]" : "left-4"
+        }`}
         aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
       >
         <Menu className="w-5 h-5" />
@@ -46,24 +47,24 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
 
       {/* Sidebar - toujours monté, caché avec CSS */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${isSidebarOpen
-          ? "w-64 opacity-100"
-          : "w-0 opacity-0"
-          }`}
+        className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${
+          isSidebarOpen ? "w-64 opacity-100" : "w-0 opacity-0"
+        }`}
       >
         <ProductSidebar
           productType={productType}
           onClose={closeSidebar}
           hideHamburger={true}
           isOpen={isSidebarOpen}
-          className={`h-full ${!isSidebarOpen ? 'pointer-events-none' : ''}`}
+          className={`h-full ${!isSidebarOpen ? "pointer-events-none" : ""}`}
         />
       </aside>
 
       {/* Zone contenu - pas de onClick, l'overlay gère la fermeture */}
       <main
-        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 pt-16 md:pt-0 ${isSidebarOpen ? "ml-64" : "ml-0"
-          }`}
+        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 pt-16 md:pt-0 ${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        }`}
       >
         {children}
       </main>

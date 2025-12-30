@@ -172,10 +172,10 @@ export default function FormPollResults({ idOrSlug }: Props) {
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
     return (
-      <ResultsAccessDenied 
+      <ResultsAccessDenied
         message={accessStatus.message}
         pollSlug={poll?.slug || idOrSlug}
-        showVoteButton={accessStatus.reason === 'not-voted'}
+        showVoteButton={accessStatus.reason === "not-voted"}
       />
     );
   }

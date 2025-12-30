@@ -19,6 +19,7 @@ test.describe('Documentation - Tests E2E', () => {
         /404 Error.*non-existent route/i,
         /User attempted to access non-existent route/i,
         /guest_emails/i,
+        /guest_emails/i,
       ],
     });
 

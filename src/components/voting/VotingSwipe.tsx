@@ -146,32 +146,32 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     if (success) {
       setIsVoteComplete(true);
       setShowForm(false);
-      
+
       // Envoyer l'email de confirmation si activé
       if (poll && shouldSendConfirmationEmail(poll.settings)) {
         try {
           const selectedDates = options
-            .filter(opt => votes[opt.id])
-            .map(opt => ({
+            .filter((opt) => votes[opt.id])
+            .map((opt) => ({
               date: opt.date || opt.label,
-              slots: opt.timeSlots || []
+              slots: opt.timeSlots || [],
             }));
-          
+
           await sendDatePollConfirmationEmail({
             pollId: poll.id,
             pollTitle: poll.title,
             selectedDates,
             respondentName: voterInfo.name,
-            recipientEmail: (poll.settings as any)?.emailForCopy || voterInfo.email || '',
+            recipientEmail: (poll.settings as any)?.emailForCopy || voterInfo.email || "",
           });
-          
+
           logger.info("Email de confirmation envoyé", "vote", { pollId: poll.id });
         } catch (error) {
           logger.error("Erreur lors de l'envoi de l'email de confirmation", "vote", { error });
           // Ne pas bloquer le vote si l'email échoue
         }
       }
-      
+
       if (onVoteSubmitted) onVoteSubmitted();
     }
   };
@@ -226,11 +226,11 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         poll={
           poll
             ? {
-              ...poll,
-              description: poll.description || "",
-              expires_at:
-                poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            }
+                ...poll,
+                description: poll.description || "",
+                expires_at:
+                  poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              }
             : null
         }
         existingVotes={existingVotes}
@@ -255,7 +255,8 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 <p className="text-[11px] font-medium text-gray-200">Vos données pour ce sondage</p>
                 {showDataInfo && (
                   <p className="text-[10px] text-gray-400">
-                    Nom, email et réponses sont utilisés pour organiser l'événement et afficher les résultats.
+                    Nom, email et réponses sont utilisés pour organiser l'événement et afficher les
+                    résultats.
                   </p>
                 )}
               </div>
@@ -281,7 +282,8 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 d'organiser l'événement et consulter les résultats.
               </p>
               <p className="mb-1">
-                Vous pouvez demander la suppression de vos données en contactant l'organisateur du sondage.
+                Vous pouvez demander la suppression de vos données en contactant l'organisateur du
+                sondage.
               </p>
               <p>
                 Pour en savoir plus, consultez la{" "}

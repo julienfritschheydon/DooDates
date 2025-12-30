@@ -175,10 +175,7 @@ export default function AuthCallback() {
                 </AlertDescription>
               </Alert>
               <div className="flex gap-2">
-                <Button
-                  onClick={() => navigate("/dashboard")}
-                  className="flex-1"
-                >
+                <Button onClick={() => navigate("/dashboard")} className="flex-1">
                   Aller au dashboard
                 </Button>
                 <Button

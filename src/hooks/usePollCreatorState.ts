@@ -87,7 +87,8 @@ export function usePollCreatorState({
                 selectedDates: draftData.selectedDates || prev.selectedDates,
                 participantEmails: draftData.participantEmails || prev.participantEmails,
                 timeGranularity: draftData.settings?.timeGranularity || prev.timeGranularity,
-                notificationsEnabled: draftData.settings?.sendNotifications || prev.notificationsEnabled,
+                notificationsEnabled:
+                  draftData.settings?.sendNotifications || prev.notificationsEnabled,
                 expirationDays: draftData.settings?.expiresAt
                   ? Math.ceil(
                       (new Date(draftData.settings.expiresAt).getTime() - Date.now()) /

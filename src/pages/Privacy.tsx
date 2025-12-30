@@ -15,12 +15,10 @@ export const Privacy: React.FC = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-900/50 rounded-full mb-4">
               <Shield className="w-8 h-8 text-blue-400" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Politique de Confidentialité
-            </h1>
+            <h1 className="text-4xl font-bold text-white mb-4">Politique de Confidentialité</h1>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              DooDates respecte votre vie privée et protège vos données personnelles
-              en conformité avec le RGPD.
+              DooDates respecte votre vie privée et protège vos données personnelles en conformité
+              avec le RGPD.
             </p>
             <div className="mt-6 text-sm text-gray-500">
               Dernière mise à jour : 10 Décembre 2025
@@ -168,13 +166,16 @@ export const Privacy: React.FC = () => {
                   <strong>Statut :</strong> Sous-traitant avec clauses contractuelles types RGPD
                 </p>
                 <p>
-                  <strong>Transferts :</strong> États-Unis avec garanties équivalentes (Privacy Shield)
+                  <strong>Transferts :</strong> États-Unis avec garanties équivalentes (Privacy
+                  Shield)
                 </p>
                 <p>
-                  <strong>Conservation :</strong> 30 jours maximum chez Google, 12 mois côté DooDates
+                  <strong>Conservation :</strong> 30 jours maximum chez Google, 12 mois côté
+                  DooDates
                 </p>
                 <p>
-                  <strong>Entraînement :</strong> Les données ne sont PAS utilisées pour entraîner les modèles
+                  <strong>Entraînement :</strong> Les données ne sont PAS utilisées pour entraîner
+                  les modèles
                 </p>
                 <p>
                   <strong>Sécurité :</strong> Chiffrement TLS 1.3 en transit, AES-256 au repos
@@ -214,8 +215,8 @@ export const Privacy: React.FC = () => {
           {/* Footer intégré */}
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
-              Cette politique s'applique à tous les produits DooDates :
-              Sondages de dates, Formulaires, Quizz, et Chat IA
+              Cette politique s'applique à tous les produits DooDates : Sondages de dates,
+              Formulaires, Quizz, et Chat IA
             </p>
             <div className="flex justify-center gap-4 text-sm">
               <Link to="/terms" className="hover:text-gray-300">

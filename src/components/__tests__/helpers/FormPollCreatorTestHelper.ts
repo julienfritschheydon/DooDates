@@ -12,13 +12,13 @@ export class FormPollCreatorTestHelper {
   static async openConfigurationAccordion(): Promise<void> {
     // Find the button using role to access aria-expanded
     // Note: partial match because of icon/structure
-    const configButton = screen.getByRole('button', { name: /Paramètres de configuration/i });
+    const configButton = screen.getByRole("button", { name: /Paramètres de configuration/i });
 
-    if (configButton.getAttribute('aria-expanded') === 'false') {
+    if (configButton.getAttribute("aria-expanded") === "false") {
       fireEvent.click(configButton);
       // Wait for the panel content (tablist) to appear
       await waitFor(() => {
-        expect(screen.getByRole('tablist')).toBeInTheDocument();
+        expect(screen.getByRole("tablist")).toBeInTheDocument();
       });
     }
   }
@@ -28,13 +28,13 @@ export class FormPollCreatorTestHelper {
    */
   static async switchToVisibilityTab(): Promise<void> {
     await this.openConfigurationAccordion();
-    const tab = screen.getByRole('tab', { name: /Visibilité/i });
+    const tab = screen.getByRole("tab", { name: /Visibilité/i });
 
-    if (tab.getAttribute('aria-selected') === 'false') {
+    if (tab.getAttribute("aria-selected") === "false") {
       fireEvent.click(tab);
       // Wait for visibility content
       await waitFor(() => {
-        expect(screen.getByText('Visibilité des résultats')).toBeInTheDocument();
+        expect(screen.getByText("Visibilité des résultats")).toBeInTheDocument();
       });
     }
   }
@@ -56,7 +56,7 @@ export class FormPollCreatorTestHelper {
     return [
       screen.getByDisplayValue("creator-only"),
       screen.getByDisplayValue("voters"),
-      screen.getByDisplayValue("public")
+      screen.getByDisplayValue("public"),
     ];
   }
 
@@ -64,7 +64,9 @@ export class FormPollCreatorTestHelper {
    * Sets the results visibility by clicking the appropriate radio button
    * @param visibility - The visibility to set
    */
-  static async setResultsVisibility(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+  static async setResultsVisibility(
+    visibility: "creator-only" | "voters" | "public",
+  ): Promise<void> {
     await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     fireEvent.click(radio);
@@ -74,7 +76,9 @@ export class FormPollCreatorTestHelper {
    * Verifies that a specific visibility radio button is checked
    * @param visibility - The visibility that should be checked
    */
-  static async expectVisibilityChecked(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+  static async expectVisibilityChecked(
+    visibility: "creator-only" | "voters" | "public",
+  ): Promise<void> {
     await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     expect(radio).toBeChecked();
@@ -84,7 +88,9 @@ export class FormPollCreatorTestHelper {
    * Verifies that a specific visibility radio button is NOT checked
    * @param visibility - The visibility that should NOT be checked
    */
-  static async expectVisibilityNotChecked(visibility: "creator-only" | "voters" | "public"): Promise<void> {
+  static async expectVisibilityNotChecked(
+    visibility: "creator-only" | "voters" | "public",
+  ): Promise<void> {
     await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
     expect(radio).not.toBeChecked();
@@ -145,7 +151,7 @@ export class FormPollCreatorTestHelper {
    * Gets the finalize button element
    */
   static getFinalizeButton() {
-    return screen.getByRole('button', { name: /Publier le formulaire/i });
+    return screen.getByRole("button", { name: /Publier le formulaire/i });
   }
 
   /**

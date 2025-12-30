@@ -1,8 +1,8 @@
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // // ⚠️ AVERTISSEMENT RGPD - NE PAS UTILISER EN PRODUCTION ⚠️
-// // 
+// //
 // // Ce service appelle DIRECTEMENT l'API Gemini (bypass Edge Function)
-// // 
+// //
 // // RISQUES RGPD :
 // // - Expose la clé API côté client (sécurité)
 // // - Les données sont envoyées directement à Google (transfert hors UE)
@@ -44,7 +44,7 @@
 
 //   /**
 //    * ⚠️ ATTENTION : Service NON CONFORME RGPD ⚠️
-//    * 
+//    *
 //    * Ce service ne doit JAMAIS être utilisé en production.
 //    * Utiliser SecureGeminiService pour un déploiement conforme.
 //    */
@@ -102,19 +102,19 @@
 
 //   /**
 //    * ⚠️ MÉTHODE NON CONFORME RGPD - À N'UTILISER QU'EN DÉVELOPPEMENT ⚠️
-//    * 
+//    *
 //    * Appelle DIRECTEMENT l'API Gemini (bypass Edge Function)
-//    * 
+//    *
 //    * RISQUES :
 //    * - Transfert de données personnelles hors UE (Google servers)
 //    * - Exposition de la clé API côté client
 //    * - Pas de contrôle sur la conservation des données
 //    * - Non-respect des obligations RGPD de DooDates
-//    * 
+//    *
 //    * @param userInput Texte de l'utilisateur (peut contenir des données personnelles)
 //    * @param config Configuration optionnelle (temperature, etc.)
 //    * @returns Réponse Gemini ou erreur
-//    * 
+//    *
 //    * @deprecated Utiliser SecureGeminiService en production
 //    */
 //   async generateContent(
@@ -271,21 +271,21 @@
 
 //   /**
 //    * ⚠️ MÉTHODE NON CONFORME RGPD - IMAGES TRANSFÉRÉES HORS UE ⚠️
-//    * 
+//    *
 //    * Appelle Gemini avec une image (Vision) - DÉVELOPPEMENT SEULEMENT
-//    * 
+//    *
 //    * RISQUES ACCRUS :
 //    * - Images peuvent contenir des visages/documents sensibles
 //    * - Transfert direct vers Google servers (hors UE)
 //    * - Pas de contrôle sur la conservation des images
 //    * - Violation potentielle de la législation sur les données biométriques
-//    * 
+//    *
 //    * @param imageBase64 Image en base64 (peut contenir des données personnelles)
 //    * @param mimeType Type MIME de l'image
 //    * @param prompt Prompt textuel accompagnant l'image
 //    * @param config Configuration optionnelle
 //    * @returns Réponse Gemini ou erreur
-//    * 
+//    *
 //    * @deprecated Utiliser SecureGeminiService en production
 //    */
 //   async generateContentWithImage(
@@ -410,18 +410,17 @@
 //   }
 // }
 
-
 /**
  * RAPPEL RGPD CRITIQUE :
- * 
+ *
  * NE PAS DÉPLOYER AVEC DirectGeminiService EN PRODUCTION
- * 
+ *
  * Utiliser obligatoirement SecureGeminiService (via Supabase Edge Functions) :
  * - Conformité RGPD garantie
  * - Contrôle des transferts hors UE
  * - Gestion de la durée de conservation
  * - Audit et traçabilité complets
- * 
+ *
  * Le non-respect de cette règle expose DooDates à :
  * - Sanctions CNIL (jusqu'à 4% du CA mondial)
  * - Poursuites judiciaires

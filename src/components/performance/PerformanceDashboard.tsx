@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
-import { PerformanceAlerts } from './PerformanceAlerts';
-import { logError, ErrorFactory } from '@/lib/error-handling';
+import React, { useState, useEffect } from "react";
+import { BarChart3, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { PerformanceAlerts } from "./PerformanceAlerts";
+import { logError, ErrorFactory } from "@/lib/error-handling";
 
 // Types for performance data
 interface PerformanceMetric {
@@ -41,13 +41,13 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
   const loadPerformanceData = async () => {
     try {
       // Load baseline data and recent runs
-      const baselineResponse = await fetch('/DooDates/performance-baseline.json');
+      const baselineResponse = await fetch("/DooDates/performance-baseline.json");
       const baseline = await baselineResponse.json();
 
       // Mock historical data - in real app, this would come from Supabase
       const mockHistoricalData: PerformanceMetric[] = [
         {
-          date: '2025-12-15',
+          date: "2025-12-15",
           e2e: {
             dashboard_load_50: 3200,
             dashboard_load_200: 5100,
@@ -67,7 +67,7 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
           },
         },
         {
-          date: '2025-12-16',
+          date: "2025-12-16",
           e2e: {
             dashboard_load_50: 3100,
             dashboard_load_200: 4900,
@@ -81,13 +81,13 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
           lighthouse: {
             performance_score: 87,
             largest_contentful_paint: 2500,
-            cumulative_layout_shift: 0.10,
+            cumulative_layout_shift: 0.1,
             total_blocking_time: 200,
             first_input_delay: 105,
           },
         },
         {
-          date: '2025-12-17',
+          date: "2025-12-17",
           e2e: {
             dashboard_load_50: baseline.e2e_performance.metrics.dashboard_load_50_conversations,
             dashboard_load_200: baseline.e2e_performance.metrics.dashboard_load_200_conversations,
@@ -95,7 +95,8 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
             folders_menu_open: baseline.e2e_performance.metrics.folders_menu_open,
             date_dashboard_load: baseline.e2e_performance.metrics.date_dashboard_load,
             form_dashboard_load: baseline.e2e_performance.metrics.form_dashboard_load,
-            availability_dashboard_load: baseline.e2e_performance.metrics.availability_dashboard_load,
+            availability_dashboard_load:
+              baseline.e2e_performance.metrics.availability_dashboard_load,
             quizz_dashboard_load: baseline.e2e_performance.metrics.quizz_dashboard_load,
           },
           lighthouse: {
@@ -112,8 +113,11 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
       setCurrentMetrics(mockHistoricalData[mockHistoricalData.length - 1]);
     } catch (error) {
       logError(
-        ErrorFactory.api('Failed to load performance data', 'Erreur lors du chargement des données de performance'),
-        { component: 'PerformanceDashboard', operation: 'loadPerformanceData', error }
+        ErrorFactory.api(
+          "Failed to load performance data",
+          "Erreur lors du chargement des données de performance",
+        ),
+        { component: "PerformanceDashboard", operation: "loadPerformanceData", error },
       );
     } finally {
       setLoading(false);
@@ -123,7 +127,7 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
   const getStatusIcon = (value: number, threshold: number, isScore = false) => {
     const isGood = isScore ? value >= threshold : value <= threshold;
     const Icon = isGood ? CheckCircle : AlertTriangle;
-    const color = isGood ? 'text-green-600' : 'text-red-600';
+    const color = isGood ? "text-green-600" : "text-red-600";
     return <Icon className={`w-4 h-4 ${color}`} />;
   };
 
@@ -215,7 +219,9 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
 
       {/* Lighthouse CI Metrics */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Lighthouse CI - Métriques Actuelles</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Lighthouse CI - Métriques Actuelles
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
@@ -287,20 +293,21 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
         </div>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
-              {metrics.length}
-            </div>
+            <div className="text-2xl font-bold text-blue-600">{metrics.length}</div>
             <div className="text-sm text-gray-600">Jours trackés</div>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <div className="text-2xl font-bold text-green-600">
-              {metrics.filter(m => m.lighthouse.performance_score >= 90).length}
+              {metrics.filter((m) => m.lighthouse.performance_score >= 90).length}
             </div>
             <div className="text-sm text-gray-600">Jours au-dessus du seuil</div>
           </div>
           <div className="text-center p-4 bg-yellow-50 rounded-lg">
             <div className="text-2xl font-bold text-yellow-600">
-              {Math.round(metrics.reduce((acc, m) => acc + m.lighthouse.performance_score, 0) / metrics.length)}
+              {Math.round(
+                metrics.reduce((acc, m) => acc + m.lighthouse.performance_score, 0) /
+                  metrics.length,
+              )}
             </div>
             <div className="text-sm text-gray-600">Score moyen Lighthouse</div>
           </div>

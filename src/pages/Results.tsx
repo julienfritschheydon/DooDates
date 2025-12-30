@@ -77,8 +77,9 @@ const Results: React.FC = () => {
       const voterId = getVoterId();
       const userHasVoted = pollVotes.some((vote: VoteData) => {
         // Vérifier par voter_email ou par un identifiant stocké
-        return vote.voter_email === voterId || 
-               localStorage.getItem(`voted-${foundPoll.id}`) === 'true';
+        return (
+          vote.voter_email === voterId || localStorage.getItem(`voted-${foundPoll.id}`) === "true"
+        );
       });
       setHasVoted(userHasVoted);
     }
@@ -120,10 +121,10 @@ const Results: React.FC = () => {
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
     return (
-      <ResultsAccessDenied 
+      <ResultsAccessDenied
         message={accessStatus.message}
         pollSlug={slug}
-        showVoteButton={accessStatus.reason === 'not-voted'}
+        showVoteButton={accessStatus.reason === "not-voted"}
       />
     );
   }

@@ -115,17 +115,27 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-gray-100"
         >
-          <div className={`p-4 rounded-full bg-gray-50 w-20 h-20 flex items-center justify-center mx-auto mb-6`}>
+          <div
+            className={`p-4 rounded-full bg-gray-50 w-20 h-20 flex items-center justify-center mx-auto mb-6`}
+          >
             <Icon className={`h-10 w-10 ${info.color}`} />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">{info.title}</h2>
           <p className="text-gray-600 mb-8 leading-relaxed">{info.message}</p>
           <div className="flex flex-col gap-3">
-            <Button onClick={() => setShowResults(true)} variant="outline" className="w-full py-6 rounded-xl font-semibold">
+            <Button
+              onClick={() => setShowResults(true)}
+              variant="outline"
+              className="w-full py-6 rounded-xl font-semibold"
+            >
               Voir les résultats actuels
             </Button>
             {onBack && (
-              <Button onClick={onBack} variant="ghost" className="w-full py-6 rounded-xl font-medium text-gray-500">
+              <Button
+                onClick={onBack}
+                variant="ghost"
+                className="w-full py-6 rounded-xl font-medium text-gray-500"
+              >
                 Retour
               </Button>
             )}

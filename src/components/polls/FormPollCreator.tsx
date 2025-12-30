@@ -123,7 +123,7 @@ export type AnyFormQuestion =
   | NPSQuestion
   | DateQuestion;
 
-import type { FormPollSettings } from '@/lib/products/form-polls/form-polls-service';
+import type { FormPollSettings } from "@/lib/products/form-polls/form-polls-service";
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
@@ -166,14 +166,14 @@ export default function FormPollCreator({
     initialDraft?.questions?.length > 0
       ? initialDraft.questions
       : [
-        {
-          id: uid(),
-          type: "single",
-          title: "Nouvelle question",
-          required: false,
-          options: defaultOptions(),
-        } as SingleOrMultipleQuestion,
-      ],
+          {
+            id: uid(),
+            type: "single",
+            title: "Nouvelle question",
+            required: false,
+            options: defaultOptions(),
+          } as SingleOrMultipleQuestion,
+        ],
   );
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
     initialDraft?.conditionalRules || [],
@@ -190,7 +190,7 @@ export default function FormPollCreator({
   useEffect(() => {
     if (!user) {
       setIsLoadingEmail(true);
-      guestEmailService.getGuestEmail().then(email => {
+      guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
         setIsLoadingEmail(false);
       });
@@ -242,10 +242,12 @@ export default function FormPollCreator({
       setConditionalRules(initialDraft.conditionalRules || []);
       setDisplayMode(initialDraft.displayMode || suggestedDisplayMode);
       setResultsVisibility(initialDraft.resultsVisibility || "creator-only");
-      setSettings(initialDraft.settings || {
-        allowAnonymousResponses: true,
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-      });
+      setSettings(
+        initialDraft.settings || {
+          allowAnonymousResponses: true,
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDraft?.id]); // Intentionnel : on veut seulement initialiser au montage, pas tracker initialDraft entier
@@ -262,7 +264,16 @@ export default function FormPollCreator({
       resultsVisibility,
       settings,
     }),
-    [draftId, title, questions, conditionalRules, themeId, displayMode, resultsVisibility, settings],
+    [
+      draftId,
+      title,
+      questions,
+      conditionalRules,
+      themeId,
+      displayMode,
+      resultsVisibility,
+      settings,
+    ],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -768,9 +779,6 @@ export default function FormPollCreator({
                       )}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="mt-2 space-y-4">
-
-
-
                       {/* Champ Email Invité (RGPD) */}
                       {!user && !isEmailFieldDismissed && (
                         <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-700 relative group">
@@ -792,12 +800,14 @@ export default function FormPollCreator({
                             placeholder="votre@email.com"
                             value={guestEmail}
                             onChange={(e) => setGuestEmail(e.target.value)}
-                            onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+                            onBlur={() =>
+                              guestEmail && guestEmailService.saveGuestEmail(guestEmail)
+                            }
                             className="bg-[#0a0a0a] border-gray-700 text-gray-200"
                           />
                           <p className="text-xs text-gray-500 mt-2">
-                            En tant qu'invité, vos données sont conservées pendant 1 an.
-                            Renseignez votre email pour être alerté avant la suppression.
+                            En tant qu'invité, vos données sont conservées pendant 1 an. Renseignez
+                            votre email pour être alerté avant la suppression.
                           </p>
                         </div>
                       )}

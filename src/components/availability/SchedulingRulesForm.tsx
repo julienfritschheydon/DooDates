@@ -189,7 +189,7 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
             aria-expanded={isOpen}
             className="cursor-pointer hover:bg-[#333] transition-all duration-200 group border-b border-gray-700 focus-visible:ring-2 focus-visible:ring-purple-500 outline-none"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 setIsOpen(!isOpen);
               }
@@ -226,7 +226,10 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
           <CardContent className="space-y-6 pt-0">
             {/* Durée standard des créneaux */}
             <div>
-              <Label htmlFor="slotDurationMinutes" className="text-gray-300 mb-2 flex items-center gap-2">
+              <Label
+                htmlFor="slotDurationMinutes"
+                className="text-gray-300 mb-2 flex items-center gap-2"
+              >
                 <Clock className="w-4 h-4" />
                 Durée standard des créneaux (minutes)
               </Label>

@@ -69,7 +69,6 @@ export const LandingPage: React.FC = () => {
 
       {/* Contenu principal */}
       <div className="flex-1 text-white overflow-hidden">
-
         {/* Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
           {/* Grid pattern */}
@@ -104,8 +103,9 @@ export const LandingPage: React.FC = () => {
         <section className={cn("relative z-10 pb-32", sidebarOpen ? "pt-20" : "pt-6")}>
           <div className="max-w-6xl mx-auto px-6">
             <div
-              className={`transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                }`}
+              className={`transition-all duration-700 ${
+                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
             >
               {/* Badge */}
               <div className="flex justify-center mb-8">
@@ -148,8 +148,9 @@ export const LandingPage: React.FC = () => {
 
             {/* Visual Preview */}
             <div
-              className={`mt-20 transition-all duration-1000 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-                }`}
+              className={`mt-20 transition-all duration-1000 delay-300 ${
+                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              }`}
             >
               <div className="relative mx-auto max-w-4xl">
                 <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent z-10 pointer-events-none" />
@@ -172,12 +173,13 @@ export const LandingPage: React.FC = () => {
                     {Array.from({ length: 28 }).map((_, i) => (
                       <div
                         key={i}
-                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${[4, 5, 11, 12, 18, 19].includes(i)
-                          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                          : i === 11
-                            ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                            : "bg-white/[0.02] text-gray-400 hover:bg-white/5"
-                          }`}
+                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${
+                          [4, 5, 11, 12, 18, 19].includes(i)
+                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                            : i === 11
+                              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                              : "bg-white/[0.02] text-gray-400 hover:bg-white/5"
+                        }`}
                       >
                         {i + 1}
                       </div>
@@ -224,8 +226,9 @@ export const LandingPage: React.FC = () => {
               ].map((feature, i) => (
                 <div
                   key={feature.title}
-                  className={`group p-6 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-${feature.color}-500/20 transition-all duration-500 ${featureVisible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                    }`}
+                  className={`group p-6 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-${feature.color}-500/20 transition-all duration-500 ${
+                    featureVisible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                  }`}
                   style={{ transitionDelay: `${i * 100}ms` }}
                 >
                   <div
@@ -270,8 +273,9 @@ export const LandingPage: React.FC = () => {
                   ].map((step, i) => (
                     <div
                       key={step.num}
-                      className={`flex gap-6 transition-all duration-500 ${stepVisible[i] ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
-                        }`}
+                      className={`flex gap-6 transition-all duration-500 ${
+                        stepVisible[i] ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+                      }`}
                       style={{ transitionDelay: `${i * 150}ms` }}
                     >
                       <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold shadow-lg shadow-blue-500/20">
@@ -308,8 +312,9 @@ export const LandingPage: React.FC = () => {
                           </div>
                           <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${option.percent === 100 ? "bg-green-500" : "bg-blue-500"
-                                }`}
+                              className={`h-full rounded-full ${
+                                option.percent === 100 ? "bg-green-500" : "bg-blue-500"
+                              }`}
                               style={{ width: `${option.percent}%` }}
                             />
                           </div>

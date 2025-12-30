@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Plus, Home, List, Settings, User, LogOut, Users, FileText, CreditCard, Globe, X, Calendar, Menu } from "lucide-react";
+import {
+  Plus,
+  Home,
+  List,
+  Settings,
+  User,
+  LogOut,
+  Users,
+  FileText,
+  CreditCard,
+  Globe,
+  X,
+  Calendar,
+  Menu,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/modals/AuthModal";
@@ -64,8 +78,9 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
       {!hideHamburger && (
         <button
           onClick={toggleSidebar}
-          className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${isOpen ? "left-[272px]" : "left-4"
-            }`}
+          className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
+            isOpen ? "left-[272px]" : "left-4"
+          }`}
           aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
         >
           <Menu className="w-5 h-5" />
@@ -75,11 +90,18 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
       {/* Sidebar - conditionnel selon l'état interne */}
       {isOpen && (
         <div
-          className={cn("fixed left-0 top-0 w-64 bg-[#1a1a1a] border-r border-gray-800 h-screen flex flex-col z-40", className)}
+          className={cn(
+            "fixed left-0 top-0 w-64 bg-[#1a1a1a] border-r border-gray-800 h-screen flex flex-col z-40",
+            className,
+          )}
         >
           <div className="p-4 border-b border-gray-800 flex items-center justify-between">
             {/* Logo contextuel : produit si menu ouvert, DooDates si menu fermé */}
-            <Link to={config.baseRoute} className="flex items-center gap-2" onClick={handleLinkClick}>
+            <Link
+              to={config.baseRoute}
+              className="flex items-center gap-2"
+              onClick={handleLinkClick}
+            >
               <div className={cn("p-2 rounded-lg", theme.bg)}>
                 <Icon className={cn("w-5 h-5", theme.text)} />
               </div>
@@ -141,7 +163,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
                   isActive(config.listRoute) && location.pathname !== config.baseRoute
                     ? cn(theme.bg, theme.text)
                     : location.pathname === config.baseRoute ||
-                      location.pathname === config.baseRoute + "/"
+                        location.pathname === config.baseRoute + "/"
                       ? cn(theme.bg, theme.text)
                       : "text-gray-400 hover:bg-gray-800 hover:text-white",
                 )}

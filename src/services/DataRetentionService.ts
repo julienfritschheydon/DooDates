@@ -2,7 +2,7 @@ import { toast } from "../hooks/use-toast";
 import { logError } from "../lib/error-handling";
 
 export interface DeletionWarning {
-  type: 'chat' | 'poll' | 'account';
+  type: "chat" | "poll" | "account";
   daysUntilDeletion: number;
   itemCount: number;
   deletionDate: Date;
@@ -11,8 +11,8 @@ export interface DeletionWarning {
 }
 
 export interface RetentionSettings {
-  chatRetention: '30-days' | '12-months' | 'indefinite';
-  pollRetention: '12-months' | '6-years' | 'indefinite';
+  chatRetention: "30-days" | "12-months" | "indefinite";
+  pollRetention: "12-months" | "6-years" | "indefinite";
   autoDeleteEnabled: boolean;
   emailNotifications: boolean;
   allowDataForImprovement?: boolean;
@@ -31,7 +31,10 @@ export class DataRetentionService {
   /**
    * Calcule les suppressions à venir pour un utilisateur
    */
-  async calculateUpcomingDeletions(userId: string, settings: RetentionSettings): Promise<DeletionWarning[]> {
+  async calculateUpcomingDeletions(
+    userId: string,
+    settings: RetentionSettings,
+  ): Promise<DeletionWarning[]> {
     const warnings: DeletionWarning[] = [];
     const now = new Date();
 
@@ -39,41 +42,48 @@ export class DataRetentionService {
     const userData = await this.getUserData(userId);
 
     // Conversations IA
-    if (settings.chatRetention !== 'indefinite' && settings.autoDeleteEnabled) {
+    if (settings.chatRetention !== "indefinite" && settings.autoDeleteEnabled) {
       const retentionDays = this.getRetentionDays(settings.chatRetention);
-      const oldConversations = userData.conversations.filter(conv => {
+      const oldConversations = userData.conversations.filter((conv) => {
         const daysSinceCreation = this.getDaysSince(conv.createdAt);
         return daysSinceCreation > retentionDays - 30; // Alertes 30j avant
       });
 
       if (oldConversations.length > 0) {
         warnings.push({
-          type: 'chat',
-          daysUntilDeletion: Math.max(1, retentionDays - this.getDaysSince(oldConversations[0].createdAt)),
+          type: "chat",
+          daysUntilDeletion: Math.max(
+            1,
+            retentionDays - this.getDaysSince(oldConversations[0].createdAt),
+          ),
           itemCount: oldConversations.length,
-          deletionDate: new Date(oldConversations[0].createdAt.getTime() + (retentionDays * 24 * 60 * 60 * 1000)),
+          deletionDate: new Date(
+            oldConversations[0].createdAt.getTime() + retentionDays * 24 * 60 * 60 * 1000,
+          ),
           userId,
-          userEmail: userData.email
+          userEmail: userData.email,
         });
       }
     }
 
     // Sondages et formulaires
-    if (settings.pollRetention !== 'indefinite' && settings.autoDeleteEnabled) {
+    if (settings.pollRetention !== "indefinite" && settings.autoDeleteEnabled) {
       const retentionDays = this.getRetentionDays(settings.pollRetention);
-      const oldPolls = userData.polls.filter(poll => {
+      const oldPolls = userData.polls.filter((poll) => {
         const daysSinceCreation = this.getDaysSince(poll.createdAt);
         return daysSinceCreation > retentionDays - 30; // Alertes 30j avant
       });
 
       if (oldPolls.length > 0) {
         warnings.push({
-          type: 'poll',
+          type: "poll",
           daysUntilDeletion: Math.max(1, retentionDays - this.getDaysSince(oldPolls[0].createdAt)),
           itemCount: oldPolls.length,
-          deletionDate: new Date(oldPolls[0].createdAt.getTime() + (retentionDays * 24 * 60 * 60 * 1000)),
+          deletionDate: new Date(
+            oldPolls[0].createdAt.getTime() + retentionDays * 24 * 60 * 60 * 1000,
+          ),
           userId,
-          userEmail: userData.email
+          userEmail: userData.email,
         });
       }
     }
@@ -103,14 +113,14 @@ export class DataRetentionService {
     const emailContent = this.generateEmailContent(warning);
 
     // TODO: Implémenter avec vraie fonction d'envoi d'email
-    console.log('ENVOI EMAIL:', {
+    console.log("ENVOI EMAIL:", {
       to: warning.userEmail,
       subject: emailContent.subject,
-      html: emailContent.html
+      html: emailContent.html,
     });
 
     // Simulation de l'envoi
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   /**
@@ -118,8 +128,8 @@ export class DataRetentionService {
    */
   private generateEmailContent(warning: DeletionWarning) {
     const typeLabels = {
-      chat: 'conversations IA',
-      poll: 'sondages et formulaires'
+      chat: "conversations IA",
+      poll: "sondages et formulaires",
     };
 
     const subject = `⚠️ Alerte DooDates : Suppression de vos ${typeLabels[warning.type]} dans ${warning.daysUntilDeletion} jours`;
@@ -150,7 +160,7 @@ export class DataRetentionService {
           <div class="content">
             <div class="alert">
               <h2>⚠️ Action requise : ${warning.daysUntilDeletion} jours restants</h2>
-              <p><strong>${warning.itemCount}</strong> ${typeLabels[warning.type]} seront automatiquement supprimées le <strong>${warning.deletionDate.toLocaleDateString('fr-FR')}</strong>.</p>
+              <p><strong>${warning.itemCount}</strong> ${typeLabels[warning.type]} seront automatiquement supprimées le <strong>${warning.deletionDate.toLocaleDateString("fr-FR")}</strong>.</p>
             </div>
 
             <h3>📋 Que se passe-t-il ?</h3>
@@ -190,13 +200,13 @@ export class DataRetentionService {
   /**
    * Reporte une suppression de 30 jours
    */
-  async postponeDeletion(userId: string, type: 'chat' | 'poll'): Promise<boolean> {
+  async postponeDeletion(userId: string, type: "chat" | "poll"): Promise<boolean> {
     try {
       // TODO: Implémenter avec Supabase
       console.log(`Suppression ${type} reportée de 30 jours pour l'utilisateur ${userId}`);
 
       // Simuler le report
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return true;
     } catch (error) {
@@ -209,7 +219,7 @@ export class DataRetentionService {
    * Planifie l'envoi des alertes email (job quotidien)
    */
   async scheduleDailyWarnings(): Promise<void> {
-    console.log('🔄 Démarrage du job quotidien d\'alertes de suppression...');
+    console.log("🔄 Démarrage du job quotidien d'alertes de suppression...");
 
     // TODO: Récupérer tous les utilisateurs avec suppression automatique activée
     const users = await this.getActiveUsers();
@@ -218,7 +228,7 @@ export class DataRetentionService {
       const settings = await this.getUserSettings(user.id);
       if (settings.autoDeleteEnabled && settings.emailNotifications) {
         const warnings = await this.calculateUpcomingDeletions(user.id, settings);
-        const imminentWarnings = warnings.filter(w => w.daysUntilDeletion <= 30);
+        const imminentWarnings = warnings.filter((w) => w.daysUntilDeletion <= 30);
 
         if (imminentWarnings.length > 0) {
           await this.sendDeletionWarnings(imminentWarnings);
@@ -247,32 +257,30 @@ export class DataRetentionService {
   private async getUserData(userId: string) {
     // TODO: Implémenter avec Supabase
     return {
-      email: 'user@example.com',
+      email: "user@example.com",
       conversations: [
-        { id: '1', createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
-        { id: '2', createdAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) }
+        { id: "1", createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+        { id: "2", createdAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000) },
       ],
-      polls: [
-        { id: '1', createdAt: new Date(Date.now() - 350 * 24 * 60 * 60 * 1000) }
-      ]
+      polls: [{ id: "1", createdAt: new Date(Date.now() - 350 * 24 * 60 * 60 * 1000) }],
     };
   }
 
   private async getUserSettings(userId: string): Promise<RetentionSettings> {
     // TODO: Implémenter avec Supabase
     return {
-      chatRetention: '30-days',
-      pollRetention: '12-months',
+      chatRetention: "30-days",
+      pollRetention: "12-months",
       autoDeleteEnabled: true,
-      emailNotifications: true
+      emailNotifications: true,
     };
   }
 
   private async getActiveUsers() {
     // TODO: Implémenter avec Supabase
     return [
-      { id: 'user1', email: 'user1@example.com' },
-      { id: 'user2', email: 'user2@example.com' }
+      { id: "user1", email: "user1@example.com" },
+      { id: "user2", email: "user2@example.com" },
     ];
   }
 }

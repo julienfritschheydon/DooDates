@@ -126,7 +126,9 @@ const AvailabilityPollVote = () => {
           if (updatedPoll.proposedSlots && updatedPoll.proposedSlots.length > 0) {
             setPollState(updatedPoll);
           }
-          setClosureReason(getPollClosureReason(updatedPoll, updatedPoll.clientAvailabilities ? 1 : 0));
+          setClosureReason(
+            getPollClosureReason(updatedPoll, updatedPoll.clientAvailabilities ? 1 : 0),
+          );
         }
       }, 2000);
       return () => clearInterval(interval);
@@ -200,7 +202,10 @@ const AvailabilityPollVote = () => {
             </div>
             <h2 className="text-2xl font-bold mb-3">{info.title}</h2>
             <p className="text-gray-400 mb-8">{info.message}</p>
-            <Button onClick={() => navigate("/")} className="w-full bg-green-600 hover:bg-green-700 text-white">
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
               C'est compris
             </Button>
           </CardContent>
@@ -458,9 +463,9 @@ const AvailabilityPollVote = () => {
   if (validatedSlot || (pollState && pollState.validatedSlot)) {
     const slot = validatedSlot
       ? pollState?.proposedSlots?.find(
-        (s: { date: string; start: string; end: string }) =>
-          `${s.date}-${s.start}-${s.end}` === validatedSlot,
-      )
+          (s: { date: string; start: string; end: string }) =>
+            `${s.date}-${s.start}-${s.end}` === validatedSlot,
+        )
       : pollState?.validatedSlot;
 
     return (

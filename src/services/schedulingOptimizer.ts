@@ -398,9 +398,9 @@ export async function optimizeSchedule(
   const availabilitiesByDate: ParsedAvailability[] = hasDates
     ? (parsedAvailabilities as ParsedAvailability[])
     : convertDaysToDates(
-      parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
-      4,
-    );
+        parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
+        4,
+      );
 
   if (availabilitiesByDate.length === 0) {
     logger.warn("Aucune disponibilité trouvée", "api");

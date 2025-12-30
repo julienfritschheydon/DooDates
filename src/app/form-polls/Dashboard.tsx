@@ -7,7 +7,7 @@ const FormPollsDashboard: React.FC = () => {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar auto-suffisante avec son hamburger */}
       <ProductSidebar productType="form" />
-      
+
       {/* Contenu principal */}
       <div className="flex-1">
         <ProductDashboard productType="form" />

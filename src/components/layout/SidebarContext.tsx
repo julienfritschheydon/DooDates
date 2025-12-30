@@ -35,10 +35,10 @@ export const useSidebar = () => {
     // This allows components to work even if not wrapped in SidebarProvider
     return {
       isOpen: false,
-      toggle: () => { },
-      close: () => { },
-      open: () => { },
-      setIsOpen: () => { },
+      toggle: () => {},
+      close: () => {},
+      open: () => {},
+      setIsOpen: () => {},
     };
   }
   return context;

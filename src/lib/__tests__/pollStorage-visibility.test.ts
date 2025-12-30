@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   getCurrentUserId,
@@ -64,7 +63,7 @@ describe("Poll Storage Helpers - Visibility Features", () => {
         updated_at: new Date().toISOString(),
         creator_id: "creator",
         questions: [],
-        status: "active"
+        status: "active",
       });
 
       const currentDeviceId = getDeviceId();
@@ -97,7 +96,7 @@ describe("Poll Storage Helpers - Visibility Features", () => {
         updated_at: new Date().toISOString(),
         creator_id: "creator",
         questions: [],
-        status: "active"
+        status: "active",
       });
 
       const currentDeviceId = getDeviceId(); // Force generation/cache
@@ -165,7 +164,7 @@ describe("Poll Storage Helpers - Visibility Features", () => {
         updated_at: new Date().toISOString(),
         creator_id: "creator",
         questions: [],
-        status: "active"
+        status: "active",
       });
 
       const currentDeviceId = getDeviceId();

@@ -68,7 +68,6 @@ export const LandingPage: React.FC = () => {
 
       {/* Contenu principal */}
       <div className="flex-1 text-white overflow-hidden">
-
         {/* Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
           {/* Dot pattern */}
@@ -102,8 +101,9 @@ export const LandingPage: React.FC = () => {
         <section className={cn("relative z-10 pb-32", sidebarOpen ? "pt-20" : "pt-6")}>
           <div className="max-w-6xl mx-auto px-6">
             <div
-              className={`transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                }`}
+              className={`transition-all duration-700 ${
+                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
             >
               {/* Badge */}
               <div className="flex justify-center mb-8">
@@ -146,8 +146,9 @@ export const LandingPage: React.FC = () => {
 
             {/* Visual Preview - Weekly Grid */}
             <div
-              className={`mt-20 transition-all duration-1000 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-                }`}
+              className={`mt-20 transition-all duration-1000 delay-300 ${
+                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              }`}
             >
               <div className="relative mx-auto max-w-5xl">
                 <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent z-10 pointer-events-none" />
@@ -162,32 +163,35 @@ export const LandingPage: React.FC = () => {
                       </div>
                     ))}
                     {/* Time slots */}
-                    {["9h", "10h", "11h", "12h", "14h", "15h", "16h", "17h"].map((time, timeIdx) => (
-                      <React.Fragment key={time}>
-                        <div className="text-xs text-gray-400 flex items-center">{time}</div>
-                        {[0, 1, 2, 3, 4, 5, 6].map((dayIdx) => {
-                          // Simulated availability data
-                          const isAvailable =
-                            (timeIdx < 4 && dayIdx < 5) || // Morning weekdays
-                            (timeIdx >= 4 && dayIdx >= 1 && dayIdx <= 3); // Afternoon Tue-Thu
-                          const isOverlap =
-                            (timeIdx === 2 && dayIdx === 2) ||
-                            (timeIdx === 3 && dayIdx === 2) ||
-                            (timeIdx === 4 && dayIdx === 2);
-                          return (
-                            <div
-                              key={`${time}-${dayIdx}`}
-                              className={`h-8 rounded transition-all ${isOverlap
-                                  ? "bg-emerald-500/40 border border-emerald-500"
-                                  : isAvailable
-                                    ? "bg-emerald-500/15"
-                                    : "bg-white/[0.02]"
+                    {["9h", "10h", "11h", "12h", "14h", "15h", "16h", "17h"].map(
+                      (time, timeIdx) => (
+                        <React.Fragment key={time}>
+                          <div className="text-xs text-gray-400 flex items-center">{time}</div>
+                          {[0, 1, 2, 3, 4, 5, 6].map((dayIdx) => {
+                            // Simulated availability data
+                            const isAvailable =
+                              (timeIdx < 4 && dayIdx < 5) || // Morning weekdays
+                              (timeIdx >= 4 && dayIdx >= 1 && dayIdx <= 3); // Afternoon Tue-Thu
+                            const isOverlap =
+                              (timeIdx === 2 && dayIdx === 2) ||
+                              (timeIdx === 3 && dayIdx === 2) ||
+                              (timeIdx === 4 && dayIdx === 2);
+                            return (
+                              <div
+                                key={`${time}-${dayIdx}`}
+                                className={`h-8 rounded transition-all ${
+                                  isOverlap
+                                    ? "bg-emerald-500/40 border border-emerald-500"
+                                    : isAvailable
+                                      ? "bg-emerald-500/15"
+                                      : "bg-white/[0.02]"
                                 }`}
-                            />
-                          );
-                        })}
-                      </React.Fragment>
-                    ))}
+                              />
+                            );
+                          })}
+                        </React.Fragment>
+                      ),
+                    )}
                   </div>
                   {/* Legend */}
                   <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-white/5">
@@ -241,8 +245,9 @@ export const LandingPage: React.FC = () => {
               ].map((feature, i) => (
                 <div
                   key={feature.title}
-                  className={`group p-6 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-500 ${featureVisible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                    }`}
+                  className={`group p-6 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-500 ${
+                    featureVisible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                  }`}
                   style={{ transitionDelay: `${i * 100}ms` }}
                 >
                   <div

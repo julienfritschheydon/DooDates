@@ -484,9 +484,7 @@ Réponds UNIQUEMENT en JSON:
             <>
               <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-gray-800 mb-2">Quiz clôturé</h1>
-              <p className="text-gray-600 mb-6">
-                Ce quiz n'accepte plus de réponses.
-              </p>
+              <p className="text-gray-600 mb-6">Ce quiz n'accepte plus de réponses.</p>
             </>
           )}
 

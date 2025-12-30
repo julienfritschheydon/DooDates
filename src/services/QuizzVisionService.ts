@@ -140,7 +140,8 @@ class QuizzVisionService {
       logger.warn("🔍 Extraction fichier (vision) - Clé API Gemini non configurée", "api");
       return {
         success: false,
-        error: "Pour analyser un fichier (photo ou PDF), configurez VITE_GEMINI_API_KEY dans .env.local",
+        error:
+          "Pour analyser un fichier (photo ou PDF), configurez VITE_GEMINI_API_KEY dans .env.local",
       };
     }
 

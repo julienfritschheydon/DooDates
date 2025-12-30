@@ -1,6 +1,6 @@
-import React from 'react';
-import { Lock, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Lock, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ResultsAccessDeniedProps {
   message: string;
@@ -8,7 +8,11 @@ interface ResultsAccessDeniedProps {
   showVoteButton?: boolean;
 }
 
-export function ResultsAccessDenied({ message, pollSlug, showVoteButton = false }: ResultsAccessDeniedProps) {
+export function ResultsAccessDenied({
+  message,
+  pollSlug,
+  showVoteButton = false,
+}: ResultsAccessDeniedProps) {
   const navigate = useNavigate();
 
   return (
@@ -23,14 +27,10 @@ export function ResultsAccessDenied({ message, pollSlug, showVoteButton = false 
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-semibold text-white mb-2">
-            Accès restreint
-          </h2>
+          <h2 className="text-xl font-semibold text-white mb-2">Accès restreint</h2>
 
           {/* Message */}
-          <p className="text-gray-400 mb-6">
-            {message}
-          </p>
+          <p className="text-gray-400 mb-6">{message}</p>
 
           {/* Actions */}
           <div className="flex flex-col gap-3">
@@ -42,7 +42,7 @@ export function ResultsAccessDenied({ message, pollSlug, showVoteButton = false 
                 Voter maintenant
               </button>
             )}
-            
+
             <button
               onClick={() => navigate(-1)}
               className="w-full px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"

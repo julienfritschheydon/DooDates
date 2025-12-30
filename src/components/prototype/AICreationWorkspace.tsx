@@ -564,15 +564,17 @@ export function AICreationWorkspace({
       <div
         className={`flex flex-col h-screen bg-[#1e1e1e] ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
       >
-
-        
         {/* Contenu principal - Chat et Créateur côte à côte */}
         <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>
           {/* Chat principal - Zone gauche (Masqué pour availability) */}
           {pollTypeForComponents !== "availability" && (
             <div
               className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 ${
-                isMobile ? (showManualEditorOnMobile ? "hidden" : "w-full flex-1") : "w-1/2 min-w-[300px]"
+                isMobile
+                  ? showManualEditorOnMobile
+                    ? "hidden"
+                    : "w-full flex-1"
+                  : "w-1/2 min-w-[300px]"
               }`}
             >
               {/* Toggle Chat/Preview sur mobile */}

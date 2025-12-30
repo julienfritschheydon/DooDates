@@ -261,12 +261,13 @@ export function WeeklyTimeSlotsGrid({
                     // Dans v1.0, on pourra changer la granularité dynamiquement
                   }}
                   disabled={!isCompatible || option.value !== timeGranularity}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${timeGranularity === option.value
-                    ? "bg-blue-500 text-white"
-                    : isCompatible
-                      ? "bg-[#1e1e1e] border border-gray-700 hover:border-blue-500 text-white"
-                      : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
-                    }`}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    timeGranularity === option.value
+                      ? "bg-blue-500 text-white"
+                      : isCompatible
+                        ? "bg-[#1e1e1e] border border-gray-700 hover:border-blue-500 text-white"
+                        : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
+                  }`}
                 >
                   {option.label}
                 </button>
@@ -314,9 +315,9 @@ export function WeeklyTimeSlotsGrid({
                   const currentBlock = blocks.find(
                     (block) =>
                       timeSlot.hour * 60 + timeSlot.minute >=
-                      block.start.hour * 60 + block.start.minute &&
+                        block.start.hour * 60 + block.start.minute &&
                       timeSlot.hour * 60 + timeSlot.minute <=
-                      block.end.hour * 60 + block.end.minute,
+                        block.end.hour * 60 + block.end.minute,
                   );
                   const isBlockStart = blocks.some(
                     (block) =>
@@ -329,7 +330,7 @@ export function WeeklyTimeSlotsGrid({
                       (timeSlot.hour * 60 + timeSlot.minute <
                         currentBlock.end.hour * 60 + currentBlock.end.minute &&
                         timeSlot.hour * 60 + timeSlot.minute + timeGranularity >=
-                        currentBlock.end.hour * 60 + currentBlock.end.minute));
+                          currentBlock.end.hour * 60 + currentBlock.end.minute));
                   const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
                   const slotKey = formatSlotKey({
                     day: day.value,
@@ -361,21 +362,24 @@ export function WeeklyTimeSlotsGrid({
                         }
                       }}
                       onPointerUp={handleDragEnd}
-                      className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700 ${isSlotDraggedOver
-                        ? "bg-green-500/50 border-2 border-green-400"
-                        : slot?.enabled
-                          ? "bg-green-900/30"
-                          : "bg-[#1e1e1e]"
-                        } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
+                      className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700 ${
+                        isSlotDraggedOver
+                          ? "bg-green-500/50 border-2 border-green-400"
+                          : slot?.enabled
+                            ? "bg-green-900/30"
+                            : "bg-[#1e1e1e]"
+                      } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
                       style={{ touchAction: "none" }}
                     >
                       {slot?.enabled && (
                         <div
-                          className={`absolute bg-green-500 transition-all ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""
-                            } ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""} ${isBlockEnd && !isBlockStart
+                          className={`absolute bg-green-500 transition-all ${
+                            isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""
+                          } ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""} ${
+                            isBlockEnd && !isBlockStart
                               ? "inset-x-1 bottom-1 top-0 rounded-b-lg"
                               : ""
-                            } ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}`}
+                          } ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}`}
                         >
                           {isBlockStart && currentBlock && (
                             <div className="absolute top-0.5 left-0.5 right-0.5">
@@ -442,9 +446,9 @@ export function WeeklyTimeSlotsGrid({
                   const currentBlock = blocks.find(
                     (block) =>
                       timeSlot.hour * 60 + timeSlot.minute >=
-                      block.start.hour * 60 + block.start.minute &&
+                        block.start.hour * 60 + block.start.minute &&
                       timeSlot.hour * 60 + timeSlot.minute <=
-                      block.end.hour * 60 + block.end.minute,
+                        block.end.hour * 60 + block.end.minute,
                   );
                   const isBlockStart = blocks.some(
                     (block) =>
@@ -457,7 +461,7 @@ export function WeeklyTimeSlotsGrid({
                       (timeSlot.hour * 60 + timeSlot.minute <
                         currentBlock.end.hour * 60 + currentBlock.end.minute &&
                         timeSlot.hour * 60 + timeSlot.minute + timeGranularity >=
-                        currentBlock.end.hour * 60 + currentBlock.end.minute));
+                          currentBlock.end.hour * 60 + currentBlock.end.minute));
                   const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
                   const slotKey = formatSlotKey({
                     day: day.value,
@@ -489,21 +493,24 @@ export function WeeklyTimeSlotsGrid({
                         }
                       }}
                       onPointerUp={handleDragEnd}
-                      className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700 ${isSlotDraggedOver
-                        ? "bg-green-500/50 border-2 border-green-400"
-                        : slot?.enabled
-                          ? "bg-green-900/30"
-                          : "bg-[#1e1e1e]"
-                        } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
+                      className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700 ${
+                        isSlotDraggedOver
+                          ? "bg-green-500/50 border-2 border-green-400"
+                          : slot?.enabled
+                            ? "bg-green-900/30"
+                            : "bg-[#1e1e1e]"
+                      } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
                       style={{ touchAction: "none" }}
                     >
                       {slot?.enabled && (
                         <div
-                          className={`absolute bg-green-500 transition-all ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""
-                            } ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""} ${isBlockEnd && !isBlockStart
+                          className={`absolute bg-green-500 transition-all ${
+                            isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""
+                          } ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""} ${
+                            isBlockEnd && !isBlockStart
                               ? "inset-x-1 bottom-1 top-0 rounded-b-lg"
                               : ""
-                            } ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}`}
+                          } ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}`}
                         >
                           {isBlockStart && currentBlock && (
                             <div className="absolute top-0.5 left-0.5 right-0.5">

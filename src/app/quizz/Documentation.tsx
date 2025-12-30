@@ -1,14 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  Camera,
-  Mic,
-  Trophy,
-  Sparkles,
-  CheckCircle2,
-  HelpCircle,
-  BookOpen,
-} from "lucide-react";
+import { Camera, Mic, Trophy, Sparkles, CheckCircle2, HelpCircle, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 
 /**
@@ -222,11 +214,13 @@ export default function QuizzDocumentation() {
           </h2>
           <div className="space-y-6">
             <div>
-              <h4 className="font-medium mb-2">Comment fonctionne l'extraction depuis un fichier ?</h4>
+              <h4 className="font-medium mb-2">
+                Comment fonctionne l'extraction depuis un fichier ?
+              </h4>
               <p className="text-sm text-gray-300">
-                L'IA Gemini Vision analyse votre fichier (photo ou PDF scanné) et en extrait le texte
-                visible. Elle identifie les exercices et les transforme en questions pédagogiques
-                adaptées.
+                L'IA Gemini Vision analyse votre fichier (photo ou PDF scanné) et en extrait le
+                texte visible. Elle identifie les exercices et les transforme en questions
+                pédagogiques adaptées.
               </p>
             </div>
             <div>
@@ -287,4 +281,3 @@ export default function QuizzDocumentation() {
     </div>
   );
 }
-

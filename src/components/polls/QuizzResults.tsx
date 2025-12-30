@@ -57,7 +57,7 @@ export default function QuizzResults() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [selectedChild, setSelectedChild] = useState<string>("");
-  
+
   // Vérifier si l'utilisateur a répondu au quizz (pour contrôle d'accès)
   const hasVoted = useMemo(() => {
     if (!quizz || !results) return false;
@@ -67,7 +67,7 @@ export default function QuizzResults() {
     }
     return false;
   }, [quizz, results, user]);
-  
+
   // Vérifier l'accès aux résultats
   const accessStatus = useResultsAccess(quizz as any, hasVoted);
 
@@ -222,14 +222,14 @@ export default function QuizzResults() {
       </div>
     );
   }
-  
+
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
     return (
       <ResultsAccessDenied
         message={accessStatus.message}
         pollSlug={quizz.slug}
-        showVoteButton={accessStatus.reason === 'not-voted'}
+        showVoteButton={accessStatus.reason === "not-voted"}
       />
     );
   }

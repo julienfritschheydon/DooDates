@@ -27,7 +27,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 // Mock savePolls function
 vi.mock("@/lib/pollStorage", async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     savePolls: vi.fn(),
@@ -48,12 +48,8 @@ describe("FormPollCreator - resultsVisibility", () => {
   it("should initialize with creator-only visibility by default", async () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Check that creator-only radio is selected by default
@@ -73,7 +69,7 @@ describe("FormPollCreator - resultsVisibility", () => {
           onFinalize={mockOnFinalize}
           onCancel={mockOnCancel}
         />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Verify voters is selected
@@ -87,12 +83,8 @@ describe("FormPollCreator - resultsVisibility", () => {
   it("should update resultsVisibility when radio buttons are clicked", async () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Initially creator-only should be selected
@@ -112,12 +104,8 @@ describe("FormPollCreator - resultsVisibility", () => {
   it("should include resultsVisibility in draft when onSave is called", async () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Change visibility to voters
@@ -134,19 +122,15 @@ describe("FormPollCreator - resultsVisibility", () => {
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
         resultsVisibility: "voters",
-      })
+      }),
     );
   });
 
   it("should include resultsVisibility in draft when onFinalize is called", async () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Change visibility to public
@@ -169,19 +153,15 @@ describe("FormPollCreator - resultsVisibility", () => {
       expect.objectContaining({
         resultsVisibility: "public",
       }),
-      expect.any(Object) // savedPoll is now an object after creation
+      expect.any(Object), // savedPoll is now an object after creation
     );
   });
 
   it("should show configuration panel when resultsVisibility options are displayed", async () => {
     render(
       <TestWrapper>
-        <FormPollCreator
-          onSave={mockOnSave}
-          onFinalize={mockOnFinalize}
-          onCancel={mockOnCancel}
-        />
-      </TestWrapper>
+        <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
+      </TestWrapper>,
     );
 
     // Look for the results visibility section
@@ -202,7 +182,7 @@ describe("FormPollCreator - resultsVisibility", () => {
           onFinalize={mockOnFinalize}
           onCancel={mockOnCancel}
         />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Verify initial state

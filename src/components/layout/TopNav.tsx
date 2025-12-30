@@ -8,14 +8,16 @@ interface TopNavProps {
   className?: string;
 }
 
-export const TopNav: React.FC<TopNavProps> = ({
-  onMenuOpen,
-  className,
-}) => {
+export const TopNav: React.FC<TopNavProps> = ({ onMenuOpen, className }) => {
   const location = useLocation();
 
   return (
-    <nav className={cn("h-14 bg-[#1a1a1a] border-b border-gray-800 flex items-center justify-between px-4", className)}>
+    <nav
+      className={cn(
+        "h-14 bg-[#1a1a1a] border-b border-gray-800 flex items-center justify-between px-4",
+        className,
+      )}
+    >
       {/* Logo DooDates à gauche + bouton menu */}
       <div className="flex items-center gap-3">
         {/* Bouton menu - visible uniquement sur mobile */}
@@ -28,7 +30,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             <Menu className="w-5 h-5" />
           </button>
         )}
-        
+
         {/* Logo DooDates */}
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">

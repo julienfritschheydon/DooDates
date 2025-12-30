@@ -710,7 +710,7 @@ export class GeminiService {
    */
   async generateWithPrompt(fullPrompt: string): Promise<string | null> {
     try {
-      const response = await geminiBackend.generateContent('', fullPrompt);
+      const response = await geminiBackend.generateContent("", fullPrompt);
 
       if (!response.success || !response.data) {
         logger.warn("Content generation failed", "api", { error: response.error });

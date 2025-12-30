@@ -8,10 +8,7 @@ interface ProductLandingProps {
   children: React.ReactNode;
 }
 
-export const ProductLanding: React.FC<ProductLandingProps> = ({
-  productType,
-  children,
-}) => {
+export const ProductLanding: React.FC<ProductLandingProps> = ({ productType, children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true); // Menu ouvert par défaut
 
   const handleMenuToggle = () => {
@@ -21,10 +18,8 @@ export const ProductLanding: React.FC<ProductLandingProps> = ({
   return (
     <div className="flex min-h-screen bg-[#030712]">
       {/* Sidebar - conditionnel selon l'état */}
-      {sidebarOpen && (
-        <ProductSidebar productType={productType} onClose={handleMenuToggle} />
-      )}
-      
+      {sidebarOpen && <ProductSidebar productType={productType} onClose={handleMenuToggle} />}
+
       {/* Main Content */}
       <div className="flex-1 text-white overflow-hidden">
         {/* Hamburger permanent - toggle ouvrir/fermer */}
@@ -37,7 +32,7 @@ export const ProductLanding: React.FC<ProductLandingProps> = ({
             <Menu className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Contenu de la landing page */}
         {children}
       </div>

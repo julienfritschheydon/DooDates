@@ -52,7 +52,7 @@ const AvailabilityPollResults = () => {
   const [optimizedSlots, setOptimizedSlots] = useState<ProposedSlot[]>([]);
   const { user } = useAuth();
   const calendarService = useMemo(() => (user ? new GoogleCalendarService() : undefined), [user]);
-  
+
   // Vérifier l'accès aux résultats (hasVoted = true car c'est le créateur qui propose les slots)
   const accessStatus = useResultsAccess(poll, true);
 
@@ -160,14 +160,14 @@ const AvailabilityPollResults = () => {
       </div>
     );
   }
-  
+
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
     return (
       <ResultsAccessDenied
         message={accessStatus.message}
         pollSlug={poll.slug}
-        showVoteButton={accessStatus.reason === 'not-voted'}
+        showVoteButton={accessStatus.reason === "not-voted"}
       />
     );
   }

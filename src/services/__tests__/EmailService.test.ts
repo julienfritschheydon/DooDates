@@ -1,54 +1,52 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { sendVoteConfirmationEmail } from '../EmailService';
-import type { Poll, FormResponse, FormQuestionShape } from '@/lib/pollStorage';
+import { describe, test, expect, vi, beforeEach } from "vitest";
+import { sendVoteConfirmationEmail } from "../EmailService";
+import type { Poll, FormResponse, FormQuestionShape } from "@/lib/pollStorage";
 
 // Mock window.location pour les tests
-Object.defineProperty(window, 'location', {
+Object.defineProperty(window, "location", {
   value: {
-    origin: 'http://localhost:3000'
+    origin: "http://localhost:3000",
   },
   writable: true,
 });
 
 // Mock console.log to capture email output
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 beforeEach(() => {
   consoleLogSpy.mockClear();
 });
 
-describe('EmailService', () => {
+describe("EmailService", () => {
   const mockPoll: Poll = {
-    id: 'poll-1',
-    slug: 'test-poll',
-    title: 'Test Poll',
-    type: 'form',
-    status: 'active',
+    id: "poll-1",
+    slug: "test-poll",
+    title: "Test Poll",
+    type: "form",
+    status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    creator_id: 'user-123',
+    creator_id: "user-123",
     questions: [],
   };
 
   const mockResponse: FormResponse = {
-    id: 'response-1',
-    pollId: 'poll-1',
-    respondentName: 'Test User',
-    respondentEmail: 'test@example.com',
-    items: [
-      { questionId: 'q1', value: 'Réponse test' }
-    ],
+    id: "response-1",
+    pollId: "poll-1",
+    respondentName: "Test User",
+    respondentEmail: "test@example.com",
+    items: [{ questionId: "q1", value: "Réponse test" }],
     created_at: new Date().toISOString(),
   };
 
-  test('envoie email de confirmation avec données valides', async () => {
+  test("envoie email de confirmation avec données valides", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question test',
-        kind: 'text',
+        id: "q1",
+        title: "Question test",
+        kind: "text",
         required: true,
-      }
+      },
     ];
 
     await sendVoteConfirmationEmail({
@@ -57,28 +55,26 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Question test'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Question test"),
     });
   });
 
-  test('génère HTML correct pour question texte', async () => {
+  test("génère HTML correct pour question texte", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question texte',
-        kind: 'text',
+        id: "q1",
+        title: "Question texte",
+        kind: "text",
         required: true,
-      }
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
-      items: [
-        { questionId: 'q1', value: 'Réponse texte' }
-      ]
+      items: [{ questionId: "q1", value: "Réponse texte" }],
     };
 
     await sendVoteConfirmationEmail({
@@ -87,32 +83,30 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Réponse texte'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Réponse texte"),
     });
   });
 
-  test('génère HTML correct pour question choix unique', async () => {
+  test("génère HTML correct pour question choix unique", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question choix unique',
-        kind: 'single',
+        id: "q1",
+        title: "Question choix unique",
+        kind: "single",
         required: true,
         options: [
-          { id: 'opt1', label: 'Option A' },
-          { id: 'opt2', label: 'Option B' },
-        ]
-      }
+          { id: "opt1", label: "Option A" },
+          { id: "opt2", label: "Option B" },
+        ],
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
-      items: [
-        { questionId: 'q1', value: 'opt2' }
-      ]
+      items: [{ questionId: "q1", value: "opt2" }],
     };
 
     await sendVoteConfirmationEmail({
@@ -121,33 +115,31 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Option B'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Option B"),
     });
   });
 
-  test('génère HTML correct pour question choix multiple', async () => {
+  test("génère HTML correct pour question choix multiple", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question choix multiple',
-        kind: 'multiple',
+        id: "q1",
+        title: "Question choix multiple",
+        kind: "multiple",
         required: true,
         options: [
-          { id: 'opt1', label: 'Option A' },
-          { id: 'opt2', label: 'Option B' },
-          { id: 'opt3', label: 'Option C' },
-        ]
-      }
+          { id: "opt1", label: "Option A" },
+          { id: "opt2", label: "Option B" },
+          { id: "opt3", label: "Option C" },
+        ],
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
-      items: [
-        { questionId: 'q1', value: ['opt1', 'opt3'] }
-      ]
+      items: [{ questionId: "q1", value: ["opt1", "opt3"] }],
     };
 
     await sendVoteConfirmationEmail({
@@ -156,29 +148,27 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Option A, Option C'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Option A, Option C"),
     });
   });
 
-  test('génère HTML correct pour question rating', async () => {
+  test("génère HTML correct pour question rating", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question rating',
-        kind: 'rating',
+        id: "q1",
+        title: "Question rating",
+        kind: "rating",
         required: true,
         ratingScale: 5,
-      }
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
-      items: [
-        { questionId: 'q1', value: 4 }
-      ]
+      items: [{ questionId: "q1", value: 4 }],
     };
 
     await sendVoteConfirmationEmail({
@@ -187,28 +177,26 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('4/5'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("4/5"),
     });
   });
 
-  test('génère HTML correct pour question NPS', async () => {
+  test("génère HTML correct pour question NPS", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question NPS',
-        kind: 'nps',
+        id: "q1",
+        title: "Question NPS",
+        kind: "nps",
         required: true,
-      }
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
-      items: [
-        { questionId: 'q1', value: 8 }
-      ]
+      items: [{ questionId: "q1", value: 8 }],
     };
 
     await sendVoteConfirmationEmail({
@@ -217,44 +205,44 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('8/10'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("8/10"),
     });
   });
 
-  test('génère HTML correct pour question matrix (single)', async () => {
+  test("génère HTML correct pour question matrix (single)", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question matrix',
-        kind: 'matrix',
+        id: "q1",
+        title: "Question matrix",
+        kind: "matrix",
         required: true,
         matrixRows: [
-          { id: 'row1', label: 'Aspect 1' },
-          { id: 'row2', label: 'Aspect 2' },
+          { id: "row1", label: "Aspect 1" },
+          { id: "row2", label: "Aspect 2" },
         ],
         matrixColumns: [
-          { id: 'col1', label: 'Pas du tout' },
-          { id: 'col2', label: 'Moyennement' },
-          { id: 'col3', label: 'Beaucoup' },
+          { id: "col1", label: "Pas du tout" },
+          { id: "col2", label: "Moyennement" },
+          { id: "col3", label: "Beaucoup" },
         ],
-        matrixType: 'single',
-      }
+        matrixType: "single",
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
       items: [
-        { 
-          questionId: 'q1', 
+        {
+          questionId: "q1",
           value: {
-            'row1': 'col2',
-            'row2': 'col3'
-          }
-        }
-      ]
+            row1: "col2",
+            row2: "col3",
+          },
+        },
+      ],
     };
 
     await sendVoteConfirmationEmail({
@@ -263,42 +251,40 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Aspect 1: Moyennement'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Aspect 1: Moyennement"),
     });
   });
 
-  test('génère HTML correct pour question matrix (multiple)', async () => {
+  test("génère HTML correct pour question matrix (multiple)", async () => {
     const questions: FormQuestionShape[] = [
       {
-        id: 'q1',
-        title: 'Question matrix multiple',
-        kind: 'matrix',
+        id: "q1",
+        title: "Question matrix multiple",
+        kind: "matrix",
         required: true,
-        matrixRows: [
-          { id: 'row1', label: 'Aspect 1' },
-        ],
+        matrixRows: [{ id: "row1", label: "Aspect 1" }],
         matrixColumns: [
-          { id: 'col1', label: 'Option A' },
-          { id: 'col2', label: 'Option B' },
-          { id: 'col3', label: 'Option C' },
+          { id: "col1", label: "Option A" },
+          { id: "col2", label: "Option B" },
+          { id: "col3", label: "Option C" },
         ],
-        matrixType: 'multiple',
-      }
+        matrixType: "multiple",
+      },
     ];
 
     const responseWithAnswer: FormResponse = {
       ...mockResponse,
       items: [
-        { 
-          questionId: 'q1', 
+        {
+          questionId: "q1",
           value: {
-            'row1': ['col1', 'col3']
-          }
-        }
-      ]
+            row1: ["col1", "col3"],
+          },
+        },
+      ],
     };
 
     await sendVoteConfirmationEmail({
@@ -307,17 +293,17 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Aspect 1: Option A, Option C'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Aspect 1: Option A, Option C"),
     });
   });
 
   test('affiche "Anonyme" si respondentName est vide', async () => {
     const anonymousResponse: FormResponse = {
       ...mockResponse,
-      respondentName: '',
+      respondentName: "",
     };
 
     const questions: FormQuestionShape[] = [];
@@ -328,14 +314,14 @@ describe('EmailService', () => {
       questions,
     });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('📧 Email à envoyer:', {
-      to: 'test@example.com',
-      subject: 'Vos réponses : Test Poll',
-      html: expect.stringContaining('Anonyme'),
+    expect(consoleLogSpy).toHaveBeenCalledWith("📧 Email à envoyer:", {
+      to: "test@example.com",
+      subject: "Vos réponses : Test Poll",
+      html: expect.stringContaining("Anonyme"),
     });
   });
 
-  test('lance une erreur si respondentEmail est manquant', async () => {
+  test("lance une erreur si respondentEmail est manquant", async () => {
     const responseWithoutEmail: FormResponse = {
       ...mockResponse,
       respondentEmail: undefined,
@@ -346,7 +332,7 @@ describe('EmailService', () => {
         poll: mockPoll,
         response: responseWithoutEmail,
         questions: [],
-      })
-    ).rejects.toThrow('Email du votant manquant');
+      }),
+    ).rejects.toThrow("Email du votant manquant");
   });
 });

@@ -134,7 +134,7 @@ describe("GeminiChatInterface - Freemium Workflow Integration", () => {
 
   const renderComponent = () => {
     return render(
-      <MemoryRouter initialEntries={['/workspace/date']}>
+      <MemoryRouter initialEntries={["/workspace/date"]}>
         <QueryClientProvider client={queryClient}>
           <ConversationStateProvider>
             <EditorStateProvider>

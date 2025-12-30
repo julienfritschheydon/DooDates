@@ -58,15 +58,21 @@ export default function DatePollsPricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">5 sondages par mois</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    5 sondages par mois
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Jusqu'à 10 participants</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Jusqu'à 10 participants
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Créneaux horaires basiques</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Créneaux horaires basiques
+                  </span>
                 </li>
               </ul>
               <ProductButton
@@ -92,23 +98,33 @@ export default function DatePollsPricing() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Sondages illimités</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Sondages illimités
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Participants illimités</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Participants illimités
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Créneaux horaires avancés</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Créneaux horaires avancés
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Intégration calendrier</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Intégration calendrier
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-200 font-medium tracking-wide">Support prioritaire</span>
+                  <span className="text-gray-200 font-medium tracking-wide">
+                    Support prioritaire
+                  </span>
                 </li>
               </ul>
               <ProductButton

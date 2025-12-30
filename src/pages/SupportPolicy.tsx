@@ -31,9 +31,7 @@ export const SupportPolicy: React.FC = () => {
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               DooDates s'engage à fournir un support de qualité à tous ses utilisateurs.
             </p>
-            <div className="mt-6 text-sm text-gray-500">
-              Dernière mise à jour : Janvier 2026
-            </div>
+            <div className="mt-6 text-sm text-gray-500">Dernière mise à jour : Janvier 2026</div>
           </div>
 
           {/* Contact Support */}
@@ -70,8 +68,12 @@ export const SupportPolicy: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-white mb-2">Support In-App</h3>
                   <ul className="list-disc list-inside text-gray-300 space-y-1">
-                    <li>Page d'aide : <code className="bg-gray-900 px-2 py-1 rounded">/help</code></li>
-                    <li>Feedback : <code className="bg-gray-900 px-2 py-1 rounded">/feedback</code></li>
+                    <li>
+                      Page d'aide : <code className="bg-gray-900 px-2 py-1 rounded">/help</code>
+                    </li>
+                    <li>
+                      Feedback : <code className="bg-gray-900 px-2 py-1 rounded">/feedback</code>
+                    </li>
                     <li>Chat IA intégré (questions générales)</li>
                   </ul>
                 </div>
@@ -100,7 +102,8 @@ export const SupportPolicy: React.FC = () => {
                     <strong>Traitement prioritaire immédiat</strong>
                   </p>
                   <p className="text-red-200 text-sm">
-                    Application inaccessible, perte de données, problème de sécurité, erreur bloquante
+                    Application inaccessible, perte de données, problème de sécurité, erreur
+                    bloquante
                   </p>
                 </div>
                 <div className="bg-orange-900/30 border border-orange-700/50 rounded p-4">
@@ -112,7 +115,8 @@ export const SupportPolicy: React.FC = () => {
                     <strong>Traitement prioritaire</strong>
                   </p>
                   <p className="text-orange-200 text-sm">
-                    Fonctionnalité principale non fonctionnelle, problème de performance significatif
+                    Fonctionnalité principale non fonctionnelle, problème de performance
+                    significatif
                   </p>
                 </div>
                 <div className="bg-blue-900/30 border border-blue-700/50 rounded p-4">
@@ -156,8 +160,8 @@ export const SupportPolicy: React.FC = () => {
                   <div>
                     <h3 className="font-semibold text-white mb-1">Réception</h3>
                     <p className="text-gray-300 text-sm">
-                      Accusé de réception automatique, attribution d'un numéro de ticket, classification
-                      de la priorité
+                      Accusé de réception automatique, attribution d'un numéro de ticket,
+                      classification de la priorité
                     </p>
                   </div>
                 </div>
@@ -168,7 +172,8 @@ export const SupportPolicy: React.FC = () => {
                   <div>
                     <h3 className="font-semibold text-white mb-1">Analyse et diagnostic</h3>
                     <p className="text-gray-300 text-sm">
-                      Reproduction du problème, investigation technique, communication si délai &gt; 48h
+                      Reproduction du problème, investigation technique, communication si délai &gt;
+                      48h
                     </p>
                   </div>
                 </div>
@@ -179,8 +184,8 @@ export const SupportPolicy: React.FC = () => {
                   <div>
                     <h3 className="font-semibold text-white mb-1">Résolution</h3>
                     <p className="text-gray-300 text-sm">
-                      Développement et test du correctif, déploiement en production, vérification avec
-                      l'utilisateur
+                      Développement et test du correctif, déploiement en production, vérification
+                      avec l'utilisateur
                     </p>
                   </div>
                 </div>
@@ -220,8 +225,8 @@ export const SupportPolicy: React.FC = () => {
                 </div>
                 <div className="bg-blue-900/30 border border-blue-700/50 rounded p-4 mt-4">
                   <p className="text-blue-200 text-sm">
-                    <strong>Métriques publiques :</strong> Taux de résolution, délai moyen de résolution,
-                    taux de satisfaction (publiées après le lancement public)
+                    <strong>Métriques publiques :</strong> Taux de résolution, délai moyen de
+                    résolution, taux de satisfaction (publiées après le lancement public)
                   </p>
                 </div>
               </div>
@@ -300,8 +305,8 @@ export const SupportPolicy: React.FC = () => {
           {/* Footer intégré */}
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
-              Cette politique s'applique à tous les produits DooDates : Sondages de dates, Formulaires,
-              Quizz, et Chat IA
+              Cette politique s'applique à tous les produits DooDates : Sondages de dates,
+              Formulaires, Quizz, et Chat IA
             </p>
             <div className="flex justify-center gap-4 text-sm">
               <Link to="/security" className="hover:text-gray-300">
@@ -326,4 +331,3 @@ export const SupportPolicy: React.FC = () => {
 };
 
 export default SupportPolicy;
-

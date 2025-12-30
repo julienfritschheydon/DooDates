@@ -8,4 +8,3 @@ interface AvailabilityPollsLayoutProps {
 export const AvailabilityPollsLayout: React.FC<AvailabilityPollsLayoutProps> = ({ children }) => {
   return <GenericProductLayout productType="availability">{children}</GenericProductLayout>;
 };
-

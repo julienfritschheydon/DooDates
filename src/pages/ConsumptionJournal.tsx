@@ -90,7 +90,7 @@ export default function ConsumptionJournal() {
   const [filteredJournal, setFilteredJournal] = useState<CreditJournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState<'current' | 'all' | string>('current');
+  const [selectedPeriod, setSelectedPeriod] = useState<"current" | "all" | string>("current");
   const [availableMonths, setAvailableMonths] = useState<string[]>([]);
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function ConsumptionJournal() {
         let filteredEntries = entries;
         if (fullPath.includes("/date-polls/")) {
           // Journal des date polls : afficher uniquement les sondages de dates
-          filteredEntries = entries.filter(entry => {
+          filteredEntries = entries.filter((entry) => {
             // Garder toutes les entrées sauf poll_created avec un type différent de date
             if (entry.action === "poll_created" && entry.metadata?.pollType) {
               return entry.metadata.pollType === "date";
@@ -130,7 +130,7 @@ export default function ConsumptionJournal() {
           });
         } else if (fullPath.includes("/form-polls/")) {
           // Journal des form polls : afficher uniquement les sondages de formulaires
-          filteredEntries = entries.filter(entry => {
+          filteredEntries = entries.filter((entry) => {
             if (entry.action === "poll_created" && entry.metadata?.pollType) {
               return entry.metadata.pollType === "form";
             }
@@ -138,7 +138,7 @@ export default function ConsumptionJournal() {
           });
         } else if (fullPath.includes("/availability-polls/")) {
           // Journal des availability polls : afficher uniquement les sondages de disponibilité
-          filteredEntries = entries.filter(entry => {
+          filteredEntries = entries.filter((entry) => {
             if (entry.action === "poll_created" && entry.metadata?.pollType) {
               return entry.metadata.pollType === "availability";
             }
@@ -146,7 +146,7 @@ export default function ConsumptionJournal() {
           });
         } else if (fullPath.includes("/quizz-polls/")) {
           // Journal des quizz polls : afficher uniquement les quiz
-          filteredEntries = entries.filter(entry => {
+          filteredEntries = entries.filter((entry) => {
             if (entry.action === "poll_created" && entry.metadata?.pollType) {
               return entry.metadata.pollType === "quizz";
             }
@@ -175,7 +175,7 @@ export default function ConsumptionJournal() {
   // Calculer les mois disponibles depuis le journal
   useEffect(() => {
     const months = new Set<string>();
-    journal.forEach(entry => {
+    journal.forEach((entry) => {
       const month = entry.timestamp.substring(0, 7); // 'YYYY-MM'
       months.add(month);
     });
@@ -185,19 +185,19 @@ export default function ConsumptionJournal() {
 
   // Filtrer par période
   const filteredByPeriod = useMemo(() => {
-    if (selectedPeriod === 'all') return journal;
+    if (selectedPeriod === "all") return journal;
 
-    if (selectedPeriod === 'current') {
+    if (selectedPeriod === "current") {
       const now = new Date();
-      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      return journal.filter(entry => {
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      return journal.filter((entry) => {
         const entryMonth = entry.timestamp.substring(0, 7);
         return entryMonth === currentMonth;
       });
     }
 
     // Mois spécifique
-    return journal.filter(entry => {
+    return journal.filter((entry) => {
       const entryMonth = entry.timestamp.substring(0, 7);
       return entryMonth === selectedPeriod;
     });
@@ -222,13 +222,13 @@ export default function ConsumptionJournal() {
 
   // Calculer le label de période
   const periodLabel = useMemo(() => {
-    if (selectedPeriod === 'all') return 'Tout l\'historique';
-    if (selectedPeriod === 'current') return 'Mois en cours';
+    if (selectedPeriod === "all") return "Tout l'historique";
+    if (selectedPeriod === "current") return "Mois en cours";
 
     // Mois spécifique - formater en "Janvier 2025"
-    const [year, month] = selectedPeriod.split('-');
+    const [year, month] = selectedPeriod.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   }, [selectedPeriod]);
 
   // Grouper par date
@@ -301,9 +301,7 @@ export default function ConsumptionJournal() {
                 <p className="text-gray-400">
                   Historique détaillé de toutes vos consommations de crédits
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Période: {periodLabel}
-                </p>
+                <p className="text-sm text-gray-500 mt-1">Période: {periodLabel}</p>
               </div>
 
               {/* Statistiques globales */}
@@ -311,9 +309,7 @@ export default function ConsumptionJournal() {
                 <div className="text-2xl font-bold text-white">{totalCredits}</div>
                 <div className="text-sm text-gray-400">Crédits consommés</div>
                 {user && (
-                  <div className="text-sm text-gray-500 mt-1">
-                    Reset mensuel automatique
-                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Reset mensuel automatique</div>
                 )}
               </div>
             </div>
@@ -347,10 +343,13 @@ export default function ConsumptionJournal() {
               <option value="all">Tout l'historique</option>
               {availableMonths.length > 0 && (
                 <optgroup label="Mois spécifiques">
-                  {availableMonths.map(month => {
-                    const [year, monthNum] = month.split('-');
+                  {availableMonths.map((month) => {
+                    const [year, monthNum] = month.split("-");
                     const date = new Date(parseInt(year), parseInt(monthNum) - 1);
-                    const label = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                    const label = date.toLocaleDateString("fr-FR", {
+                      month: "long",
+                      year: "numeric",
+                    });
                     return (
                       <option key={month} value={month}>
                         {label}
@@ -448,10 +447,13 @@ export default function ConsumptionJournal() {
                                         pollType={entry.metadata.pollType}
                                       />
                                       {entry.action === "poll_created" && (
-                                        <span className={`text-xs px-2 py-0.5 rounded ${entry.metadata.conversationId
-                                          ? "bg-purple-900/30 text-purple-300"
-                                          : "bg-blue-900/30 text-blue-300"
-                                          }`}>
+                                        <span
+                                          className={`text-xs px-2 py-0.5 rounded ${
+                                            entry.metadata.conversationId
+                                              ? "bg-purple-900/30 text-purple-300"
+                                              : "bg-blue-900/30 text-blue-300"
+                                          }`}
+                                        >
                                           {entry.metadata.conversationId ? "IA" : "Manuel"}
                                         </span>
                                       )}

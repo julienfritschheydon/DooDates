@@ -252,14 +252,16 @@ const Dashboard: React.FC = () => {
 
             {/* Quota indicator */}
             <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
-                ? "bg-orange-900/20 border-orange-500/50"
-                : `${theme.bg} ${theme.border}`
-                }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
+                quotaStatus.conversations.isNearLimit
+                  ? "bg-orange-900/20 border-orange-500/50"
+                  : `${theme.bg} ${theme.border}`
+              }`}
             >
               <Info
-                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
-                  }`}
+                className={`w-5 h-5 ${
+                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
+                }`}
               />
               <TooltipProvider>
                 <Tooltip>
@@ -287,11 +289,12 @@ const Dashboard: React.FC = () => {
                       </p>
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
+                          className={`h-2 rounded-full transition-all ${
+                            quotaStatus.conversations.isNearLimit ||
                             quotaStatus.aiMessages.isNearLimit
-                            ? "bg-orange-500"
-                            : theme.progressBg
-                            }`}
+                              ? "bg-orange-500"
+                              : theme.progressBg
+                          }`}
                           style={{
                             width: `${Math.min(
                               Math.max(

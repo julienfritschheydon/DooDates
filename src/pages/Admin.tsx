@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { ShieldAlert, BarChart3, Users, Activity } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AdminQuotaDashboard from './AdminQuotaDashboard';
-import AdminUserActivity from './AdminUserActivity';
-import { PerformanceDashboard } from '@/components/performance/PerformanceDashboard';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { ShieldAlert, BarChart3, Users, Activity } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminQuotaDashboard from "./AdminQuotaDashboard";
+import AdminUserActivity from "./AdminUserActivity";
+import { PerformanceDashboard } from "@/components/performance/PerformanceDashboard";
 
-type AdminTab = 'quotas' | 'activity' | 'performance';
+type AdminTab = "quotas" | "activity" | "performance";
 
 const Admin: React.FC = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Get tab from URL or default to 'quotas'
-  const currentTab = (searchParams.get('tab') as AdminTab) || 'quotas';
-  
+  const currentTab = (searchParams.get("tab") as AdminTab) || "quotas";
+
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Vérification admin (même logique que AdminQuotaDashboard)
   useEffect(() => {
     const hasRoleAdmin =
-      !!user && (profile?.preferences as { role?: string } | null)?.role === 'admin';
+      !!user && (profile?.preferences as { role?: string } | null)?.role === "admin";
 
     const hasEmailAdmin =
-      !!user && (user.email?.endsWith('@doodates.com') || user.email === 'admin@doodates.com');
+      !!user && (user.email?.endsWith("@doodates.com") || user.email === "admin@doodates.com");
 
     const nextIsAdmin = hasRoleAdmin || hasEmailAdmin;
     setIsAdmin(nextIsAdmin);
@@ -51,11 +51,9 @@ const Admin: React.FC = () => {
       <div className="flex h-screen flex-col items-center justify-center p-8 text-center bg-gray-50">
         <ShieldAlert className="mb-4 h-12 w-12 text-red-500" />
         <h2 className="text-xl font-bold text-gray-900">Accès restreint</h2>
-        <p className="mt-2 text-gray-600">
-          Ce tableau de bord est réservé aux administrateurs.
-        </p>
+        <p className="mt-2 text-gray-600">Ce tableau de bord est réservé aux administrateurs.</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           Retour à l'accueil
@@ -74,31 +72,32 @@ const Admin: React.FC = () => {
             Administration DooDates
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Tableau de bord administrateur - Gestion des quotas, activité utilisateurs et performances
+            Tableau de bord administrateur - Gestion des quotas, activité utilisateurs et
+            performances
           </p>
         </div>
 
         {/* Tabs */}
         <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
-            <TabsTrigger 
-              value="quotas" 
+            <TabsTrigger
+              value="quotas"
               className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Quotas Invités</span>
               <span className="sm:hidden">Quotas</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="activity" 
+            <TabsTrigger
+              value="activity"
               className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
             >
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">Activité Utilisateur</span>
               <span className="sm:hidden">Activité</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="performance" 
+            <TabsTrigger
+              value="performance"
               className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
             >
               <BarChart3 className="h-4 w-4" />
@@ -127,4 +126,3 @@ const Admin: React.FC = () => {
 };
 
 export default Admin;
-

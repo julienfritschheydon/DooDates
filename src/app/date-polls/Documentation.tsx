@@ -156,8 +156,8 @@ export default function DatePollsDocumentation() {
               <div>
                 <h3 className="font-semibold mb-1">Créneaux horaires flexibles</h3>
                 <p className="text-sm text-gray-400">
-                  Ajoutez des plages horaires pour chaque date. Cliquez sur la grille horaire
-                  pour sélectionner les créneaux souhaités. Choisissez la granularité (15min, 30min, 1h).
+                  Ajoutez des plages horaires pour chaque date. Cliquez sur la grille horaire pour
+                  sélectionner les créneaux souhaités. Choisissez la granularité (15min, 30min, 1h).
                 </p>
               </div>
             </div>
@@ -226,7 +226,8 @@ export default function DatePollsDocumentation() {
               <h4 className="font-medium mb-2">Comment ajouter des créneaux horaires ?</h4>
               <p className="text-sm text-gray-400">
                 Après avoir sélectionné une date, une grille horaire apparaît. Cliquez sur les
-                créneaux souhaités dans la grille. Vous pouvez changer la granularité (15min, 30min, 1h).
+                créneaux souhaités dans la grille. Vous pouvez changer la granularité (15min, 30min,
+                1h).
               </p>
             </div>
             <div>
@@ -239,8 +240,8 @@ export default function DatePollsDocumentation() {
             <div>
               <h4 className="font-medium mb-2">Comment gérer les fuseaux horaires ?</h4>
               <p className="text-sm text-gray-400">
-                Actuellement, les horaires sont affichés dans le fuseau horaire du créateur.
-                Pour les événements internationaux, nous recommandons de préciser le fuseau dans le titre
+                Actuellement, les horaires sont affichés dans le fuseau horaire du créateur. Pour
+                les événements internationaux, nous recommandons de préciser le fuseau dans le titre
                 ou la description (ex: "Horaires en heure de Paris").
               </p>
             </div>
@@ -253,7 +254,6 @@ export default function DatePollsDocumentation() {
             </div>
           </div>
         </div>
-
 
         {/* Quick Links */}
         <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-2xl p-8">

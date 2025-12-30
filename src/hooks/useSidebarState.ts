@@ -30,6 +30,6 @@ export const useSidebarState = () => {
     isSidebarOpen,
     toggleSidebar,
     closeSidebar,
-    isMobile
+    isMobile,
   };
 };

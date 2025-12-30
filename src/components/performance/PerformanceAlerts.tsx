@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, X } from 'lucide-react';
-import { getActiveAlerts, resolveAlert, PerformanceAlert } from '../../services/performance-collector';
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, CheckCircle, X } from "lucide-react";
+import {
+  getActiveAlerts,
+  resolveAlert,
+  PerformanceAlert,
+} from "../../services/performance-collector";
 
 export function PerformanceAlerts() {
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
@@ -20,7 +24,7 @@ export function PerformanceAlerts() {
   const handleResolve = async (alertId: string) => {
     const success = await resolveAlert(alertId);
     if (success) {
-      setAlerts(alerts.filter(a => a.id !== alertId));
+      setAlerts(alerts.filter((a) => a.id !== alertId));
     }
   };
 
@@ -42,7 +46,9 @@ export function PerformanceAlerts() {
           <CheckCircle className="w-6 h-6 text-green-600" />
           <div>
             <h3 className="text-lg font-medium text-gray-900">Aucune alerte active</h3>
-            <p className="text-sm text-gray-600">Toutes les métriques sont dans les seuils acceptables</p>
+            <p className="text-sm text-gray-600">
+              Toutes les métriques sont dans les seuils acceptables
+            </p>
           </div>
         </div>
       </div>
@@ -65,9 +71,9 @@ export function PerformanceAlerts() {
           <div
             key={alert.id}
             className={`p-4 rounded-lg border ${
-              alert.severity === 'critical'
-                ? 'bg-red-50 border-red-200'
-                : 'bg-yellow-50 border-yellow-200'
+              alert.severity === "critical"
+                ? "bg-red-50 border-red-200"
+                : "bg-yellow-50 border-yellow-200"
             }`}
           >
             <div className="flex items-start justify-between">
@@ -75,12 +81,12 @@ export function PerformanceAlerts() {
                 <div className="flex items-center space-x-2 mb-2">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      alert.severity === 'critical'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                      alert.severity === "critical"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {alert.severity === 'critical' ? 'CRITIQUE' : 'AVERTISSEMENT'}
+                    {alert.severity === "critical" ? "CRITIQUE" : "AVERTISSEMENT"}
                   </span>
                   <span className="text-sm font-medium text-gray-900">
                     {formatMetricName(alert.metric_name)}
@@ -92,9 +98,11 @@ export function PerformanceAlerts() {
                     Régression détectée : <strong>{alert.regression_percent.toFixed(1)}%</strong>
                   </p>
                   <p>
-                    Valeur actuelle : <strong>{formatValue(alert.metric_name, alert.current_value)}</strong>
-                    {' → '}
-                    Baseline : <strong>{formatValue(alert.metric_name, alert.baseline_value)}</strong>
+                    Valeur actuelle :{" "}
+                    <strong>{formatValue(alert.metric_name, alert.current_value)}</strong>
+                    {" → "}
+                    Baseline :{" "}
+                    <strong>{formatValue(alert.metric_name, alert.baseline_value)}</strong>
                   </p>
                   {alert.commit_sha && (
                     <p className="text-xs text-gray-500">
@@ -102,7 +110,7 @@ export function PerformanceAlerts() {
                     </p>
                   )}
                   <p className="text-xs text-gray-500">
-                    {new Date(alert.timestamp).toLocaleString('fr-FR')}
+                    {new Date(alert.timestamp).toLocaleString("fr-FR")}
                   </p>
                 </div>
               </div>
@@ -124,24 +132,24 @@ export function PerformanceAlerts() {
 
 function formatMetricName(name: string): string {
   const names: Record<string, string> = {
-    'performance_score': 'Performance Score',
-    'largest_contentful_paint': 'LCP',
-    'cumulative_layout_shift': 'CLS',
-    'total_blocking_time': 'TBT',
-    'first_input_delay': 'FID',
-    'dashboard_load_50': 'Dashboard 50 conv.',
-    'dashboard_load_200': 'Dashboard 200 conv.',
-    'tags_menu_open': 'Menu Tags',
-    'folders_menu_open': 'Menu Dossiers'
+    performance_score: "Performance Score",
+    largest_contentful_paint: "LCP",
+    cumulative_layout_shift: "CLS",
+    total_blocking_time: "TBT",
+    first_input_delay: "FID",
+    dashboard_load_50: "Dashboard 50 conv.",
+    dashboard_load_200: "Dashboard 200 conv.",
+    tags_menu_open: "Menu Tags",
+    folders_menu_open: "Menu Dossiers",
   };
   return names[name] || name;
 }
 
 function formatValue(metricName: string, value: number): string {
-  if (metricName === 'performance_score') {
+  if (metricName === "performance_score") {
     return value.toFixed(0);
   }
-  if (metricName === 'cumulative_layout_shift') {
+  if (metricName === "cumulative_layout_shift") {
     return value.toFixed(3);
   }
   if (value >= 1000) {
@@ -149,4 +157,3 @@ function formatValue(metricName: string, value: number): string {
   }
   return `${value.toFixed(0)}ms`;
 }
-

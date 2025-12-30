@@ -88,7 +88,7 @@ export default function ConditionalRuleEditor({
       (r, idx) =>
         r.questionId === questionId &&
         existingRules.slice(0, idx + 1).filter((r2) => r2.questionId === questionId).length ===
-        localIndex + 1,
+          localIndex + 1,
     );
   };
 

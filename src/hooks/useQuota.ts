@@ -279,7 +279,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       return;
     }
 
-    const userId = isAuthenticated ? user?.id ?? null : null;
+    const userId = isAuthenticated ? (user?.id ?? null) : null;
 
     getTotalCreditsConsumed(userId)
       .then((total) => {

@@ -33,9 +33,7 @@ export const Security: React.FC = () => {
               DooDates s'engage à protéger la sécurité et la confidentialité des données de ses
               utilisateurs.
             </p>
-            <div className="mt-6 text-sm text-gray-500">
-              Dernière mise à jour : Janvier 2026
-            </div>
+            <div className="mt-6 text-sm text-gray-500">Dernière mise à jour : Janvier 2026</div>
           </div>
 
           {/* Contact Sécurité */}
@@ -149,7 +147,10 @@ export const Security: React.FC = () => {
                     </a>
                   </p>
                   <p className="text-gray-300 text-sm">
-                    Sujet : <code className="bg-gray-900 px-2 py-1 rounded">[SECURITY] Description brève</code>
+                    Sujet :{" "}
+                    <code className="bg-gray-900 px-2 py-1 rounded">
+                      [SECURITY] Description brève
+                    </code>
                   </p>
                 </div>
                 <div>
@@ -164,7 +165,8 @@ export const Security: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <Clock className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                       <span>
-                        <strong>Évaluation</strong> : Sous 48h (critiques) ou 7 jours (non-critiques)
+                        <strong>Évaluation</strong> : Sous 48h (critiques) ou 7 jours
+                        (non-critiques)
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
@@ -183,8 +185,9 @@ export const Security: React.FC = () => {
                 </div>
                 <div className="bg-blue-900/30 border border-blue-700/50 rounded p-4">
                   <p className="text-blue-200 text-sm">
-                    <strong>Engagements :</strong> Réponse rapide (&lt; 48h critiques), confidentialité,
-                    reconnaissance dans le hall of fame, pas de poursuites pour chercheurs de bonne foi.
+                    <strong>Engagements :</strong> Réponse rapide (&lt; 48h critiques),
+                    confidentialité, reconnaissance dans le hall of fame, pas de poursuites pour
+                    chercheurs de bonne foi.
                   </p>
                 </div>
               </div>
@@ -200,13 +203,15 @@ export const Security: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-white mb-1">Protection des Quotas</h3>
                   <p className="text-sm">
-                    Vérification serveur (impossible de bypass), transactions atomiques, rate limiting
-                    par utilisateur et IP.
+                    Vérification serveur (impossible de bypass), transactions atomiques, rate
+                    limiting par utilisateur et IP.
                   </p>
                 </div>
                 <div>
                   <h3 className="font-semibold text-white mb-1">Protection contre le Spam</h3>
-                  <p className="text-sm">Cooldowns, validation des données, blacklist si nécessaire.</p>
+                  <p className="text-sm">
+                    Cooldowns, validation des données, blacklist si nécessaire.
+                  </p>
                 </div>
                 <div>
                   <h3 className="font-semibold text-white mb-1">Protection des Données</h3>
@@ -221,7 +226,9 @@ export const Security: React.FC = () => {
             <section className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Shield className="w-5 h-5 text-gray-400" />
-                <h2 className="text-2xl font-bold text-white">Bonnes Pratiques pour les Utilisateurs</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  Bonnes Pratiques pour les Utilisateurs
+                </h2>
               </div>
               <div className="space-y-3 text-gray-300">
                 <div>
@@ -307,8 +314,8 @@ export const Security: React.FC = () => {
           {/* Footer intégré */}
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
-              Cette politique s'applique à tous les produits DooDates : Sondages de dates, Formulaires,
-              Quizz, et Chat IA
+              Cette politique s'applique à tous les produits DooDates : Sondages de dates,
+              Formulaires, Quizz, et Chat IA
             </p>
             <div className="flex justify-center gap-4 text-sm">
               <Link to="/privacy" className="hover:text-gray-300">
@@ -333,4 +340,3 @@ export const Security: React.FC = () => {
 };
 
 export default Security;
-

@@ -263,9 +263,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     useEffect(() => {
       const pollWithHighlight = currentPoll as
         | (typeof currentPoll & {
-          _highlightedId?: string;
-          _highlightType?: "add" | "remove" | "modify";
-        })
+            _highlightedId?: string;
+            _highlightType?: "add" | "remove" | "modify";
+          })
         | null;
       if (
         pollWithHighlight &&
@@ -943,12 +943,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         const formDraft = (
           currentPoll
             ? {
-              id: currentPoll.id,
-              type: "form" as const,
-              title: currentPoll.title,
-              questions: (currentPoll.questions || []) as AnyFormQuestion[],
-              conditionalRules: currentPoll.conditionalRules || [],
-            }
+                id: currentPoll.id,
+                type: "form" as const,
+                title: currentPoll.title,
+                questions: (currentPoll.questions || []) as AnyFormQuestion[],
+                conditionalRules: currentPoll.conditionalRules || [],
+              }
             : pollManagement.getFormDraft()
         ) as FormPollDraft;
 
@@ -1029,17 +1029,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             initialData={
               pollManagement.selectedPollData
                 ? {
-                  ...(pollManagement.selectedPollData as DatePollSuggestion),
-                  dateGroups: (
-                    pollManagement.selectedPollData as DatePollSuggestion
-                  ).dateGroups?.map((g) => ({
-                    ...g,
-                    type:
-                      g.type === "week" || g.type === "fortnight"
-                        ? ("range" as const)
-                        : (g.type as "custom" | "weekend" | "range"),
-                  })),
-                }
+                    ...(pollManagement.selectedPollData as DatePollSuggestion),
+                    dateGroups: (
+                      pollManagement.selectedPollData as DatePollSuggestion
+                    ).dateGroups?.map((g) => ({
+                      ...g,
+                      type:
+                        g.type === "week" || g.type === "fortnight"
+                          ? ("range" as const)
+                          : (g.type as "custom" | "weekend" | "range"),
+                    })),
+                  }
                 : undefined
             }
             onBack={() => {
@@ -1060,8 +1060,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       <div
         data-testid="agent-page-root"
         data-agent-page="true"
-        className={`flex h-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50 ${darkTheme ? "" : ""
-          }`}
+        className={`flex h-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50 ${
+          darkTheme ? "" : ""
+        }`}
       >
         {/* Zone de conversation */}
         <ChatMessageList
@@ -1097,7 +1098,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               attachedFile={attachedFile}
               onAttachFile={setAttachedFile}
             />
-            
+
             {/* Icône RGPD discrète en bas à gauche */}
             <TooltipProvider>
               <Tooltip>
@@ -1134,7 +1135,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-blue-400" />
-                    <h3 className="font-semibold text-white text-sm">Vos données dans le chat IA</h3>
+                    <h3 className="font-semibold text-white text-sm">
+                      Vos données dans le chat IA
+                    </h3>
                   </div>
                   <button
                     onClick={() => setShowDataInfo(false)}
@@ -1144,20 +1147,28 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                
+
                 <div className="space-y-2" data-testid="rgpd-chat-info">
                   <p>
-                    Vos messages dans ce chat peuvent contenir des données personnelles (par exemple des noms, dates, informations de contact) et sont traités par un fournisseur IA tiers pour générer les réponses.
+                    Vos messages dans ce chat peuvent contenir des données personnelles (par exemple
+                    des noms, dates, informations de contact) et sont traités par un fournisseur IA
+                    tiers pour générer les réponses.
                   </p>
                   <p>
-                    <strong>Fournisseur IA :</strong> Google Gemini agit comme sous-traitant, avec des transferts hors UE protégés par les clauses contractuelles types RGPD. Les données sont conservées maximum 30 jours chez Google et ne sont pas utilisées pour l'entraînement des modèles.
+                    <strong>Fournisseur IA :</strong> Google Gemini agit comme sous-traitant, avec
+                    des transferts hors UE protégés par les clauses contractuelles types RGPD. Les
+                    données sont conservées maximum 30 jours chez Google et ne sont pas utilisées
+                    pour l'entraînement des modèles.
                   </p>
                   <p>
-                    <strong>Vos droits :</strong> Vous pouvez demander l'accès, la modification ou la suppression de vos conversations à tout moment. Vous pouvez également désactiver l'utilisation de vos données pour l'amélioration du produit dans vos paramètres.
+                    <strong>Vos droits :</strong> Vous pouvez demander l'accès, la modification ou
+                    la suppression de vos conversations à tout moment. Vous pouvez également
+                    désactiver l'utilisation de vos données pour l'amélioration du produit dans vos
+                    paramètres.
                   </p>
                   <p>
-                    Ne partagez pas d'informations sensibles ou confidentielles. Pour en savoir plus, consultez notre
-                    {" "}
+                    Ne partagez pas d'informations sensibles ou confidentielles. Pour en savoir
+                    plus, consultez notre{" "}
                     <Link
                       to="/privacy"
                       className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
@@ -1165,8 +1176,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                       rel="noreferrer"
                     >
                       Politique de confidentialité complète
-                    </Link>
-                    {" "}
+                    </Link>{" "}
                     ou contactez-nous à privacy@doodates.com.
                   </p>
                 </div>

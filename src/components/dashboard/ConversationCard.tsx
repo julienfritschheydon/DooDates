@@ -350,10 +350,11 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
   return (
     <div
-      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${isSelected
-        ? `${theme.activeBorder} ring-2 ${theme.ring}`
-        : "border-gray-700 hover:shadow-md"
-        }`}
+      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${
+        isSelected
+          ? `${theme.activeBorder} ring-2 ${theme.ring}`
+          : "border-gray-700 hover:shadow-md"
+      }`}
       data-testid="poll-item"
     >
       {/* Checkbox de sélection */}
@@ -367,8 +368,9 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div
-            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected ? theme.checkbox : "bg-transparent border-gray-500 hover:border-blue-400"
-              }`}
+            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
+              isSelected ? theme.checkbox : "bg-transparent border-gray-500 hover:border-blue-400"
+            }`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -415,7 +417,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               <ChevronDown
                 className={cn(
                   "w-5 h-5 text-gray-400 ml-auto sm:hidden transition-transform duration-200",
-                  isExpanded ? "rotate-180" : ""
+                  isExpanded ? "rotate-180" : "",
                 )}
               />
             </div>
@@ -432,7 +434,6 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
         {/* Collapsible details (Stats, Tags, Dates, Actions) */}
         <div className={cn(!isExpanded && "hidden sm:block")}>
-
           {/* Statistiques (si poll existe) */}
           {item.poll && (
             <div className="mb-4">
@@ -443,9 +444,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                     {item.poll.participants_count || 0} participant
                     {(item.poll.participants_count || 0) > 1 ? "s" : ""}
                   </span>
-                  <span className="sm:hidden">
-                    {item.poll.participants_count || 0} part.
-                  </span>
+                  <span className="sm:hidden">{item.poll.participants_count || 0} part.</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Vote className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -471,15 +470,18 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               {/* Meilleures dates (pour sondages de dates) */}
               {item.poll.topDates && item.poll.topDates.length > 0 ? (
                 <div className="mb-3">
-                  <div className="text-xs text-gray-400 mb-2 font-medium">🏆 Dates populaires :</div>
+                  <div className="text-xs text-gray-400 mb-2 font-medium">
+                    🏆 Dates populaires :
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {item.poll.topDates.map((dateInfo, index) => (
                       <span
                         key={index}
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${index === 0
-                          ? "bg-blue-900/30 text-blue-400"
-                          : "bg-purple-900/30 text-purple-400"
-                          }`}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                          index === 0
+                            ? "bg-blue-900/30 text-blue-400"
+                            : "bg-purple-900/30 text-purple-400"
+                        }`}
                       >
                         {index === 0 && "⭐ "}
                         {dateInfo.date}
