@@ -39,6 +39,8 @@ describe("FormPollCreator - Debug", () => {
   afterEach(() => {
     vi.clearAllTimers();
     vi.clearAllMocks();
+    vi.unstubAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should test visibility without adding questions", () => {
