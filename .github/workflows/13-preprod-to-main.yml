@@ -25,9 +25,6 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
         
-      - name: 🎭 Install Playwright
-        run: npx playwright install --with-deps
-        
       - name: 🧪 Tests Unitaires Complets
         run: npm run test:unit:fast
         timeout-minutes: 5
@@ -38,6 +35,30 @@ jobs:
         
       - name: 🧹 Linting & Formatage
         run: npm run lint -- --max-warnings=0
+        timeout-minutes: 3
+        
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 5
+        
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+        
+      - name: 🧭 Install Playwright (only if tests pass)
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Tests passés, installation Playwright pour E2E..."
+            npx playwright install --with-deps
+          else
+            echo "❌ Tests échoués, skip Playwright installation"
+            exit 1
+          fi
         timeout-minutes: 3
         
       - name: 🏗️ Build Production

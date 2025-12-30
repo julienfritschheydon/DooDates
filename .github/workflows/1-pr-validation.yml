@@ -31,19 +31,41 @@ jobs:
         run: |
           npm ci --prefer-offline --no-audit
       
+      - name: 🧪 Tests Unitaires Rapides
+        run: npm run test:unit:fast
+        timeout-minutes: 5
+      
+      - name: 📝 TypeScript Check
+        run: npm run type-check
+        timeout-minutes: 3
+      
+      - name: 🧹 Linting & Formatage
+        run: npm run lint -- --max-warnings=30
+        timeout-minutes: 3
+      
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 5
+      
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
       
-      - name: 🧭 Install Playwright (Chromium only)
-        if: steps.cache-playwright-smoke.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+      - name: 🧭 Install Playwright (only if tests pass)
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Tests passés, installation Playwright pour E2E..."
+            npx playwright install --with-deps
+          else
+            echo "❌ Tests échoués, skip Playwright installation"
+            exit 1
+          fi
+        timeout-minutes: 3
       
       - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
