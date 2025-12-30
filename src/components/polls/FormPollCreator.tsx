@@ -188,13 +188,13 @@ export default function FormPollCreator({
 
   // Charger l'email existant si guest
   useEffect(() => {
-    if (!user) {
+    if (!user && typeof window !== "undefined") {
       setIsLoadingEmail(true);
       guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
         setIsLoadingEmail(false);
       });
-      const dismissed = typeof window !== "undefined" && localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
+      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
       setIsEmailFieldDismissed(dismissed);
     }
   }, [user]);
