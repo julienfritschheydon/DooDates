@@ -1,18 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import FormPollCreator from "../polls/FormPollCreator";
 import { AuthProvider } from "../../contexts/AuthContext";
 import { UIStateProvider } from "../prototype/UIStateProvider";
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+// Providers handled by TestWrapper
 
 // Test wrapper with all required providers
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -40,7 +34,6 @@ describe("FormPollCreator - Debug", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorageMock.clear();
   });
 
   it("should test visibility without adding questions", () => {
