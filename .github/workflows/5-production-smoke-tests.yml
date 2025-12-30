@@ -99,6 +99,9 @@ jobs:
           NODE_ENV: production
           CI: true
           BASE_URL: ${{ steps.production-url.outputs.url }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
         continue-on-error: true
 
       - name: 📊 Upload Playwright HTML report
