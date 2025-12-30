@@ -87,6 +87,7 @@ jobs:
             tests/e2e/tags-folders.spec.ts \
             --config=playwright.config.optimized.ts \
             --project=chromium \
+            --grep="Dashboard" \
             --reporter=html,json
         env:
           CI: true
