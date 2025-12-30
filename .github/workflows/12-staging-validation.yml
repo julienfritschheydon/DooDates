@@ -41,7 +41,7 @@ jobs:
         continue-on-error: false
         
       - name: 🧪 Tests Ultra-Simple (4 produits)
-        run: npm run test:ultra-simple
+        run: npm run test:e2e:smoke
         timeout-minutes: 15
         continue-on-error: false
         
