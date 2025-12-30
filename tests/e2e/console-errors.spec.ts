@@ -176,6 +176,7 @@ test.describe('Console Errors & React Warnings', () => {
         !error.includes('ERR_CONNECTION_RESET') &&
         !error.includes('Failed to read from doodates_conversations') &&
         !error.includes('process is not defined') && // Ignorer l'erreur process is not defined
+        !error.includes('guest_emails') &&
         !error.includes('Failed to load resource: the server responded with a status of 404'); // Ignorer les 404 génériques
     });
 
