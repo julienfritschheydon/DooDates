@@ -39,7 +39,6 @@ describe("FormPollCreator - Debug", () => {
   afterEach(() => {
     vi.clearAllTimers();
     vi.clearAllMocks();
-    vi.unstubAllMocks();
     vi.restoreAllMocks();
   });
 
