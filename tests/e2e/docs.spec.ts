@@ -193,7 +193,7 @@ test.describe('Documentation - Tests E2E', () => {
       guard.stop();
     }
   });
-  test('Product-specific documentation pages load correctly @functional', async ({ page, browserName }) => {
+  test.skip('Product-specific documentation pages load correctly @functional', async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,

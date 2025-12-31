@@ -310,6 +310,14 @@ describe("useAutoSave", () => {
   // Tests "clearConversation" supprimés (fonction simple, testé manuellement)
 
   describe("getRealConversationId", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it("should return null for temporary conversation", async () => {
       const { result } = renderHook(() => useAutoSave());
 
@@ -321,6 +329,7 @@ describe("useAutoSave", () => {
     });
 
     it("should return real ID after message is added to temp conversation", async () => {
+      vi.useFakeTimers(); // Assurer les fake timers pour ce test
       const { result } = renderHook(() => useAutoSave());
       const conversation = createMockConversation({ id: "conv-1" });
 
@@ -336,8 +345,8 @@ describe("useAutoSave", () => {
       await act(async () => {
         await result.current.startNewConversation();
         await result.current.addMessage(createMockMessage());
-        // Avancer les timers pour que les opérations asynchrones se terminent
-        await vi.runAllTimersAsync();
+        // Attendre un peu que les opérations asynchrones se terminent
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
 
       expect(result.current.getRealConversationId()).toBe(conversation.id);
