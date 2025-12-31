@@ -52,6 +52,7 @@ describe("FormPollCreator - Debug", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
@@ -62,6 +63,11 @@ describe("FormPollCreator - Debug", () => {
     localStorageMock.setItem.mockClear();
     localStorageMock.removeItem.mockClear();
     localStorageMock.clear.mockClear();
+    
+    // Cleanup any pending promises
+    vi.useFakeTimers();
+    vi.runAllTimers();
+    vi.useRealTimers();
   });
 
   it("should test visibility without adding questions", () => {
