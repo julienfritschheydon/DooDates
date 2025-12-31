@@ -321,6 +321,7 @@ describe("useAutoSave", () => {
     });
 
     it("should return real ID after message is added to temp conversation", async () => {
+      vi.useFakeTimers(); // Ajouter les fake timers
       const { result } = renderHook(() => useAutoSave());
       const conversation = createMockConversation({ id: "conv-1" });
 
@@ -342,6 +343,11 @@ describe("useAutoSave", () => {
 
       expect(result.current.getRealConversationId()).toBe(conversation.id);
     }, 10000); // Timeout plus long
+
+    // Nettoyer les timers après ce test
+    afterEach(() => {
+      vi.useRealTimers();
+    });
   });
 
   describe("Error Handling", () => {
