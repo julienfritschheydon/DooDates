@@ -52,6 +52,7 @@ describe("FormPollCreator - Debug", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
@@ -62,10 +63,15 @@ describe("FormPollCreator - Debug", () => {
     localStorageMock.setItem.mockClear();
     localStorageMock.removeItem.mockClear();
     localStorageMock.clear.mockClear();
+    
+    // Cancel all pending promises and timers
+    vi.useFakeTimers();
+    vi.runAllTimers();
+    vi.useRealTimers();
   });
 
   it("should test visibility without adding questions", () => {
-    render(
+    const { unmount } = render(
       <TestWrapper>
         <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
       </TestWrapper>,
