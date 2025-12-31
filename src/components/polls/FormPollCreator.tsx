@@ -193,6 +193,9 @@ export default function FormPollCreator({
       guestEmailService.getGuestEmail().then((email) => {
         if (email) setGuestEmail(email);
         setIsLoadingEmail(false);
+      }).catch((error) => {
+        console.error("Error getting guest email:", error);
+        setIsLoadingEmail(false);
       });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
       setIsEmailFieldDismissed(dismissed);
