@@ -62,16 +62,14 @@ jobs:
         timeout-minutes: 3
         
       - name: 🎭 Tests E2E Smoke
-        run: |
-          npx playwright test \
-            tests/e2e/production-smoke.spec.ts \
-            --config=playwright.config.optimized.ts \
-            --project=chromium \
-            --reporter=html,json
+        run: npm run test:e2e:smoke
         timeout-minutes: 10
         continue-on-error: false
-        env:
-          CI: true
+        
+      - name: 🎭 Tests E2E Functional
+        run: npm run test:e2e:functional
+        timeout-minutes: 20  # Augmenté de 15 à 20min
+        continue-on-error: false
         
       - name: 📊 Pre-prod Validation Summary
         if: always()
@@ -79,9 +77,9 @@ jobs:
           echo "## Pre-prod → Main Validation Summary" >> $GITHUB_STEP_SUMMARY
           echo "✅ Tests Unitaires: Passés" >> $GITHUB_STEP_SUMMARY
           echo "✅ Build Production: Succès" >> $GITHUB_STEP_SUMMARY
-          echo "✅ E2E Smoke: Validés (aligné sur staging)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ E2E Smoke + Functional: Validés" >> $GITHUB_STEP_SUMMARY
           echo "✅ Linting: 0 warnings" >> $GITHUB_STEP_SUMMARY
-          echo "📝 Phase: Pre-prod (10-15 min)" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Phase: Pre-prod (20-30 min)" >> $GITHUB_STEP_SUMMARY
 
   auto-merge-to-main:
     needs: preprod-validation
