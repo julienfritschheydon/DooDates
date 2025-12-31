@@ -40,7 +40,7 @@ vi.mock("../useFreemiumQuota", () => ({
       pendingSync: false,
     },
     // Autres propriétés nécessaires pour éviter les erreurs
-    usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+    usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
     limits: { conversations: 5, polls: 5, storageSize: 50 },
     isAuthenticated: false,
     canCreateConversation: vi.fn().mockResolvedValue(true),
@@ -91,7 +91,7 @@ describe("useAiMessageQuota", () => {
         data: null,
         pendingSync: false,
       },
-      usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+      usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
       limits: { conversations: 5, polls: 5, storageSize: 50 },
       status: {
         conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },
@@ -210,7 +210,7 @@ describe("useAiMessageQuota", () => {
           data: { aiMessages: 1 } as any, // Quota utilisé
           pendingSync: false,
         },
-        usage: { conversations: 0, polls: 0, aiMessages: 1, storageUsed: 0 },
+        usage: { conversations: 1, polls: 1, datePolls: 1, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 1, storageUsed: 10, totalCredits: 1 },
         limits: { conversations: 5, polls: 5, storageSize: 50 },
         status: {
           conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },
@@ -265,7 +265,7 @@ describe("useAiMessageQuota", () => {
           data: null,
           pendingSync: false,
         },
-        usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+        usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
         limits: { conversations: 5, polls: 5, storageSize: 50 },
         status: {
           conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },
@@ -330,7 +330,7 @@ describe("useAiMessageQuota", () => {
           data: null,
           pendingSync: false,
         },
-        usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+        usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
         limits: { conversations: 5, polls: 5, storageSize: 50 },
         status: {
           conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },
@@ -543,7 +543,7 @@ describe("useAiMessageQuota", () => {
           data: null,
           pendingSync: false,
         },
-        usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+        usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
         limits: { conversations: 5, polls: 5, storageSize: 50 },
         status: {
           conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },
@@ -690,7 +690,7 @@ describe("useAiMessageQuota", () => {
           data: null,
           pendingSync: false,
         },
-        usage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+        usage: { conversations: 0, polls: 0, datePolls: 0, formPolls: 0, quizz: 0, availabilityPolls: 0, aiMessages: 0, storageUsed: 0, totalCredits: 0 },
         limits: { conversations: 5, polls: 5, storageSize: 50 },
         status: {
           conversations: { used: 0, limit: 5, percentage: 0, isNearLimit: false, isAtLimit: false },

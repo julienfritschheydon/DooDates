@@ -130,6 +130,7 @@ if (!global.crypto.subtle) {
 }
 
 // Mock pour fetch global (évite les erreurs Supabase network)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockFetch = vi.fn() as any;
 mockFetch.mockResolvedValue({
   ok: true,
@@ -195,11 +196,13 @@ if (typeof global.TextEncoder === 'undefined') {
     }
     encoding = 'utf-8';
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   global.TextEncoder = MockTextEncoder as any;
 }
 
 // Mock pour vi.useFakeTimers (résout les erreurs dans les tests de timers)
 const originalUseFakeTimers = vi.useFakeTimers;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.useFakeTimers = function(config?: any) {
   try {
     const result = originalUseFakeTimers(config);
@@ -230,22 +233,33 @@ vi.useFakeTimers = function(config?: any) {
     };
     
     // S'assurer que toutes les fonctions de timer sont mockées
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.setSystemTime) vi.setSystemTime = () => mockUtils as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.advanceTimersByTime) vi.advanceTimersByTime = () => mockUtils as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.runAllTimers) vi.runAllTimers = () => mockUtils as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.runOnlyPendingTimers) vi.runOnlyPendingTimers = () => mockUtils as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.clearAllTimers) vi.clearAllTimers = () => mockUtils as any;
     if (!vi.getTimerCount) vi.getTimerCount = () => 0;
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return mockUtils as any;
   }
 };
 
 // Mock direct des fonctions de timer pour contourner les problèmes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.setSystemTime = vi.fn(() => ({} as any));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.advanceTimersByTime = vi.fn(() => ({} as any));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.runAllTimers = vi.fn(() => ({} as any));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.runOnlyPendingTimers = vi.fn(() => ({} as any));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 vi.clearAllTimers = vi.fn(() => ({} as any));
 vi.getTimerCount = vi.fn(() => 0);
 
