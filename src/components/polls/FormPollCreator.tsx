@@ -37,6 +37,7 @@ import { PollSettingsForm } from "./PollSettingsForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { guestEmailService } from "@/lib/guestEmailService";
+import { logError } from "../../lib/error-handling";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
@@ -194,7 +195,10 @@ export default function FormPollCreator({
         if (email) setGuestEmail(email);
         setIsLoadingEmail(false);
       }).catch((error) => {
-        console.error("Error getting guest email:", error);
+        logError(error, {
+          component: 'FormPollCreator',
+          operation: 'getGuestEmail'
+        });
         setIsLoadingEmail(false);
       });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
