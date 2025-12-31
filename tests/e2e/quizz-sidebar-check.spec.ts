@@ -7,7 +7,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Quizz - Sidebar Navigation", () => {
   test("Landing page should NOT have sidebar", async ({ page }) => {
-    await page.goto("/DooDates/quizz");
+    await page.goto('quizz");
     
     // Vérifier que la landing page charge
     await expect(page.locator("text=Quiz")).toBeVisible({ timeout: 10000 });
@@ -18,7 +18,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
   });
 
   test("Pricing page should have sidebar", async ({ page }) => {
-    await page.goto("/DooDates/quizz/pricing");
+    await page.goto('quizz/pricing");
     
     // Attendre que la page charge
     await expect(page.locator("text=Tarifs")).toBeVisible({ timeout: 10000 });
@@ -33,7 +33,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
   });
 
   test("Documentation page should have sidebar", async ({ page }) => {
-    await page.goto("/DooDates/quizz/documentation");
+    await page.goto('quizz/documentation");
     
     // Attendre que la page charge
     await expect(page.locator("text=Documentation")).toBeVisible({ timeout: 10000 });
@@ -48,7 +48,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
   });
 
   test("Dashboard should have sidebar", async ({ page }) => {
-    await page.goto("/DooDates/quizz/dashboard");
+    await page.goto('quizz/dashboard");
     
     // Attendre que la page charge
     await page.waitForLoadState("networkidle");
@@ -59,7 +59,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
   });
 
   test("Sidebar navigation should work", async ({ page }) => {
-    await page.goto("/DooDates/quizz/pricing");
+    await page.goto('quizz/pricing");
     
     // Attendre que la page charge
     await expect(page.locator("text=Tarifs")).toBeVisible({ timeout: 10000 });

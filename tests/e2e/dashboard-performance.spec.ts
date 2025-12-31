@@ -59,7 +59,7 @@ async function measureDurationMs(name: string, fn: () => Promise<void>): Promise
 
 async function measureDashboardLoadMs(page: Page, browserName: string) {
   return measureDurationMs('Dashboard - load', async () => {
-    await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForElementReady(page, '[data-testid="dashboard-ready"]', { browserName });
     await waitForReactStable(page, { browserName });

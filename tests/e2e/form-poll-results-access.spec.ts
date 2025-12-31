@@ -14,7 +14,7 @@ import { safeIsVisible } from './helpers/safe-helpers';
 test.describe('Form Poll - Accès aux résultats et Email', () => {
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
   });
@@ -57,7 +57,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Vérifier que le créateur peut voir les résultats
-    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
+    const resultsUrl = 'poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -70,7 +70,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-other-${Date.now()}`);
     });
 
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = 'poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -146,7 +146,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-voter-${Date.now()}`);
     });
 
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = 'poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -217,7 +217,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Accéder directement aux résultats sans voter
-    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
+    const resultsUrl = 'poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -263,7 +263,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec email
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = 'poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -340,7 +340,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec checkbox cochée mais sans email
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = 'poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 

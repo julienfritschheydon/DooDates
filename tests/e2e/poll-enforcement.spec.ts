@@ -4,7 +4,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
 
     test.beforeEach(async ({ page }) => {
         // Nettoyer localStorage avant chaque test
-        await page.goto("/DooDates/");
+        await page.goto('");
         await page.evaluate(() => localStorage.clear());
     });
 
@@ -35,7 +35,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, pollData);
 
         // Aller sur la page de vote
-        await page.goto(`/DooDates/poll/${pollData.slug}`);
+        await page.goto('poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
         // Vérifier l'écran de clôture
@@ -79,7 +79,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, { poll: pollData, resp: responseData });
 
         // Aller sur la page de vote
-        await page.goto(`/DooDates/poll/${pollData.slug}`);
+        await page.goto('poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
         // Vérifier l'écran de clôture
@@ -107,7 +107,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
             localStorage.setItem("doodates_polls", JSON.stringify([data]));
         }, pollData);
 
-        await page.goto(`/DooDates/poll/${pollData.slug}`);
+        await page.goto('poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
         // L'interface de vote normale doit être visible (pas de message de clôture)

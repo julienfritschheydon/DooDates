@@ -44,7 +44,7 @@ test.describe('Mobile Voting UX', () => {
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to create date page (redirige vers /create/ai?type=date)
-    await page.goto('/DooDates/create/date', { waitUntil: 'domcontentloaded' });
+    await page.goto('create/date', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=date and verify AICreationWorkspace loads
@@ -54,7 +54,7 @@ test.describe('Mobile Voting UX', () => {
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
 
     // Test dashboard navigation
-    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for dashboard content to load (any visible dashboard element)
@@ -75,7 +75,7 @@ test.describe('Mobile Voting UX', () => {
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to form creator (redirige vers /create/ai?type=form)
-    await page.goto('/DooDates/create/form', { waitUntil: 'domcontentloaded' });
+    await page.goto('create/form', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=form and verify AICreationWorkspace loads

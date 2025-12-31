@@ -25,7 +25,7 @@ test.describe('Guest Quota System', () => {
     await context.clearCookies();
     
     // Naviguer vers une page qui déclenche l'initialisation du quota
-    await page.goto('/DooDates/create/ai?type=date', { waitUntil: 'domcontentloaded' });
+    await page.goto('create/ai?type=date', { waitUntil: 'domcontentloaded' });
     
     // Attendre que l'app se charge complètement
     await waitForNetworkIdle(page, { browserName });

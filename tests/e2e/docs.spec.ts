@@ -26,7 +26,7 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la page de documentation
-      await page.goto('/DooDates/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('docs', { waitUntil: 'domcontentloaded' });
 
       // Attendre que la page soit complètement chargée
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
@@ -79,7 +79,7 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers un document spécifique
-      await page.goto('/DooDates/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
+      await page.goto('docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
 
       // Attendre que le document soit chargé
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
@@ -124,7 +124,7 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers un document qui n'existe pas
-      await page.goto('/DooDates/docs/non-existent-document', { waitUntil: 'domcontentloaded' });
+      await page.goto('docs/non-existent-document', { waitUntil: 'domcontentloaded' });
 
       // Attendre que la page soit chargée
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
@@ -171,11 +171,11 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation
-      await page.goto('/DooDates/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('docs', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
       // Naviguer vers un document pour déclencher le chargement des assets
-      await page.goto('/DooDates/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
+      await page.goto('docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
       // Vérifier qu'il n'y a pas de requêtes 404 pour les assets de documentation
@@ -206,14 +206,14 @@ test.describe('Documentation - Tests E2E', () => {
       const timeouts = getTimeouts(browserName);
 
       // 1. Date Polls Docs
-      await page.goto('/DooDates/date-polls/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/docs', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/.*\/DooDates\/date-polls\/docs/);
       await expect(page.getByRole('heading', { name: /Documentation - Sondages de Dates/i })).toBeVisible();
 
       // 2. Form Polls Docs
-      await page.goto('/DooDates/form-polls/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('form-polls/docs', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/.*\/DooDates\/form-polls\/docs/);
@@ -221,7 +221,7 @@ test.describe('Documentation - Tests E2E', () => {
       await expect(page.getByRole('heading', { name: /Documentation/i }).first()).toBeVisible();
 
       // 3. Availability Polls Docs
-      await page.goto('/DooDates/availability-polls/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('availability-polls/docs', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
       await waitForReactStable(page, { browserName });
       await expect(page.getByRole('heading', { name: /Documentation/i }).first()).toBeVisible();

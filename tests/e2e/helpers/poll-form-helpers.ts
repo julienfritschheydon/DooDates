@@ -158,7 +158,7 @@ export async function voteOnFormPoll(
   answer: string,
 ) {
   // Use prefix for poll route
-  await page.goto(`/DooDates/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   const nameInput = page.locator('input[placeholder*="nom" i]').first();

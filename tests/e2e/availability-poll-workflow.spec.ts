@@ -83,7 +83,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 2: Client submits availabilities
     // Navigate to vote page
-    await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto('poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -523,7 +523,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to dashboard
-    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

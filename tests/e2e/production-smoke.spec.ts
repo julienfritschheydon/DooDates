@@ -127,7 +127,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const timeouts = getTimeouts(browserName);
     // Charger la page
-    await page.goto('/DooDates/');
+    await page.goto('');
 
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network * 2 });
@@ -262,7 +262,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const timeouts = getTimeouts(browserName);
     // Charger la page
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -305,7 +305,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Navigation principale fonctionne', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
     // Attendre que le DOM affiche du contenu significatif
@@ -344,7 +344,7 @@ test.describe('🔥 Production Smoke Tests', () => {
       }
     });
 
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -422,7 +422,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('UI principale est rendue', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    await page.goto('/DooDates/');
+    await page.goto('');
 
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
@@ -468,7 +468,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -495,7 +495,7 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
    * Fonctionnalité de base: utiliser l'app sans compte
    */
   test('Mode invité est accessible', async ({ page, browserName }) => {
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

@@ -77,7 +77,8 @@ async function sendWebVitalsToSupabase(data: WebVitalsData) {
     // Only send in production
     if (import.meta.env.PROD) {
       const { supabase } = await import("./supabase");
-      await supabase.from("web_vitals").insert([data]);
+      // Insert without specifying columns to avoid 400 error
+      await supabase.from("web_vitals").insert(data);
     } else {
       // Log in development
       console.log("Web Vitals:", data);

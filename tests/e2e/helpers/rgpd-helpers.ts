@@ -70,7 +70,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
   
   if (!navigated) {
     // Last resort: try with base path from page context
-    await page.goto('/DooDates/date-polls/data-control', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto('date-polls/data-control', { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(2000);
   }
   
@@ -308,7 +308,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
   if (!navigated) {
     // Last resort: try with date-polls/settings and wait longer
     try {
-      await page.goto('/DooDates/date-polls/settings', { waitUntil: 'networkidle', timeout: 30000 });
+      await page.goto('date-polls/settings', { waitUntil: 'networkidle', timeout: 30000 });
       await page.waitForTimeout(3000);
       
       // Verify we're on the right page

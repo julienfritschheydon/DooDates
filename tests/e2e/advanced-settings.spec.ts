@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Advanced Settings - Date Polls", () => {
   test("should create date poll with advanced settings", async ({ page }) => {
     // Naviguer vers le créateur de Date Poll
-    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto('date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
@@ -57,7 +57,7 @@ test.describe("Advanced Settings - Date Polls", () => {
 test.describe("Advanced Settings - Form Polls", () => {
   test("should create form poll with all advanced settings", async ({ page }) => {
     // Naviguer vers le créateur de Form Poll
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto('form-polls/workspace/form");
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
@@ -93,7 +93,7 @@ test.describe("Advanced Settings - Form Polls", () => {
 test.describe("Advanced Settings - Availability Polls", () => {
   test("should create availability poll with advanced settings", async ({ page }) => {
     // Naviguer vers le créateur d'Availability Poll
-    await page.goto("/DooDates/availability-polls/workspace/availability");
+    await page.goto('availability-polls/workspace/availability");
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
@@ -123,7 +123,7 @@ test.describe("Advanced Settings - Availability Polls", () => {
 test.describe("Advanced Settings - Quizz", () => {
   test("should create quizz with advanced settings", async ({ page }) => {
     // Naviguer vers le créateur de Quizz
-    await page.goto("/DooDates/quizz/create");
+    await page.goto('quizz/create");
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre

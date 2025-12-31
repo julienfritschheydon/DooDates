@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Results Access Control - Creator Only", () => {
   test("should show results to creator and deny access to others", async ({ page, context }) => {
     // Créer un Date Poll avec visibilité "Créateur uniquement"
-    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto('date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[placeholder*="Réunion"]', "Test Creator Only");
@@ -48,7 +48,7 @@ test.describe("Results Access Control - Creator Only", () => {
 test.describe("Results Access Control - Voters Only", () => {
   test("should show results after voting", async ({ page }) => {
     // Créer un Date Poll avec visibilité "Participants après vote"
-    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto('date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[placeholder*="Réunion"]', "Test Voters Only");
@@ -75,7 +75,7 @@ test.describe("Results Access Control - Voters Only", () => {
     const pollSlug = resultsUrl.split("/results/")[1];
     
     // Aller à la page de vote
-    await page.goto(`/DooDates/poll/${pollSlug}`);
+    await page.goto('poll/${pollSlug}`);
     await page.waitForLoadState("networkidle");
     
     // Avant de voter, essayer d'accéder aux résultats
@@ -86,7 +86,7 @@ test.describe("Results Access Control - Voters Only", () => {
     await expect(page.locator('text=voter pour voir les résultats')).toBeVisible();
     
     // Retourner voter
-    await page.goto(`/DooDates/poll/${pollSlug}`);
+    await page.goto('poll/${pollSlug}`);
     await page.waitForLoadState("networkidle");
     
     // Voter (sélectionner une date et soumettre)
@@ -107,7 +107,7 @@ test.describe("Results Access Control - Voters Only", () => {
 test.describe("Results Access Control - Public", () => {
   test("should show results to everyone", async ({ page, context }) => {
     // Créer un Date Poll avec visibilité "Public"
-    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto('date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[placeholder*="Réunion"]', "Test Public");
@@ -150,7 +150,7 @@ test.describe("Results Access Control - Public", () => {
 test.describe("Results Access Control - Form Polls", () => {
   test("should enforce access control for form polls", async ({ page }) => {
     // Créer un Form Poll avec visibilité "Créateur uniquement"
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto('form-polls/workspace/form");
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[placeholder*="titre"]', "Test Form Access Control");

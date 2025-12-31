@@ -78,7 +78,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -102,7 +102,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -170,7 +170,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -251,7 +251,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -353,7 +353,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -377,7 +377,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté

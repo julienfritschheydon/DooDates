@@ -93,7 +93,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -772,7 +772,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier persistence
    */
   test('8. Test mise à jour conversation', async ({ page, browserName }) => {
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -892,7 +892,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier non réapparition
    */
   test('9. Test suppression conversation', async ({ page, browserName }) => {
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1007,7 +1007,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * (la sauvegarde est testée dans d'autres tests)
    */
   test('10. Test génération automatique titre', async ({ page, browserName }) => {
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
