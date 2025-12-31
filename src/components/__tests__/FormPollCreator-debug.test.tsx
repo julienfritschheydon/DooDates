@@ -64,14 +64,14 @@ describe("FormPollCreator - Debug", () => {
     localStorageMock.removeItem.mockClear();
     localStorageMock.clear.mockClear();
     
-    // Cleanup any pending promises
+    // Cancel all pending promises and timers
     vi.useFakeTimers();
     vi.runAllTimers();
     vi.useRealTimers();
   });
 
   it("should test visibility without adding questions", () => {
-    render(
+    const { unmount } = render(
       <TestWrapper>
         <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
       </TestWrapper>,
