@@ -144,7 +144,6 @@ jobs:
         run: |
           git merge origin/staging --no-ff -m "chore: auto-merge staging to pre-prod"
           git push origin pre-prod
-          retention-days: 3
 
       - name: 📤 Upload test results JSON
         if: always()
