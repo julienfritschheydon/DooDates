@@ -249,7 +249,7 @@ export function PollSettingsForm({
                   value={(settings as FormPollSettings).maxResponses || ""}
                   onChange={(e) => {
                     const value = e.target.value ? parseInt(e.target.value, 10) : undefined;
-                    updateSetting("maxResponses" as any, value);
+                    updateSetting("maxResponses", value);
                   }}
                   className="w-full px-3 py-2 border border-gray-600 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
@@ -264,7 +264,12 @@ export function PollSettingsForm({
                   type="datetime-local"
                   id="expiresAt"
                   value={(settings as FormPollSettings).expiresAt || ""}
-                  onChange={(e) => updateSetting("expiresAt" as any, e.target.value || undefined)}
+                  onChange={(e) =>
+                    updateSetting(
+                      "expiresAt" as keyof (DatePollSettings | FormPollSettings),
+                      e.target.value || undefined,
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-600 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <p className="text-xs text-gray-300 mt-1">Optionnel</p>
@@ -380,7 +385,9 @@ export function PollSettingsForm({
                   name="resultsVisibility"
                   value={option.value}
                   checked={currentVisibility === option.value}
-                  onChange={(e) => handleChange(e.target.value as any)}
+                  onChange={(e) =>
+                    handleChange(e.target.value as "creator-only" | "voters" | "public")
+                  }
                   className="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-600 bg-gray-700"
                 />
                 <div className="ml-4">

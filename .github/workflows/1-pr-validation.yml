@@ -31,19 +31,41 @@ jobs:
         run: |
           npm ci --prefer-offline --no-audit
       
+      - name: 🧪 Tests Unitaires Rapides
+        run: npm run test:unit:fast
+        timeout-minutes: 5
+      
+      - name: 📝 TypeScript Check
+        run: npm run type-check
+        timeout-minutes: 3
+      
+      - name: 🧹 Linting & Formatage
+        run: npm run lint -- --max-warnings=30
+        timeout-minutes: 3
+      
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 5
+      
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
       
-      - name: 🧭 Install Playwright (Chromium only)
-        if: steps.cache-playwright-smoke.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+      - name: 🧭 Install Playwright (only if tests pass)
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Tests passés, installation Playwright pour E2E..."
+            npx playwright install --with-deps
+          else
+            echo "❌ Tests échoués, skip Playwright installation"
+            exit 1
+          fi
+        timeout-minutes: 3
       
       - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
@@ -122,9 +144,15 @@ jobs:
             ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
 
-      - name: 🧭 Install Playwright (Chromium only)
-        if: steps.cache-playwright-health.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+      - name: 🧭 Install Playwright (Optimized)
+        run: |
+          if [ "${{ steps.cache-playwright-health.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache hit - installation rapide (~10s)"
+            npx playwright install chromium firefox webkit --force
+          else
+            echo "⚠️ Cache miss - installation complète (~52s)"
+            npx playwright install --with-deps chromium firefox webkit
+          fi
 
       - name: 🧪 Run Supabase Health Check (APIs critiques)
         run: npx playwright test tests/integration/api-security-performance.spec.ts --project=chromium --reporter=html,json
@@ -132,6 +160,39 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+
+      - name: 🧪 Run E2E Smoke Tests (Chromium)
+        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        env:
+          BASE_URL: http://localhost:4173/
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
+      - name: 🧪 Run E2E Functional Tests (Chromium)
+        run: npx playwright test --project=chromium --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
+        env:
+          BASE_URL: http://localhost:4173/
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
+      - name: 🧪 Run E2E Matrix Tests (Multi-navigateurs)
+        run: |
+          # Exécuter sur tous les navigateurs en parallèle
+          npx playwright test --project=firefox --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          npx playwright test --project=webkit --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          npx playwright test --project="Mobile Chrome" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          npx playwright test --project="Mobile Safari" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          wait
+        env:
+          BASE_URL: http://localhost:4173/
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 📊 Upload Playwright report (Supabase Health)
         if: failure()
@@ -282,186 +343,14 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level moderate
 
-  # Job 5: E2E Smoke (Chromium only - Tests critiques rapides)
-  e2e-smoke:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: |
-          npm ci --prefer-offline --no-audit
-
-      - name: 🧭 Install Playwright (Chromium only)
-        run: npx playwright install --with-deps chromium
-
-      - name: 🔥 Run Smoke Tests (Critical paths only)
-        run: npm run test:e2e:smoke -- --reporter=html,json
-        env:
-          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
-
-      - name: 📊 Upload Playwright HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-smoke
-          path: playwright-report
-          retention-days: 7
-
-      - name: 📤 Upload test results JSON
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-smoke
-          path: |
-            test-results
-            test-results.json
-          retention-days: 7
-
-  # Job 5b: E2E Functional (Chromium only - Tests fonctionnels complets)
-  e2e-functional:
-    needs: [production-smoke, e2e-smoke]  # ⚠️ Bloqué si production-smoke échoue, exécuter après smoke tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: |
-          npm ci --prefer-offline --no-audit
-
-      - name: 🧭 Install Playwright (Chromium only)
-        run: npx playwright install --with-deps chromium
-
-      - name: ⚡ Run Functional Tests (Complete user flows)
-        run: npm run test:e2e:functional -- --reporter=html,json
-        env:
-          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
-
-      - name: 📊 Upload Playwright HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-functional
-          path: playwright-report
-          retention-days: 7
-
-      - name: 📤 Upload test results JSON
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-functional
-          path: |
-            test-results
-            test-results.json
-          retention-days: 7
-
-  # Job 5c: E2E Matrix (Desktop + Mobile - Tests multi-navigateurs)
-  e2e-matrix:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [
-          'chromium',
-          'firefox',
-          'webkit',
-          'Mobile Chrome',
-          'Mobile Safari'
-        ]
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: |
-          npm ci --prefer-offline --no-audit
-
-      - name: 🎭 Cache Playwright browsers
-        id: cache-playwright
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ matrix.project }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-${{ matrix.project }}-
-            ${{ runner.os }}-playwright-
-
-      - name: 🧭 Install Playwright Browser (${{ matrix.project }})
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: |
-          # Déterminer le navigateur à installer
-          case "${{ matrix.project }}" in
-            "chromium"|"Mobile Chrome")
-              BROWSER="chromium"
-              ;;
-            "firefox")
-              BROWSER="firefox"
-              ;;
-            "webkit"|"Mobile Safari")
-              BROWSER="webkit"
-              ;;
-            *)
-              BROWSER="chromium firefox webkit"
-              ;;
-          esac
-          
-          # Toujours installer avec --with-deps en CI (dépendances système non cachées)
-          echo "📦 Installation de $BROWSER avec dépendances système..."
-          npx playwright install --with-deps $BROWSER
-
-      - name: 🧪 Run Playwright E2E (${{ matrix.project }})
-        # Exclure les tests RGPD (exécutés séparément dans 8-rgpd-compliance.yml)
-        run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html,json --ignore-snapshots --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
-
-      - name: 📊 Upload Playwright report (${{ matrix.project }})
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ matrix.project }}
-          path: playwright-report
-          retention-days: 7
-
-      - name: 📤 Upload test results JSON (${{ matrix.project }})
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.project }}
-          path: |
-            test-results
-            test-results.json
-          retention-days: 7
-
   # Job 6: Summary
   validation-summary:
-    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix, supabase-health]
+    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, supabase-health]
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: 📦 Setup Node.js 20
@@ -484,7 +373,7 @@ jobs:
 
       - name: 📊 Generate E2E Summary (if failures)
         id: e2e-summary
-        if: needs.e2e-smoke.result == 'failure' || needs.e2e-functional.result == 'failure' || needs.e2e-matrix.result == 'failure'
+        if: needs.production-smoke.result == 'failure'
         run: |
           if [ -d test-results ]; then
             node scripts/generate-regression-summary.js pr || echo "Summary generation failed"
@@ -501,17 +390,14 @@ jobs:
             const path = require('path');
             
             const jobs = [
-              { name: '🔥 Production Smoke (CRITIQUE)', status: '${{ needs.production-smoke.result }}' },
+              { name: '🔥 Production Smoke + E2E (CRITIQUE)', status: '${{ needs.production-smoke.result }}' },
               { name: 'Tests Rapides', status: '${{ needs.quick-tests.result }}' },
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
               { name: 'Build & Types', status: '${{ needs.build-validation.result }}' },
               { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
-              { name: 'E2E Smoke (Critical)', status: '${{ needs.e2e-smoke.result }}' },
-              { name: 'E2E Functional (Complete)', status: '${{ needs.e2e-functional.result }}' },
-              { name: 'E2E Matrix (All Browsers)', status: '${{ needs.e2e-matrix.result }}' },
-              { name: 'Supabase Health Check (APIs critiques)', status: '${{ needs.supabase-health.result }}' }
+              { name: 'Supabase Health', status: '${{ needs.supabase-health.result }}' }
             ];
-            
+
             const passed = jobs.filter(j => j.status === 'success').length;
             const total = jobs.length;
             const status = passed === total ? '✅' : '❌';

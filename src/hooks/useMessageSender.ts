@@ -739,8 +739,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       setModifiedQuestion,
       hasCurrentPoll,
       options.pollType,
-    ],
-  ); // onUserMessage est dans une ref
+      toast,
+    ], // onUserMessage est dans une ref
+  );
 
   return {
     sendMessage,

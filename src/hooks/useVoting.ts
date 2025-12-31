@@ -242,7 +242,7 @@ export const useVoting = (pollSlug: string) => {
         operation: "loadVotes",
       });
     }
-  }, [realPollId]);
+  }, [realPollId, poll]);
 
   // Mettre à jour un vote (marquer comme explicite)
   const updateVote = useCallback((optionId: string, value: "yes" | "no" | "maybe") => {
@@ -414,7 +414,7 @@ export const useVoting = (pollSlug: string) => {
     } finally {
       setSubmitting(false);
     }
-  }, [realPollId, voterInfo, currentVote]);
+  }, [realPollId, voterInfo, currentVote, closureReason]);
 
   // Calculer les statistiques de vote
   const getVoteStats = useCallback(

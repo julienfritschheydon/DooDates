@@ -22,7 +22,10 @@ export default tseslint.config(
       "**/*.d.ts",
       "vite.config.ts.timestamp-*",
       "playwright-report/**",
-      "test-results/**"
+      "test-results/**",
+      "scripts/**",
+      "temp-test-results/**",
+      "trace/**"
     ] 
   },
   {

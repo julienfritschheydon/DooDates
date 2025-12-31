@@ -58,7 +58,7 @@ interface JournalEntryRow {
   created_at: string;
   action: string;
   credits: number;
-  metadata: any;
+  metadata: Record<string, unknown>;
   fingerprint: string;
 }
 

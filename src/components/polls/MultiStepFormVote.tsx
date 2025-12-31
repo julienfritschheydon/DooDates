@@ -40,8 +40,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         // Vérifier si c'est un DateVoteValue
         if (value && Array.isArray(value) && value.length > 0 && "date" in value[0]) {
           // DateVoteValue: vérifier si au moins un vote "yes" ou "maybe"
-          const hasVote = (value as any).some(
-            (item: any) => item.vote === "yes" || item.vote === "maybe",
+          const hasVote = (value as Array<{ date: string; vote: string }>).some(
+            (item) => item.vote === "yes" || item.vote === "maybe",
           );
           simplifiedAnswers[qId] = hasVote ? "answered" : "";
         } else {
@@ -65,7 +65,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       } else {
         // Pour les types restants, s'assurer que c'est bien string | string[]
         if (typeof value === "string" || Array.isArray(value)) {
-          simplifiedAnswers[qId] = value;
+          simplifiedAnswers[qId] = value as string | string[];
         } else {
           // Cas par défaut : traiter comme vide
           simplifiedAnswers[qId] = "";

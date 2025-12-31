@@ -84,7 +84,7 @@ export class BrowserController {
         if (!this.page) return;
 
         // Console errors
-        this.page.on('console', msg => {
+        this.page.on('console', (msg) => {
             if (msg.type() === 'error') {
                 const text = msg.text();
                 // Filter out known non-critical errors
@@ -97,7 +97,7 @@ export class BrowserController {
         });
 
         // HTTP errors
-        this.page.on('response', response => {
+        this.page.on('response', (response) => {
             if (response.status() >= 400) {
                 const url = response.url();
                 // Filter out non-critical 404s
@@ -192,7 +192,7 @@ export class BrowserController {
      * MAGICAL FIX: Try to unblock disabled "Send" buttons
      * often caused by React state not updating fast enough after typing
      */
-    private async tryMagicFixForDisabledButton(selector: string, element: any): Promise<boolean> {
+    private async tryMagicFixForDisabledButton(selector: string, element: Locator): Promise<boolean> {
         if (!this.page) return false;
 
         // Only apply to potential "Send" buttons to avoid side effects
@@ -230,7 +230,7 @@ export class BrowserController {
         console.log(`   (Re-triggering events for content: "${value.substring(0, 10)}...")`);
 
         await targetInput.click();
-        await targetInput.evaluate(node => {
+        await targetInput.evaluate((node) => {
             node.dispatchEvent(new Event('input', { bubbles: true }));
             node.dispatchEvent(new Event('change', { bubbles: true }));
         });
@@ -287,7 +287,7 @@ export class BrowserController {
                 }
                 return false;
             case 'wait':
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise((r) => setTimeout(r, 1000));
                 return true;
             case 'resize':
                 // Randomly select a viewport from config
@@ -349,12 +349,12 @@ export class BrowserController {
                 // .disableRules(['color-contrast']) // Re-enabled for Critical UX Mode
                 .analyze();
 
-            return results.violations.map(v => ({
+            return results.violations.map((v) => ({
                 id: v.id,
                 impact: v.impact as 'minor' | 'moderate' | 'serious' | 'critical' | null,
                 description: v.description,
                 help: v.help,
-                nodes: v.nodes.map(n => n.target.join(', ')),
+                nodes: v.nodes.map((n) => n.target.join(', ')),
             }));
         } catch (error) {
             console.warn('⚠️ Accessibility check failed:', error);
@@ -407,9 +407,9 @@ export class BrowserController {
                     const elements = Array.from(document.querySelectorAll(check.selector));
                     // Only check if we have enough elements to form a pattern
                     if (elements.length >= 3) {
-                        const styles = elements.map(el => {
+                        const styles = elements.map((el) => {
                             const s = window.getComputedStyle(el);
-                            return check.props.map(p => s[p as any]).join('|');
+                            return check.props.map((p) => s[p as any]).join('|');
                         });
                         const uniqueStyles = new Set(styles);
 
@@ -452,19 +452,19 @@ export class BrowserController {
         for (let i = 0; i < Math.min(locators.length, 100); i++) {
             const el = locators[i];
             try {
-                const tagName = await el.evaluate(node => node.tagName.toLowerCase());
+                const tagName = await el.evaluate((node) => node.tagName.toLowerCase());
                 const typeAttr = await el.getAttribute('type') || '';
 
                 // Skip file uploads as requested
                 if (typeAttr === 'file') continue;
 
-                const isInput = tagName === 'input' || tagName === 'textarea' || await el.evaluate(node => (node as HTMLElement).isContentEditable);
+                const isInput = tagName === 'input' || tagName === 'textarea' || await el.evaluate((node) => (node as HTMLElement).isContentEditable);
 
                 let text = '';
                 if (isInput) {
                     const placeholder = await el.getAttribute('placeholder') || '';
                     const ariaLabel = await el.getAttribute('aria-label') || '';
-                    const labelText = await el.evaluate(node => {
+                    const labelText = await el.evaluate((node) => {
                         const labels = (node as HTMLInputElement).labels;
                         return labels && labels.length > 0 ? labels[0].innerText : '';
                     }).catch(() => '');
@@ -486,7 +486,7 @@ export class BrowserController {
                 if (!boundingBox) continue;
 
                 // ULTIMATE DISABLED DETECTION
-                const detection = await el.evaluate(node => {
+                const detection = await el.evaluate((node) => {
                     const style = window.getComputedStyle(node);
                     const isNativeDisabled = (node as any).disabled === true || node.getAttribute('disabled') !== null;
                     const isAriaDisabled = node.getAttribute('aria-disabled') === 'true';
@@ -551,7 +551,7 @@ export class BrowserController {
      */
     private shouldExclude(text: string): boolean {
         if (!config.behavior.excludeText) return false;
-        return config.behavior.excludeText.some(term =>
+        return config.behavior.excludeText.some((term) =>
             text.toLowerCase().includes(term.toLowerCase())
         );
     }

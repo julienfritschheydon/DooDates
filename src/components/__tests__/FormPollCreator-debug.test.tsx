@@ -1,10 +1,28 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import FormPollCreator from "../polls/FormPollCreator";
 import { AuthProvider } from "../../contexts/AuthContext";
 import { UIStateProvider } from "../prototype/UIStateProvider";
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+// Mock guestEmailService
+vi.mock("../../services/guestEmailService", () => ({
+  guestEmailService: {
+    getGuestEmail: vi.fn().mockResolvedValue(null),
+  },
+}));
 
 // Providers handled by TestWrapper
 
@@ -34,15 +52,26 @@ describe("FormPollCreator - Debug", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.clearAllTimers();
     vi.clearAllMocks();
+    vi.restoreAllMocks();
+    localStorageMock.getItem.mockClear();
+    localStorageMock.setItem.mockClear();
+    localStorageMock.removeItem.mockClear();
+    localStorageMock.clear.mockClear();
+    
+    // Cancel all pending promises and timers
+    vi.useFakeTimers();
+    vi.runAllTimers();
+    vi.useRealTimers();
   });
 
   it("should test visibility without adding questions", () => {
-    render(
+    const { unmount } = render(
       <TestWrapper>
         <FormPollCreator onSave={mockOnSave} onFinalize={mockOnFinalize} onCancel={mockOnCancel} />
       </TestWrapper>,

@@ -4,7 +4,7 @@ import type { Poll } from "./pollStorage";
  * Checks if a poll is expired based on its expiration date.
  */
 export function isPollExpired(poll: Poll): boolean {
-  const expiresAt = poll.expires_at || (poll.settings as any)?.expiresAt;
+  const expiresAt = poll.expires_at || (poll.settings as { expiresAt?: string })?.expiresAt;
   if (!expiresAt) return false;
 
   const now = new Date();
@@ -17,7 +17,7 @@ export function isPollExpired(poll: Poll): boolean {
  * Checks if a poll has reached its maximum response quota.
  */
 export function isPollCapped(poll: Poll, responseCount: number): boolean {
-  const maxResponses = (poll.settings as any)?.maxResponses;
+  const maxResponses = (poll.settings as { maxResponses?: number })?.maxResponses;
   if (maxResponses === undefined || maxResponses === null || maxResponses <= 0) {
     return false;
   }

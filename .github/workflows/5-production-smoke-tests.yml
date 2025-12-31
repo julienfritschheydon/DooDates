@@ -55,9 +55,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
 
       - name: 🧭 Install Playwright (Chromium only - suffisant pour smoke tests)
@@ -100,6 +99,9 @@ jobs:
           NODE_ENV: production
           CI: true
           BASE_URL: ${{ steps.production-url.outputs.url }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
         continue-on-error: true
 
       - name: 📊 Upload Playwright HTML report

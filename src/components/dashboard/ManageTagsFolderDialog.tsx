@@ -23,6 +23,7 @@ interface ManageTagsFolderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  'data-testid'?: string;
 }
 
 export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
@@ -32,6 +33,7 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
   open,
   onOpenChange,
   onSuccess,
+  'data-testid': dataTestId,
 }) => {
   const { toast } = useToast();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(currentTags));
@@ -120,7 +122,7 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" onClick={(e) => e.stopPropagation()}>
+      <DialogContent className="max-w-md" onClick={(e) => e.stopPropagation()} data-testid={dataTestId}>
         <DialogHeader>
           <DialogTitle>Gérer les tags et le dossier</DialogTitle>
           <DialogDescription>

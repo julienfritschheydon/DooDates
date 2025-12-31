@@ -337,7 +337,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     };
 
     return result;
-  }, [polls, creditsUsed]);
+  }, [creditsUsed]);
 
   const usage = useMemo(() => calculateUsage(), [calculateUsage]);
 
@@ -496,6 +496,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     limits,
     quotaInfo.used,
     dismissedIncentives,
+    creditLimit,
   ]);
 
   // Freemium badge

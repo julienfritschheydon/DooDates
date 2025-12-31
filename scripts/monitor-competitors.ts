@@ -145,8 +145,8 @@ async function scrape() {
                     waitUntil: 'networkidle0',
                     timeout: 10000
                 });
-            } catch (error: any) {
-                if (error?.message?.includes('timeout') || error?.message?.includes('Navigation timeout')) {
+            } catch (error: unknown) {
+                if (error instanceof Error && (error.message.includes('timeout') || error.message.includes('Navigation timeout'))) {
                     console.log(`⚠ Timeout with networkidle0, retrying with domcontentloaded...`);
                     // Retry with less strict wait condition
                     await page.goto(target.url, {
@@ -173,7 +173,7 @@ async function scrape() {
             console.log(`Extracted ${content.length} characters. Analyzing with GeminiService...`);
             outputLines.push(`Category: ${target.category}\n`);
 
-            const fullPrompt = `You are analyzing competitor updates for DooDates, a scheduling and polling platform with 4 product axes:
+            const fullPrompt = `You are analyzing competitor updates for DooDates, a private async handleCompetitorData(data: CompetitorData): Promise<void> { scheduling and polling platform with 4 product axes:
 1. **Date Polls** (event scheduling with multiple date options)
 2. **Forms** (surveys and data collection)
 3. **Availability Polls** (time slot grids for finding common availability)

@@ -12,7 +12,7 @@ import DataRetentionService from '../src/services/DataRetentionService'
 
 const retentionService = DataRetentionService.getInstance()
 
-async function testCalculSuppressions() {
+async function testCalculSuppressions(): Promise<any[]> {
   console.log('🧪 Test 1: Calcul des suppressions à venir')
 
   const testSettings = {
@@ -38,7 +38,7 @@ async function testCalculSuppressions() {
   }
 }
 
-async function testGenerationEmail() {
+async function testGenerationEmail(): Promise<void> {
   console.log('\n🧪 Test 2: Génération des emails')
 
   const testWarning = {
@@ -52,7 +52,7 @@ async function testGenerationEmail() {
 
   try {
     // Simuler la génération d'email (sans l'envoyer)
-    const emailContent = await (retentionService as any).generateEmailContent?.(testWarning)
+    const emailContent = await (retentionService as unknown as { generateEmailContent?: (warning: typeof testWarning) => Promise<{ subject: string; html: string } | null> }).generateEmailContent?.(testWarning)
 
     if (emailContent) {
       console.log('✅ Email généré avec succès')
@@ -66,7 +66,7 @@ async function testGenerationEmail() {
   }
 }
 
-async function testJobSimulation() {
+async function testJobSimulation(): Promise<void> {
   console.log('\n🧪 Test 3: Simulation du job quotidien')
 
   try {
@@ -111,7 +111,7 @@ async function testJobSimulation() {
   }
 }
 
-function testInterfaceDataControl() {
+function testInterfaceDataControl(): void {
   console.log('\n🧪 Test 4: Interface DataControl (localStorage)')
 
   try {
@@ -153,7 +153,7 @@ function testInterfaceDataControl() {
   }
 }
 
-async function testPostponement() {
+async function testPostponement(): Promise<void> {
   console.log('\n🧪 Test 5: Report de suppression')
 
   try {
@@ -170,7 +170,7 @@ async function testPostponement() {
 }
 
 // Fonction principale de test
-async function runAllTests() {
+async function runAllTests(): Promise<void> {
   console.log('🚀 Démarrage des tests du système d\'alertes email\n')
 
   await testCalculSuppressions()
