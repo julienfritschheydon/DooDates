@@ -53,9 +53,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
 
       - name: 🎭 Install Playwright browsers

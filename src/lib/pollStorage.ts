@@ -1513,8 +1513,8 @@ export function getRespondentId(resp: FormResponse): string {
   }
 
   // 2. Legacy format: try to use existing respondentId from old data (legacy field)
-  // We need to cast to any because the field was removed from the interface
-  const legacyId = (resp as any).respondentId;
+  // We need to cast to unknown first because the field was removed from the interface
+  const legacyId = (resp as unknown as { respondentId?: string }).respondentId;
   if (legacyId) {
     return legacyId;
   }
@@ -1557,7 +1557,7 @@ export function checkIfUserHasVoted(pollId: string): boolean {
   // Pour les réponses anonymes, vérifier si le respondentId (legacy ou calculé) contient le deviceId
   return responses.some((r) => {
     // Vérifier d'abord s'il y a un respondentId legacy stocké directement
-    const legacyRespondentId = (r as any).respondentId;
+    const legacyRespondentId = (r as unknown as { respondentId?: string }).respondentId;
     if (legacyRespondentId && typeof legacyRespondentId === "string") {
       // Format legacy: anon:<deviceId>:<responseId>
       if (legacyRespondentId.startsWith(`anon:${deviceId}:`)) {

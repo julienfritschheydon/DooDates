@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Shield,
   Clock,
@@ -48,10 +48,65 @@ export const DataControl: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   // Charger les préférences au montage
+  const calculateUpcomingDeletions = useCallback(
+    async (currentSettings: RetentionSettings) => {
+      try {
+        // Utiliser le service pour calculer les suppressions
+        const userId = "current-user"; // TODO: Récupérer l'ID utilisateur réel
+        const warnings = await retentionService.calculateUpcomingDeletions(userId, currentSettings);
+
+        // Mapper vers le format local
+        const localWarnings: LocalDeletionWarning[] = warnings.map((w) => ({
+          type: w.type,
+          daysUntilDeletion: w.daysUntilDeletion,
+          itemCount: w.itemCount,
+          deletionDate: w.deletionDate,
+        }));
+
+        setUpcomingDeletions(localWarnings);
+      } catch (error) {
+        logError(new Error(`Erreur calcul suppressions: ${error}`));
+        // Fallback avec données simulées
+        const warnings: LocalDeletionWarning[] = [];
+        const now = new Date();
+
+        if (currentSettings.chatRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
+          warnings.push({
+            type: "chat",
+            daysUntilDeletion: 15,
+            itemCount: 23,
+            deletionDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
+          });
+        }
+
+        if (currentSettings.pollRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
+          warnings.push({
+            type: "poll",
+            daysUntilDeletion: 45,
+            itemCount: 5,
+            deletionDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000),
+          });
+        }
+
+        setUpcomingDeletions(warnings);
+      }
+    },
+    [retentionService],
+  );
+
+  // Charger les préférences au montage
   useEffect(() => {
     const savedSettings = {
-      chatRetention: (localStorage.getItem("doodates_chat_retention") as any) || "30-days",
-      pollRetention: (localStorage.getItem("doodates_poll_retention") as any) || "12-months",
+      chatRetention:
+        (localStorage.getItem("doodates_chat_retention") as
+          | "30-days"
+          | "12-months"
+          | "indefinite") || "30-days",
+      pollRetention:
+        (localStorage.getItem("doodates_poll_retention") as
+          | "12-months"
+          | "6-years"
+          | "indefinite") || "12-months",
       autoDeleteEnabled: localStorage.getItem("doodates_auto_delete") !== "false",
       emailNotifications: localStorage.getItem("doodates_email_notifications") !== "false",
       allowDataForImprovement: localStorage.getItem("doodates_allow_data_improvement") === "true",
@@ -60,52 +115,9 @@ export const DataControl: React.FC = () => {
 
     // Calculer les suppressions à venir
     calculateUpcomingDeletions(savedSettings);
-  }, []);
+  }, [calculateUpcomingDeletions]);
 
-  const calculateUpcomingDeletions = async (currentSettings: RetentionSettings) => {
-    try {
-      // Utiliser le service pour calculer les suppressions
-      const userId = "current-user"; // TODO: Récupérer l'ID utilisateur réel
-      const warnings = await retentionService.calculateUpcomingDeletions(userId, currentSettings);
-
-      // Mapper vers le format local
-      const localWarnings: LocalDeletionWarning[] = warnings.map((w) => ({
-        type: w.type,
-        daysUntilDeletion: w.daysUntilDeletion,
-        itemCount: w.itemCount,
-        deletionDate: w.deletionDate,
-      }));
-
-      setUpcomingDeletions(localWarnings);
-    } catch (error) {
-      logError(new Error(`Erreur calcul suppressions: ${error}`));
-      // Fallback avec données simulées
-      const warnings: LocalDeletionWarning[] = [];
-      const now = new Date();
-
-      if (currentSettings.chatRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
-        warnings.push({
-          type: "chat",
-          daysUntilDeletion: 15,
-          itemCount: 23,
-          deletionDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
-        });
-      }
-
-      if (currentSettings.pollRetention !== "indefinite" && currentSettings.autoDeleteEnabled) {
-        warnings.push({
-          type: "poll",
-          daysUntilDeletion: 45,
-          itemCount: 5,
-          deletionDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000),
-        });
-      }
-
-      setUpcomingDeletions(warnings);
-    }
-  };
-
-  const handleSettingChange = (key: keyof RetentionSettings, value: any) => {
+  const handleSettingChange = (key: keyof RetentionSettings, value: string | boolean) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
 
@@ -125,7 +137,7 @@ export const DataControl: React.FC = () => {
     ) {
       localStorage.setItem(storageKeys[key], value.toString());
     } else {
-      localStorage.setItem(storageKeys[key], value);
+      localStorage.setItem(storageKeys[key], value as string);
     }
 
     // Recalculer les suppressions
@@ -144,11 +156,11 @@ export const DataControl: React.FC = () => {
         indefinite: "Vos sondages seront conservés indéfiniment.",
       },
       autoDeleteEnabled: {
-        true: "Les données seront supprimées selon vos préférences.",
-        false: "Les données ne seront pas supprimées automatiquement.",
+        true: "La suppression automatique est activée.",
+        false: "La suppression automatique est désactivée.",
       },
       emailNotifications: {
-        true: "Vous recevrez des alertes email avant les suppressions.",
+        true: "Les notifications email sont activées.",
         false: "Les notifications email ont été désactivées.",
       },
       allowDataForImprovement: {
@@ -159,7 +171,7 @@ export const DataControl: React.FC = () => {
 
     toast({
       title: `Paramètre mis à jour`,
-      description: messages[key]?.[value] || "Préférence enregistrée",
+      description: messages[key]?.[value.toString()] || "Préférence enregistrée",
       duration: 3000,
     });
   };

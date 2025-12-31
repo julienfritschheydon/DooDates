@@ -68,8 +68,8 @@ async function main() {
     for (const user of users) {
       try {
         const settings = {
-          chatRetention: user.chat_retention as any,
-          pollRetention: user.poll_retention as any,
+          chatRetention: user.chat_retention as "30-days" | "12-months" | "indefinite",
+          pollRetention: user.poll_retention as "30-days" | "12-months" | "indefinite",
           autoDeleteEnabled: user.auto_delete_enabled,
           emailNotifications: user.email_notifications,
           allowDataForImprovement: false // Non utilisé pour ce job

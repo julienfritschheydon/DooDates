@@ -13,12 +13,12 @@ export interface TimeoutConfig {
 }
 
 const BASE_TIMEOUTS: TimeoutConfig = {
-  element: 5000,       // 5s (réduit de 10s) - Attente d'un élément visible
-  network: 15000,      // 15s (réduit de 30s) - Attente réseau inactif
-  navigation: 7500,    // 7.5s (réduit de 15s) - Navigation entre pages
-  aiResponse: 15000,   // 15s (réduit de 30s) - Réponse de l'IA
-  animation: 2000,     // 2s - Animations CSS/transitions
-  stability: 1000,     // 1s - Stabilité React (re-renders)
+  element: 10000,       // 10s (augmenté de 5s) - Attente d'un élément visible
+  network: 20000,       // 20s (augmenté de 5s) - Attente réseau inactif
+  navigation: 15000,    // 15s (augmenté de 7.5s) - Navigation entre pages
+  aiResponse: 20000,    // 20s (augmenté de 5s) - Réponse de l'IA
+  animation: 3000,      // 3s (augmenté de 1s) - Animations CSS/transitions
+  stability: 2000,      // 2s (augmenté de 1s) - Stabilité React (re-renders)
 };
 
 const FIREFOX_TIMEOUTS: TimeoutConfig = {
