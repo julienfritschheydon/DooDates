@@ -177,6 +177,8 @@ test.describe('🔥 Production Smoke Tests', () => {
         'third-party',             // Scripts tiers
         'ads',                     // Publicités
         'supabase.co/rest/v1/profiles', // Supabase profiles en mode invité (404 normal)
+        'supabase.co/rest/v1/guest_emails', // Guest emails table (non critique)
+        'supabase.co/rest/v1/web_vitals', // Web vitals table (non critique)
         '/functions/v1/',          // Edge Functions Supabase (non disponibles en test local)
         'hyper-task',              // Edge Function hyper-task (non disponible en test local)
       ];

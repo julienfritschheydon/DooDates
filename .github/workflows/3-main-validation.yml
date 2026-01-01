@@ -94,8 +94,7 @@ jobs:
             ${{ runner.os }}-deps-combined-
             ${{ runner.os }}-deps-
 
-      - name: 🔧 Install dependencies (si cache miss)
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+      - name: 🔧 Install dependencies (TOUJOURS)
         run: |
           npm ci --prefer-offline --no-audit
           npx playwright install --with-deps chromium
