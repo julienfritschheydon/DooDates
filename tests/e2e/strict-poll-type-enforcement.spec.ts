@@ -61,6 +61,6 @@ test.describe("Strict Poll Type Enforcement", () => {
 
     // 4. Verify error message
     await expect(page.locator("text=Je ne peux pas créer ce type de sondage ici")).toBeVisible({ timeout: 10000 });
-    await expect(page.locator("text=réservée aux sondages de type "form"")).toBeVisible();
+    await expect(page.locator('text=réservée aux sondages de type "form"')).toBeVisible();
   });
 });
