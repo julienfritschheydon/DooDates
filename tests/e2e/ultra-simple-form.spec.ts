@@ -126,7 +126,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Étape 4 — Reload complet pour vérifier la persistance des données
         const urlBeforeReload = page.url();
 
-        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.reload({ waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
         await waitForElementReady(page, '[data-poll-preview]', {
           browserName,
@@ -145,7 +145,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
         if (pollSlug) {
           // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
-          await page.goto("//DooDates/poll/${pollSlug}", { waitUntil: 'domcontentloaded' });
+          await page.goto("//DooDates/poll/${pollSlug}", { waitUntil: "domcontentloaded" });
           await waitForNetworkIdle(page, { browserName });
           const pollPageTitle = await page.title();
           log(`ℹ️ Titre page votant: ${pollPageTitle}`);
@@ -181,13 +181,13 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           log('🗳️ Vote simulé avec succès');
 
           // Vérification côté dashboard Form Polls : le dashboard produit doit être accessible
-          await page.goto(PRODUCT_ROUTES.formPoll.dashboard, { waitUntil: 'domcontentloaded' });
+          await page.goto(PRODUCT_ROUTES.formPoll.dashboard, { waitUntil: "domcontentloaded" });
           await waitForNetworkIdle(page, { browserName });
           await waitForReactStable(page, { browserName });
 
           await expect(page).toHaveURL(/\/DooDates\/.*\/form-polls\/dashboard/);
 
-          const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
+          const pollItem = await waitForElementReady(page, '[data-testid='poll-item']', {
             browserName,
             timeout: timeouts.element,
           });

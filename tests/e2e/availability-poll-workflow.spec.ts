@@ -49,10 +49,10 @@ test.describe('Availability Poll Workflow', () => {
     await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     // Verify URL contains workspace path
-    await expect(page).toHaveURL(/DooDates/workspace\/availability/, { timeout: timeouts.navigation });
+    await expect(page).toHaveURL(/DooDates\\/workspace\/availability\\/, { timeout: timeouts.navigation });
 
     // Fill poll title - use id="title" or placeholder containing "Planification"
-    const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]', { browserName, timeout: timeouts.element });
+    const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*='Planification'], input[placeholder*='titre']', { browserName, timeout: timeouts.element });
     await titleInput.fill('Test RDV - Disponibilités');
 
     // Optional: Fill description
@@ -83,7 +83,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 2: Client submits availabilities
     // Navigate to vote page
-    await page.goto("/poll/${pollSlug}`, { waitUntil: "domcontentloaded' });
+    await page.goto("/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -93,7 +93,7 @@ test.describe('Availability Poll Workflow', () => {
     // Submit availability text
     await availabilityTextarea.fill('Disponible mardi et jeudi après-midi');
 
-    const submitButton = await waitForElementReady(page, 'button:has-text("Envoyer"), button:has-text("Envoyer mes disponibilités")', { browserName, timeout: timeouts.element });
+    const submitButton = await waitForElementReady(page, 'button:has-text('Envoyer"), button:has-text("Envoyer mes disponibilités")', { browserName, timeout: timeouts.element });
     await submitButton.click({ force: true });
 
     // Wait for parsing (may take a few seconds)
@@ -107,12 +107,12 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 3: Professional views results
     // Navigate to results page
-    await page.goto("//DooDates/poll/${pollSlug}/results`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Verify parsed availabilities are displayed
-    const parsedSection = page.locator("text=Disponibilités analysées, text=analysées").first();
+    const parsedSection = page.locator('text=Disponibilités analysées, text=analysées").first();
     const hasParsed = await safeIsVisible(parsedSection);
 
     // Note: Parsing may fail in test environment (no Gemini API), so we check for either parsed or raw text
@@ -144,8 +144,8 @@ test.describe('Availability Poll Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Fill slot details
-    const dateInputs = page.locator("input[type="date"]");
-    const timeInputs = page.locator("input[type="time"]");
+    const dateInputs = page.locator("input[type='date']");
+    const timeInputs = page.locator("input[type='time']");
 
     const dateInputCount = await dateInputs.count();
     const timeInputCount = await timeInputs.count();
@@ -276,7 +276,7 @@ test.describe('Availability Poll Workflow', () => {
     });
 
     // Navigate to vote page
-    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -287,7 +287,7 @@ test.describe('Availability Poll Workflow', () => {
     const proposedSlotsSection = await waitForElementReady(page, 'text=Créneaux proposés', { browserName, timeout: timeouts.element });
 
     // Verify score and reasons are displayed
-    const scoreElement = page.locator("text=Score").or(page.locator("text=95%")).first();
+    const scoreElement = page.locator('text=Score").or(page.locator("text=95%")).first();
     const hasScore = await safeIsVisible(scoreElement);
 
     // Verify validation button exists
@@ -361,7 +361,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to results page
-    await page.goto("//DooDates/poll/${pollData.slug}/results`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollData.slug}/results`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -369,7 +369,7 @@ test.describe('Availability Poll Workflow', () => {
     await waitForReactStable(page, { browserName });
 
     // Verify scores are displayed
-    const score95 = page.locator("text=95%").or(page.locator("text=Score d\"optimisation : 95%')).first();
+    const score95 = page.locator('text=95%").or(page.locator("text=Score d\"optimisation : 95%')).first();
     const hasScore95 = await safeIsVisible(score95);
     expect(hasScore95).toBeTruthy();
 
@@ -417,7 +417,7 @@ test.describe('Availability Poll Workflow', () => {
     // No calendar API mocks = calendar not connected scenario
 
     // Navigate to vote page
-    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -428,7 +428,7 @@ test.describe('Availability Poll Workflow', () => {
     const proposedSlotsSection = await waitForElementReady(page, 'text=Créneaux proposés', { browserName, timeout: timeouts.element });
 
     // Try to validate slot
-    const validateButton = await waitForElementReady(page, 'button:has-text("Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
+    const validateButton = await waitForElementReady(page, 'button:has-text('Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
     await validateButton.click({ force: true });
 
     // Wait for error message
@@ -480,7 +480,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to vote page
-    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -491,7 +491,7 @@ test.describe('Availability Poll Workflow', () => {
     const proposedSlotsSection = await waitForElementReady(page, 'text=Créneaux proposés', { browserName, timeout: timeouts.element });
 
     // Try to validate slot
-    const validateButton = await waitForElementReady(page, 'button:has-text("Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
+    const validateButton = await waitForElementReady(page, 'button:has-text('Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
     await validateButton.click({ force: true });
 
     // Wait for validation

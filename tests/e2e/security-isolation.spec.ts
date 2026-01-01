@@ -106,7 +106,7 @@ test.describe('Security and Data Isolation', () => {
     });
     
     // Trigger some actions
-    const messageInput = page.locator("[data-testid="chat-input"]");
+    const messageInput = page.locator("[data-testid='chat-input']");
     const hasMessageInput = await safeIsVisible(messageInput);
     if (hasMessageInput) {
       await messageInput.fill('Test message');

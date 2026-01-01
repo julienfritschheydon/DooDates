@@ -35,9 +35,9 @@ let pollCreated = false;
  * Aligné sur l'implémentation de fixtures.ts (sélecteurs éprouvés).
  */
 async function closePoll(page: any, browserName: string, slug: string): Promise<void> {
-  await page.goto("//DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+  await page.goto("//DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
 
-  // Cliquer sur "Terminer"
+  // Cliquer sur 'Terminer"
   const closeButton = page.locator("button:has-text("Terminer")");
   await expect(closeButton).toBeVisible({ timeout: 10000 });
   await closeButton.click();
@@ -136,17 +136,17 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     await closePoll(page, browserName, slug);
 
     // 4. Vérifier insights automatiques
-    const analyticsPanel = await waitForElementReady(page, '[data-testid="analytics-panel"]', { browserName, timeout: timeouts.element });
+    const analyticsPanel = await waitForElementReady(page, '[data-testid='analytics-panel']', { browserName, timeout: timeouts.element });
 
     // Attendre génération insights (attente explicite au lieu de timeout fixe)
     await waitForReactStable(page, { browserName });
-    const insightCard = await waitForElementReady(page, '[data-testid="insight-card"]', { browserName, timeout: timeouts.element }).catch(() => null);
+    const insightCard = await waitForElementReady(page, '[data-testid='insight-card']', { browserName, timeout: timeouts.element }).catch(() => null);
 
     const insightsAccordion = await waitForElementReady(page, 'text=/.*Insights automatiques.*/', { browserName, timeout: timeouts.element });
     await insightsAccordion.click();
 
     await waitForReactStable(page, { browserName });
-    const insightCards = page.locator("[data-testid="insight-card"]");
+    const insightCards = page.locator("[data-testid='insight-card']");
     const firstCardVisible = await safeIsVisible(insightCards.first());
     if (firstCardVisible) {
       await expect(insightCards.first()).toBeVisible({ timeout: timeouts.element });
@@ -172,21 +172,21 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Vérifier que le panneau analytics est présent
-    const analyticsPanel = await waitForElementReady(page, '[data-testid="analytics-panel"]', { browserName, timeout: timeouts.element });
+    const analyticsPanel = await waitForElementReady(page, '[data-testid='analytics-panel']', { browserName, timeout: timeouts.element });
 
     // Quick query : cliquer sur un bouton et attendre une réponse dans analytics-response
-    const quickQueryButton = page.locator("[data-testid="quick-query-button"]").first();
+    const quickQueryButton = page.locator('[data-testid='quick-query-button']").first();
     const hasQuickQuery = await safeIsVisible(quickQueryButton);
 
     if (hasQuickQuery) {
       await quickQueryButton.click();
       await waitForReactStable(page, { browserName });
-      const quickResponse = await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element * 1.5 }).catch(() => null);
+      const quickResponse = await waitForElementReady(page, '[data-testid='analytics-response']', { browserName, timeout: timeouts.element * 1.5 }).catch(() => null);
       if (quickResponse) {
         const text = await quickResponse.textContent();
         expect(text).toBeTruthy();
@@ -194,7 +194,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     }
 
     // Query personnalisée : saisir une question et vérifier qu'une réponse apparaît
-    const queryInput = page.locator("[data-testid="analytics-query-input"], textarea[placeholder*="question"]").first();
+    const queryInput = page.locator("[data-testid='analytics-query-input'], textarea[placeholder*='question']").first();
     const hasQueryInput = await safeIsVisible(queryInput);
 
     if (hasQueryInput) {
@@ -202,7 +202,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       await queryInput.press('Enter');
 
       await waitForReactStable(page, { browserName });
-      const customResponse = await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element * 1.5 }).catch(() => null);
+      const customResponse = await waitForElementReady(page, '[data-testid='analytics-response']', { browserName, timeout: timeouts.element * 1.5 }).catch(() => null);
       if (customResponse) {
         const text = await customResponse.textContent();
         expect(text).toBeTruthy();
@@ -223,11 +223,11 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const queryInput = page.locator("[data-testid="analytics-query-input"], textarea[placeholder*="question"]").first();
+    const queryInput = page.locator('[data-testid='analytics-query-input'], textarea[placeholder*='question']").first();
     const hasQueryInput = await safeIsVisible(queryInput);
 
     if (hasQueryInput) {
@@ -236,17 +236,17 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       await queryInput.press('Enter');
 
       await waitForReactStable(page, { browserName });
-      await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element * 1.5 }).catch(() => {});
+      await waitForElementReady(page, '[data-testid='analytics-response']', { browserName, timeout: timeouts.element * 1.5 }).catch(() => {});
 
       // Deuxième query identique (cache) – on vérifie surtout l'absence d'erreur
       await queryInput.fill(testQuery);
       await queryInput.press('Enter');
 
       await waitForReactStable(page, { browserName });
-      await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element }).catch(() => {});
+      await waitForElementReady(page, '[data-testid='analytics-response']', { browserName, timeout: timeouts.element }).catch(() => {});
 
       // Vérifier la présence d'un indicateur de quota si rendu
-      const quotaLocator = page.locator("[data-testid="quota-indicator"], [data-testid="quota-info"], text=/quota/i").first();
+      const quotaLocator = page.locator("[data-testid='quota-indicator'], [data-testid='quota-info'], text=/quota/i").first();
       const hasQuotaInfo = await safeIsVisible(quotaLocator);
       if (hasQuotaInfo) {
         await expect(quotaLocator).toBeVisible({ timeout: timeouts.element });

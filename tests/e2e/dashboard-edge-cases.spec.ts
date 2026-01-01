@@ -92,13 +92,13 @@ test.describe('Dashboard - Cas Limites', () => {
       await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
 
       // Attendre que les cartes se chargent avec timeout adapté au navigateur
-      await waitForElementReady(page, '[data-testid="poll-item"]', {
+      await waitForElementReady(page, '[data-testid='poll-item']', {
         browserName,
         timeout: timeouts.element,
       });
 
       // Vérifier que des cartes de conversation sont visibles
-      const conversationCards = page.locator("[data-testid="poll-item"]");
+      const conversationCards = page.locator("[data-testid='poll-item']");
       const cardCount = await conversationCards.count();
       expect(cardCount).toBeGreaterThan(0);
 
@@ -151,7 +151,7 @@ test.describe('Dashboard - Cas Limites', () => {
       const timeouts = getTimeouts(browserName);
 
       // Attendre que les cartes se chargent
-      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
+      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
         browserName,
         timeout: timeouts.element,
       });
@@ -228,7 +228,7 @@ test.describe('Dashboard - Cas Limites', () => {
       const timeouts = getTimeouts(browserName);
 
       // Attendre que les cartes se chargent
-      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
+      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
         browserName,
         timeout: timeouts.element,
       });
@@ -300,7 +300,7 @@ test.describe('Dashboard - Cas Limites', () => {
       const timeouts = getTimeouts(browserName);
 
       // Attendre que les cartes se chargent
-      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
+      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
         browserName,
         timeout: timeouts.element,
       });
@@ -376,7 +376,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
       for (const { char, expectedMatch } of specialCharacters) {
         // Trouver le champ de recherche
-        const searchInput = page.locator("input[type="search"], input[placeholder*="Rechercher"], input[placeholder*="Search"]").first();
+        const searchInput = page.locator("input[type='search'], input[placeholder*='Rechercher'], input[placeholder*='Search']").first();
         await searchInput.waitFor({ state: 'visible', timeout: timeouts.element });
 
         // Effectuer la recherche
@@ -390,7 +390,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
         // Si on s'attend à un match, vérifier qu'au moins une carte est visible
         if (expectedMatch) {
-          const cards = page.locator("[data-testid="poll-item"]");
+          const cards = page.locator("[data-testid='poll-item']");
           const cardCount = await cards.count();
           expect(cardCount).toBeGreaterThan(0);
         }

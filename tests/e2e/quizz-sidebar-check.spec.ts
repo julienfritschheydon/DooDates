@@ -13,7 +13,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await expect(page.locator("text=Quiz")).toBeVisible({ timeout: 10000 });
     
     // Vérifier qu"il n'y a PAS de sidebar (pas de bouton hamburger)
-    const hamburgerButton = page.locator("button[aria-label*="menu"]");
+    const hamburgerButton = page.locator("button[aria-label*='menu']");
     await expect(hamburgerButton).not.toBeVisible();
   });
 
@@ -24,7 +24,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await expect(page.locator("text=Tarifs")).toBeVisible({ timeout: 10000 });
     
     // Vérifier la présence du bouton hamburger (sidebar)
-    const hamburgerButton = page.locator("button[aria-label*="menu"]').first();
+    const hamburgerButton = page.locator("button[aria-label*='menu']').first();
     await expect(hamburgerButton).toBeVisible();
     
     // Vérifier que le contenu Pricing est présent
@@ -39,7 +39,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await expect(page.locator("text=Documentation")).toBeVisible({ timeout: 10000 });
     
     // Vérifier la présence du bouton hamburger (sidebar)
-    const hamburgerButton = page.locator("button[aria-label*="menu"]').first();
+    const hamburgerButton = page.locator("button[aria-label*='menu']').first();
     await expect(hamburgerButton).toBeVisible();
     
     // Vérifier que le contenu Documentation est présent
@@ -54,7 +54,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await page.waitForLoadState("networkidle");
     
     // Vérifier la présence du bouton hamburger (sidebar)
-    const hamburgerButton = page.locator("button[aria-label*="menu"]').first();
+    const hamburgerButton = page.locator("button[aria-label*='menu']').first();
     await expect(hamburgerButton).toBeVisible();
   });
 
@@ -65,7 +65,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await expect(page.locator("text=Tarifs")).toBeVisible({ timeout: 10000 });
     
     // Ouvrir la sidebar
-    const hamburgerButton = page.locator("button[aria-label*="menu"]').first();
+    const hamburgerButton = page.locator("button[aria-label*='menu']').first();
     await hamburgerButton.click();
     
     // Attendre que la sidebar s'ouvre
@@ -79,7 +79,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await page.locator("a[href*="/quizz/documentation"]").first().click();
     
     // Vérifier la navigation
-    await expect(page).toHaveURL(/DooDates/\/quizz\/documentation/);
+    await expect(page).toHaveURL(/DooDates\\/\/quizz\\\/documentation/);
     await expect(page.locator("text=Documentation")).toBeVisible();
   });
 });

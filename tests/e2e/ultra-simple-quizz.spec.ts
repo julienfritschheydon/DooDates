@@ -51,13 +51,13 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
 
                 // 1. Navigation workspace Quizz
                 log('🛠️ Navigation vers le workspace Quizz');
-                await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
                 await expect(page).toHaveTitle(/DooDates/);
                 log('✅ App chargée');
 
                 // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
-                const chatInput = page.locator("[data-testid="chat-input"]");
+                const chatInput = page.locator("[data-testid='chat-input']");
                 const formTitle = page.locator("input[placeholder*="titre" i], input[name*="title"], [data-testid="quizz-title"]").first();
 
                 const hasChatInput = await chatInput.isVisible({ timeout: 3000 }).catch(() => false);
@@ -71,7 +71,7 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
                     log('📨 Message envoyé');
 
                     // Attendre le bouton de création
-                    const createButton = page.locator("[data-testid="create-quizz-button"], [data-testid="create-poll-button"], button:has-text("Créer")").first();
+                    const createButton = page.locator("[data-testid='create-quizz-button'], [data-testid='create-poll-button'], button:has-text('Créer')").first();
                     await expect(createButton).toBeVisible({ timeout: timeouts.element * 2 });
                     await createButton.click({ force: true });
                 } else if (hasFormTitle) {
@@ -80,7 +80,7 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
                     await formTitle.fill('Quizz Géographie - Test E2E');
 
                     // Chercher et cliquer sur le bouton de création
-                    const createButton = page.locator("button:has-text("Créer"), button:has-text("Publier"), [data-testid="create-quizz-button"]").first();
+                    const createButton = page.locator("button:has-text('Créer'), button:has-text('Publier'), [data-testid='create-quizz-button']").first();
                     await expect(createButton).toBeEnabled({ timeout: timeouts.element });
                     await createButton.click();
                 } else {
@@ -93,7 +93,7 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
 
                 // 3. Vérifier succès (optionnel si le workspace est vide)
                 const successIndicator = page
-                    .locator("[data-testid="success-message"]")
+                    .locator("[data-testid='success-message']")
                     .or(page.getByText(/Quizz (publié|créé|prêt)/i))
                     .first();
                 const successVisible = await successIndicator.isVisible({ timeout: 5000 }).catch(() => false);
@@ -105,14 +105,14 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
 
                 // 4. Dashboard
                 log('📊 Vérification Dashboard');
-                await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
 
                 await expect(page).toHaveURL(/DooDates/.*\/quizz\/dashboard/);
 
                 // Vérifier contenu dashboard
                 const dashboardContent = page
-                    .locator("[data-testid="quizz-card"], [data-testid="poll-item"], h1, h2")
+                    .locator("[data-testid='quizz-card'], [data-testid='poll-item'], h1, h2")
                     .or(page.getByText(/Aucun quizz/i))
                     .or(page.getByText(/Créez votre premier/i))
                     .first();

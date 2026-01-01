@@ -62,7 +62,7 @@ test.describe("Hyper-task (Edge Function Gemini)", () => {
 
     // Récupérer l'input du chat IA via le data-testid standard
     await waitForChatInput(page, timeouts.element * 2);
-    const chatInput = page.locator("[data-testid="chat-input"]").first();
+    const chatInput = page.locator("[data-testid='chat-input']").first();
 
     await chatInput.fill("Organise une réunion lundi matin");
     await chatInput.press("Enter");

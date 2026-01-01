@@ -152,7 +152,7 @@ export async function publishPollAndGetInfo(
 ): Promise<PollCreationResult> {
   const timeouts = getTimeouts(browserName);
 
-  const finalizeBtn = await waitForElementReady(page, 'button:has-text("Publier le sondage")', {
+  const finalizeBtn = await waitForElementReady(page, 'button:has-text('Publier le sondage')', {
     browserName,
     timeout: timeouts.element,
   });
@@ -281,7 +281,7 @@ export async function createDatePollWithTimeSlots(
   console.log(`📅 Dates à sélectionner: ${dates.join(', ')}`);
 
   // Navigate to date polls workspace (new product-specific route)
-  await page.goto('date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+  await page.goto('date-polls/workspace/date', { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Verify we're on the date polls workspace page

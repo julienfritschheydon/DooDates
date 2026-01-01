@@ -71,10 +71,10 @@ test.describe('Documentation - Production Build Tests', () => {
       }
       
       // Vérifier que le document se charge
-      const loader = page.locator("[class*="animate-spin"]");
+      const loader = page.locator("[class*='animate-spin']");
       await loader.waitFor({ state: 'hidden', timeout: timeouts.element }).catch(() => {});
       
-      const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"]', { browserName, timeout: timeouts.element });
+      const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*='prose']', { browserName, timeout: timeouts.element });
       await expect(docContent.first()).toBeVisible();
       
       await guard.assertClean();

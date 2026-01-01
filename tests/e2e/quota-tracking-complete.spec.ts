@@ -181,20 +181,20 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
     
     // Remplir le formulaire directement
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type="text"]").first();
+    const titleInput = page.locator("input[placeholder*='titre' i], input[type='text']").first();
     await titleInput.fill('Test Poll E2E - Suppression');
     
     // Ajouter une question
-    const addQuestionButton = page.locator("[data-testid="form-add-question-button"]");
+    const addQuestionButton = page.locator("[data-testid='form-add-question-button']");
     await addQuestionButton.click();
     await waitForReactStable(page, { browserName });
     
     // Remplir la question
-    const questionTitle = page.locator("input[placeholder*="Question" i], input[data-testid="question-title"]").first();
+    const questionTitle = page.locator("input[placeholder*='Question' i], input[data-testid='question-title']").first();
     await questionTitle.fill('Question test pour suppression');
     
     // Finaliser directement
-    const publishButton = page.locator("[data-testid="publish-button"]");
+    const publishButton = page.locator("[data-testid='publish-button']");
     await publishButton.click();
     await waitForReactStable(page, { browserName });
     
@@ -217,11 +217,11 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await navigateToWorkspace(page, browserName, 'date');
     
     // Remplir le titre dans le formulaire du workspace
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type="text"]").first();
+    const titleInput = page.locator("input[placeholder*='titre' i], input[type='text']").first();
     await titleInput.fill('Test Date Poll E2E');
     
     // Ajouter une date en cliquant sur le calendrier
-    const calendarButton = page.locator("button[aria-label*="Mois suivant"], button[aria-label*="Next month"]").first();
+    const calendarButton = page.locator("button[aria-label*='Mois suivant'], button[aria-label*='Next month']").first();
     if (await calendarButton.isVisible()) {
       await calendarButton.click();
     } else {
@@ -242,7 +242,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
     
     // Finaliser
-    const publishButton = page.locator("button:has-text("Publier"), [data-testid="publish-button"]").first();
+    const publishButton = page.locator("button:has-text("Publier"), [data-testid='publish-button']").first();
     await publishButton.click();
     await waitForReactStable(page, { browserName });
     
@@ -262,12 +262,12 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await navigateToWorkspace(page, browserName, 'date');
     
     // Changer vers quizz si possible, sinon utiliser le workspace date
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type="text"]").first();
+    const titleInput = page.locator("input[placeholder*='titre' i], input[type='text']").first();
     await titleInput.fill('Test Quizz E2E');
     
     // Simuler la création d'un quizz (utiliser le même workflow que date poll)
     // Ajouter une date pour simuler une question
-    const calendarButton = page.locator("button[aria-label*="Mois suivant"], button[aria-label*="Next month"]").first();
+    const calendarButton = page.locator("button[aria-label*='Mois suivant'], button[aria-label*='Next month']").first();
     if (await calendarButton.isVisible()) {
       await calendarButton.click();
     } else {
@@ -288,7 +288,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
     
     // Finaliser
-    const publishButton = page.locator("button:has-text("Publier"), [data-testid="publish-button"]").first();
+    const publishButton = page.locator("button:has-text("Publier"), [data-testid='publish-button']").first();
     await publishButton.click();
     await waitForReactStable(page, { browserName });
     
@@ -317,7 +317,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Trouver et supprimer le poll correspondant
-    const pollCards = page.locator("[data-testid="poll-item"]");
+    const pollCards = page.locator("[data-testid='poll-item']");
     const pollCount = await pollCards.count();
 
     if (pollCount > 0) {
@@ -376,7 +376,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(journal.length).toBeGreaterThanOrEqual(1);
 
     // Vérifier dans le dashboard que la barre de progression affiche toujours 7 crédits utilisés
-    const progressBar = page.locator("[data-testid="quota-progress"]").first();
+    const progressBar = page.locator("[data-testid='quota-progress']").first();
     const hasProgressBar = await safeIsVisible(progressBar);
 
     if (hasProgressBar) {
@@ -534,7 +534,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Créer une conversation d'abord
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     await messageInput.fill('Premier message');
     await messageInput.press('Enter');
@@ -652,7 +652,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Chercher le bouton/zone analytics
-    const analyticsButton = page.locator("button:has-text("Analytics"), button:has-text("Analyses"), [data-testid="analytics-button"]').first();
+    const analyticsButton = page.locator("button:has-text("Analytics"), button:has-text("Analyses"), [data-testid='analytics-button']').first();
     const hasAnalyticsButton = await safeIsVisible(analyticsButton);
 
     if (hasAnalyticsButton) {
@@ -660,7 +660,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Poser une question analytique
-      const analyticsInput = page.locator("input[placeholder*="question"], textarea[placeholder*="question"], [data-testid="analytics-input"]").first();
+      const analyticsInput = page.locator("input[placeholder*='question'], textarea[placeholder*='question'], [data-testid='analytics-input']").first();
       const hasAnalyticsInput = await safeIsVisible(analyticsInput);
 
       if (hasAnalyticsInput) {
@@ -725,7 +725,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Trouver le poll dans le dashboard et cliquer dessus pour l'éditer
-    const pollCard = page.locator("[data-testid="poll-item"]").first();
+    const pollCard = page.locator("[data-testid='poll-item']").first();
     const hasPollCard = await safeIsVisible(pollCard);
 
     if (hasPollCard) {
@@ -744,7 +744,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const initialTotal = initialQuotaData?.totalCreditsConsumed || 0;
 
     // Chercher le bouton simulation avec data-testid
-    const simulationButton = page.locator("[data-testid="simulation-button"]");
+    const simulationButton = page.locator("[data-testid='simulation-button']");
     const hasSimulationButton = await safeIsVisible(simulationButton);
 
     if (!hasSimulationButton) {
@@ -796,7 +796,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const timeouts = getTimeouts(browserName);
     // Créer quelques actions pour avoir des entrées dans le journal
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     await messageInput.fill('Message 1');
     await messageInput.press('Enter');
@@ -814,7 +814,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Vérifier que toutes les entrées sont affichées (groupées par date)
-    const journalEntries = page.locator("[data-testid="journal-entry"], .journal-entry").first();
+    const journalEntries = page.locator("[data-testid='journal-entry'], .journal-entry").first();
     const hasEntries = await journalEntries.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasEntries) {
@@ -828,7 +828,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       expect(stats.length).toBeGreaterThan(0);
 
       // Vérifier que la recherche fonctionne (par action, poll, conversation)
-      const searchInput = page.locator("input[placeholder*="recherche"], input[type="search"]").first();
+      const searchInput = page.locator("input[placeholder*='recherche'], input[type='search']").first();
       const hasSearchInput = await searchInput.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (hasSearchInput) {
@@ -836,7 +836,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
         await waitForReactStable(page, { browserName });
 
         // Vérifier que les résultats sont filtrés
-        const filteredEntries = page.locator("[data-testid="journal-entry"]");
+        const filteredEntries = page.locator("[data-testid='journal-entry']");
         const count = await filteredEntries.count();
         expect(count).toBeGreaterThanOrEqual(0);
       }
@@ -847,7 +847,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       expect(entryText).toBeTruthy();
 
       // Vérifier que le total affiché correspond au total réel
-      const displayedTotal = page.locator("[data-testid="total-credits"], .total-credits").first();
+      const displayedTotal = page.locator("[data-testid='total-credits'], .total-credits").first();
       const hasDisplayedTotal = await displayedTotal.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (hasDisplayedTotal) {
@@ -877,7 +877,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const timeouts = getTimeouts(browserName);
     // Créer des crédits en mode guest
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     // Premier message (crée conversation + message = 2 crédits)
     await messageInput.fill('Message guest 1');
@@ -948,7 +948,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Créer des crédits en étant connecté
     await waitForChatInput(page, timeouts.element);
-    const messageInput2 = page.locator("[data-testid="chat-input"]").first();
+    const messageInput2 = page.locator("[data-testid='chat-input']").first();
 
     // Premier message (crée conversation + message = 2 crédits)
     await messageInput2.fill('Message auth 1');
@@ -1133,7 +1133,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const timeouts = getTimeouts(browserName);
     // Consommer quelques crédits
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     await messageInput.fill('Test crédits');
     await messageInput.press('Enter');
@@ -1146,7 +1146,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Vérifier que la barre de progression affiche le bon nombre de crédits utilisés
-    const progressBar = page.locator("[data-testid="quota-progress"], .quota-progress").first();
+    const progressBar = page.locator("[data-testid='quota-progress'], .quota-progress").first();
     const hasProgressBar = await safeIsVisible(progressBar);
 
     if (hasProgressBar) {
@@ -1213,7 +1213,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Essayer de créer une nouvelle conversation
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
     const hasMessageInput = await messageInput.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasMessageInput) {
@@ -1242,7 +1242,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const progressBar = page.locator("[data-testid="quota-progress"]").first();
+    const progressBar = page.locator("[data-testid='quota-progress']").first();
     const hasProgressBar = await safeIsVisible(progressBar);
 
     if (hasProgressBar) {
@@ -1259,7 +1259,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const timeouts = getTimeouts(browserName);
     // Générer 100 entrées dans le journal via des messages IA
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     // Créer 50 conversations (chacune = 1 crédit conversation + 1 message = 2 crédits)
     // Pour atteindre 100+ entrées rapidement, on peut créer des entrées directement dans le journal
@@ -1318,7 +1318,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // La page devrait charger en moins de 5 secondes même avec 120 entrées
     expect(loadTime).toBeLessThan(5000);
     // Vérifier que la recherche fonctionne rapidement
-    const searchInput = page.locator("input[placeholder*="recherche"], input[type="search"]").first();
+    const searchInput = page.locator("input[placeholder*='recherche'], input[type='search']").first();
     const hasSearchInput = await searchInput.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasSearchInput) {
@@ -1400,7 +1400,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     
     // Créer des actions dans ce contexte "isolé"
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
     
     await messageInput.fill('Test isolement');
     await messageInput.press('Enter');
@@ -1432,7 +1432,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const timeouts = getTimeouts(browserName);
     // Consommer des crédits via l'interface
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     await messageInput.fill('Test cohérence');
     await messageInput.press('Enter');
@@ -1450,7 +1450,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const progressBar = page.locator("[data-testid="quota-progress"]").first();
+    const progressBar = page.locator("[data-testid='quota-progress']").first();
     const hasProgressBar = await safeIsVisible(progressBar);
 
     if (hasProgressBar) {
@@ -1481,7 +1481,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const updatedProgressBar = page.locator("[data-testid="quota-progress"]").first();
+    const updatedProgressBar = page.locator("[data-testid='quota-progress']").first();
     const hasUpdatedProgressBar = await updatedProgressBar.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasUpdatedProgressBar) {
@@ -1500,7 +1500,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const journalTotal = page.locator("[data-testid="total-credits"], .total-credits").first();
+    const journalTotal = page.locator("[data-testid='total-credits'], .total-credits").first();
     const hasJournalTotal = await journalTotal.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasJournalTotal) {
@@ -1534,11 +1534,11 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Remplir le formulaire
-      const pollTitle = await waitForElementReady(page, 'input[placeholder*="titre"], input[type="text"]', { browserName, timeout: timeouts.element });
+      const pollTitle = await waitForElementReady(page, 'input[placeholder*='titre'], input[type='text']', { browserName, timeout: timeouts.element });
       await pollTitle.fill('Test Creator Only');
 
       // Trouver le sélecteur de visibilité
-      const visibilitySelect = page.locator("select[name*="visibility"], [data-testid="visibility-select"]").first();
+      const visibilitySelect = page.locator("select[name*="visibility"], [data-testid='visibility-select']").first();
       const hasVisibilitySelect = await visibilitySelect.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (hasVisibilitySelect) {
@@ -1555,7 +1555,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
-      const pollCard = page.locator("[data-testid="poll-item"]").first();
+      const pollCard = page.locator("[data-testid='poll-item']").first();
       const hasPollCard = await safeIsVisible(pollCard);
 
       if (hasPollCard) {
@@ -1595,19 +1595,19 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Remplir le titre
-    const pollTitle = page.locator("input[placeholder*="titre"], input[type="text"]").first();
+    const pollTitle = page.locator("input[placeholder*='titre'], input[type='text']").first();
     await expect(pollTitle).toBeVisible({ timeout: 10000 });
     await pollTitle.fill(title);
 
     // Sélectionner la visibilité
-    const visibilitySelect = page.locator("select[name*="visibility"], [data-testid="visibility-select"]").first();
+    const visibilitySelect = page.locator("select[name*="visibility"], [data-testid='visibility-select']").first();
     const hasVisibilitySelect = await visibilitySelect.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasVisibilitySelect) {
       await visibilitySelect.selectOption(visibility);
     } else {
       // Essayer avec les radio buttons
-      const visibilityRadio = page.locator(`input[type="radio"][name="resultsVisibility"][value="${visibility}"]`).first();
+      const visibilityRadio = page.locator(`input[type='radio'][name='resultsVisibility'][value="${visibility}"]`).first();
       const hasVisibilityRadio = await visibilityRadio.isVisible({ timeout: 2000 }).catch(() => false);
       if (hasVisibilityRadio) {
         await visibilityRadio.click();
@@ -1642,18 +1642,18 @@ test.describe('Quota Tracking - Complete Tests', () => {
     wantsEmailCopy: boolean = false,
     email: string = ''
   ): Promise<void> {
-    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Remplir le nom
-    const nameInput = page.locator("input[placeholder*="nom" i], input[name*="name" i]").first();
+    const nameInput = page.locator('input[placeholder*='nom' i], input[name*="name" i]").first();
     await expect(nameInput).toBeVisible({ timeout: 10000 });
     await nameInput.fill(voterName);
 
     // Remplir les réponses
     for (const [questionId, answer] of Object.entries(answers)) {
-      const answerInput = page.locator(`input[name="${questionId}"], textarea[name="${questionId}"]`).first();
+      const answerInput = page.locator(`input[name='${questionId}'], textarea[name='${questionId}']`).first();
       const hasAnswerInput = await answerInput.isVisible({ timeout: 2000 }).catch(() => false);
       if (hasAnswerInput) {
         await answerInput.fill(answer);
@@ -1662,7 +1662,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Cocher "Recevoir copie email" si demandé
     if (wantsEmailCopy) {
-      const emailCheckbox = page.locator("input[type="checkbox"][name*="email"], input[type="checkbox"][id*="email"], label:has-text("Recevoir") input[type="checkbox"]").first();
+      const emailCheckbox = page.locator("input[type='checkbox'][name*="email"], input[type='checkbox'][id*="email"], label:has-text("Recevoir") input[type='checkbox']").first();
       const hasEmailCheckbox = await emailCheckbox.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (hasEmailCheckbox) {
@@ -1671,7 +1671,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
         // Remplir l'email si fourni
         if (email) {
-          const emailInput = page.locator("input[type="email"], input[id*="email"], input[name*="email"]").first();
+          const emailInput = page.locator("input[type='email'], input[id*="email"], input[name*="email"]").first();
           const hasEmailInput = await emailInput.isVisible({ timeout: 2000 }).catch(() => false);
           if (hasEmailInput) {
             await emailInput.fill(email);
@@ -1681,7 +1681,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Soumettre le formulaire
-    const submitButton = page.locator("button[type="submit"], button:has-text("Envoyer"), button:has-text("Soumettre")").first();
+    const submitButton = page.locator("button[type='submit'], button:has-text("Envoyer"), button:has-text("Soumettre")").first();
     await expect(submitButton).toBeVisible({ timeout: 10000 });
     await submitButton.click();
 
@@ -1759,30 +1759,30 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier accès résultats SANS voter
-    await page.goto("//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Vérifier que les résultats sont accessibles sans voter
-    const resultsPage = page.locator("body");
+    const resultsPage = page.locator('body");
     const resultsText = await resultsPage.textContent();
     expect(resultsText).toBeTruthy();
     expect(resultsText?.toLowerCase()).not.toContain('accès restreint');
     expect(resultsText?.toLowerCase()).not.toContain('votez pour voir');
 
     // Voter puis vérifier accès résultats toujours OK
-    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     await voteOnFormPoll(page, browserName, pollSlug, 'Votant Public', {});
 
     // Vérifier que les résultats sont toujours accessibles
-    await page.goto("//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto('//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const resultsAfterVote = page.locator("body");
+    const resultsAfterVote = page.locator('body");
     const resultsAfterVoteText = await resultsAfterVote.textContent();
     expect(resultsAfterVoteText).toBeTruthy();
     expect(resultsAfterVoteText?.toLowerCase()).not.toContain('accès restreint');
@@ -1801,17 +1801,17 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Voter en cochant "Recevoir copie email"
-    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Remplir le nom
-    const nameInput = page.locator("input[placeholder*="nom" i], input[name*="name" i]").first();
+    const nameInput = page.locator('input[placeholder*='nom' i], input[name*="name" i]").first();
     await expect(nameInput).toBeVisible({ timeout: 10000 });
     await nameInput.fill('Test Email User');
 
     // Cocher "Recevoir copie email"
-    const emailCheckbox = page.locator("input[type="checkbox"]:near(label:has-text("Recevoir")), label:has-text("Recevoir") input[type="checkbox"]").first();
+    const emailCheckbox = page.locator("input[type='checkbox']:near(label:has-text("Recevoir")), label:has-text("Recevoir") input[type='checkbox']").first();
     const hasEmailCheckbox = await emailCheckbox.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (!hasEmailCheckbox) {
@@ -1824,7 +1824,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Vérifier que le champ email apparaît
-    const emailInput = page.locator("input[type="email"], input[id*="email"], input[name*="email"]").first();
+    const emailInput = page.locator("input[type='email'], input[id*="email"], input[name*="email"]").first();
     const hasEmailInput = await emailInput.isVisible({ timeout: 2000 }).catch(() => false);
     expect(hasEmailInput).toBeTruthy();
 
@@ -1832,7 +1832,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await emailInput.fill('test@example.com');
 
     // Soumettre le formulaire
-    const submitButton = page.locator("button[type="submit"], button:has-text("Envoyer")").first();
+    const submitButton = page.locator("button[type='submit'], button:has-text("Envoyer")").first();
     await submitButton.click();
     await waitForReactStable(page, { browserName });
 
@@ -1863,7 +1863,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await formPollButton.click();
       await waitForReactStable(page, { browserName });
 
-      const pollTitle = page.locator("input[placeholder*="titre"], input[type="text"]").first();
+      const pollTitle = page.locator("input[placeholder*='titre'], input[type='text']").first();
       await expect(pollTitle).toBeVisible({ timeout: 10000 });
       await pollTitle.fill('Test Email Validation');
 
@@ -1876,7 +1876,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
-      const pollCard = page.locator("[data-testid="poll-item"]").first();
+      const pollCard = page.locator("[data-testid='poll-item']").first();
       const hasPollCard = await safeIsVisible(pollCard);
 
       if (hasPollCard) {
@@ -1884,7 +1884,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
         await waitForReactStable(page, { browserName });
 
         // Cocher "Recevoir copie" SANS remplir email
-        const emailCheckbox = page.locator("input[type="checkbox"][name*="email"], input[type="checkbox"][id*="email"]").first();
+        const emailCheckbox = page.locator("input[type='checkbox'][name*="email"], input[type='checkbox'][id*="email"]").first();
         const hasEmailCheckbox = await emailCheckbox.isVisible({ timeout: 5000 }).catch(() => false);
 
         if (hasEmailCheckbox) {
@@ -1892,7 +1892,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
           await waitForReactStable(page, { browserName });
 
           // Essayer de soumettre le formulaire
-          const submitButton = page.locator("button[type="submit"], button:has-text("Envoyer"), button:has-text("Soumettre")").first();
+          const submitButton = page.locator("button[type='submit'], button:has-text("Envoyer"), button:has-text("Soumettre")").first();
           await submitButton.click();
           await waitForReactStable(page, { browserName });
 
@@ -1949,11 +1949,11 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le poll est créé et accessible
-    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const pollPage = page.locator("body");
+    const pollPage = page.locator('body");
     const pollText = await pollPage.textContent();
     expect(pollText).toBeTruthy();
 
@@ -1966,11 +1966,11 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(hasSuccessMessage).toBeTruthy();
 
     // Vérifier que les résultats sont accessibles (visibilité public)
-    await page.goto("//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
+    await page.goto("//DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const resultsPage = page.locator("body");
+    const resultsPage = page.locator('body");
     const resultsText = await resultsPage.textContent();
     expect(resultsText).toBeTruthy();
     expect(resultsText?.toLowerCase()).not.toContain('accès restreint');
@@ -2281,7 +2281,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Créer quelques actions pour générer des crédits
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
 
     // Envoyer 3 messages (devrait consommer environ 3-4 crédits)
     for (let i = 1; i <= 3; i++) {
@@ -2296,7 +2296,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Attendre que les indicateurs de quota soient visibles
-    await page.waitForSelector('[data-testid="quota-indicator"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid='quota-indicator']', { timeout: 10000 });
 
     // Récupérer les valeurs depuis localStorage
     const localStorageData = await page.evaluate(() => {
@@ -2310,7 +2310,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Vérifier la cohérence entre localStorage et l'UI
     // 1. Vérifier le compteur principal
-    const mainQuotaIndicator = page.locator("[data-testid="quota-indicator-conversations"]");
+    const mainQuotaIndicator = page.locator("[data-testid='quota-indicator-conversations']");
     const mainQuotaText = await mainQuotaIndicator.locator("text=/\\d+\\/\\d+/").textContent();
     
     expect(mainQuotaText).toBeTruthy();
@@ -2318,7 +2318,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(mainQuotaText).toContain(localStorageData.totalCreditsConsumed.toString());
 
     // 2. Vérifier la barre de progression si elle existe
-    const progressBar = page.locator("[data-testid="quota-progress"]");
+    const progressBar = page.locator("[data-testid='quota-progress']");
     const hasProgressBar = await progressBar.isVisible({ timeout: 2000 }).catch(() => false);
     
     if (hasProgressBar) {
@@ -2327,7 +2327,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // 3. Vérifier les compteurs détaillés s'ils existent
-    const detailedIndicators = page.locator("[data-testid="quota-indicator-detailed"]");
+    const detailedIndicators = page.locator("[data-testid='quota-indicator-detailed']");
     const hasDetailed = await detailedIndicators.isVisible({ timeout: 2000 }).catch(() => false);
     
     if (hasDetailed) {
@@ -2356,10 +2356,10 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Attendre les indicateurs de quota initiaux
-    await page.waitForSelector('[data-testid="quota-indicator"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid='quota-indicator']', { timeout: 10000 });
 
     // Vérifier état initial (0 crédits)
-    const initialQuotaText = await page.locator("[data-testid="quota-indicator-conversations"]")
+    const initialQuotaText = await page.locator("[data-testid='quota-indicator-conversations']")
       .locator("text=/\\d+\\/\\d+/").textContent();
     expect(initialQuotaText).toMatch(/^0\/\d+$/);
 
@@ -2370,10 +2370,10 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(newPage, { browserName });
 
     // Envoyer un message (consomme 1 crédit)
-    await newPage.locator("[data-testid="new-conversation-button"]").click();
-    await newPage.locator("[data-testid="message-input"]").fill('Test temps réel');
-    await newPage.locator("[data-testid="send-button"]").click();
-    await newPage.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
+    await newPage.locator("[data-testid='new-conversation-button']").click();
+    await newPage.locator("[data-testid='message-input']").fill('Test temps réel');
+    await newPage.locator("[data-testid='send-button']").click();
+    await newPage.waitForSelector('[data-testid='ai-response']', { timeout: 10000 });
 
     // Retourner au dashboard et recharger
     await page.bringToFront();
@@ -2382,8 +2382,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Vérifier que l'UI s'est mise à jour
-    await page.waitForSelector('[data-testid="quota-indicator"]', { timeout: 10000 });
-    const updatedQuotaText = await page.locator("[data-testid="quota-indicator-conversations"]")
+    await page.waitForSelector('[data-testid='quota-indicator']', { timeout: 10000 });
+    const updatedQuotaText = await page.locator("[data-testid='quota-indicator-conversations']")
       .locator("text=/\\d+\\/\\d+/").textContent();
     expect(updatedQuotaText).toMatch(/^1\/\d+$/);
     expect(updatedQuotaText).not.toBe(initialQuotaText);
@@ -2415,8 +2415,8 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Vérifier l'état near limit
-    await page.waitForSelector('[data-testid="quota-indicator"]', { timeout: 10000 });
-    const quotaIndicator = page.locator("[data-testid="quota-indicator-conversations"]");
+    await page.waitForSelector('[data-testid='quota-indicator']', { timeout: 10000 });
+    const quotaIndicator = page.locator("[data-testid='quota-indicator-conversations']");
     
     // Devrait avoir une classe ou style orange/warning
     const hasWarningClass = await quotaIndicator.evaluate(el => {
@@ -2465,7 +2465,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Créer une action (devrait fonctionner malgré le timeout)
     await waitForChatInput(page, getTimeouts(browserName).element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
     
     await messageInput.fill('Test timeout Supabase');
     await messageInput.press('Enter');
@@ -2477,7 +2477,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.totalCreditsConsumed).toBeGreaterThanOrEqual(1);
 
     // Vérifier qu'il n'y a pas d'erreur bloquante pour l'utilisateur
-    const errorModal = page.locator("[data-testid="error-modal"], .error-modal");
+    const errorModal = page.locator("[data-testid='error-modal'], .error-modal");
     const hasErrorModal = await errorModal.isVisible({ timeout: 2000 }).catch(() => false);
     expect(hasErrorModal).toBe(false);
 
@@ -2494,7 +2494,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Créer une première action
     await waitForChatInput(page, getTimeouts(browserName).element);
-    const messageInput = page.locator("[data-testid="chat-input"]").first();
+    const messageInput = page.locator("[data-testid='chat-input']").first();
     
     await messageInput.fill('Test fingerprint 1');
     await messageInput.press('Enter');

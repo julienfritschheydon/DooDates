@@ -48,7 +48,7 @@ test.describe('Mobile Voting UX', () => {
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=date and verify AICreationWorkspace loads
-    await expect(page).toHaveURL(/DooDates/\/create\/ai.*type=date/, { timeout: timeouts.navigation });
+    await expect(page).toHaveURL(/DooDates\\/\/create\\\/ai.*type=date/, { timeout: timeouts.navigation });
     
     // Verify AICreationWorkspace loads (chat interface or workspace content)
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
@@ -79,7 +79,7 @@ test.describe('Mobile Voting UX', () => {
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=form and verify AICreationWorkspace loads
-    await expect(page).toHaveURL(/DooDates/\/create\/ai.*type=form/, { timeout: timeouts.navigation });
+    await expect(page).toHaveURL(/DooDates\\/\/create\\\/ai.*type=form/, { timeout: timeouts.navigation });
     
     // Verify AICreationWorkspace loads (chat interface or workspace content)
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });

@@ -33,7 +33,7 @@ test.describe('Documentation - Tests E2E', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier que la page de documentation est accessible
-      await expect(page).toHaveURL(/DooDates/.*\/DooDates\/docs/);
+      await expect(page).toHaveURL(/DooDates\\/.*\/DooDates\\\/docs/);
 
       // Vérifier que le titre ou le contenu principal est visible
       // Le titre contient un emoji et le texte exact, donc on cherche le texte sans l'emoji
@@ -86,11 +86,11 @@ test.describe('Documentation - Tests E2E', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier que l'URL est correcte
-      await expect(page).toHaveURL(/DooDates/.*\/DooDates\/docs\/01-Guide-Demarrage-Rapide/);
+      await expect(page).toHaveURL(/DooDates\\/.*\/DooDates\\\/docs\/01-Guide-Demarrage-Rapide\\/);
 
       // Vérifier que le contenu du document est visible (pas juste le loader)
       // Le loader devrait disparaître et le contenu markdown devrait apparaître
-      const loader = page.locator("[class*="animate-spin"]");
+      const loader = page.locator("[class*='animate-spin']");
       await loader.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => { });
 
       // Vérifier qu'il y a du contenu (pas juste une erreur)
@@ -102,7 +102,7 @@ test.describe('Documentation - Tests E2E', () => {
       }
 
       // Vérifier qu'il y a du contenu markdown rendu (prose typography ou tout contenu significatif)
-      const content = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"], main, article, .markdown-content, .content', { browserName, timeout: timeouts.element });
+      const content = await waitForElementReady(page, '.docs-content, .prose, [class*='prose'], main, article, .markdown-content, .content', { browserName, timeout: timeouts.element });
       await expect(content.first()).toBeVisible();
 
       await guard.assertClean();
@@ -209,14 +209,14 @@ test.describe('Documentation - Tests E2E', () => {
       await page.goto("/date-polls/docs", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
       await waitForReactStable(page, { browserName });
-      await expect(page).toHaveURL(/DooDates/.*\/DooDates\/date-polls\/docs/);
+      await expect(page).toHaveURL(/DooDates\\/.*\/DooDates\\\/date-polls\/docs\\/);
       await expect(page.getByRole("heading", { name: /Documentation - Sondages de Dates/i })).toBeVisible();
 
       // 2. Form Polls Docs
       await page.goto("/form-polls/docs", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
       await waitForReactStable(page, { browserName });
-      await expect(page).toHaveURL(/DooDates/.*\/DooDates\/form-polls\/docs/);
+      await expect(page).toHaveURL(/DooDates\\/.*\/DooDates\\\/form-polls\/docs\\/);
       // Note: Le titre peut varier, on cherche "Documentation" au minimum
       await expect(page.getByRole("heading", { name: /Documentation/i }).first()).toBeVisible();
 

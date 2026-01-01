@@ -359,7 +359,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
     // Le timeout est plus long pour webkit qui peut être plus lent
-    const createButton = page.locator("[data-testid="create-form-button"]");
+    const createButton = page.locator("[data-testid='create-form-button']");
 
     // Attendre que la réponse IA soit reçue et le bouton apparaisse
     // On attend d'abord qu'un message avec pollSuggestion apparaisse dans le DOM
@@ -367,7 +367,7 @@ test.describe('Console Errors & React Warnings', () => {
       // Attendre qu'un message avec le bouton create-form-button apparaisse
       await page.waitForFunction(
         () => {
-          const button = document.querySelector('[data-testid="create-form-button"]') as HTMLElement | null;
+          const button = document.querySelector('[data-testid='create-form-button']') as HTMLElement | null;
           return button !== null && button.offsetParent !== null; // Vérifier qu'il est visible
         },
         { timeout: 20000 }
@@ -377,7 +377,7 @@ test.describe('Console Errors & React Warnings', () => {
       // Attendre qu'au moins un message de réponse IA soit présent
       await page.waitForFunction(
         () => {
-          const messages = Array.from(document.querySelectorAll('[class*="message"], [class*="Message"]'));
+          const messages = Array.from(document.querySelectorAll('[class*='message'], [class*='Message']'));
           return messages.length >= 2; // Au moins le message utilisateur + la réponse IA
         },
         { timeout: 15000 }
@@ -387,7 +387,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     // Vérifier les messages affichés dans le chat
-    const allMessages = await page.locator("[class*="message"], [class*="Message"]").all();
+    const allMessages = await page.locator("[class*='message'], [class*='Message']").all();
     console.log('📝 Messages trouvés dans le DOM:', allMessages.length);
 
     for (let i = 0; i < allMessages.length; i++) {
@@ -445,7 +445,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     try {
-      await waitForElementReady(page, '[data-testid="create-form-button"]', { browserName, timeout: timeouts.element * 2 });
+      await waitForElementReady(page, '[data-testid='create-form-button']', { browserName, timeout: timeouts.element * 2 });
       // 📸 Capture 5 : Bouton trouvé et visible
       await page.screenshot({ path: 'test-results/debug-5-button-found.png', fullPage: true });
     } catch (error) {
@@ -462,7 +462,7 @@ test.describe('Console Errors & React Warnings', () => {
       console.log('- Bouton avec data-testid présent:', hasButton);
       console.log('- PollSuggestion dans le DOM:', hasPollSuggestion);
       console.log('- Message AI visible:', hasMessageAI);
-      console.log('- Nombre de messages:', await page.locator("[class*="message"]").count());
+      console.log('- Nombre de messages:', await page.locator("[class*='message']").count());
 
       throw error;
     }
