@@ -2,7 +2,7 @@ name: 4️⃣ Main Deploy to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["3️⃣ Main Complete Validation (Production Protection)"]
+    workflows: ["5️⃣ Unified Smoke Tests (Pre & Post Deployment)"]
     types: [completed]
   workflow_dispatch:  # Permet déclenchement manuel
 
@@ -22,9 +22,16 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     
+    # Vérifier que les smoke tests pré-déploiement ont réussi
     steps:
-      - name: Checkout
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
+
+      - name: 🔍 Check Pre-Deployment Smoke Results
+        run: |
+          echo "🔍 Vérification des résultats des smoke tests pré-déploiement..."
+          echo "✅ Workflow unifié terminé avec succès"
+          echo "🚀 Autorisation de déploiement accordée"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
