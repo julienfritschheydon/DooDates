@@ -57,7 +57,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Vérifier que le créateur peut voir les résultats
-    const resultsUrl = 'poll/${pollSlug}/results`;
+    const resultsUrl = `/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -70,7 +70,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-other-${Date.now()}`);
     });
 
-    const voteUrl = 'poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -146,7 +146,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-voter-${Date.now()}`);
     });
 
-    const voteUrl = 'poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -217,7 +217,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Accéder directement aux résultats sans voter
-    const resultsUrl = 'poll/${pollSlug}/results`;
+    const resultsUrl = `/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 

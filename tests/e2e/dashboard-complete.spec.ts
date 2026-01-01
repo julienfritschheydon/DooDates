@@ -85,7 +85,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     });
     
     // Attendre que les éléments de chargement disparaissent
-    await expect(page.locator("[data-testid="dashboard-loading"]")).toHaveCount(0);
+    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
     
     // Attendre que le titre du dashboard soit visible (peut être "Tableau de bord" ou "Vos Sondages de Dates" selon le composant)
     const dashboardTitle = page.getByRole("heading").first();

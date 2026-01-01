@@ -181,7 +181,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
     
     // Remplir le formulaire directement
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type='text']").first();
+    const titleInput = page.locator('input[placeholder*="titre" i], input[type="text"]').first();
     await titleInput.fill('Test Poll E2E - Suppression');
     
     // Ajouter une question
@@ -217,7 +217,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await navigateToWorkspace(page, browserName, 'date');
     
     // Remplir le titre dans le formulaire du workspace
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type='text']").first();
+    const titleInput = page.locator('input[placeholder*="titre" i], input[type="text"]').first();
     await titleInput.fill('Test Date Poll E2E');
     
     // Ajouter une date en cliquant sur le calendrier
@@ -262,7 +262,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await navigateToWorkspace(page, browserName, 'date');
     
     // Changer vers quizz si possible, sinon utiliser le workspace date
-    const titleInput = page.locator("input[placeholder*="titre" i], input[type='text']").first();
+    const titleInput = page.locator('input[placeholder*="titre" i], input[type="text"]').first();
     await titleInput.fill('Test Quizz E2E');
     
     // Simuler la création d'un quizz (utiliser le même workflow que date poll)

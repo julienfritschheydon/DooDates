@@ -225,7 +225,7 @@ test.describe("Quizz - UI Mirror", () => {
     await waitForChatInput(page);
 
     // 2. Créer un Quizz via l'IA
-    const chatInput = page.locator("[data-testid="chat-input"]");
+    const chatInput = page.locator('[data-testid="chat-input"]');
     await chatInput.fill("Crée un quizz de 5 questions sur les connaissances générales");
     await chatInput.press("Enter");
 
@@ -318,7 +318,7 @@ test.describe("Quizz - UI Mirror", () => {
     Chaque question vaut 10 points
     `;
 
-    const chatInput = page.locator("[data-testid="chat-input"]");
+    const chatInput = page.locator('[data-testid="chat-input"]');
     await chatInput.fill(complexPrompt);
     await chatInput.press("Enter");
 
@@ -420,7 +420,7 @@ test.describe("Quizz - UI Mirror", () => {
       await navigateToWorkspace(page, "chromium");
       await waitForChatInput(page);
       
-      const chatInput = page.locator("[data-testid="chat-input"]");
+      const chatInput = page.locator('[data-testid="chat-input"]');
       await chatInput.fill("Crée un quizz rapide de 3 questions");
       await chatInput.press("Enter");
       
