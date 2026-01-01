@@ -172,7 +172,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -194,7 +194,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     }
 
     // Query personnalisée : saisir une question et vérifier qu'une réponse apparaît
-    const queryInput = page.locator("[data-testid="analytics-query-input"], textarea[placeholder*="question"]").first();
+    const queryInput = page.locator('[data-testid="analytics-query-input"], textarea[placeholder*="question"]').first();
     const hasQueryInput = await safeIsVisible(queryInput);
 
     if (hasQueryInput) {
@@ -223,7 +223,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -246,7 +246,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element }).catch(() => {});
 
       // Vérifier la présence d'un indicateur de quota si rendu
-      const quotaLocator = page.locator("[data-testid="quota-indicator"], [data-testid="quota-info"], text=/quota/i").first();
+      const quotaLocator = page.locator('[data-testid="quota-indicator"], [data-testid="quota-info"], text=/quota/i').first();
       const hasQuotaInfo = await safeIsVisible(quotaLocator);
       if (hasQuotaInfo) {
         await expect(quotaLocator).toBeVisible({ timeout: timeouts.element });
