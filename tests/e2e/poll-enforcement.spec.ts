@@ -79,10 +79,10 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, { poll: pollData, resp: responseData });
 
         // Aller sur la page de vote
-        await page.goto("/poll/${pollData.slug}`);
+        await page.goto(`/poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
-        // Vérifier l"écran de clôture
+        // Vérifier l'écran de clôture
         await expect(page.locator("text=Sondage complet")).toBeVisible();
         await expect(page.locator("text=Le nombre maximum de participations pour ce sondage a été atteint.")).toBeVisible();
     });
@@ -107,10 +107,10 @@ test.describe("Poll Enforcement - Closure Rules", () => {
             localStorage.setItem("doodates_polls", JSON.stringify([data]));
         }, pollData);
 
-        await page.goto("/poll/${pollData.slug}`);
+        await page.goto(`/poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
-        // L"interface de vote normale doit être visible (pas de message de clôture)
+        // L'interface de vote normale doit être visible (pas de message de clôture)
         await expect(page.locator("text=Sondage expiré")).not.toBeVisible();
         await expect(page.locator("text=Sondage complet")).not.toBeVisible();
 
