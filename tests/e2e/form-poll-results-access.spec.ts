@@ -82,11 +82,11 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     await nameInput.fill('Test Voter');
 
     // Remplir la question (si c'est un choix unique)
-    const option = await waitForElementReady(page, 'input[type='radio']', { browserName, timeout: timeouts.element });
+    const option = await waitForElementReady(page, 'input[type="radio"]', { browserName, timeout: timeouts.element });
     await option.check();
 
     // Soumettre
-    const submitBtn = await waitForElementReady(page, 'button[type='submit'], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
+    const submitBtn = await waitForElementReady(page, 'button[type="submit"], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
     await submitBtn.click();
 
     // Attendre la confirmation de soumission
@@ -157,10 +157,10 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     const nameInput = await waitForElementReady(page, '#voter-name-input', { browserName, timeout: timeouts.element });
     await nameInput.fill('Test Voter');
 
-    const option = await waitForElementReady(page, 'input[type='radio']', { browserName, timeout: timeouts.element });
+    const option = await waitForElementReady(page, 'input[type="radio"]', { browserName, timeout: timeouts.element });
     await option.check();
 
-    const submitBtn = await waitForElementReady(page, 'button[type='submit'], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
+    const submitBtn = await waitForElementReady(page, 'button[type="submit"], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
     await submitBtn.click();
 
     // Attendre la confirmation de soumission
@@ -263,7 +263,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec email
-    const voteUrl = 'poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -273,15 +273,15 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     const nameInput = await waitForElementReady(page, '#voter-name-input', { browserName, timeout: timeouts.element });
     await nameInput.fill('Test User');
 
-    const option = await waitForElementReady(page, 'input[type='radio']', { browserName, timeout: timeouts.element });
+    const option = await waitForElementReady(page, 'input[type="radio"]', { browserName, timeout: timeouts.element });
     await option.check();
 
     // Cocher la checkbox pour recevoir l'email
-    const emailCheckbox = await waitForElementReady(page, 'input[type='checkbox']', { browserName, timeout: timeouts.element });
+    const emailCheckbox = await waitForElementReady(page, 'input[type="checkbox"]', { browserName, timeout: timeouts.element });
     await emailCheckbox.check();
 
     // Attendre que le champ email apparaisse (attente explicite)
-    const emailInput = await waitForElementReady(page, 'input[type='email']', { browserName, timeout: timeouts.element });
+    const emailInput = await waitForElementReady(page, 'input[type="email"]', { browserName, timeout: timeouts.element });
     await emailInput.fill('test@example.com');
 
     // 3. Capturer les logs console pour vérifier l'envoi d'email
@@ -292,7 +292,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       }
     });
 
-    const submitBtn = await waitForElementReady(page, 'button[type='submit'], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
+    const submitBtn = await waitForElementReady(page, 'button[type="submit"], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
     await submitBtn.click();
 
     // Attendre la confirmation de soumission
@@ -340,7 +340,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec checkbox cochée mais sans email
-    const voteUrl = 'poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -350,18 +350,18 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     const nameInput = await waitForElementReady(page, '#voter-name-input', { browserName, timeout: timeouts.element });
     await nameInput.fill('Test User');
 
-    const option = await waitForElementReady(page, 'input[type='radio']', { browserName, timeout: timeouts.element });
+    const option = await waitForElementReady(page, 'input[type="radio"]', { browserName, timeout: timeouts.element });
     await option.check();
 
     // Cocher la checkbox
-    const emailCheckbox = await waitForElementReady(page, 'input[type='checkbox']', { browserName, timeout: timeouts.element });
+    const emailCheckbox = await waitForElementReady(page, 'input[type="checkbox"]', { browserName, timeout: timeouts.element });
     await emailCheckbox.check();
 
     // Vérifier que le champ email est maintenant visible (attente explicite)
-    const emailInput = await waitForElementReady(page, 'input[type='email']', { browserName, timeout: timeouts.element });
+    const emailInput = await waitForElementReady(page, 'input[type="email"]', { browserName, timeout: timeouts.element });
 
     // Ne pas remplir l'email et essayer de soumettre
-    const submitBtn = await waitForElementReady(page, 'button[type='submit'], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
+    const submitBtn = await waitForElementReady(page, 'button[type="submit"], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
 
     await submitBtn.click();
 
@@ -371,7 +371,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     await expect(confirmationMessage).not.toBeVisible({ timeout: timeouts.element });
 
     // Vérifier qu'un message d'erreur est visible OU que la validation HTML5 bloque
-    const errorMessage = page.locator("[role="alert"]").filter({ hasText: /email/i });
+    const errorMessage = page.locator('[role="alert"]').filter({ hasText: /email/i });
     const errorVisible = await safeIsVisible(errorMessage);
 
     if (errorVisible) {

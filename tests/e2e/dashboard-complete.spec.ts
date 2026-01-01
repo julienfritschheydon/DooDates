@@ -79,13 +79,13 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     const timeouts = getTimeouts(browserName);
     
     // Attendre que l'élément dashboard-ready soit visible
-    await waitForElementReady(page, '[data-testid="dashboard-ready"]', {
+    await waitForElementReady(page, '[data-testid=\'dashboard-ready\']', {
       browserName,
       timeout: timeouts.element,
     });
     
     // Attendre que les éléments de chargement disparaissent
-    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid=\'dashboard-loading\']')).toHaveCount(0);
     
     // Attendre que le titre du dashboard soit visible (peut être "Tableau de bord" ou "Vos Sondages de Dates" selon le composant)
     const dashboardTitle = page.getByRole("heading").first();
@@ -135,7 +135,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier que seules les conversations avec "active" sont affichées
       await waitForReactStable(page, { browserName });
-      const visibleCards = page.locator("[data-testid="poll-item"]");
+      const visibleCards = page.locator('[data-testid="poll-item"]');
       const count = await visibleCards.count();
       expect(count).toBeGreaterThan(0);
     });
