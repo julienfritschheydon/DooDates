@@ -526,10 +526,9 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
-              basename={import.meta.env.DEV ? "/DooDates" : undefined}
-              // ⚠️ IMPORTANT: basename only in development!
-              // In production, Vite base="/DooDates/" handles subdirectory routing
-              // In development, we need basename for local server
+              // ⚠️ IMPORTANT: NO basename in production!
+              // Vite base="/DooDates/" handles all subdirectory routing
+              // Adding basename breaks production routing
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>
