@@ -174,7 +174,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     await waitForChatInput(page);
 
     // 2. Créer un Availability Poll via l'IA
-    const chatInput = page.locator("[data-testid="chat-input"]");
+    const chatInput = page.locator('[data-testid="chat-input"]');
     await chatInput.fill("Crée un sondage de disponibilité pour une réunion d'équipe la semaine prochaine");
     await chatInput.press("Enter");
 
@@ -182,8 +182,8 @@ test.describe("Availability Polls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier que le sondage est créé
-    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("text="Disponibilités"")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text="Disponibilités")).toBeVisible({ timeout: 10000 });
 
     // 4. Vérifier le calendrier de dates
     await expect(page.locator("[data-testid="date-calendar"]")).toBeVisible({ timeout: 10000 });
@@ -243,7 +243,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     - Afficher le grouping par weekends
     `;
 
-    const chatInput = page.locator("[data-testid="chat-input"]");
+    const chatInput = page.locator('[data-testid="chat-input"]');
     await chatInput.fill(complexPrompt);
     await chatInput.press("Enter");
 
@@ -251,7 +251,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier le calendrier avec grouping
-    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible({ timeout: 15000 });
     await expect(page.locator("[data-testid="date-groups"]")).toBeVisible({ timeout: 10000 });
 
     // 4. Vérifier les groupes de dates
@@ -295,7 +295,7 @@ test.describe("Availability Polls - UI Mirror", () => {
       await waitForChatInput(page, 10000);
       await waitForChatInput(page);
       
-      const chatInput = page.locator("[data-testid="chat-input"]");
+      const chatInput = page.locator('[data-testid="chat-input"]');
       await chatInput.fill("Crée un sondage de disponibilité rapide pour cette semaine");
       await chatInput.press("Enter");
       

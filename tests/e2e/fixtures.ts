@@ -103,7 +103,7 @@ async function createPollQuick(page: any): Promise<Poll> {
  */
 async function voteTimes(page: any, slug: string, times: number): Promise<void> {
   for (let i = 1; i <= times; i++) {
-    await page.goto('/DooDates/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     
     // Remplir nom
     const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -130,7 +130,7 @@ async function voteTimes(page: any, slug: string, times: number): Promise<void> 
  * Optimisé pour la vitesse
  */
 async function closePoll(page: any, slug: string): Promise<void> {
-  await page.goto('/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
   
   // Cliquer sur "Clôturer"
   const closeButton = page.locator('button:has-text("Clôturer")');
