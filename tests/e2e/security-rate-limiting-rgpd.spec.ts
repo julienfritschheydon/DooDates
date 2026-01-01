@@ -191,7 +191,7 @@ test.describe('🔒 E2E Security Tests - Rate Limiting & RGPD', () => {
       await page.waitForTimeout(500);
 
       // Vérifier la présence de bannière consentement
-      const consentBanner = page.locator("[data-testid="consent-banner"], .consent-banner, #cookie-consent");
+      const consentBanner = page.locator('[data-testid="consent-banner"], .consent-banner, #cookie-consent');
       const hasConsentBanner = await consentBanner.count().then(count => count > 0);
 
       if (hasConsentBanner) {

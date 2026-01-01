@@ -7,10 +7,10 @@ test.describe("Advanced Settings - Date Polls", () => {
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
-    await page.fill("input[placeholder*="Réunion"]', "Test Advanced Settings");
+    await page.fill('input[placeholder*="Réunion"]', "Test Advanced Settings");
 
     // Sélectionner une date
-    await page.click('button[name='Mois suivant']');
+    await page.click('button[name="Mois suivant"]');
     await page.waitForTimeout(500);
     
     // Ouvrir le panneau Paramètres et Partage
@@ -18,7 +18,7 @@ test.describe("Advanced Settings - Date Polls", () => {
     await page.waitForTimeout(1000);
 
     // Vérifier que l'onglet "Paramètres avancés" est visible
-    const advancedTab = page.locator("button:has-text("Paramètres avancés")");
+    const advancedTab = page.locator('button:has-text("Paramètres avancés")');
     await expect(advancedTab).toBeVisible();
 
     // Cliquer sur l'onglet Paramètres avancés
@@ -50,7 +50,7 @@ test.describe("Advanced Settings - Date Polls", () => {
     await page.waitForTimeout(2000);
 
     // Vérifier que le sondage a été créé
-    await expect(page).toHaveURL(/DooDates\\/\/results\\\//);
+    await expect(page).toHaveURL(/DooDates\/.*\/results\//);
   });
 });
 
@@ -61,7 +61,7 @@ test.describe("Advanced Settings - Form Polls", () => {
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
-    await page.fill("input[placeholder*="titre"]', "Test Form Advanced Settings");
+    await page.fill('input[placeholder*="titre"]', "Test Form Advanced Settings");
 
     // Ajouter une question
     await page.click('button:has-text("Ajouter une question")');
@@ -97,7 +97,7 @@ test.describe("Advanced Settings - Availability Polls", () => {
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
-    await page.fill("input[placeholder*="titre"]', "Test Availability Advanced Settings");
+    await page.fill('input[placeholder*="titre"]', "Test Availability Advanced Settings");
 
     // Scroll vers les paramètres avancés
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -127,7 +127,7 @@ test.describe("Advanced Settings - Quizz", () => {
     await page.waitForLoadState("networkidle");
 
     // Remplir le titre
-    await page.fill("input[placeholder*="titre"]', "Test Quizz Advanced Settings");
+    await page.fill('input[placeholder*="titre"]', "Test Quizz Advanced Settings");
 
     // Ajouter une question
     await page.click('button:has-text("Ajouter une question")');

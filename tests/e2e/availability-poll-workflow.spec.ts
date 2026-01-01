@@ -49,7 +49,7 @@ test.describe('Availability Poll Workflow', () => {
     await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     // Verify URL contains workspace path
-    await expect(page).toHaveURL(/DooDates\\/workspace\/availability\\/, { timeout: timeouts.navigation });
+    await expect(page).toHaveURL(/DooDates\/.*\/workspace\/availability\//, { timeout: timeouts.navigation });
 
     // Fill poll title - use id="title" or placeholder containing "Planification"
     const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]', { browserName, timeout: timeouts.element });

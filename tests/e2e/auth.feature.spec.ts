@@ -88,7 +88,7 @@ test.describe("Auth (Supabase API + UI)", () => {
 
     // 2. Vérifier que le chat IA est toujours accessible après connexion
     await waitForChatInput(page, timeouts.element);
-    const chatInput = page.locator("[data-testid="chat-input"]").first();
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await expect(chatInput).toBeVisible({ timeout: timeouts.element });
 
     // 3. Envoyer un message pour s'assurer que le token est bien utilisé

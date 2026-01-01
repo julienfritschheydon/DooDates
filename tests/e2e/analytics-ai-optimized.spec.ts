@@ -35,15 +35,15 @@ let pollCreated = false;
  * Aligné sur l'implémentation de fixtures.ts (sélecteurs éprouvés).
  */
 async function closePoll(page: any, browserName: string, slug: string): Promise<void> {
-  await page.goto("//DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
 
   // Cliquer sur 'Terminer"
-  const closeButton = page.locator("button:has-text("Terminer")");
+  const closeButton = page.locator('button:has-text("Terminer")');
   await expect(closeButton).toBeVisible({ timeout: 10000 });
   await closeButton.click();
 
   // Confirmer si une modale apparaît
-  const confirmButton = page.locator("button:has-text("Confirmer")");
+  const confirmButton = page.locator('button:has-text("Confirmer")');
   if (await confirmButton.isVisible({ timeout: 3000 }).catch(() => false)) {
     await confirmButton.click();
   }
@@ -101,7 +101,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     await setupAllMocksWithoutNavigation(page);
 
     const targetUrl = pollSlug
-      ? '/DooDates/poll/${pollSlug}/results?e2e-test=true`
+      ? `/DooDates/poll/${pollSlug}/results?e2e-test=true`
       : "/results?e2e-test=true";
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
