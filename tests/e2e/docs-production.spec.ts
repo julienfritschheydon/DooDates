@@ -46,7 +46,7 @@ test.describe('Documentation - Production Build Tests', () => {
       
       // Vérifier que le contenu est visible
       const content = page.getByText(/Documentation DooDates/i).or(page.getByText(/Bienvenue dans la documentation/i));
-      await waitForElementReady(content, undefined, { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, 'text=/Documentation DooDates/i, text=/Bienvenue dans la documentation/i', { browserName, timeout: timeouts.element });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets
       const failedRequests: string[] = [];
@@ -74,7 +74,7 @@ test.describe('Documentation - Production Build Tests', () => {
       const loader = page.locator("[class*='animate-spin']");
       await loader.waitFor({ state: 'hidden', timeout: timeouts.element }).catch(() => {});
       
-      const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*='prose']', { browserName, timeout: timeouts.element });
+      const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"]', { browserName, timeout: timeouts.element });
       await expect(docContent.first()).toBeVisible();
       
       await guard.assertClean();
