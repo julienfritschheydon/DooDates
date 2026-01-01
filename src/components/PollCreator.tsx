@@ -726,37 +726,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 />
               </div>
 
-              {/* Champ Email Invité (RGPD) */}
-              {!user && !isEmailFieldDismissed && (
-                <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-700 relative group">
-                  <button
-                    onClick={handleDismissEmailField}
-                    className="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-300 transition-colors"
-                    title="Ne plus afficher"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Mail className="w-5 h-5 text-blue-400" />
-                    <Label className="text-sm font-medium text-blue-400">
-                      Email pour les alertes RGPD (recommandé)
-                    </Label>
-                  </div>
-                  <Input
-                    type="email"
-                    placeholder="votre@email.com"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
-                    className="bg-[#0a0a0a] border-gray-700 text-gray-200"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    En tant qu'invité, vos données sont conservées pendant 1 an. Renseignez votre
-                    email pour être alerté avant la suppression.
-                  </p>
-                </div>
-              )}
-
               <div className="w-full overflow-hidden">
                 <Calendar
                   visibleMonths={visibleMonths}
@@ -1745,6 +1714,36 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 title="Paramètres et Partage"
               />
             </div>
+
+            {/* Champ Email Invité (RGPD) - Moins proéminent, juste avant les actions */}
+            {!user && !isEmailFieldDismissed && (
+              <div className="mt-6 p-3 bg-[#1a1a1a] rounded-lg border border-gray-800 relative group">
+                <button
+                  onClick={handleDismissEmailField}
+                  className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-400 transition-colors"
+                  title="Ne plus afficher"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <Label className="text-xs font-medium text-gray-400">
+                    Email pour les alertes RGPD
+                  </Label>
+                </div>
+                <Input
+                  type="email"
+                  placeholder="votre@email.com"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
+                  className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Invité : données conservées 1 an. Email recommandé pour alerte avant suppression.
+                </p>
+              </div>
+            )}
 
             {/* Boutons d'action - Toujours visibles, désactivés si aucune date sélectionnée */}
             <TooltipProvider>

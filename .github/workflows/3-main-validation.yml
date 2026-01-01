@@ -12,6 +12,8 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  pages: write
+  id-token: write
 
 jobs:
   # ========================================
@@ -398,24 +400,68 @@ jobs:
             });
 
   # ========================================
-  # SUCCESS NOTIFICATION (main)
+  # DEPLOYMENT TO GITHUB PAGES (main)
   # ========================================
-  success-notification:
+  deploy:
     needs: [changes, tests-complete, build-validation, production-smoke-main]
     if: |
-      always() &&
       needs.changes.outputs.code == 'true' &&
       needs.tests-complete.result == 'success' &&
       needs.build-validation.result == 'success' &&
       needs.production-smoke-main.result == 'success'
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔨 Build production
+        run: npm run build
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ========================================
+  # SUCCESS NOTIFICATION (main)
+  # ========================================
+  success-notification:
+    needs: [changes, tests-complete, build-validation, production-smoke-main, deploy]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      needs.tests-complete.result == 'success' &&
+      needs.build-validation.result == 'success' &&
+      needs.production-smoke-main.result == 'success' &&
+      needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
     steps:
       - name: 🎉 Production Ready
         run: |
           echo "✅ Main validation completed successfully"
-          echo "🚀 Production deployment can proceed"
+          echo "🚀 Production deployment completed"
           echo "📊 All tests passed:"
           echo "  - 🧪 Tests Complets: ✅"
           echo "  - 🏗️ Build Validation: ✅" 
           echo "  - 🔥 Production Smoke: ✅"
+          echo "  - 🚀 Deployment: ✅"
+          echo "🌐 Site deployed at: https://julienfritschheydon.github.io/DooDates/"
           echo "🛡️ Production protection maintained"

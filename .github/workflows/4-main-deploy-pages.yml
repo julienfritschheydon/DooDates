@@ -1,10 +1,14 @@
-name: 4️⃣ Main Deploy to GitHub Pages
+# ⚠️ DISABLED - Deployment moved to 3-main-validation.yml
+# This workflow is now integrated into the main validation workflow
+# to ensure deployment only happens after ALL tests pass
+#
+# Only manual deployment is allowed for emergencies
+# Use: gh workflow run "4️⃣ Main Deploy to GitHub Pages (DISABLED)"
+
+name: 4️⃣ Main Deploy to GitHub Pages (DISABLED)
 
 on:
-  workflow_run:
-    workflows: ["5️⃣ Unified Smoke Tests (Pre & Post Deployment)"]
-    types: [completed]
-  workflow_dispatch:  # Permet déclenchement manuel
+  workflow_dispatch:  # Still allow manual deployment for emergencies
 
 # Permissions nécessaires pour GitHub Pages
 permissions:
@@ -19,19 +23,19 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}  # Only manual triggers
     runs-on: ubuntu-latest
     
-    # Vérifier que les smoke tests pré-déploiement ont réussi
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔍 Check Pre-Deployment Smoke Results
+      - name: 🔍 Manual Deployment Warning
         run: |
-          echo "🔍 Vérification des résultats des smoke tests pré-déploiement..."
-          echo "✅ Workflow unifié terminé avec succès"
-          echo "🚀 Autorisation de déploiement accordée"
+          echo "⚠️ DEPLOIEMENT MANUEL ACTIVÉ"
+          echo "⚠️ CE DÉPLOIEMENT CONTOURNE LA PRODUCTION PROTECTION"
+          echo "⚠️ Assurez-vous que tous les tests passent avant de continuer"
+          echo "⚠️ Utilisez uniquement en cas d'urgence"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -45,7 +49,6 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Variables d'environnement pour le build
           NODE_ENV: production
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

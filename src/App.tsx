@@ -17,7 +17,6 @@ import { ConversationProvider } from "./components/prototype/ConversationProvide
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { GuestWarningBanner } from "./components/guest/GuestWarningBanner";
 
 // Composant de loading avec spinner CSS pur
 const LoadingSpinner = () => (
@@ -791,7 +790,6 @@ const App = () => {
               </AppLayout>
             </BrowserRouter>
             <Sonner />
-            <GuestWarningBanner />
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
