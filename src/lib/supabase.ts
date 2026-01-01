@@ -10,6 +10,8 @@ const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 // Déterminer l'environnement
 const mode = getMode();
 const isProduction = mode === "production";
+// En test, si les variables sont définies, ne pas considérer comme local dev
+const isTestEnv = mode === "test" || (typeof process !== "undefined" && process?.env?.NODE_ENV === "test");
 const isLocalDev = !supabaseUrl || !supabaseAnonKey;
 
 // Debug: Log des variables d'environnement (développement uniquement)
@@ -77,18 +79,18 @@ const getSupabaseConfig = (): SupabaseClientOptions<"public"> => {
 
 // Configuration Supabase
 let supabaseClient;
-if (isLocalDev) {
-  // En mode développement/test, utiliser mock si variables manquantes
+if (isLocalDev && !isTestEnv) {
+  // En mode développement uniquement (pas test), utiliser mock si variables manquantes
   const MOCK_SUPABASE_URL = "https://mock.supabase.co";
   const MOCK_SUPABASE_KEY = "mock-key";
 
   supabaseClient = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, getSupabaseConfig());
 } else {
-  // Configuration Supabase réelle avec validation
+  // Configuration Supabase réelle avec validation (production ou test avec variables)
   if (!supabaseUrl || !supabaseAnonKey) {
-    const error = ErrorFactory.createError(
-      "ConfigurationError",
+    const error = ErrorFactory.validation(
       "Variables d'environnement Supabase manquantes",
+      "Configuration Supabase invalide",
       {
         component: "Supabase",
         operation: "initialization",
