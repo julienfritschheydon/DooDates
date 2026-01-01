@@ -17,7 +17,6 @@ import { ConversationProvider } from "./components/prototype/ConversationProvide
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { GuestWarningBanner } from "./components/guest/GuestWarningBanner";
 
 // Composant de loading avec spinner CSS pur
 const LoadingSpinner = () => (
@@ -526,7 +525,10 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
-              basename="/DooDates"
+              basename={import.meta.env.VITE_BASE_PATH || undefined}
+              // ⚠️ IMPORTANT: Use VITE_BASE_PATH for environment-specific routing
+              // In development: VITE_BASE_PATH="/DooDates" 
+              // In production: VITE_BASE_PATH undefined (handled by Vite base config)
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>
@@ -788,7 +790,6 @@ const App = () => {
               </AppLayout>
             </BrowserRouter>
             <Sonner />
-            <GuestWarningBanner />
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>

@@ -103,7 +103,7 @@ test.describe("FormPolls - API Contract", () => {
     const voteResponse = await request.post(`/api/formpolls/${poll.slug}/vote`, {
       data: votePayload
     });
-
+    
     expect(voteResponse.status()).toBe(200);
     const voteResult = await voteResponse.json();
     expect(voteResult.success).toBe(true);
@@ -207,7 +207,7 @@ test.describe("FormPolls - UI Mirror", () => {
     await finalizeButton.click();
 
     // 5. Vérifier l'écran de succès
-    await expect(page.locator('text="Formulaire publié !"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="view-form"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
 
     // 6. Copier le lien et naviguer vers le vote
@@ -227,7 +227,7 @@ test.describe("FormPolls - UI Mirror", () => {
     await expect(page.locator('[data-testid="form-poll-vote"]')).toBeVisible({ timeout: 15000 });
     
     // Répondre à la question
-    const optionButton = page.locator('input[type="radio"]').first();
+    const optionButton = page.locator("input[type='radio']").first();
     await expect(optionButton).toBeVisible({ timeout: 10000 });
     await optionButton.check();
 
@@ -287,8 +287,8 @@ test.describe("FormPolls - UI Mirror", () => {
     await expect(page.locator('text="Pourquoi ?"')).toBeVisible();
 
     // 6. Tester la question matrice
-    await expect(page.locator('table')).toBeVisible(); // Les matrices sont rendues en tableaux
-    const matrixRadios = page.locator('table input[type="radio"]');
+    await expect(page.locator("table")).toBeVisible(); // Les matrices sont rendues en tableaux
+    const matrixRadios = page.locator("table input[type='radio']");
     const count = await matrixRadios.count();
     
     // Vérifier qu'il y a des éléments à tester
@@ -311,11 +311,11 @@ test.describe("FormPolls - UI Mirror", () => {
   test("UI - Résultats et exports", async ({ page }) => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     // 1. Naviguer vers le dashboard
-    await page.goto("/dashboard");
+    await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un formulaire existant ou en créer un
-    const existingForm = page.locator('[data-testid="form-poll-card"]').first();
+    const existingForm = page.locator("[data-testid='form-poll-card']").first();
     
     if (await existingForm.isVisible()) {
       await existingForm.click();
@@ -339,17 +339,18 @@ test.describe("FormPolls - UI Mirror", () => {
     }
 
     // 3. Accéder aux résultats
-    await page.waitForSelector('[data-testid="poll-results"]', { timeout: 10000 });
+    await expect(page.locator('[data-testid="poll-results"]')).toBeVisible({ timeout: 10000 });
     const resultsButton = page.locator('[data-testid="view-results"]');
+    await expect(resultsButton).toBeVisible({ timeout: 10000 });
     if (await resultsButton.isVisible()) {
       await resultsButton.click();
     }
 
     // 4. Vérifier les statistiques
-    await expect(page.locator('[data-testid="results-stats"]')).toBeVisible();
+    await expect(page.locator("[data-testid='results-stats']")).toBeVisible({ timeout: 10000 });
     
     // 5. Tester les exports
-    const exportButtons = page.locator('[data-testid^="export-"]');
+    const exportButtons = page.locator("[data-testid^='export-']");
     const exportCount = await exportButtons.count();
     
     if (exportCount > 0) {

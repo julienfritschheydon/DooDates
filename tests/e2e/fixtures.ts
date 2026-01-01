@@ -8,7 +8,7 @@
 import { test as base, expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 import { setupGeminiMock, setupAllMocksWithoutNavigation } from './global-setup';
-import { navigateToWorkspace } from './helpers/chat-helpers';
+import { navigateToWorkspace, waitForChatInput } from './helpers/chat-helpers';
 import { authenticateUser } from './helpers/auth-helpers';
 
 export interface Poll {
@@ -46,7 +46,7 @@ interface TestFixtures {
  * Optimisé pour la vitesse (pas de waits inutiles)
  */
 async function createPollQuick(page: any): Promise<Poll> {
-  await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
   
   // Demander à l'IA
   const chatInput = page.locator('[data-testid="chat-input"]');
@@ -103,7 +103,7 @@ async function createPollQuick(page: any): Promise<Poll> {
  */
 async function voteTimes(page: any, slug: string, times: number): Promise<void> {
   for (let i = 1; i <= times; i++) {
-    await page.goto(`/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     
     // Remplir nom
     const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -130,7 +130,7 @@ async function voteTimes(page: any, slug: string, times: number): Promise<void> 
  * Optimisé pour la vitesse
  */
 async function closePoll(page: any, slug: string): Promise<void> {
-  await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
   
   // Cliquer sur "Clôturer"
   const closeButton = page.locator('button:has-text("Clôturer")');
@@ -152,19 +152,19 @@ async function closePoll(page: any, slug: string): Promise<void> {
  */
 export const test = base.extend<TestFixtures>({
   // Page avec Gemini mock
-  mockedPage: async ({ page }, use) => {
+  mockedPage: async ({ page }: { page: any }, use: (page: any) => Promise<void>) => {
     await setupGeminiMock(page);
     await use(page);
   },
   
   // Page avec tous les mocks configurés
-  mockedPageFull: async ({ page, browserName }, use) => {
+  mockedPageFull: async ({ page, browserName }: { page: any; browserName: string }, use: (page: any) => Promise<void>) => {
     await setupAllMocksWithoutNavigation(page);
     await use(page);
   },
   
   // Page authentifiée avec utilisateur mock
-  authenticatedPage: async ({ page, browserName }, use) => {
+  authenticatedPage: async ({ page, browserName }: { page: any; browserName: string }, use: (page: any) => Promise<void>) => {
     await setupAllMocksWithoutNavigation(page);
     await authenticateUser(page, browserName, {
       reload: true,
@@ -174,21 +174,22 @@ export const test = base.extend<TestFixtures>({
   },
   
   // Page naviguée vers workspace avec chat prêt
-  workspacePage: async ({ page, browserName }, use) => {
+  workspacePage: async ({ page, browserName }: { page: Page; browserName: string }, use: (page: Page) => Promise<void>) => {
     await setupAllMocksWithoutNavigation(page);
     await navigateToWorkspace(page, browserName);
+    await waitForChatInput(page);
     await use(page);
   },
   
   // Poll actif simple
-  activePoll: async ({ page }, use) => {
+  activePoll: async ({ page }: { page: any }, use: (poll: any) => Promise<void>) => {
     await setupGeminiMock(page);
     const poll = await createPollQuick(page);
     await use(poll);
   },
   
   // Poll avec 5 votes
-  pollWithVotes: async ({ page }, use) => {
+  pollWithVotes: async ({ page }: { page: any }, use: (poll: any) => Promise<void>) => {
     await setupGeminiMock(page);
     const poll = await createPollQuick(page);
     await voteTimes(page, poll.slug, 5);
@@ -196,7 +197,7 @@ export const test = base.extend<TestFixtures>({
   },
   
   // Poll clôturé avec analytics
-  closedPollWithAnalytics: async ({ page }, use) => {
+  closedPollWithAnalytics: async ({ page }: { page: any }, use: (poll: any) => Promise<void>) => {
     await setupGeminiMock(page);
     const poll = await createPollQuick(page);
     await voteTimes(page, poll.slug, 5);

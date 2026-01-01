@@ -6,6 +6,11 @@ on:
     - cron: '0 9 * * *'
   workflow_dispatch: # Permet l'exécution manuelle
 
+# Permissions nécessaires pour créer des issues
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   send-warnings:
     runs-on: ubuntu-latest

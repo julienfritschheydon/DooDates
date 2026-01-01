@@ -26,7 +26,7 @@ test.describe('Beta Key Activation', () => {
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -370,14 +370,14 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
     // Il est skip par défaut et doit être activé manuellement avec une vraie clé de test
     // Pour l'activer : retirer le .skip et fournir une vraie clé bêta de test
     
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Attendre que l'utilisateur se connecte manuellement (ou utiliser un helper)
     // Note: Ce test nécessite une authentification réelle et une clé bêta valide
     
     // Chercher le bouton de clé bêta
-    const betaKeyButton = page.locator('button, a').filter({ 
+    const betaKeyButton = page.locator("button, a").filter({ 
       hasText: /clé bêta|beta key|activer|activate/i 
     }).first();
     
@@ -393,8 +393,8 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
       await submitButton.click();
       
       // Vérifier le message de succès ou d'erreur
-      const successMessage = page.locator('text=/activée|succès|success/i');
-      const errorMessage = page.locator('text=/erreur|error|invalide/i');
+      const successMessage = page.locator("text=/activée|succès|success/i");
+      const errorMessage = page.locator("text=/erreur|error|invalide/i");
       
       // Au moins un des deux devrait apparaître
       const successVisible = await safeIsVisible(successMessage);
@@ -407,7 +407,7 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
 
   test.skip('should show updated quotas after beta key activation (requires real Supabase)', async ({ page, browserName }) => {
     // Ce test nécessite une vraie connexion et une vraie activation
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // L'implémentation complète nécessiterait:
@@ -416,7 +416,7 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
     // 3. Vérification que les quotas sont mis à jour dans l'UI
     // 4. Navigation vers le dashboard pour voir les nouveaux quotas
     
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
   });
 });
 

@@ -82,7 +82,7 @@ test.describe("Auth (Supabase API + UI)", () => {
 
     // 1. Simuler une connexion (mock auth)
     await mockSupabaseAuth(page, { userId: "test-user-123", email: "test@example.com" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -102,7 +102,7 @@ test.describe("Auth (Supabase API + UI)", () => {
       const projectId = supabaseUrl.split("//")[1]?.split(".")[0] || "test";
       localStorage.removeItem(`sb-${projectId}-auth-token`);
     });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

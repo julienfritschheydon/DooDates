@@ -5,6 +5,9 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
+  // This handles the /DooDates/ subdirectory deployment
+  // DO NOT add basename to BrowserRouter in App.tsx - Vite handles this!
   base: "/DooDates/",  // Base path statique pour GitHub Pages - plus de complexité
   resolve: {
     alias: {

@@ -63,7 +63,7 @@ export async function navigateToPollVotingPage(
     console.log('✅ Navigation directe vers page votant via slug');
   }
 
-  await expect(page).toHaveURL(/\/poll\//, { timeout: timeouts.navigation });
+  await expect(page).toHaveURL(/.*\/poll\//, { timeout: timeouts.navigation });
   await expect(page.locator('body')).toContainText(expectedTitle, { timeout: timeouts.element });
   console.log('✅ Page votant affiche le sondage correctement');
 }

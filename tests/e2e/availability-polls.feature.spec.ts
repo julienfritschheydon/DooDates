@@ -204,7 +204,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     await viewPollButton.click();
 
     // 8. Voter sur les disponibilités
-    await expect(page.locator('[data-testid="availability-vote"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="availability-poll-vote"]')).toBeVisible({ timeout: 15000 });
     
     // Sélectionner des disponibilités
     const availableSlots = page.locator('[data-testid="available-slot"]');
@@ -281,7 +281,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     
     // 1. Naviguer vers le dashboard
-    await page.goto("/dashboard");
+    await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un sondage de disponibilité existant
@@ -332,8 +332,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     }
 
     // 5. Vérifier le lien de partage
-    const shareLink = page.locator('[data-testid="share-link"]');
-    await expect(shareLink).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
     
     const copyButton = page.locator('[data-testid="copy-link"]');
     if (await copyButton.isVisible()) {

@@ -16,7 +16,7 @@ test.describe('Rate Limiting E2E', () => {
     console.log('🧪 DÉBUT TEST RATE LIMITING E2E - Version UI');
     
     // Naviguer vers l'application
-    await page.goto('http://localhost:5173');
+    await page.goto("/http://localhost:5173");
     
     // Attendre que l'application charge
     await page.waitForSelector('[data-testid="app-container"]', { timeout: 10000 });
@@ -27,7 +27,7 @@ test.describe('Rate Limiting E2E', () => {
     console.log('   - En production: 50-100 requêtes/heure par action');
     
     // Vérifier que l'application est accessible
-    expect(await page.locator('body').isVisible()).toBe(true);
+    expect(await page.locator("body").isVisible()).toBe(true);
     
     console.log('✅ Test rate limiting E2E RÉUSSI (validation conceptuelle)');
     console.log('   ✅ Application accessible');

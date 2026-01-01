@@ -359,7 +359,7 @@ test.describe("Quizz - UI Mirror", () => {
     // QCM choix unique
     const singleChoice = page.locator('[data-testid="single-choice"]');
     if (await singleChoice.isVisible()) {
-      const option = singleChoice.locator('input[type="radio"]').first();
+      const option = singleChoice.locator("input[type='radio']").first();
       await option.click();
     }
 
@@ -372,7 +372,7 @@ test.describe("Quizz - UI Mirror", () => {
     // QCM choix multiples
     const multipleChoice = page.locator('[data-testid="multiple-choice"]');
     if (await multipleChoice.isVisible()) {
-      const checkboxes = multipleChoice.locator('input[type="checkbox"]');
+      const checkboxes = multipleChoice.locator("input[type='checkbox']");
       const count = await checkboxes.count();
       if (count > 0) {
         await checkboxes.first().click();
@@ -407,7 +407,7 @@ test.describe("Quizz - UI Mirror", () => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     
     // 1. Naviguer vers le dashboard
-    await page.goto("/dashboard");
+    await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un quizz existant

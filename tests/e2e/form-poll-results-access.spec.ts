@@ -14,7 +14,7 @@ import { safeIsVisible } from './helpers/safe-helpers';
 test.describe('Form Poll - Accès aux résultats et Email', () => {
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
   });
@@ -57,12 +57,12 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Vérifier que le créateur peut voir les résultats
-    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
+    const resultsUrl = `/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
     // Le créateur devrait voir les résultats (pas de message d'accès restreint)
-    const restrictedMessage = page.locator('text=Accès restreint');
+    const restrictedMessage = page.locator("text=Accès restreint");
     await expect(restrictedMessage).not.toBeVisible({ timeout: timeouts.element });
 
     // 3. Simuler un autre utilisateur (changer device ID)
@@ -70,7 +70,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-other-${Date.now()}`);
     });
 
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -93,7 +93,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     await waitForElementReady(page, 'text=Merci pour votre participation', { browserName, timeout: timeouts.element });
 
     // 4. Vérifier que le bouton "Voir les résultats" n'apparaît pas
-    const seeResultsBtn = page.locator('text=Voir les résultats');
+    const seeResultsBtn = page.locator("text=Voir les résultats");
     await expect(seeResultsBtn).not.toBeVisible({ timeout: timeouts.element });
 
     // 5. Essayer d'accéder directement aux résultats
@@ -146,7 +146,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
       localStorage.setItem('dd-device-id', `dev-voter-${Date.now()}`);
     });
 
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -175,7 +175,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // Attendre que la page de résultats se charge
     await waitForNetworkIdle(page, { browserName });
 
-    const restrictedMessage = page.locator('text=Accès restreint');
+    const restrictedMessage = page.locator("text=Accès restreint");
     await expect(restrictedMessage).not.toBeVisible({ timeout: timeouts.element });
   });
 
@@ -217,12 +217,12 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Accéder directement aux résultats sans voter
-    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
+    const resultsUrl = `/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
     // Devrait pouvoir voir les résultats
-    const restrictedMessage = page.locator('text=Accès restreint');
+    const restrictedMessage = page.locator("text=Accès restreint");
     await expect(restrictedMessage).not.toBeVisible({ timeout: timeouts.element });
   });
 
@@ -263,7 +263,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec email
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -340,7 +340,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec checkbox cochée mais sans email
-    const voteUrl = `/DooDates/poll/${pollSlug}`;
+    const voteUrl = `/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -367,7 +367,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 3. Vérifier que le formulaire n'a pas été soumis (attente explicite)
     // Le message de confirmation ne doit PAS apparaître
-    const confirmationMessage = page.locator('text=Merci pour votre participation');
+    const confirmationMessage = page.locator("text=Merci pour votre participation");
     await expect(confirmationMessage).not.toBeVisible({ timeout: timeouts.element });
 
     // Vérifier qu'un message d'erreur est visible OU que la validation HTML5 bloque

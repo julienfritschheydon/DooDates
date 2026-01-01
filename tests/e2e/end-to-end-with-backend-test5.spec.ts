@@ -69,7 +69,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

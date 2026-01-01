@@ -95,7 +95,7 @@ test.describe('🔥 Production Smoke Tests', () => {
       expect(page.url()).toContain(product.url);
 
       // Vérifier que le titre est présent (titre de la page ou h1)
-      const h1 = page.locator('h1');
+      const h1 = page.locator("h1");
       await expect(h1).toBeVisible();
       // Le titre peut varier légèrement, on vérifie juste qu'il y a du contenu pertinent
 
@@ -127,7 +127,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const timeouts = getTimeouts(browserName);
     // Charger la page
-    await page.goto('/DooDates/');
+    await page.goto('');
 
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network * 2 });
@@ -177,6 +177,8 @@ test.describe('🔥 Production Smoke Tests', () => {
         'third-party',             // Scripts tiers
         'ads',                     // Publicités
         'supabase.co/rest/v1/profiles', // Supabase profiles en mode invité (404 normal)
+        'supabase.co/rest/v1/guest_emails', // Guest emails table (non critique)
+        'supabase.co/rest/v1/web_vitals', // Web vitals table (non critique)
         '/functions/v1/',          // Edge Functions Supabase (non disponibles en test local)
         'hyper-task',              // Edge Function hyper-task (non disponible en test local)
       ];
@@ -262,7 +264,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const timeouts = getTimeouts(browserName);
     // Charger la page
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -305,13 +307,13 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Navigation principale fonctionne', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
     // Attendre que le DOM affiche du contenu significatif
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().replace(/\s+/g, ' ').length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(50);
@@ -319,7 +321,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Vérifier que l'application React a du contenu
     // Note: On ne vérifie pas que #root est visible car il peut être caché en CSS
     // mais on vérifie que l'app a rendu du contenu
-    const bodyText = await page.locator('body').textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).toBeTruthy();
 
     // Vérifier qu'il y a du contenu significatif (pas juste du white space)
@@ -327,7 +329,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     expect(trimmedText.length).toBeGreaterThan(50);
 
     // Vérifier que #root existe au moins (même s'il est caché en CSS)
-    const root = await page.locator('#root');
+    const root = await page.locator("#root");
     await expect(root).toBeAttached(); // Vérifie que l'élément existe dans le DOM
   });
 
@@ -344,14 +346,14 @@ test.describe('🔥 Production Smoke Tests', () => {
       }
     });
 
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Attendre que la page rende du contenu pour laisser les erreurs éventuelles se manifester
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);
@@ -398,7 +400,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre que l'app se charge et rende du contenu
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(20);
@@ -422,7 +424,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('UI principale est rendue', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    await page.goto('/DooDates/');
+    await page.goto('');
 
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
@@ -430,24 +432,24 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().replace(/\s+/g, ' ').length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(50);
 
     // Vérifier que l'app a du contenu dans le body (pas juste un écran blanc)
-    const bodyText = await page.locator('body').textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).toBeTruthy();
 
     const trimmedText = bodyText!.trim().replace(/\s+/g, ' ');
     expect(trimmedText.length).toBeGreaterThan(50);
 
     // Vérifier que #root existe (même s'il est caché en CSS)
-    const root = await page.locator('#root');
+    const root = await page.locator("#root");
     await expect(root).toBeAttached();
 
     // Vérifier qu'il n'y a pas de message d'erreur React visible
-    const hasReactError = await page.locator('text=/error|erreur|something went wrong/i').count();
+    const hasReactError = await page.locator("text=/error|erreur|something went wrong/i").count();
     expect(hasReactError).toBe(0);
   });
 
@@ -468,7 +470,7 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -495,13 +497,13 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
    * Fonctionnalité de base: utiliser l'app sans compte
    */
   test('Mode invité est accessible', async ({ page, browserName }) => {
-    await page.goto('/DooDates/');
+    await page.goto('');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);

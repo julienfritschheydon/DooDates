@@ -89,13 +89,13 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Double vérification: on attend que React ait fini de stabiliser l'arbre.
         await waitForReactStable(page, { browserName });
 
-        const questionTabs = editor.getByRole('button', { name: /^Q\d+$/ });
+        const questionTabs = editor.getByRole("button", { name: /^Q\d+$/ });
         const initialCount = await questionTabs.count();
         expect(initialCount).toBeGreaterThanOrEqual(1);
 
         log(`✅ Formulaire généré (${initialCount} question(s))`);
 
-        const chatInput = page.getByRole('textbox', { name: /Décrivez votre sondage/i });
+        const chatInput = page.getByRole("textbox", { name: /Décrivez votre sondage/i });
 
         // Étape 2 — Ajout d’une question supplémentaire via le chat IA
         log('✏️ Ajout d’une question via IA');
@@ -126,7 +126,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Étape 4 — Reload complet pour vérifier la persistance des données
         const urlBeforeReload = page.url();
 
-        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.reload({ waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
         await waitForElementReady(page, '[data-poll-preview]', {
           browserName,
@@ -145,18 +145,18 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
         if (pollSlug) {
           // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
-          await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+          await page.goto("//DooDates/poll/${pollSlug}", { waitUntil: "domcontentloaded" });
           await waitForNetworkIdle(page, { browserName });
           const pollPageTitle = await page.title();
           log(`ℹ️ Titre page votant: ${pollPageTitle}`);
 
           // Diagnostic: vérifier l'état de la page de vote
           const pollUrl = page.url();
-          const pollBodyContent = await page.locator('body').textContent() || '';
-          const pollRootExists = await page.locator('#root').count() > 0;
-          const pollRootContent = pollRootExists ? await page.locator('#root').textContent() || '' : '';
-          const pollH1Count = await page.locator('h1').count();
-          const pollH1Texts = pollH1Count > 0 ? await page.locator('h1').allTextContents() : [];
+          const pollBodyContent = await page.locator("body").textContent() || '';
+          const pollRootExists = await page.locator("#root").count() > 0;
+          const pollRootContent = pollRootExists ? await page.locator("#root").textContent() || '' : '';
+          const pollH1Count = await page.locator("h1").count();
+          const pollH1Texts = pollH1Count > 0 ? await page.locator("h1").allTextContents() : [];
 
           log(`[DIAGNOSTIC VOTE] Page URL: "${pollUrl}"`);
           log(`[DIAGNOSTIC VOTE] Body content (first 200 chars): "${pollBodyContent.substring(0, 200)}"`);
@@ -165,12 +165,12 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           log(`[DIAGNOSTIC VOTE] h1 elements found: ${pollH1Count}`);
           log(`[DIAGNOSTIC VOTE] h1 texts: ${pollH1Texts.join(' | ')}`);
 
-          const pollHeading = page.locator('h1').first();
+          const pollHeading = page.locator("h1").first();
           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });
           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();
           log(`ℹ️ Heading page votant: ${pollHeadingText}`);
           // Le formulaire doit afficher le champ "Votre nom" pour permettre l'identification du votant.
-          await expect(page.locator('body')).toContainText(/Votre nom/i, {
+          await expect(page.locator("body")).toContainText(/Votre nom/i, {
             timeout: timeouts.element,
           });
 
@@ -181,11 +181,11 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           log('🗳️ Vote simulé avec succès');
 
           // Vérification côté dashboard Form Polls : le dashboard produit doit être accessible
-          await page.goto(PRODUCT_ROUTES.formPoll.dashboard, { waitUntil: 'domcontentloaded' });
+          await page.goto(PRODUCT_ROUTES.formPoll.dashboard, { waitUntil: "domcontentloaded" });
           await waitForNetworkIdle(page, { browserName });
           await waitForReactStable(page, { browserName });
 
-          await expect(page).toHaveURL(/.*\/form-polls\/dashboard/);
+          await expect(page).toHaveURL(/\/DooDates\/.*\/form-polls\/dashboard/);
 
           const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
             browserName,
@@ -193,7 +193,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           });
 
           await expect(pollItem).toBeVisible({ timeout: timeouts.element });
-          await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible({
+          await expect(page.getByRole("heading", { name: /Tableau de bord/i })).toBeVisible({
             timeout: timeouts.element,
           });
           log('📋 Dashboard Form Polls affiche au moins un formulaire après vote');
@@ -228,9 +228,9 @@ async function waitForQuestionTabs(
   options: { timeout?: number; message?: string; mode?: 'exact' | 'at-least' } = {}
 ) {
   // Sélection du composant d'édition pour accéder aux onglets questions.
-  const editor = page.locator('[data-poll-preview]');
+  const editor = page.locator("[data-poll-preview]");
   // Sélection des onglets questions en fonction de leur rôle et de leur nom.
-  const tabs = editor.getByRole('button', { name: /^Q\d+$/ });
+  const tabs = editor.getByRole("button", { name: /^Q\d+$/ });
   // Attente jusqu'à ce que le nombre d'onglets corresponde à l'attendu.
   const poll = expect.poll(async () => tabs.count(), {
     timeout: options.timeout ?? getTimeouts(browserName).element,

@@ -79,7 +79,7 @@ test.describe('🔒 RGPD - Anonymisation Form Polls', () => {
 
     // Navigate to results page
     const pollSlug = conversation.id.substring(0, 8);
-    await page.goto(`/DooDates/form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Verify page loads
@@ -134,7 +134,7 @@ test.describe('🔒 RGPD - Anonymisation Form Polls', () => {
 
     // Navigate to results page
     const pollSlug = conversation.id.substring(0, 8);
-    await page.goto(`/DooDates/form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Look for anonymize button
@@ -212,7 +212,7 @@ test.describe('🔒 RGPD - Anonymisation Form Polls', () => {
 
     // Navigate to results page
     const pollSlug = conversation.id.substring(0, 8);
-    await page.goto(`/DooDates/form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`form-polls/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Verify creator can still access results page
@@ -238,7 +238,7 @@ test.describe('🔒 RGPD - Anonymisation Form Polls', () => {
     await authenticateUserInPage(page, testEmail, testPassword);
 
     // Navigate to a page to verify anonymization feature exists
-    await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Verify page loads (anonymization feature exists in codebase)

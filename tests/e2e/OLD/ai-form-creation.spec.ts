@@ -12,7 +12,7 @@ test.describe('AI Form Poll Creation', () => {
     await setupGeminiMock(page);
     
     // Clear localStorage pour éviter problèmes de quota
-    await page.goto('/');
+    await page.goto('/DooDates/');
     await page.evaluate(() => {
       localStorage.clear();
     });
@@ -21,7 +21,7 @@ test.describe('AI Form Poll Creation', () => {
 
   test('should create a form poll via AI', async ({ page }) => {
     // 1. Aller sur la page d'accueil
-    await page.goto('/');
+    await page.goto('/DooDates/');
     console.log('✅ Page chargée');
 
     // 2. Attendre que le chat soit visible

@@ -45,14 +45,14 @@ test.describe('Dashboard - Cas Limites', () => {
       // Nettoyer localStorage pour avoir un dashboard vide
       await clearTestData(page, { all: true });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
 
       // Vérifier que le message "Aucune conversation" est affiché
       // Le Dashboard affiche "Aucune conversation" (pas "pour le moment")
-      await expect(page.getByText('Aucune conversation', { exact: false })).toBeVisible({
+      await expect(page.getByText("Aucune conversation", { exact: false })).toBeVisible({
         timeout: timeouts.element,
       });
 
@@ -83,13 +83,13 @@ test.describe('Dashboard - Cas Limites', () => {
 
       await createTestConversations(page, conversations);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
 
       // Vérifier que le dashboard se charge sans erreur
-      await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+      await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
 
       // Attendre que les cartes se chargent avec timeout adapté au navigateur
       await waitForElementReady(page, '[data-testid="poll-item"]', {
@@ -107,12 +107,12 @@ test.describe('Dashboard - Cas Limites', () => {
       const hasPagination = await pagination.count();
       if (hasPagination > 0) {
         // Vérifier qu'on peut interagir avec la pagination sans crash
-        const nextButton = pagination.first().getByRole('button', { name: /suivant|next/i });
+        const nextButton = pagination.first().getByRole("button", { name: /suivant|next/i });
         if (await safeIsVisible(nextButton)) {
           await nextButton.click();
           await waitForReactStable(page, { browserName });
           // Vérifier que la page ne crash pas
-          await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+          await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
         }
       }
     });
@@ -145,7 +145,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -157,7 +157,7 @@ test.describe('Dashboard - Cas Limites', () => {
       });
 
       // Ouvrir le menu de la carte
-      const menuButtons = conversationCard.locator('button');
+      const menuButtons = conversationCard.locator("button");
       const menuButtonCount = await menuButtons.count();
       let menuButton = menuButtons.last();
       if (menuButtonCount > 1) {
@@ -175,12 +175,12 @@ test.describe('Dashboard - Cas Limites', () => {
       await waitForReactStable(page, { browserName });
 
       // Cliquer sur "Gérer les tags/dossier"
-      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      const manageMenuItem = page.getByText("Gérer les tags/dossier");
       await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element });
       await manageMenuItem.click();
 
       // Vérifier que le dialogue s'ouvre sans erreur
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: timeouts.element });
+      await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier que les tags sont visibles dans le dialogue
       const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
@@ -188,7 +188,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
       // Vérifier qu'au moins quelques tags sont visibles (scroll peut être nécessaire)
       // Utiliser exact: true pour éviter les matches avec "Tag de test 10", "Tag de test 11", etc.
-      const tag1 = dialog.getByText('Tag de test 1', { exact: true });
+      const tag1 = dialog.getByText("Tag de test 1", { exact: true });
       await expect(tag1).toBeVisible({ timeout: timeouts.element });
     });
   });
@@ -222,7 +222,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -234,7 +234,7 @@ test.describe('Dashboard - Cas Limites', () => {
       });
 
       // Ouvrir le menu de la carte
-      const menuButtons = conversationCard.locator('button');
+      const menuButtons = conversationCard.locator("button");
       const menuButtonCount = await menuButtons.count();
       let menuButton = menuButtons.last();
       if (menuButtonCount > 1) {
@@ -252,12 +252,12 @@ test.describe('Dashboard - Cas Limites', () => {
       await waitForReactStable(page, { browserName });
 
       // Cliquer sur "Gérer les tags/dossier"
-      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      const manageMenuItem = page.getByText("Gérer les tags/dossier");
       await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element });
       await manageMenuItem.click();
 
       // Vérifier que le dialogue s'ouvre sans erreur
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: timeouts.element });
+      await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier que les dossiers sont visibles dans le dialogue
       const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
@@ -265,7 +265,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
       // Vérifier qu'au moins un dossier est visible
       // Utiliser exact: true pour éviter les matches avec "Dossier de test 10", "Dossier de test 11", etc.
-      const folder1 = dialog.getByText('Dossier de test 1', { exact: true });
+      const folder1 = dialog.getByText("Dossier de test 1", { exact: true });
       await expect(folder1).toBeVisible({ timeout: timeouts.element });
     });
   });
@@ -294,7 +294,7 @@ test.describe('Dashboard - Cas Limites', () => {
         metadata: {},
       });
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -360,7 +360,7 @@ test.describe('Dashboard - Cas Limites', () => {
         },
       ]);
 
-      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -384,7 +384,7 @@ test.describe('Dashboard - Cas Limites', () => {
         await waitForReactStable(page, { browserName }); // Attendre que la recherche se déclenche
 
         // Vérifier qu'il n'y a pas d'erreur
-        const errorMessages = page.locator('text=/error|erreur/i');
+        const errorMessages = page.locator("text=/error|erreur/i");
         const errorCount = await errorMessages.count();
         expect(errorCount).toBe(0);
 
@@ -401,7 +401,7 @@ test.describe('Dashboard - Cas Limites', () => {
       }
 
       // Vérifier que le dashboard reste fonctionnel après les recherches
-      await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+      await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
     });
   });
 });

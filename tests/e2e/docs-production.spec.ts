@@ -35,7 +35,7 @@ test.describe('Documentation - Production Build Tests', () => {
       
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation avec le base path
-      await page.goto(`${basePath}/docs`, { waitUntil: 'domcontentloaded' });
+      await page.goto("/${basePath}/docs", { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit complètement chargée
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
@@ -46,7 +46,7 @@ test.describe('Documentation - Production Build Tests', () => {
       
       // Vérifier que le contenu est visible
       const content = page.getByText(/Documentation DooDates/i).or(page.getByText(/Bienvenue dans la documentation/i));
-      await waitForElementReady(content, undefined, { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, 'text=/Documentation DooDates/i, text=/Bienvenue dans la documentation/i', { browserName, timeout: timeouts.element });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets
       const failedRequests: string[] = [];
@@ -57,7 +57,7 @@ test.describe('Documentation - Production Build Tests', () => {
       });
       
       // Naviguer vers un document spécifique
-      await page.goto(`${basePath}/docs/01-Guide-Demarrage-Rapide`, { waitUntil: 'domcontentloaded' });
+      await page.goto("/${basePath}/docs/01-Guide-Demarrage-Rapide", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets JS/CSS
@@ -71,7 +71,7 @@ test.describe('Documentation - Production Build Tests', () => {
       }
       
       // Vérifier que le document se charge
-      const loader = page.locator('[class*="animate-spin"]');
+      const loader = page.locator("[class*='animate-spin']");
       await loader.waitFor({ state: 'hidden', timeout: timeouts.element }).catch(() => {});
       
       const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"]', { browserName, timeout: timeouts.element });

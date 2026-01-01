@@ -149,7 +149,8 @@ export async function getHistoricalMetrics(
 async function checkForRegressions(currentMetrics: PerformanceMetrics): Promise<void> {
   try {
     // Charger la baseline
-    const baselineResponse = await fetch("/DooDates/performance-baseline.json");
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const baselineResponse = await fetch(`${baseUrl}performance-baseline.json`);
     const baseline = await baselineResponse.json();
 
     const alerts: PerformanceAlert[] = [];

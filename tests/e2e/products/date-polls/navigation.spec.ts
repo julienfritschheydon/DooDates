@@ -15,14 +15,14 @@ test.describe('Date Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/.*\/date-polls/);
+        await expect(page).toHaveURL(/DooDates\/.*\/date-polls\//);
         await expect(page.getByRole('heading', { name: /Sondages de Dates/i })).toBeVisible();
 
         // 2. Navigate to Workspace (Create Poll)
         const createButton = page.getByRole('button', { name: /Créer un sondage/i }).first();
         await createButton.click();
 
-        await expect(page).toHaveURL(/.*\/date-polls\/workspace\/date/);
+        await expect(page).toHaveURL(/DooDates\/.*\/date-polls\/workspace\/date\//);
         await waitForReactStable(page, { browserName });
 
         // 3. Create a Poll
@@ -38,7 +38,7 @@ test.describe('Date Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/.*\/date-polls\/dashboard/);
+        await expect(page).toHaveURL(/DooDates\/.*\/date-polls\/dashboard\//);
         await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
 
         // Verify we are in the Date Polls context (e.g. sidebar active item)

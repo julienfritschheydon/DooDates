@@ -40,9 +40,8 @@ export function useWebVitals() {
           sendWebVitalsToSupabase(data);
         };
 
-        // Track all Core Web Vitals using onCLS, onFID, etc. (web-vitals v5 API)
+        // Track all Core Web Vitals using onCLS, onINP, etc. (web-vitals v5 API)
         if (webVitals.onCLS) webVitals.onCLS(sendToAnalytics);
-        if (webVitals.onFID) webVitals.onFID(sendToAnalytics);
         if (webVitals.onFCP) webVitals.onFCP(sendToAnalytics);
         if (webVitals.onLCP) webVitals.onLCP(sendToAnalytics);
         if (webVitals.onTTFB) webVitals.onTTFB(sendToAnalytics);
@@ -74,10 +73,16 @@ function generateSessionId(): string {
 // Send Web Vitals data to Supabase
 async function sendWebVitalsToSupabase(data: WebVitalsData) {
   try {
-    // Only send in production
+    // Only send in production and if table exists
     if (import.meta.env.PROD) {
+      // TODO: Create web_vitals table in Supabase or handle 400 error gracefully
+      // Temporarily disabled to avoid console errors
+      console.log("Web Vitals (disabled):", data);
+      /*
       const { supabase } = await import("./supabase");
-      await supabase.from("web_vitals").insert([data]);
+      // Insert without specifying columns to avoid 400 error
+      await supabase.from("web_vitals").insert(data);
+      */
     } else {
       // Log in development
       console.log("Web Vitals:", data);

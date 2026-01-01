@@ -117,13 +117,13 @@ test.describe("Voice Recognition E2E", () => {
         if (isIOS) test.skip(true, "Voice recognition disabled on iOS");
 
         // Navigate directly to vote page (with base path)
-        await page.goto(`/DooDates/quizz/${MOCK_QUIZZ.slug}/vote`, { waitUntil: 'domcontentloaded' });
+        await page.goto(`/quizz/${MOCK_QUIZZ.slug}/vote`, { waitUntil: "domcontentloaded" });
 
         // Enter name
         await page.fill('input[placeholder="Ton prénom..."]', "Voice Tester");
 
         // Start Quizz
-        await page.click("button:has-text('Commencer le quiz')");
+        await page.click('button:has-text("Commencer le quiz")');
 
         // Check we are on the question
         await expect(page.locator("text=Say something?")).toBeVisible();
