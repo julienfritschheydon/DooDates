@@ -4,7 +4,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
 
     test.beforeEach(async ({ page }) => {
         // Nettoyer localStorage avant chaque test
-        await page.goto('");
+        await page.goto("/");
         await page.evaluate(() => localStorage.clear());
     });
 
@@ -35,15 +35,15 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, pollData);
 
         // Aller sur la page de vote
-        await page.goto('poll/${pollData.slug}`);
+        await page.goto("poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
         // Vérifier l'écran de clôture
-        await expect(page.locator('text=Sondage expiré')).toBeVisible();
-        await expect(page.locator('text=La date limite pour participer à ce sondage est dépassée.')).toBeVisible();
+        await expect(page.locator("text=Sondage expiré")).toBeVisible();
+        await expect(page.locator("text=La date limite pour participer à ce sondage est dépassée.")).toBeVisible();
 
         // Vérifier que le bouton de vote n'est pas là
-        await expect(page.locator('button:has-text("Voter")')).not.toBeVisible();
+        await expect(page.locator("button:has-text("Voter")")).not.toBeVisible();
     });
 
     test("should display closure screen for Form Poll that reached max responses", async ({ page }) => {
@@ -79,12 +79,12 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, { poll: pollData, resp: responseData });
 
         // Aller sur la page de vote
-        await page.goto('poll/${pollData.slug}`);
+        await page.goto("/poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
-        // Vérifier l'écran de clôture
-        await expect(page.locator('text=Sondage complet')).toBeVisible();
-        await expect(page.locator('text=Le nombre maximum de participations pour ce sondage a été atteint.')).toBeVisible();
+        // Vérifier l"écran de clôture
+        await expect(page.locator("text=Sondage complet")).toBeVisible();
+        await expect(page.locator("text=Le nombre maximum de participations pour ce sondage a été atteint.")).toBeVisible();
     });
 
     test("should allow voting on an active poll without reaching limits", async ({ page }) => {
@@ -107,12 +107,12 @@ test.describe("Poll Enforcement - Closure Rules", () => {
             localStorage.setItem("doodates_polls", JSON.stringify([data]));
         }, pollData);
 
-        await page.goto('poll/${pollData.slug}`);
+        await page.goto("/poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
-        // L'interface de vote normale doit être visible (pas de message de clôture)
-        await expect(page.locator('text=Sondage expiré')).not.toBeVisible();
-        await expect(page.locator('text=Sondage complet')).not.toBeVisible();
+        // L"interface de vote normale doit être visible (pas de message de clôture)
+        await expect(page.locator("text=Sondage expiré")).not.toBeVisible();
+        await expect(page.locator("text=Sondage complet")).not.toBeVisible();
 
         // Pour DatePoll, on vérifie la présence du bouton de validation (Swipe ou Grid)
         // Ici on vérifie le titre du sondage

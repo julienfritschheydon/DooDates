@@ -35,21 +35,21 @@ let pollCreated = false;
  * Aligné sur l'implémentation de fixtures.ts (sélecteurs éprouvés).
  */
 async function closePoll(page: any, browserName: string, slug: string): Promise<void> {
-  await page.goto('/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto("//DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
 
   // Cliquer sur "Terminer"
-  const closeButton = page.locator('button:has-text("Terminer")');
+  const closeButton = page.locator("button:has-text("Terminer")");
   await expect(closeButton).toBeVisible({ timeout: 10000 });
   await closeButton.click();
 
   // Confirmer si une modale apparaît
-  const confirmButton = page.locator('button:has-text("Confirmer")');
+  const confirmButton = page.locator("button:has-text("Confirmer")");
   if (await confirmButton.isVisible({ timeout: 3000 }).catch(() => false)) {
     await confirmButton.click();
   }
 
   // Vérifier que le statut a changé en "terminé"
-  await expect(page.locator('text=/terminé|closed/i')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator("text=/terminé|closed/i")).toBeVisible({ timeout: 5000 });
 }
 
 /**
@@ -146,7 +146,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     await insightsAccordion.click();
 
     await waitForReactStable(page, { browserName });
-    const insightCards = page.locator('[data-testid="insight-card"]');
+    const insightCards = page.locator("[data-testid="insight-card"]");
     const firstCardVisible = await safeIsVisible(insightCards.first());
     if (firstCardVisible) {
       await expect(insightCards.first()).toBeVisible({ timeout: timeouts.element });
@@ -172,7 +172,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto('/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -180,7 +180,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     const analyticsPanel = await waitForElementReady(page, '[data-testid="analytics-panel"]', { browserName, timeout: timeouts.element });
 
     // Quick query : cliquer sur un bouton et attendre une réponse dans analytics-response
-    const quickQueryButton = page.locator('[data-testid="quick-query-button"]').first();
+    const quickQueryButton = page.locator("[data-testid="quick-query-button"]").first();
     const hasQuickQuery = await safeIsVisible(quickQueryButton);
 
     if (hasQuickQuery) {
@@ -194,7 +194,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     }
 
     // Query personnalisée : saisir une question et vérifier qu'une réponse apparaît
-    const queryInput = page.locator('[data-testid="analytics-query-input"], textarea[placeholder*="question"]').first();
+    const queryInput = page.locator("[data-testid="analytics-query-input"], textarea[placeholder*="question"]").first();
     const hasQueryInput = await safeIsVisible(queryInput);
 
     if (hasQueryInput) {
@@ -223,11 +223,11 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto('/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto("//DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: "domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    const queryInput = page.locator('[data-testid="analytics-query-input"], textarea[placeholder*="question"]').first();
+    const queryInput = page.locator("[data-testid="analytics-query-input"], textarea[placeholder*="question"]").first();
     const hasQueryInput = await safeIsVisible(queryInput);
 
     if (hasQueryInput) {
@@ -246,7 +246,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       await waitForElementReady(page, '[data-testid="analytics-response"]', { browserName, timeout: timeouts.element }).catch(() => {});
 
       // Vérifier la présence d'un indicateur de quota si rendu
-      const quotaLocator = page.locator('[data-testid="quota-indicator"], [data-testid="quota-info"], text=/quota/i').first();
+      const quotaLocator = page.locator("[data-testid="quota-indicator"], [data-testid="quota-info"], text=/quota/i").first();
       const hasQuotaInfo = await safeIsVisible(quotaLocator);
       if (hasQuotaInfo) {
         await expect(quotaLocator).toBeVisible({ timeout: timeouts.element });

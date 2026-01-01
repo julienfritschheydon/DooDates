@@ -8,13 +8,13 @@ test.describe("Google Sign In Flow", () => {
         // We can intercept the triggered navigation or just test the *callback* handling
 
         // 1. Visit the app
-        await page.goto('/DooDates/");
+        await page.goto("//DooDates/");
 
         // 2. Mock the auth state change that happens after a successful redirect
         // In a real app, the callback URL contains access_token in the hash
 
         // Simulate a return from Google with a fake token
-        await page.goto('/DooDates/#access_token=mock-google-token&expires_in=3600&refresh_token=mock-refresh&token_type=bearer&type=recovery");
+        await page.goto("/DooDates/#access_token=mock-google-token&expires_in=3600&refresh_token=mock-refresh&token_type=bearer&type=recovery");
 
         // 3. Verify that the app handles this token and signs the user in
         // Depending on implementation, this might trigger a state update
@@ -24,8 +24,8 @@ test.describe("Google Sign In Flow", () => {
 
         // Check if we are "logged in" (e.g., Avatar visible, "Sign In" button gone)
         // Adjust selectors based on actual app
-        const avatar = page.locator('.avatar, [data-testid="user-avatar"]');
-        const signInBtn = page.locator('button:has-text("Sign in"), button:has-text("Connexion")');
+        const avatar = page.locator(".avatar, [data-testid="user-avatar"]");
+        const signInBtn = page.locator("button:has-text("Sign in"), button:has-text("Connexion")");
 
         if (await avatar.isVisible()) {
             expect(await avatar.isVisible()).toBe(true);
@@ -39,10 +39,10 @@ test.describe("Google Sign In Flow", () => {
 
     test("should handle auth errors gracefully", async ({ page }) => {
         // Simulate an error callback
-        await page.goto('/DooDates/#error=access_denied&error_code=403&error_description=User+denied+access");
+        await page.goto("//DooDates/#error=access_denied&error_code=403&error_description=User+denied+access");
 
         // Verify error message toast or alert
-        const alert = page.locator('[role="alert"], .toast, .error-message');
+        const alert = page.locator("[role="alert"], .toast, .error-message');
         if (await alert.isVisible()) {
             expect(await alert.textContent()).toContain("denied");
         }

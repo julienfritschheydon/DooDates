@@ -95,7 +95,7 @@ test.describe('🔥 Production Smoke Tests', () => {
       expect(page.url()).toContain(product.url);
 
       // Vérifier que le titre est présent (titre de la page ou h1)
-      const h1 = page.locator('h1');
+      const h1 = page.locator("h1");
       await expect(h1).toBeVisible();
       // Le titre peut varier légèrement, on vérifie juste qu'il y a du contenu pertinent
 
@@ -313,7 +313,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre que le DOM affiche du contenu significatif
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().replace(/\s+/g, ' ').length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(50);
@@ -321,7 +321,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Vérifier que l'application React a du contenu
     // Note: On ne vérifie pas que #root est visible car il peut être caché en CSS
     // mais on vérifie que l'app a rendu du contenu
-    const bodyText = await page.locator('body').textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).toBeTruthy();
 
     // Vérifier qu'il y a du contenu significatif (pas juste du white space)
@@ -329,7 +329,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     expect(trimmedText.length).toBeGreaterThan(50);
 
     // Vérifier que #root existe au moins (même s'il est caché en CSS)
-    const root = await page.locator('#root');
+    const root = await page.locator("#root");
     await expect(root).toBeAttached(); // Vérifie que l'élément existe dans le DOM
   });
 
@@ -353,7 +353,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre que la page rende du contenu pour laisser les erreurs éventuelles se manifester
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);
@@ -400,7 +400,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre que l'app se charge et rende du contenu
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(20);
@@ -432,24 +432,24 @@ test.describe('🔥 Production Smoke Tests', () => {
 
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().replace(/\s+/g, ' ').length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(50);
 
     // Vérifier que l'app a du contenu dans le body (pas juste un écran blanc)
-    const bodyText = await page.locator('body').textContent();
+    const bodyText = await page.locator("body").textContent();
     expect(bodyText).toBeTruthy();
 
     const trimmedText = bodyText!.trim().replace(/\s+/g, ' ');
     expect(trimmedText.length).toBeGreaterThan(50);
 
     // Vérifier que #root existe (même s'il est caché en CSS)
-    const root = await page.locator('#root');
+    const root = await page.locator("#root");
     await expect(root).toBeAttached();
 
     // Vérifier qu'il n'y a pas de message d'erreur React visible
-    const hasReactError = await page.locator('text=/error|erreur|something went wrong/i').count();
+    const hasReactError = await page.locator("text=/error|erreur|something went wrong/i").count();
     expect(hasReactError).toBe(0);
   });
 
@@ -503,7 +503,7 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
 
     await expect
       .poll(async () => {
-        const body = await page.locator('body').textContent();
+        const body = await page.locator("body").textContent();
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);
@@ -516,11 +516,11 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
     expect(bodyText).toBeTruthy();
 
     // Vérifier que l'app n'est pas dans un état d'erreur
-    const hasErrorState = await page.locator('[role="alert"]').count();
+    const hasErrorState = await page.locator("[role="alert"]").count();
 
     // Si une alerte existe, vérifier qu'elle n'est pas bloquante
     if (hasErrorState > 0) {
-      const alertText = await page.locator('[role="alert"]').first().textContent();
+      const alertText = await page.locator("[role="alert"]").first().textContent();
       expect(alertText).not.toContain('fatal');
       expect(alertText).not.toContain('crashed');
     }

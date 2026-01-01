@@ -11,7 +11,7 @@ async function openMonthContaining(page: Page, dateStr: string, browserName: str
   const target = page.locator(`[data-date="${dateStr}"]`).first();
   for (let i = 0; i < 6; i++) {
     if (await target.isVisible()) return;
-    const nextBtn = page.locator('svg[data-lucide="chevron-right"]').locator('xpath=ancestor::button[1]');
+    const nextBtn = page.locator("svg[data-lucide="chevron-right"]").locator("xpath=ancestor::button[1]");
     if (await nextBtn.count()) {
       await robustClick(nextBtn);
       // Wait for the calendar to update after clicking next month
@@ -44,7 +44,7 @@ test.describe('Mobile Voting UX', () => {
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to create date page (redirige vers /create/ai?type=date)
-    await page.goto('create/date', { waitUntil: 'domcontentloaded' });
+    await page.goto("/create/date", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=date and verify AICreationWorkspace loads
@@ -54,7 +54,7 @@ test.describe('Mobile Voting UX', () => {
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
 
     // Test dashboard navigation
-    await page.goto('dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto("/dashboard", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for dashboard content to load (any visible dashboard element)
@@ -75,7 +75,7 @@ test.describe('Mobile Voting UX', () => {
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to form creator (redirige vers /create/ai?type=form)
-    await page.goto('create/form', { waitUntil: 'domcontentloaded' });
+    await page.goto("/create/form", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=form and verify AICreationWorkspace loads

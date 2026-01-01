@@ -174,7 +174,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     await waitForChatInput(page);
 
     // 2. Créer un Availability Poll via l'IA
-    const chatInput = page.locator('[data-testid="chat-input"]');
+    const chatInput = page.locator("[data-testid="chat-input"]");
     await chatInput.fill("Crée un sondage de disponibilité pour une réunion d'équipe la semaine prochaine");
     await chatInput.press("Enter");
 
@@ -182,32 +182,32 @@ test.describe("Availability Polls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier que le sondage est créé
-    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('text="Disponibilités"')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text="Disponibilités"")).toBeVisible({ timeout: 10000 });
 
     // 4. Vérifier le calendrier de dates
-    await expect(page.locator('[data-testid="date-calendar"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-testid="time-slots"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="date-calendar"]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="time-slots"]")).toBeVisible({ timeout: 10000 });
 
     // 5. Finaliser le sondage
-    const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+    const finalizeButton = page.locator("[data-testid="finalize-poll"]");
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
 
     // 6. Vérifier l'écran de succès
-    await expect(page.locator('text="Sondage publié !"')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text="Sondage publié !"")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="share-link"]")).toBeVisible({ timeout: 10000 });
 
     // 7. Naviguer vers le vote
-    const viewPollButton = page.locator('[data-testid="view-poll"]');
+    const viewPollButton = page.locator("[data-testid="view-poll"]");
     await expect(viewPollButton).toBeVisible({ timeout: 10000 });
     await viewPollButton.click();
 
     // 8. Voter sur les disponibilités
-    await expect(page.locator('[data-testid="availability-vote"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="availability-vote"]")).toBeVisible({ timeout: 15000 });
     
     // Sélectionner des disponibilités
-    const availableSlots = page.locator('[data-testid="available-slot"]');
+    const availableSlots = page.locator("[data-testid="available-slot"]");
     const count = await availableSlots.count();
     
     if (count > 0) {
@@ -215,17 +215,17 @@ test.describe("Availability Polls - UI Mirror", () => {
     }
 
     // Ajouter nom du participant
-    const nameInput = page.locator('[data-testid="participant-name"]');
+    const nameInput = page.locator("[data-testid="participant-name"]");
     await expect(nameInput).toBeVisible({ timeout: 10000 });
     await nameInput.fill("Test User");
 
     // Soumettre le vote
-    const submitButton = page.locator('[data-testid="submit-availability"]');
+    const submitButton = page.locator("[data-testid="submit-availability"]");
     await expect(submitButton).toBeVisible({ timeout: 10000 });
     await submitButton.click();
 
     // 9. Vérifier la confirmation
-    await expect(page.locator('text="Merci pour votre réponse"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text="Merci pour votre réponse"")).toBeVisible({ timeout: 15000 });
   });
 
   test("UI - Grouping weekends et visualisation", async ({ page }) => {
@@ -243,7 +243,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     - Afficher le grouping par weekends
     `;
 
-    const chatInput = page.locator('[data-testid="chat-input"]');
+    const chatInput = page.locator("[data-testid="chat-input"]");
     await chatInput.fill(complexPrompt);
     await chatInput.press("Enter");
 
@@ -251,41 +251,41 @@ test.describe("Availability Polls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier le calendrier avec grouping
-    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="date-groups"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="date-groups"]")).toBeVisible({ timeout: 10000 });
 
     // 4. Vérifier les groupes de dates
-    await expect(page.locator('text="Weekend"')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('text="Semaine"')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text="Weekend"")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text="Semaine"")).toBeVisible({ timeout: 5000 });
 
     // 5. Finaliser et tester la visualisation
-    const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+    const finalizeButton = page.locator("[data-testid="finalize-poll"]");
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
 
     await page.waitForSelector('text="Sondage publié !"', { timeout: 10000 });
-    const viewPollButton = page.locator('[data-testid="view-poll"]');
+    const viewPollButton = page.locator("[data-testid="view-poll"]");
     await viewPollButton.click();
 
     // 6. Tester la visualisation des résultats
-    await expect(page.locator('[data-testid="availability-results"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="availability-grid"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-testid="participants-list"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="availability-results"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="availability-grid"]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="participants-list"]")).toBeVisible({ timeout: 10000 });
 
     // 7. Vérifier les statistiques de disponibilité
-    await expect(page.locator('text="Disponibilités totales"')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('[data-testid="best-slots"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text="Disponibilités totales"")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("[data-testid="best-slots"]")).toBeVisible({ timeout: 5000 });
   });
 
   test("UI - Exports et partage Availability Poll", async ({ page }) => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     
     // 1. Naviguer vers le dashboard
-    await page.goto('/DooDates/dashboard");
+    await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un sondage de disponibilité existant
-    const availabilityPoll = page.locator('[data-testid="availability-poll-card"]').first();
+    const availabilityPoll = page.locator("[data-testid="availability-poll-card"]').first();
     
     if (await availabilityPoll.isVisible()) {
       await availabilityPoll.click();
@@ -295,36 +295,36 @@ test.describe("Availability Polls - UI Mirror", () => {
       await waitForChatInput(page, 10000);
       await waitForChatInput(page);
       
-      const chatInput = page.locator('[data-testid="chat-input"]');
+      const chatInput = page.locator("[data-testid="chat-input"]");
       await chatInput.fill("Crée un sondage de disponibilité rapide pour cette semaine");
       await chatInput.press("Enter");
       
       await page.waitForSelector('[data-testid="ai-response"]', { timeout: 15000 });
       
-      const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+      const finalizeButton = page.locator("[data-testid="finalize-poll"]");
       await finalizeButton.click();
       
       await page.waitForSelector('text="Sondage publié !"', { timeout: 10000 });
-      const dashboardButton = page.locator('[data-testid="go-to-dashboard"]');
+      const dashboardButton = page.locator("[data-testid="go-to-dashboard"]");
       await dashboardButton.click();
     }
 
     // 3. Accéder aux résultats et exports
     await page.waitForSelector('[data-testid="poll-results"]', { timeout: 10000 });
-    const resultsButton = page.locator('[data-testid="view-results"]');
+    const resultsButton = page.locator("[data-testid="view-results"]");
     if (await resultsButton.isVisible()) {
       await resultsButton.click();
     }
 
     // 4. Vérifier les options d'export
-    await expect(page.locator('[data-testid="export-options"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="export-options"]")).toBeVisible({ timeout: 15000 });
     
-    const exportButtons = page.locator('[data-testid^="export-"]');
+    const exportButtons = page.locator("[data-testid^="export-"]");
     const exportCount = await exportButtons.count();
     
     if (exportCount > 0) {
       // Tester l'export CSV
-      const csvExport = page.locator('[data-testid="export-csv"]');
+      const csvExport = page.locator("[data-testid="export-csv"]");
       if (await csvExport.isVisible()) {
         await csvExport.click();
         await page.waitForTimeout(2000); // Attendre le téléchargement
@@ -332,13 +332,13 @@ test.describe("Availability Polls - UI Mirror", () => {
     }
 
     // 5. Vérifier le lien de partage
-    const shareLink = page.locator('[data-testid="share-link"]');
+    const shareLink = page.locator("[data-testid="share-link"]");
     await expect(shareLink).toBeVisible({ timeout: 10000 });
     
-    const copyButton = page.locator('[data-testid="copy-link"]');
+    const copyButton = page.locator("[data-testid="copy-link"]");
     if (await copyButton.isVisible()) {
       await copyButton.click();
-      await expect(page.locator('text="Lien copié"')).toBeVisible({ timeout: 5000 });
+      await expect(page.locator("text="Lien copié"")).toBeVisible({ timeout: 5000 });
     }
   });
 });

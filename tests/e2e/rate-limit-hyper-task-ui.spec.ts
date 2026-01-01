@@ -34,11 +34,11 @@ test.describe("🔒 E2E - Rate limiting UI (hyper-task)", () => {
     await setupGeminiMock(page);
 
     // Aller sur le workspace avec le flag e2e-test (route racine pour éviter la 404)
-    await page.goto('/DooDates/workspace?e2e-test=true", { waitUntil: "domcontentloaded" });
+    await page.goto("//DooDates/workspace?e2e-test=true", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    // Récupérer l'input du chat IA
+    // Récupérer l"input du chat IA
     const chatInput = await waitForChatInputReady(page, browserName, {
       timeout: timeouts.element * 2,
     });

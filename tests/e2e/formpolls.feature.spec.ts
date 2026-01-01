@@ -190,7 +190,7 @@ test.describe("FormPolls - UI Mirror", () => {
     await waitForChatInput(page);
 
     // 2. Créer un FormPoll via l'IA
-    const chatInput = page.locator('[data-testid="chat-input"]');
+    const chatInput = page.locator("[data-testid="chat-input"]");
     await chatInput.fill("Crée un formulaire avec une question simple sur les préférences de café");
     await chatInput.press("Enter");
 
@@ -198,46 +198,46 @@ test.describe("FormPolls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier que le formulaire est créé
-    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('text="Question simple"')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text="Question simple"")).toBeVisible({ timeout: 10000 });
 
     // 4. Finaliser le formulaire
-    const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+    const finalizeButton = page.locator("[data-testid="finalize-poll"]");
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
 
     // 5. Vérifier l'écran de succès
-    await expect(page.locator('text="Formulaire publié !"')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text="Formulaire publié !"")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="share-link"]")).toBeVisible({ timeout: 10000 });
 
     // 6. Copier le lien et naviguer vers le vote
-    const copyButton = page.locator('[data-testid="copy-link"]');
+    const copyButton = page.locator("[data-testid="copy-link"]");
     await expect(copyButton).toBeVisible({ timeout: 10000 });
     await copyButton.click();
 
     // Attendre le toast de confirmation
-    await expect(page.locator('text="Lien copié"')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text="Lien copié"")).toBeVisible({ timeout: 5000 });
 
     // 7. Naviguer vers le formulaire de vote
-    const viewFormButton = page.locator('[data-testid="view-form"]');
+    const viewFormButton = page.locator("[data-testid="view-form"]");
     await expect(viewFormButton).toBeVisible({ timeout: 10000 });
     await viewFormButton.click();
 
     // 8. Voter sur le formulaire
-    await expect(page.locator('[data-testid="form-poll-vote"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid="form-poll-vote"]")).toBeVisible({ timeout: 15000 });
     
     // Répondre à la question
-    const optionButton = page.locator('input[type="radio"]').first();
+    const optionButton = page.locator("input[type="radio"]").first();
     await expect(optionButton).toBeVisible({ timeout: 10000 });
     await optionButton.check();
 
     // Soumettre le vote
-    const submitButton = page.locator('[data-testid="submit-vote"]');
+    const submitButton = page.locator("[data-testid="submit-vote"]");
     await expect(submitButton).toBeVisible({ timeout: 10000 });
     await submitButton.click();
 
     // 9. Vérifier la confirmation de vote
-    await expect(page.locator('text="Merci pour votre réponse"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text="Merci pour votre réponse"")).toBeVisible({ timeout: 15000 });
   });
 
   test("UI - Questions conditionnelles et matrices", async ({ page }) => {
@@ -254,7 +254,7 @@ test.describe("FormPolls - UI Mirror", () => {
     3. Question matrice : Évaluez 3 saveurs sur 3 critères
     `;
 
-    const chatInput = page.locator('[data-testid="chat-input"]');
+    const chatInput = page.locator("[data-testid="chat-input"]");
     await chatInput.fill(complexPrompt);
     await chatInput.press("Enter");
 
@@ -262,33 +262,33 @@ test.describe("FormPolls - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 20000 });
 
     // 3. Vérifier la présence des différents types de questions
-    await expect(page.locator('[data-testid="poll-preview"]')).toBeVisible();
-    await expect(page.locator('text="Aimez-vous le chocolat ?"')).toBeVisible();
+    await expect(page.locator("[data-testid="poll-preview"]")).toBeVisible();
+    await expect(page.locator("text="Aimez-vous le chocolat ?"")).toBeVisible();
 
     // 4. Finaliser et tester le vote
-    const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+    const finalizeButton = page.locator("[data-testid="finalize-poll"]");
     await finalizeButton.click();
 
     // Attendre l'écran de succès puis naviguer vers le vote
     await page.waitForSelector('text="Formulaire publié !"', { timeout: 10000 });
-    const viewFormButton = page.locator('[data-testid="view-form"]');
+    const viewFormButton = page.locator("[data-testid="view-form"]");
     await viewFormButton.click();
 
     // 5. Tester les questions conditionnelles
-    await expect(page.locator('[data-testid="form-poll-vote"]')).toBeVisible();
+    await expect(page.locator("[data-testid="form-poll-vote"]")).toBeVisible();
     
     // La question conditionnelle ne doit pas être visible initialement
-    await expect(page.locator('text="Pourquoi ?"')).not.toBeVisible();
+    await expect(page.locator("text="Pourquoi ?"")).not.toBeVisible();
 
     // Répondre "Non" à la première question
-    await page.locator('input[value="Non"]').check();
+    await page.locator("input[value="Non"]").check();
 
     // La question conditionnelle doit maintenant apparaître
-    await expect(page.locator('text="Pourquoi ?"')).toBeVisible();
+    await expect(page.locator("text="Pourquoi ?"")).toBeVisible();
 
     // 6. Tester la question matrice
-    await expect(page.locator('table')).toBeVisible(); // Les matrices sont rendues en tableaux
-    const matrixRadios = page.locator('table input[type="radio"]');
+    await expect(page.locator("table")).toBeVisible(); // Les matrices sont rendues en tableaux
+    const matrixRadios = page.locator("table input[type="radio"]");
     const count = await matrixRadios.count();
     
     // Vérifier qu'il y a des éléments à tester
@@ -301,21 +301,21 @@ test.describe("FormPolls - UI Mirror", () => {
     }
 
     // 7. Soumettre le formulaire complet
-    const submitButton = page.locator('[data-testid="submit-vote"]');
+    const submitButton = page.locator("[data-testid="submit-vote"]");
     await submitButton.click();
 
     // 8. Vérifier la confirmation
-    await expect(page.locator('text="Merci pour votre réponse"')).toBeVisible();
+    await expect(page.locator("text="Merci pour votre réponse"")).toBeVisible();
   });
 
   test("UI - Résultats et exports", async ({ page }) => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     // 1. Naviguer vers le dashboard
-    await page.goto('/DooDates/dashboard");
+    await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un formulaire existant ou en créer un
-    const existingForm = page.locator('[data-testid="form-poll-card"]').first();
+    const existingForm = page.locator("[data-testid="form-poll-card"]').first();
     
     if (await existingForm.isVisible()) {
       await existingForm.click();
@@ -324,32 +324,32 @@ test.describe("FormPolls - UI Mirror", () => {
       await navigateToWorkspace(page, "chromium");
       await waitForChatInput(page, 10000);
       
-      const chatInput = page.locator('[data-testid="chat-input"]');
+      const chatInput = page.locator("[data-testid="chat-input"]");
       await chatInput.fill("Crée un sondage simple avec une question");
       await chatInput.press("Enter");
       
       await page.waitForSelector('[data-testid="ai-response"]', { timeout: 15000 });
       
-      const finalizeButton = page.locator('[data-testid="finalize-poll"]');
+      const finalizeButton = page.locator("[data-testid="finalize-poll"]");
       await finalizeButton.click();
       
       await page.waitForSelector('text="Formulaire publié !"', { timeout: 10000 });
-      const dashboardButton = page.locator('[data-testid="go-to-dashboard"]');
+      const dashboardButton = page.locator("[data-testid="go-to-dashboard"]");
       await dashboardButton.click();
     }
 
     // 3. Accéder aux résultats
     await page.waitForSelector('[data-testid="poll-results"]', { timeout: 10000 });
-    const resultsButton = page.locator('[data-testid="view-results"]');
+    const resultsButton = page.locator("[data-testid="view-results"]");
     if (await resultsButton.isVisible()) {
       await resultsButton.click();
     }
 
     // 4. Vérifier les statistiques
-    await expect(page.locator('[data-testid="results-stats"]')).toBeVisible();
+    await expect(page.locator("[data-testid="results-stats"]")).toBeVisible();
     
     // 5. Tester les exports
-    const exportButtons = page.locator('[data-testid^="export-"]');
+    const exportButtons = page.locator("[data-testid^="export-"]");
     const exportCount = await exportButtons.count();
     
     if (exportCount > 0) {

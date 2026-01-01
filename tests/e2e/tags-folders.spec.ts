@@ -78,7 +78,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -102,7 +102,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -116,7 +116,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       const dialog = await openTagsFolderDialog(page, conversationCard);
 
       // Sélectionner un tag
-      const tagCheckbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
+      const tagCheckbox = page.getByRole("checkbox", { name: /Test Tag 1/i });
       await tagCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await tagCheckbox.scrollIntoViewIfNeeded();
 
@@ -128,7 +128,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(tagCheckbox).toBeChecked({ timeout: timeouts.element });
 
       // Sélectionner un autre tag
-      const tag2Checkbox = page.getByRole('checkbox', { name: /Test Tag 2/i });
+      const tag2Checkbox = page.getByRole("checkbox", { name: /Test Tag 2/i });
       await tag2Checkbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await tag2Checkbox.scrollIntoViewIfNeeded();
       await tag2Checkbox.click({ force: true });
@@ -140,7 +140,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(dialog).toBeVisible();
 
       // Sauvegarder
-      const saveButton = page.getByRole('button', { name: /Enregistrer/i });
+      const saveButton = page.getByRole("button", { name: /Enregistrer/i });
       await saveButton.waitFor({ state: 'visible', timeout: timeouts.element });
       await saveButton.click();
 
@@ -151,13 +151,13 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       }, { timeout: timeouts.element }).toBe(true);
 
       // Vérifier que les tags apparaissent sur la carte (preuve que l'action a réussi)
-      await expect(conversationCard.getByText('Test Tag 1')).toBeVisible({ timeout: timeouts.element });
-      await expect(conversationCard.getByText('Test Tag 2')).toBeVisible({ timeout: timeouts.element });
+      await expect(conversationCard.getByText("Test Tag 1")).toBeVisible({ timeout: timeouts.element });
+      await expect(conversationCard.getByText("Test Tag 2")).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier le toast de succès (optionnel - si le toast n'apparaît pas, le test continue)
       try {
         // Chercher le toast par son titre exact avec la structure Radix UI
-        await expect(page.locator('div[data-state="open"]', { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         // Le toast n'est pas visible, mais l'action a réussi (tags visibles)
         console.log('Toast non visible, mais l\'action a réussi');
@@ -170,7 +170,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -184,7 +184,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       const dialog = await openTagsFolderDialog(page, conversationCard);
 
       // Sélectionner un dossier
-      const folderCheckbox = page.getByRole('checkbox', { name: /Test Folder 1/i });
+      const folderCheckbox = page.getByRole("checkbox", { name: /Test Folder 1/i });
       await folderCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await folderCheckbox.scrollIntoViewIfNeeded();
       await folderCheckbox.click({ force: true });
@@ -193,13 +193,13 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(folderCheckbox).toHaveAttribute('data-state', 'checked', { timeout: timeouts.element });
 
       // Sauvegarder
-      const saveButton = page.getByRole('button', { name: /Enregistrer/i });
+      const saveButton = page.getByRole("button", { name: /Enregistrer/i });
       await saveButton.waitFor({ state: 'visible', timeout: timeouts.element });
       await saveButton.click();
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator('div[data-state="open"]', { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -251,7 +251,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -273,7 +273,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       // Désélectionner tous les tags cochés
       const tagLabels = ['Test Tag 1', 'Test Tag 2'];
       for (const tagName of tagLabels) {
-        const checkbox = page.getByRole('checkbox', { name: new RegExp(tagName, 'i') });
+        const checkbox = page.getByRole("checkbox", { name: new RegExp(tagName, 'i') });
         const isVisible = await safeIsVisible(checkbox);
         if (isVisible) {
           const isChecked = await checkbox.isChecked({ timeout: timeouts.element }).catch(() => false);
@@ -286,7 +286,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       }
 
       // Désélectionner le dossier (sélectionner "Aucun dossier")
-      const noFolderCheckbox = page.getByRole('checkbox', { name: /Aucun dossier/i });
+      const noFolderCheckbox = page.getByRole("checkbox", { name: /Aucun dossier/i });
       await noFolderCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await noFolderCheckbox.check();
 
@@ -294,13 +294,13 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(noFolderCheckbox).toBeChecked({ timeout: timeouts.element });
 
       // Sauvegarder
-      const saveButton = page.getByRole('button', { name: /Enregistrer/i });
+      const saveButton = page.getByRole("button", { name: /Enregistrer/i });
       await saveButton.waitFor({ state: 'visible', timeout: timeouts.element });
       await saveButton.click();
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator('div[data-state="open"]', { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -353,7 +353,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -377,7 +377,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -395,7 +395,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(dialog.getByText(/Dossier/i).first()).toBeVisible({ timeout: timeouts.element });
 
       // Sélectionner un tag
-      const tag1Checkbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
+      const tag1Checkbox = page.getByRole("checkbox", { name: /Test Tag 1/i });
       await tag1Checkbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await tag1Checkbox.scrollIntoViewIfNeeded();
       await tag1Checkbox.check({ timeout: timeouts.element });
@@ -404,7 +404,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(tag1Checkbox).toBeChecked({ timeout: timeouts.element });
 
       // Sélectionner un dossier
-      const folder1Checkbox = page.getByRole('checkbox', { name: /Test Folder 1/i });
+      const folder1Checkbox = page.getByRole("checkbox", { name: /Test Folder 1/i });
       await folder1Checkbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await folder1Checkbox.scrollIntoViewIfNeeded();
       await folder1Checkbox.check({ timeout: timeouts.element });
@@ -413,13 +413,13 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(folder1Checkbox).toHaveAttribute('data-state', 'checked', { timeout: timeouts.element });
 
       // Sauvegarder
-      const saveButton = page.getByRole('button', { name: /Enregistrer/i });
+      const saveButton = page.getByRole("button", { name: /Enregistrer/i });
       await saveButton.waitFor({ state: 'visible', timeout: timeouts.element });
       await saveButton.click();
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator('div[data-state="open"]', { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: "Mise à jour réussie" })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }

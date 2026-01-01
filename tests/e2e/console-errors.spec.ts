@@ -161,7 +161,7 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Aller sur la page d'accueil (workspace date par défaut)
-    await page.goto('date-polls/workspace/date?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto("/date-polls/workspace/date?e2e-test=true", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -339,7 +339,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     const timeouts = getTimeouts(browserName);
     // Créer un poll via IA (workspace form pour ce test)
-    await page.goto('form-polls/workspace/form?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto("/form-polls/workspace/form?e2e-test=true", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -359,7 +359,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
     // Le timeout est plus long pour webkit qui peut être plus lent
-    const createButton = page.locator('[data-testid="create-form-button"]');
+    const createButton = page.locator("[data-testid="create-form-button"]");
 
     // Attendre que la réponse IA soit reçue et le bouton apparaisse
     // On attend d'abord qu'un message avec pollSuggestion apparaisse dans le DOM
@@ -387,7 +387,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     // Vérifier les messages affichés dans le chat
-    const allMessages = await page.locator('[class*="message"], [class*="Message"]').all();
+    const allMessages = await page.locator("[class*="message"], [class*="Message"]").all();
     console.log('📝 Messages trouvés dans le DOM:', allMessages.length);
 
     for (let i = 0; i < allMessages.length; i++) {
@@ -456,13 +456,13 @@ test.describe('Console Errors & React Warnings', () => {
       const pageContent = await page.content();
       const hasButton = pageContent.includes('create-form-button');
       const hasPollSuggestion = pageContent.includes('pollSuggestion') || pageContent.includes('poll-suggestion');
-      const hasMessageAI = await page.locator('text=/voici votre/i').count() > 0;
+      const hasMessageAI = await page.locator("text=/voici votre/i").count() > 0;
 
       console.log('🔍 Debug - État de la page:');
       console.log('- Bouton avec data-testid présent:', hasButton);
       console.log('- PollSuggestion dans le DOM:', hasPollSuggestion);
       console.log('- Message AI visible:', hasMessageAI);
-      console.log('- Nombre de messages:', await page.locator('[class*="message"]').count());
+      console.log('- Nombre de messages:', await page.locator("[class*="message"]").count());
 
       throw error;
     }
@@ -474,7 +474,7 @@ test.describe('Console Errors & React Warnings', () => {
     await waitForElementReady(page, '[data-poll-preview]', { browserName, timeout: timeouts.element });
 
     // Finaliser (le bouton s'appelle "Publier le formulaire" dans FormEditor)
-    const finalizeButton = page.getByRole('button', { name: /publier le formulaire/i });
+    const finalizeButton = page.getByRole("button", { name: /publier le formulaire/i });
     if (await safeIsVisible(finalizeButton)) {
       await finalizeButton.click();
       await waitForNetworkIdle(page, { browserName });

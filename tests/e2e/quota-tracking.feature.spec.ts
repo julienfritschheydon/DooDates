@@ -59,14 +59,14 @@ test.describe("Quota Tracking (Edge Function & UI)", () => {
     await waitForReactStable(page, { browserName });
 
     await waitForChatInput(page, timeouts.element);
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
+    const chatInput = page.locator("[data-testid="chat-input"]").first();
 
     await chatInput.fill("Test quotas IA");
     await chatInput.press("Enter");
 
     await waitForReactStable(page, { browserName });
 
-    const quotaIndicator = page.locator('[data-testid="quota-indicator"], .quota-indicator').first();
+    const quotaIndicator = page.locator("[data-testid="quota-indicator"], .quota-indicator").first();
     const count = await quotaIndicator.count();
 
     // Si l'indicateur est présent, on vérifie son format. Sinon, on log seulement sans faire échouer le test.

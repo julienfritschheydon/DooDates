@@ -93,7 +93,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -538,7 +538,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // FIX: Vérifier visuellement que l'utilisateur N'EST PLUS en mode invité
       // Si "Invité" est visible, l'auth n'a pas fonctionné côté UI
-      await expect(pageB.locator('text="Invité"')).not.toBeVisible({ timeout: 10000 });
+      await expect(pageB.locator("text="Invité"")).not.toBeVisible({ timeout: 10000 });
 
       // Attendre que les conversations soient chargées dans le dashboard
       const conversationsLoaded = await waitForConversationsInDashboard(pageB);
@@ -547,14 +547,14 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       // Ouvrir la conversation depuis le dashboard
       // Utiliser une approche plus robuste : cliquer sur la première conversation
       // Utiliser une approche plus robuste : cliquer sur la première conversation
-      let firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
+      let firstConversation = pageB.locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item").first();
       try {
         await expect(firstConversation).toBeVisible({ timeout: 5000 });
       } catch (e) {
         console.log('Conversation not found, reloading...');
         await pageB.reload({ waitUntil: 'domcontentloaded' });
         await waitForConversationsInDashboard(pageB);
-        firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
+        firstConversation = pageB.locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item").first();
         await expect(firstConversation).toBeVisible({ timeout: 10000 });
       }
       await firstConversation.click();
@@ -563,7 +563,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await pageB.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
       // Vérifier que nous ne sommes pas sur la page 404
-      await expect(pageB.getByRole('heading', { name: '404' })).toHaveCount(0);
+      await expect(pageB.getByRole("heading", { name: '404' })).toHaveCount(0);
 
       // Vérifier que la page agent est bien montée
       await expect(pageB.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
@@ -601,7 +601,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // Ouvrir la conversation depuis le dashboard (cliquer sur la première carte disponible)
       let firstConversationA = pageA
-        .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+        .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
         .first();
       try {
         await expect(firstConversationA).toBeVisible({ timeout: 5000 });
@@ -610,7 +610,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         await pageA.reload({ waitUntil: 'domcontentloaded' });
         await waitForConversationsInDashboard(pageA);
         firstConversationA = pageA
-          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+          .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
           .first();
         await expect(firstConversationA).toBeVisible({ timeout: 10000 });
       }
@@ -620,7 +620,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await pageA.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
        // Vérifier que nous ne sommes pas sur la page 404
-      await expect(pageA.getByRole('heading', { name: '404' })).toHaveCount(0);
+      await expect(pageA.getByRole("heading", { name: '404' })).toHaveCount(0);
 
       // Vérifier que la page agent est bien montée
       await expect(pageA.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
@@ -683,7 +683,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await waitForReactStable(page, { browserName });
 
     // S'assurer que la page est chargée avant de désactiver internet
-    const messageInput = page.locator('[data-testid="chat-input"]');
+    const messageInput = page.locator("[data-testid="chat-input"]");
     await expect(messageInput).toBeVisible({ timeout: 10000 });
 
     // Désactiver internet
@@ -772,7 +772,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier persistence
    */
   test('8. Test mise à jour conversation', async ({ page, browserName }) => {
-    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -892,7 +892,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier non réapparition
    */
   test('9. Test suppression conversation', async ({ page, browserName }) => {
-    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1007,7 +1007,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * (la sauvegarde est testée dans d'autres tests)
    */
   test('10. Test génération automatique titre', async ({ page, browserName }) => {
-    await page.goto('workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1193,7 +1193,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     expect(loadTime).toBeLessThan(10000);
 
     // Vérifier pas de timeout (la page doit se charger)
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
 
     // Note: La pagination dépend de l'UI réelle, difficile à tester automatiquement
     // mais on peut vérifier que la page charge sans erreur

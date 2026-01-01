@@ -6,7 +6,7 @@ test.describe("Strict Poll Type Enforcement", () => {
 
   test("should block creating a form poll in date workspace", async ({ page }) => {
     // 1. Navigate to Date Workspace
-    await page.goto('workspace/date");
+    await page.goto("/workspace/date");
 
     // 2. Mock AI response to propose a FORM poll
     await page.route("**/functions/v1/hyper-task", async (route) => {
@@ -36,7 +36,7 @@ test.describe("Strict Poll Type Enforcement", () => {
 
   test("should block creating a date poll in form workspace", async ({ page }) => {
     // 1. Navigate to Form Workspace
-    await page.goto('workspace/form");
+    await page.goto("workspace/form");
 
     // 2. Mock AI response to propose a DATE poll
     await page.route("**/functions/v1/hyper-task", async (route) => {
@@ -61,6 +61,6 @@ test.describe("Strict Poll Type Enforcement", () => {
 
     // 4. Verify error message
     await expect(page.locator("text=Je ne peux pas créer ce type de sondage ici")).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=réservée aux sondages de type "form"')).toBeVisible();
+    await expect(page.locator("text=réservée aux sondages de type "form"")).toBeVisible();
   });
 });

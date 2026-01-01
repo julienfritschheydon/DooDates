@@ -804,9 +804,11 @@ export default function FormPollCreator({
                 </div>
               )}
 
-              {isConfigPanelOpen && (
-                <Collapsible open={isConfigPanelOpen} onOpenChange={setIsConfigPanelOpen}>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors">
+              <Collapsible open={isConfigPanelOpen} onOpenChange={setIsConfigPanelOpen}>
+                  <CollapsibleTrigger 
+                    className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
+                    role="button"
+                  >
                     <div className="flex items-center gap-3">
                       <Settings className="w-5 h-5 text-gray-300" />
                       <span className="text-sm font-medium text-gray-300">
@@ -836,7 +838,6 @@ export default function FormPollCreator({
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
-              )}
             </div>
           </div>
         </div>

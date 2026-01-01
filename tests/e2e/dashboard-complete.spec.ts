@@ -40,7 +40,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await setupTestData(page, { mode: 'authenticated' });
       await page.reload({ waitUntil: 'domcontentloaded' });
       await waitForReactStable(page, { browserName });
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -85,10 +85,10 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     });
     
     // Attendre que les éléments de chargement disparaissent
-    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
+    await expect(page.locator("[data-testid="dashboard-loading"]")).toHaveCount(0);
     
     // Attendre que le titre du dashboard soit visible (peut être "Tableau de bord" ou "Vos Sondages de Dates" selon le composant)
-    const dashboardTitle = page.getByRole('heading').first();
+    const dashboardTitle = page.getByRole("heading").first();
     await expect(dashboardTitle).toBeVisible({ timeout: timeouts.element });
     
     // Attendre que React soit stable
@@ -122,7 +122,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         metadata: { pollId: createdPoll.id, pollGenerated: true },
       });
       
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -135,7 +135,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier que seules les conversations avec "active" sont affichées
       await waitForReactStable(page, { browserName });
-      const visibleCards = page.locator('[data-testid="poll-item"]');
+      const visibleCards = page.locator("[data-testid="poll-item"]");
       const count = await visibleCards.count();
       expect(count).toBeGreaterThan(0);
     });
@@ -146,7 +146,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -159,7 +159,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       const filters = ['Tous', 'Brouillon', 'Actif', 'Terminé', 'Archivé'];
       for (const filterName of filters) {
         // Trouver le bouton de filtre - prendre le premier qui est visible
-        const filterButton = page.getByRole('button', { name: filterName }).first();
+        const filterButton = page.getByRole("button", { name: filterName }).first();
         
         // Attendre que le bouton soit visible et cliquable
         await expect(filterButton).toBeVisible({ timeout: timeouts.element });
@@ -181,7 +181,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -194,7 +194,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Sélectionner un tag (trouver via le label associé)
       const tagLabel = await waitForElementReady(page, 'text=Test Tag 1', { browserName, timeout: timeouts.element });
       // Le checkbox est dans le même label ou proche
-      const tagCheckbox = tagLabel.locator('..').locator('input[type="checkbox"]').first();
+      const tagCheckbox = tagLabel.locator("..").locator("input[type="checkbox"]").first();
       await tagCheckbox.check();
 
       // Fermer le menu en cliquant ailleurs
@@ -202,7 +202,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier que le filtre est appliqué
       await waitForReactStable(page, { browserName });
-      const tagButton = page.getByRole('button', { name: /Tags.*1/i });
+      const tagButton = page.getByRole("button", { name: /Tags.*1/i });
       await expect(tagButton).toBeVisible({ timeout: timeouts.element });
     });
   });
@@ -212,13 +212,13 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Ouvrir le menu des dossiers
-      const foldersButton = page.getByRole('button', { name: /Tous les dossiers/i }).first();
+      const foldersButton = page.getByRole("button", { name: /Tous les dossiers/i }).first();
       await expect(foldersButton).toBeVisible({ timeout: timeouts.element });
       await foldersButton.click();
       
@@ -231,7 +231,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier que le filtre est appliqué - le bouton doit afficher le nom du dossier
       await waitForReactStable(page, { browserName });
-      const folderButton = page.getByRole('button', { name: /Test Folder 1/i }).first();
+      const folderButton = page.getByRole("button", { name: /Test Folder 1/i }).first();
       await expect(folderButton).toBeVisible({ timeout: timeouts.element });
     });
   });
@@ -241,7 +241,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -257,7 +257,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier le toast de succès (optionnel - utiliser le pattern des autres tests)
       try {
-        await expect(page.locator('div[data-state="open"]', { hasText: /Tag créé/i })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: /Tag créé/i })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -284,12 +284,12 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
       // Ouvrir le menu des dossiers
-      const foldersButton = page.getByRole('button', { name: /Tous les dossiers/i }).first();
+      const foldersButton = page.getByRole("button", { name: /Tous les dossiers/i }).first();
       await expect(foldersButton).toBeVisible({ timeout: timeouts.element });
       await foldersButton.click();
 
@@ -301,7 +301,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier le toast de succès (optionnel - utiliser le pattern des autres tests)
       try {
-        await expect(page.locator('div[data-state="open"]', { hasText: /Dossier créé/i })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("div[data-state="open"]", { hasText: /Dossier créé/i })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -310,15 +310,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier que le dossier apparaît dans la liste du menu (réouvrir le menu si nécessaire)
-      const folderMenuButton = page.getByRole('button', { name: /Tous les dossiers/i }).first();
-      const folderMenuVisible = await safeIsVisible(page.locator('div[class*="absolute"]').filter({ hasText: /Tous les dossiers/i }));
+      const folderMenuButton = page.getByRole("button", { name: /Tous les dossiers/i }).first();
+      const folderMenuVisible = await safeIsVisible(page.locator("div[class*="absolute"]").filter({ hasText: /Tous les dossiers/i }));
       if (!folderMenuVisible) {
         await folderMenuButton.click();
         await waitForReactStable(page, { browserName });
       }
 
       // Chercher le dossier dans le menu déroulant (exclure les toasts)
-      const folderInMenu = page.locator('div[class*="absolute"]').filter({ hasText: /Tous les dossiers/i }).getByText('Nouveau Dossier E2E', { exact: false }).first();
+      const folderInMenu = page.locator("div[class*="absolute"]").filter({ hasText: /Tous les dossiers/i }).getByText("Nouveau Dossier E2E", { exact: false }).first();
       await expect(folderInMenu).toBeVisible({ timeout: timeouts.element });
     }, {
       allowlist: [
@@ -341,7 +341,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -378,7 +378,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
@@ -424,7 +424,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -466,13 +466,13 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await setupTestData(page, undefined, { conversations });
 
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Vérifier que la pagination est visible (si plus d'une page)
-      const pagination = page.locator('nav[aria-label="pagination"]').first();
+      const pagination = page.locator("nav[aria-label="pagination"]").first();
       if (await pagination.isVisible({ timeout: timeouts.element })) {
         await expect(pagination).toBeVisible({ timeout: timeouts.element });
 
@@ -481,7 +481,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         await expect(page1Text).toBeVisible({ timeout: timeouts.element });
 
         // Cliquer sur "Suivant" si disponible
-        const nextButton = page.getByRole('link', { name: /Suivant/i }).or(page.locator('a[aria-label="Go to next page"]'));
+        const nextButton = page.getByRole("link", { name: /Suivant/i }).or(page.locator("a[aria-label="Go to next page"]"));
         if (await nextButton.count() > 0 && await nextButton.isEnabled()) {
           await nextButton.click();
           await waitForReactStable(page, { browserName });
@@ -501,7 +501,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier que l'indicateur de quota est visible (texte changé en "crédits utilisés")
@@ -513,7 +513,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   test('@functional - Fermer le dashboard (bouton X)', async ({ page, browserName }) => {
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Le Dashboard n'a plus de bouton de fermeture dédié
@@ -532,22 +532,22 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Trouver la carte et ouvrir le menu avec sélecteur robuste
-      const conversationCard = page.locator('[data-testid="poll-item"]').first();
+      const conversationCard = page.locator("[data-testid="poll-item"]").first();
       
       // Utiliser le data-testid si disponible, sinon fallback sur l'ancienne méthode
       let menuButton;
       try {
-        menuButton = conversationCard.locator('[data-testid="conversation-menu-button"]');
+        menuButton = conversationCard.locator("[data-testid="conversation-menu-button"]");
         await expect(menuButton).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher le dernier bouton visible dans la carte
-        const menuButtons = conversationCard.locator('button');
+        const menuButtons = conversationCard.locator("button");
         const menuButtonCount = await menuButtons.count();
         menuButton = menuButtons.last();
         
@@ -570,11 +570,11 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Attendre que le menu s'ouvre et cliquer sur "Gérer les tags/dossier"
       let manageMenuItem;
       try {
-        manageMenuItem = page.locator('[data-testid="manage-tags-folder-menu-item"]');
+        manageMenuItem = page.locator("[data-testid="manage-tags-folder-menu-item"]");
         await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte
-        manageMenuItem = page.locator('text=Gérer les tags/dossier');
+        manageMenuItem = page.locator("text=Gérer les tags/dossier");
         await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element });
       }
       await manageMenuItem.click();
@@ -582,11 +582,11 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Vérifier que le dialogue s'ouvre avec le data-testid si disponible
       let dialog;
       try {
-        dialog = page.locator('[data-testid="manage-tags-dialog"]');
+        dialog = page.locator("[data-testid="manage-tags-dialog"]");
         await expect(dialog).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte
-        dialog = page.locator('text=Gérer les tags et le dossier');
+        dialog = page.locator("text=Gérer les tags et le dossier");
         await expect(dialog).toBeVisible({ timeout: timeouts.element });
       }
     });
@@ -597,7 +597,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       // Ne pas créer de conversations
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier le message "Aucun sondage" (plus probable que "Aucune conversation")
@@ -617,7 +617,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
-      await page.goto('date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
@@ -634,7 +634,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         await expect(noResultsMessage).toBeVisible({ timeout: timeouts.element });
       } catch (e) {
         // Alternative : vérifier "Aucun résultat" avec un autre sélecteur
-        const noResultsMessage = page.locator('text=/Aucun résultat/i').first();
+        const noResultsMessage = page.locator("text=/Aucun résultat/i").first();
         await expect(noResultsMessage).toBeVisible({ timeout: timeouts.element });
       }
     });
