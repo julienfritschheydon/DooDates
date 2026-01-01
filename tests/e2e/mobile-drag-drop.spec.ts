@@ -17,8 +17,8 @@ test.describe('Mobile Drag and Drop', () => {
     test.skip(!isMobile, 'Mobile-only test');
     
     const timeouts = getTimeouts(browserName);
-    const firstItem = page.locator("[data-testid="draggable-item"]").first();
-    const thirdItem = page.locator("[data-testid="draggable-item"]").nth(2);
+    const firstItem = page.locator('[data-testid="draggable-item"]').first();
+    const thirdItem = page.locator('[data-testid="draggable-item"]').nth(2);
     
     // Get initial order
     const firstItemText = await firstItem.textContent();
@@ -48,7 +48,7 @@ test.describe('Mobile Drag and Drop', () => {
   test('should show visual feedback during drag', async ({ page, browserName, isMobile }) => {
     test.skip(!isMobile, 'Mobile-only test');
     
-    const firstItem = page.locator("[data-testid="draggable-item"]").first();
+    const firstItem = page.locator('[data-testid="draggable-item"]').first();
     
     // Start dragging
     await firstItem.hover();
