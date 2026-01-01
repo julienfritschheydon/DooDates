@@ -536,12 +536,12 @@ export async function voteOnPollComplete(
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
 
   // Navigation vers page de vote
-  await page.goto('/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
   // Vérifier que la page de vote est visible
-  await expect(page).toHaveURL(/DooDates/\/poll\/[^\/]+/, { timeout: timeouts.navigation });
+  await expect(page).toHaveURL(/.*\/poll\/[^\/]+/, { timeout: timeouts.navigation });
 
   // Remplir le nom du votant
   const nameInput = page.locator('#voter-name-input, input[placeholder*="nom" i], input[placeholder*="Nom" i], input[placeholder*="name" i], input[placeholder*="Name" i], input[type="text"]:visible').first();

@@ -526,6 +526,9 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
+              // ⚠️ IMPORTANT: NO basename here!
+              // Vite base="/DooDates/" already handles the subdirectory routing
+              // Adding basename would cause double path issues and module loading errors
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>

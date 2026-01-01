@@ -992,6 +992,10 @@ export async function debugScreenshot(
 /**
  * Product-specific route constants for E2E tests
  * Centralized route management for the 3 separate products
+ * 
+ * ⚠️ IMPORTANT: All routes MUST include /DooDates/ prefix!
+ * This matches Vite's base="/DooDates/" configuration
+ * Do NOT remove the prefix or tests will fail on GitHub Pages deployment
  */
 export const PRODUCT_ROUTES = {
   datePoll: {
