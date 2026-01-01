@@ -516,11 +516,11 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
     expect(bodyText).toBeTruthy();
 
     // Vérifier que l'app n'est pas dans un état d'erreur
-    const hasErrorState = await page.locator("[role="alert"]").count();
+    const hasErrorState = await page.locator('[role="alert"]').count();
 
     // Si une alerte existe, vérifier qu'elle n'est pas bloquante
     if (hasErrorState > 0) {
-      const alertText = await page.locator("[role="alert"]").first().textContent();
+      const alertText = await page.locator('[role="alert"]').first().textContent();
       expect(alertText).not.toContain('fatal');
       expect(alertText).not.toContain('crashed');
     }
