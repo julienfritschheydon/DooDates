@@ -14,7 +14,7 @@ test.describe('Quizz - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/quizz/);
+        await expect(page).toHaveURL(/DooDates\/.*\/quizz\//);
         // Title might vary, check for "Quiz" or similar
         await expect(page.getByRole('heading', { name: /Quiz/i })).toBeVisible();
 
@@ -30,7 +30,7 @@ test.describe('Quizz - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/quizz\/dashboard/);
+        await expect(page).toHaveURL(/DooDates\/.*\/quizz\/dashboard\//);
         await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
     });
 
@@ -40,7 +40,7 @@ test.describe('Quizz - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/quizz\/workspace/);
+        await expect(page).toHaveURL(/DooDates\/.*\/quizz\/workspace\//);
 
         // 2. Fill in quiz title
         const titleInput = page.getByPlaceholder(/Titre du quiz|Ex: Quiz/i).first();
@@ -82,7 +82,7 @@ test.describe('Quizz - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/quizz\/dashboard/);
+        await expect(page).toHaveURL(/DooDates\/.*\/quizz\/dashboard\//);
 
         // Check for dashboard heading
         await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();

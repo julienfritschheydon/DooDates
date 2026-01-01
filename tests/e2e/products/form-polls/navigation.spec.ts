@@ -15,7 +15,7 @@ test.describe('Form Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/form-polls/);
+        await expect(page).toHaveURL(/DooDates\/.*\/form-polls\//);
         // Title might vary, check for "Formulaires" or similar
         await expect(page.getByRole('heading', { name: /Formulaires/i })).toBeVisible();
 
@@ -23,7 +23,7 @@ test.describe('Form Polls - Navigation Flow', () => {
         const createButton = page.getByRole('button', { name: /Créer un formulaire/i }).first();
         await createButton.click();
 
-        await expect(page).toHaveURL(/DooDates/.*\/form-polls\/workspace\/form/);
+        await expect(page).toHaveURL(/DooDates\/.*\/form-polls\/workspace\/form\//);
         await waitForReactStable(page, { browserName });
         await waitForNetworkIdle(page, { browserName });
 
@@ -50,7 +50,7 @@ test.describe('Form Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates/.*\/form-polls\/dashboard/);
+        await expect(page).toHaveURL(/DooDates\/.*\/form-polls\/dashboard\//);
         await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
     });
 });

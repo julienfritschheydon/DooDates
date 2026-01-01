@@ -21,7 +21,7 @@ test.describe('Quizz - Ultra Simple Workflow', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    await expect(page).toHaveURL(/DooDates/\/quizz\/workspace/);
+    await expect(page).toHaveURL(/DooDates\/.*\/quizz\/workspace\//);
 
     const quizTitle = 'Test Ultra Simple Quizz';
 

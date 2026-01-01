@@ -157,7 +157,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       // Vérifier le toast de succès (optionnel - si le toast n'apparaît pas, le test continue)
       try {
         // Chercher le toast par son titre exact avec la structure Radix UI
-        await expect(page.locator("div[data-state="open"]", { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]', { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         // Le toast n'est pas visible, mais l'action a réussi (tags visibles)
         console.log('Toast non visible, mais l\'action a réussi');
@@ -199,7 +199,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator("div[data-state="open"]", { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]', { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -300,7 +300,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator("div[data-state="open"]", { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]', { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -419,7 +419,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Vérifier le toast de succès
       try {
-        await expect(page.locator("div[data-state="open"]", { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]', { hasText: 'Mise à jour réussie' })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
