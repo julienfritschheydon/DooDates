@@ -36,17 +36,17 @@ test.describe('Security and Data Isolation', () => {
     await navigateToWorkspace(page, browserName, 'default');
     await expect(page).toHaveTitle(/DooDates/);
     
-    await page.goto('/DooDates/create', { waitUntil: 'domcontentloaded' });
+    await page.goto("/create", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
-    await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
     
-    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto("/dashboard", { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
-    await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
     
     // Test workspace again for consistency
     await navigateToWorkspace(page, browserName, 'default');
-    await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
   });
 
 

@@ -6,7 +6,7 @@ test.describe('Mobile Drag and Drop', () => {
   test.beforeEach(async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Utiliser la route /create/date qui est définie dans l'application
-    await page.goto('/DooDates/create/date');
+    await page.goto("/create/date");
     await waitForElementReady(page, '[data-testid="draggable-item"]', { 
       browserName, 
       timeout: timeouts.element 
@@ -55,7 +55,7 @@ test.describe('Mobile Drag and Drop', () => {
     await page.mouse.down();
     
     // Verify visual feedback
-    await expect(page.locator('.drag-preview')).toBeVisible();
+    await expect(page.locator(".drag-preview")).toBeVisible();
     
     // Clean up
     await page.mouse.up();

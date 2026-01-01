@@ -507,7 +507,7 @@ export async function openTagsFolderDialog(
   conversationCard?: ReturnType<Page['locator']>
 ) {
   // Utiliser la carte fournie ou prendre la première
-  const card = conversationCard || page.locator('[data-testid="poll-item"]').first();
+  const card = conversationCard || page.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .poll-item, .conversation-item').first();
 
   // Attendre que la carte soit attachée
   await card.waitFor({ state: 'attached', timeout: 20000 });
@@ -992,6 +992,10 @@ export async function debugScreenshot(
 /**
  * Product-specific route constants for E2E tests
  * Centralized route management for the 3 separate products
+ * 
+ * ⚠️ IMPORTANT: All routes MUST include /DooDates/ prefix!
+ * This matches Vite's base="/DooDates/" configuration
+ * Do NOT remove the prefix or tests will fail on GitHub Pages deployment
  */
 export const PRODUCT_ROUTES = {
   datePoll: {

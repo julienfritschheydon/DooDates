@@ -55,7 +55,7 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
 
                 // 1. Naviguer vers le workspace Availability
                 log('🛠️ Navigation vers le workspace Availability');
-                await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
                 await expect(page).toHaveTitle(/DooDates/);
                 log('✅ App chargée');
@@ -101,15 +101,15 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
 
                 // 4. Dashboard - utiliser la route produit spécifique
                 log('📊 Vérification Dashboard');
-                await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
 
-                await expect(page).toHaveURL(/.*\/availability-polls\/dashboard/);
+                await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\/dashboard\//);
 
                 // Vérifier contenu dashboard - le poll doit être visible ou message "Aucun"
                 const dashboardContent = page.locator('[data-testid="poll-item"]')
                     .or(page.locator('h3:has-text("Réunion Équipe")'))
-                    .or(page.getByRole('heading', { level: 1 }))
+                    .or(page.getByRole("heading", { level: 1 }))
                     .first();
                 await expect(dashboardContent).toBeVisible({ timeout: timeouts.element });
 

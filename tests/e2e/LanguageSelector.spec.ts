@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Language Selector E2E", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto("/");
+        await page.goto("/DooDates/");
     });
 
     test("should switch language and persist preference", async ({ page }) => {
@@ -18,22 +18,22 @@ test.describe("Language Selector E2E", () => {
         await langToggle.click();
 
         // Check for dropdown options if applicable
-        const englishOption = page.locator('text=English').first();
+        const englishOption = page.locator("text=English").first();
         if (await englishOption.isVisible()) {
             await englishOption.click();
             // Verify UI change (e.g., specific text)
-            await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+            await expect(page.locator("html")).toHaveAttribute('lang', 'en');
         }
 
         // Reload page to check persistence
         await page.reload();
-        await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+        await expect(page.locator("html")).toHaveAttribute('lang', 'en');
     });
 
     test("should respect browser locale fallback", async ({ browser }) => {
         const context = await browser.newContext({ locale: 'fr-FR' });
         const page = await context.newPage();
-        await page.goto("/");
+        await page.goto("/DooDates/");
         // Should default to French
         const html = page.locator('html');
         // Check lang attribute if set, or guess by content

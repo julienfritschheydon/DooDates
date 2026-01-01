@@ -34,6 +34,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173", // Vite dev server par défaut
   "http://localhost:3000", // Autre port dev commun
   "https://julienfritschheydon.github.io", // Production GitHub Pages
+  "https://outmbbisrrdiumlweira.supabase.co", // Supabase Studio
 ];
 
 // Patterns d'origines autorisées (pour plus de flexibilité)
@@ -149,12 +150,20 @@ serve(async (req) => {
 
     // Vérifier l'authentification (optionnelle pour invités)
     const authHeader = req.headers.get("authorization");
+    const apiKeyHeader = req.headers.get("apikey");
     let userId: string | null = null;
     let isAuthenticated = false;
 
     const authStartTime = Date.now();
-    if (authHeader) {
-      // Vérifier le JWT si présent
+    
+    // Check for anon key authentication (guest mode)
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const isAnonKey = authHeader === `Bearer ${supabaseAnonKey}` || apiKeyHeader === supabaseAnonKey;
+    
+    if (isAnonKey) {
+      console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (anon key) (${timings.auth}ms)`);
+    } else if (authHeader && authHeader !== `Bearer ${supabaseAnonKey}`) {
+      // Vérifier le JWT si présent et ce n'est pas l'anon key
       const token = authHeader.replace("Bearer ", "");
       console.log(`[${timestamp}] [${requestId}] 🔐 Vérification authentification...`);
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
@@ -166,6 +175,8 @@ serve(async (req) => {
         console.log(`[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId} (${timings.auth}ms)`);
       } else {
         console.log(`[${timestamp}] [${requestId}] ⚠️  Authentification échouée:`, authError?.message || "Token invalide");
+        // Fall back to guest mode instead of failing
+        console.log(`[${timestamp}] [${requestId}] 👤 Fallback vers mode invité`);
       }
     } else {
       timings.auth = Date.now() - authStartTime;

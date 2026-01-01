@@ -15,7 +15,7 @@ export class FormPollCreatorTestHelper {
     const configButton = screen.getByRole("button", { name: /Paramètres de configuration/i });
 
     if (configButton.getAttribute("aria-expanded") === "false") {
-      fireEvent.click(configButton);
+      await fireEvent.click(configButton);
       // Wait for the panel content (tablist) to appear
       await waitFor(() => {
         expect(screen.getByRole("tablist")).toBeInTheDocument();
@@ -31,7 +31,7 @@ export class FormPollCreatorTestHelper {
     const tab = screen.getByRole("tab", { name: /Visibilité/i });
 
     if (tab.getAttribute("aria-selected") === "false") {
-      fireEvent.click(tab);
+      await fireEvent.click(tab);
       // Wait for visibility content
       await waitFor(() => {
         expect(screen.getByText("Visibilité des résultats")).toBeInTheDocument();
@@ -69,7 +69,7 @@ export class FormPollCreatorTestHelper {
   ): Promise<void> {
     await this.switchToVisibilityTab();
     const radio = this.getResultsVisibilityRadio(visibility);
-    fireEvent.click(radio);
+    await fireEvent.click(radio);
   }
 
   /**
@@ -100,17 +100,17 @@ export class FormPollCreatorTestHelper {
    * Fills the minimum required fields to make the form valid
    * @param title - Form title (default: "Test Form")
    */
-  static fillMinimumRequiredFields(title: string = "Test Form"): void {
+  static async fillMinimumRequiredFields(title: string = "Test Form"): Promise<void> {
     const titleInput = screen.getByPlaceholderText(/Ex: Questionnaire de satisfaction client/);
-    fireEvent.change(titleInput, { target: { value: title } });
+    await fireEvent.change(titleInput, { target: { value: title } });
   }
 
   /**
    * Adds a question to the form
    */
-  static addQuestion(): void {
+  static async addQuestion(): Promise<void> {
     const addQuestionButton = screen.getByTestId("nav-add-question");
-    fireEvent.click(addQuestionButton);
+    await fireEvent.click(addQuestionButton);
   }
 
   /**
@@ -165,22 +165,22 @@ export class FormPollCreatorTestHelper {
    * Sets the form title
    * @param title - The title to set
    */
-  static setTitle(title: string): void {
+  static async setTitle(title: string): Promise<void> {
     const titleInput = this.getTitleInput();
-    fireEvent.change(titleInput, { target: { value: title } });
+    await fireEvent.change(titleInput, { target: { value: title } });
   }
 
   /**
    * Clicks the save button
    */
-  static clickSave(): void {
-    fireEvent.click(this.getSaveButton());
+  static async clickSave(): Promise<void> {
+    await fireEvent.click(this.getSaveButton());
   }
 
   /**
    * Clicks the finalize button
    */
-  static clickFinalize(): void {
-    fireEvent.click(this.getFinalizeButton());
+  static async clickFinalize(): Promise<void> {
+    await fireEvent.click(this.getFinalizeButton());
   }
 }

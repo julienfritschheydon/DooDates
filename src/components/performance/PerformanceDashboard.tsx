@@ -41,7 +41,8 @@ export function PerformanceDashboard({ className }: PerformanceDashboardProps) {
   const loadPerformanceData = async () => {
     try {
       // Load baseline data and recent runs
-      const baselineResponse = await fetch("/DooDates/performance-baseline.json");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const baselineResponse = await fetch(`${baseUrl}performance-baseline.json`);
       const baseline = await baselineResponse.json();
 
       // Mock historical data - in real app, this would come from Supabase

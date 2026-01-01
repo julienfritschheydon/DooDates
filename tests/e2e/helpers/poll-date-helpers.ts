@@ -281,11 +281,11 @@ export async function createDatePollWithTimeSlots(
   console.log(`📅 Dates à sélectionner: ${dates.join(', ')}`);
 
   // Navigate to date polls workspace (new product-specific route)
-  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+  await page.goto('date-polls/workspace/date', { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Verify we're on the date polls workspace page
-  await expect(page).toHaveURL(/\/date-polls\/workspace\/date/);
+  await expect(page).toHaveURL(/.*\/date-polls\/workspace\/date/);
   console.log('✅ Page /date-polls/workspace/date accessible');
 
   const existingPollIds = await page.evaluate(() => {
@@ -425,7 +425,7 @@ export async function createDatePollWithTimeSlots(
 
     // Attendre la redirection vers la page de vote
     try {
-      await expect(page).toHaveURL(/\/poll\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+      await expect(page).toHaveURL(/DooDates\/.*\/poll\/[a-zA-Z0-9-]+\//, { timeout: 10000 });
       const url = page.url();
       const slugMatch = url.match(/\/poll\/([a-zA-Z0-9-]+)/);
       if (slugMatch && slugMatch[1]) {

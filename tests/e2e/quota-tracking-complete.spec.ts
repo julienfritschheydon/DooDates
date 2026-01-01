@@ -176,7 +176,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Créer directement un formulaire via l'interface manuelle
     console.log('[TEST] Contournement de l\'IA - création directe du formulaire...');
     
-    await page.goto('/DooDates/create/form');
+    await page.goto('create/form');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -312,7 +312,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(initialTotalPolls).toBeGreaterThanOrEqual(1);
 
     // Supprimer le poll depuis le dashboard
-    await page.goto('/DooDates/date-polls/dashboard');
+    await page.goto('date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -424,7 +424,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     });
     
     // Accéder au journal - ne devrait pas planter
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -647,7 +647,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     });
 
     // Naviguer vers les résultats du poll pour accéder aux analytics
-    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`);
+    await page.goto(`/DooDates/poll/${pollSlug}/results?e2e-test=true`);
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -720,7 +720,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Naviguer vers la page de création/édition du poll (où se trouve le bouton simulation)
     // Le bouton simulation est généralement sur la page de création, pas sur la page de vote
-    await page.goto('/DooDates/date-polls/dashboard');
+    await page.goto('date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -733,7 +733,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
     } else {
       // Essayer d'aller directement à la page de création
-      await page.goto('/DooDates/create');
+      await page.goto('create');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
     }
@@ -809,7 +809,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Accéder à /dashboard/journal
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1141,7 +1141,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
 
     // Aller au dashboard
-    await page.goto('/DooDates/date-polls/dashboard');
+    await page.goto('date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1164,7 +1164,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       expect(currentUrl).toContain('/dashboard/journal');
 
       // Retourner au dashboard
-      await page.goto('/DooDates/date-polls/dashboard');
+      await page.goto('date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
@@ -1189,7 +1189,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Pour tester le blocage, on doit désactiver le bypass
 
     // Désactiver le bypass E2E temporairement
-    await page.goto('/DooDates/workspace?e2e-test=false');
+    await page.goto('workspace?e2e-test=false');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1230,7 +1230,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le journal continue de fonctionner même à la limite
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1238,7 +1238,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await expect(journalPage).toBeVisible();
 
     // Vérifier que la barre de progression affiche 100%
-    await page.goto('/DooDates/date-polls/dashboard');
+    await page.goto('date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1306,7 +1306,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(journalBefore.length).toBe(120); // On a créé 120 entrées
 
     // Accéder à la page du journal
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1370,7 +1370,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       localStorage.setItem('doodates_quota_journal', JSON.stringify(journal));
     });
 
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1394,7 +1394,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await setupAllMocksWithoutNavigation(page);
     
     // Accéder à l'application avec localStorage vide
-    await page.goto('/DooDates/workspace/date?e2e-test=true');
+    await page.goto('workspace/date?e2e-test=true');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1446,7 +1446,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const localStorageTotal = quotaData.totalCreditsConsumed;
 
     // Vérifier que les valeurs affichées dans l'UI correspondent exactement à localStorage
-    await page.goto('/DooDates/date-polls/dashboard');
+    await page.goto('date-polls/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1496,7 +1496,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le journal affiche les mêmes totaux que le dashboard
-    await page.goto('/DooDates/date-polls/dashboard/journal');
+    await page.goto('date-polls/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1521,7 +1521,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
   test('FormPoll Test 1: Visibilité creator-only', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Créer FormPoll avec visibilité "Moi uniquement"
-    await page.goto('/DooDates/create');
+    await page.goto('create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1551,7 +1551,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier que créateur voit les résultats
-      await page.goto('/DooDates/date-polls/dashboard');
+      await page.goto('date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
@@ -1579,7 +1579,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     title: string,
     visibility: 'creator-only' | 'voters' | 'public'
   ): Promise<string | null> {
-    await page.goto('/DooDates/create');
+    await page.goto('create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1642,7 +1642,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     wantsEmailCopy: boolean = false,
     email: string = ''
   ): Promise<void> {
-    await page.goto(`/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1733,7 +1733,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     const newPage = await newContext.newPage();
 
     await setupGeminiMock(newPage);
-    await newPage.goto(`/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await newPage.goto(`/DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(newPage, { browserName });
     await waitForReactStable(newPage, { browserName });
 
@@ -1759,7 +1759,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier accès résultats SANS voter
-    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1771,14 +1771,14 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(resultsText?.toLowerCase()).not.toContain('votez pour voir');
 
     // Voter puis vérifier accès résultats toujours OK
-    await page.goto(`/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     await voteOnFormPoll(page, browserName, pollSlug, 'Votant Public', {});
 
     // Vérifier que les résultats sont toujours accessibles
-    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1801,7 +1801,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Voter en cochant "Recevoir copie email"
-    await page.goto(`/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1852,7 +1852,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
    */
   test('FormPoll Test 5: Validation email', async ({ page, browserName }) => {
     // Créer FormPoll
-    await page.goto('/DooDates/create');
+    await page.goto('create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1872,7 +1872,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
 
       // Naviguer vers le vote
-      await page.goto('/DooDates/date-polls/dashboard');
+      await page.goto('date-polls/dashboard');
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
 
@@ -1949,7 +1949,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Vérifier que le poll est créé et accessible
-    await page.goto(`/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1966,7 +1966,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(hasSuccessMessage).toBeTruthy();
 
     // Vérifier que les résultats sont accessibles (visibilité public)
-    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -2291,7 +2291,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
 
     // Naviguer vers le dashboard
-    await page.goto('/dashboard?e2e-test=true');
+    await page.goto('/DooDates/dashboard?e2e-test=true');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -2351,7 +2351,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     // Réinitialiser et naviguer vers dashboard
     await resetGuestQuota(page);
-    await page.goto('/dashboard?e2e-test=true');
+    await page.goto('/DooDates/dashboard?e2e-test=true');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -2410,7 +2410,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       localStorage.setItem('doodates_quota_consumed', JSON.stringify(mockData));
     });
 
-    await page.goto('/dashboard?e2e-test=true');
+    await page.goto('/DooDates/dashboard?e2e-test=true');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

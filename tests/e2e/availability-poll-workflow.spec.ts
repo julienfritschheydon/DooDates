@@ -49,7 +49,7 @@ test.describe('Availability Poll Workflow', () => {
     await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     // Verify URL contains workspace path
-    await expect(page).toHaveURL(/workspace\/availability/, { timeout: timeouts.navigation });
+    await expect(page).toHaveURL(/DooDates\/workspace\/availability/, { timeout: timeouts.navigation });
 
     // Fill poll title - use id="title" or placeholder containing "Planification"
     const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]', { browserName, timeout: timeouts.element });
@@ -83,7 +83,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 2: Client submits availabilities
     // Navigate to vote page
-    await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -107,7 +107,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 3: Professional views results
     // Navigate to results page
-    await page.goto(`/poll/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}/results`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -276,7 +276,7 @@ test.describe('Availability Poll Workflow', () => {
     });
 
     // Navigate to vote page
-    await page.goto(`/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -361,7 +361,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to results page
-    await page.goto(`/poll/${pollData.slug}/results`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollData.slug}/results`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -417,7 +417,7 @@ test.describe('Availability Poll Workflow', () => {
     // No calendar API mocks = calendar not connected scenario
 
     // Navigate to vote page
-    await page.goto(`/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -480,7 +480,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to vote page
-    await page.goto(`/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -523,7 +523,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to dashboard
-    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

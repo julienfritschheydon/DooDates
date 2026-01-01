@@ -51,7 +51,7 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
 
                 // 1. Navigation workspace Quizz
                 log('🛠️ Navigation vers le workspace Quizz');
-                await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
                 await expect(page).toHaveTitle(/DooDates/);
                 log('✅ App chargée');
@@ -105,10 +105,10 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
 
                 // 4. Dashboard
                 log('📊 Vérification Dashboard');
-                await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: 'domcontentloaded' });
+                await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
 
-                await expect(page).toHaveURL(/.*\/quizz\/dashboard/);
+                await expect(page).toHaveURL(/DooDates\/.*\/quizz\/dashboard\//);
 
                 // Vérifier contenu dashboard
                 const dashboardContent = page

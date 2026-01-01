@@ -14,7 +14,7 @@ test.describe('Availability Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/.*\/availability-polls/);
+        await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\//);
         // Title might vary, check for "Sondages de Disponibilité" or similar
         await expect(page.getByRole('heading', { name: /Synchronisez vos agendas/i })).toBeVisible();
 
@@ -22,7 +22,7 @@ test.describe('Availability Polls - Navigation Flow', () => {
         const createButton = page.getByRole('button', { name: /Créer une disponibilité/i }).first();
         await createButton.click();
 
-        await expect(page).toHaveURL(/.*\/availability-polls\/workspace\/availability/);
+        await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\/workspace\/availability\//);
         await waitForReactStable(page, { browserName });
 
         // 3. Create a Poll Manually
@@ -43,7 +43,7 @@ test.describe('Availability Polls - Navigation Flow', () => {
         await waitForNetworkIdle(page, { browserName });
         await waitForReactStable(page, { browserName });
 
-        await expect(page).toHaveURL(/.*\/availability-polls\/dashboard/);
+        await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\/dashboard\//);
         await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
     });
 });

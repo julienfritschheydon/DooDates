@@ -43,26 +43,26 @@ test.describe('Authenticated User Workflow', () => {
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
 
     // Look for sign up button
-    const signUpButton = page.locator('button').filter({ hasText: /sign up|register/i }).first();
+    const signUpButton = page.locator("button").filter({ hasText: /sign up|register/i }).first();
     const hasSignUpButton = await safeIsVisible(signUpButton);
 
     if (hasSignUpButton) {
       await signUpButton.click();
 
       // Fill sign up form (mock authentication)
-      const emailInput = page.locator('input[type="email"]').first();
+      const emailInput = page.locator("input[type='email']").first();
       const hasEmailInput = await safeIsVisible(emailInput);
       if (hasEmailInput) {
         await emailInput.fill('test@example.com');
       }
 
-      const passwordInput = page.locator('input[type="password"]').first();
+      const passwordInput = page.locator("input[type='password']").first();
       const hasPasswordInput = await safeIsVisible(passwordInput);
       if (hasPasswordInput) {
         await passwordInput.fill('testpassword123');
       }
 
-      const submitButton = page.locator('button[type="submit"], button').filter({ hasText: /sign up|register|create/i }).first();
+      const submitButton = page.locator("button[type='submit'], button").filter({ hasText: /sign up|register|create/i }).first();
       const hasSubmitButton = await safeIsVisible(submitButton);
       if (hasSubmitButton) {
         await submitButton.click();
@@ -71,10 +71,10 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for authentication to complete (wait for form or success message)
     await waitForReactStable(page, { browserName });
-    await expect(page.locator('body').first()).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator("body").first()).toBeVisible({ timeout: timeouts.element });
 
     // Verify page loaded (main goal - sign up flow exists)
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
   });
 
   test('should allow authenticated users to create multiple conversations', async ({ page, browserName }) => {
@@ -109,7 +109,7 @@ test.describe('Authenticated User Workflow', () => {
     await expect(messageInput).toBeVisible({ timeout: timeouts.element });
 
     // Check for conversation counter showing activity (optional, may not always be visible)
-    const counter = page.locator('text=/Conversations?\s+\d+\/\d+/i');
+    const counter = page.locator("text=/Conversations?\s+\d+\/\d+/i");
     const hasCounter = await safeIsVisible(counter);
 
     // Test passes if chat still works
@@ -130,7 +130,7 @@ test.describe('Authenticated User Workflow', () => {
     await messageInput.press('Enter');
     // Wait for message to appear or verify input is still available
     await waitForReactStable(page, { browserName });
-    const messageVisible = await safeIsVisible(page.locator('text=Guest message before auth'));
+    const messageVisible = await safeIsVisible(page.locator("text=Guest message before auth"));
     if (!messageVisible) {
       // If message doesn't appear, verify input is still available
       await expect(messageInput).toBeVisible();
@@ -200,7 +200,7 @@ test.describe('Authenticated User Workflow', () => {
     await messageInput.press('Enter');
     // Wait for message to appear or verify input is still available
     await waitForReactStable(page, { browserName });
-    const messageVisible = await safeIsVisible(page.locator('text=Test persistence'));
+    const messageVisible = await safeIsVisible(page.locator("text=Test persistence"));
     if (!messageVisible) {
       // If message doesn't appear, verify input is still available
       await expect(messageInput).toBeVisible();
@@ -293,14 +293,14 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for message to appear or verify page is still responsive
     await waitForReactStable(page, { browserName });
-    const messageVisible = await safeIsVisible(page.locator('text=Authenticated conversation before signout'));
+    const messageVisible = await safeIsVisible(page.locator("text=Authenticated conversation before signout"));
     if (!messageVisible) {
       // If message doesn't appear, verify page is still responsive
-      await expect(page.locator('body')).toBeVisible();
+      await expect(page.locator("body")).toBeVisible();
     }
 
     // Sign out using real chat interface
-    const signOutButton = page.locator('button').filter({ hasText: /sign out|logout/i }).first();
+    const signOutButton = page.locator("button").filter({ hasText: /sign out|logout/i }).first();
     const hasSignOutButton = await safeIsVisible(signOutButton);
     if (hasSignOutButton) {
       await signOutButton.click();
@@ -316,7 +316,7 @@ test.describe('Authenticated User Workflow', () => {
     }
 
     // Previous authenticated conversations should not be visible in guest mode
-    const stillVisible = await safeIsVisible(page.locator('text=Authenticated conversation before signout'));
+    const stillVisible = await safeIsVisible(page.locator("text=Authenticated conversation before signout"));
     if (stillVisible) {
       // If still visible, it's not a critical failure for this test
     }
@@ -342,7 +342,7 @@ test.describe('Authenticated User Workflow', () => {
     await messageInput.press('Enter');
     // Wait for message to appear or verify input is still available
     await waitForReactStable(page, { browserName });
-    const messageVisible = await safeIsVisible(page.locator('text=Quota test'));
+    const messageVisible = await safeIsVisible(page.locator("text=Quota test"));
     if (!messageVisible) {
       // If message doesn't appear, verify input is still available
       await expect(messageInput).toBeVisible();

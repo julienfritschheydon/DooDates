@@ -20,9 +20,9 @@
 
 // async function openDashboard(page: Page, browserName: string) {
 //   const timeouts = getTimeouts(browserName);
-//   await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+//   await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
 //   await waitForNetworkIdle(page, { browserName });
-//   await expect(page).toHaveURL(/\/dashboard/, { timeout: timeouts.navigation });
+//   await expect(page).toHaveURL(/DooDates/\/dashboard/, { timeout: timeouts.navigation });
 // }
 
 // test.describe('Dashboard - Poll Actions', () => {
@@ -32,12 +32,12 @@
 //     const timeouts = getTimeouts(browserName);
     
 //     // Test that dashboard page loads
-//     await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+//     await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
     
 //     // Navigate to dashboard
-//     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+//     await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
     
@@ -52,12 +52,12 @@
 //     }
     
 //     // Test navigation to create
-//     await page.goto('/create', { waitUntil: 'domcontentloaded' });
+//     await page.goto('/DooDates/create', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
     
 //     // Navigate back home
-//     await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+//     await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
 //   });
