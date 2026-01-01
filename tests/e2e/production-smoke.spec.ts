@@ -520,7 +520,7 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
 
     // Si une alerte existe, vérifier qu'elle n'est pas bloquante
     if (hasErrorState > 0) {
-      const alertText = await page.locator("[role="alert"]').first().textContent();
+      const alertText = await page.locator('[role="alert"]').first().textContent();
       expect(alertText).not.toContain('fatal');
       expect(alertText).not.toContain('crashed');
     }

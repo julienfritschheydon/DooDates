@@ -425,7 +425,7 @@ export async function createDatePollWithTimeSlots(
 
     // Attendre la redirection vers la page de vote
     try {
-      await expect(page).toHaveURL(/DooDates/\/poll\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+      await expect(page).toHaveURL(/DooDates\/.*\/poll\/[a-zA-Z0-9-]+\//, { timeout: 10000 });
       const url = page.url();
       const slugMatch = url.match(/\/poll\/([a-zA-Z0-9-]+)/);
       if (slugMatch && slugMatch[1]) {

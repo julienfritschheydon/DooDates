@@ -13,7 +13,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await expect(page.locator("text=Quiz")).toBeVisible({ timeout: 10000 });
     
     // Vérifier qu"il n'y a PAS de sidebar (pas de bouton hamburger)
-    const hamburgerButton = page.locator("button[aria-label*='menu']");
+    const hamburgerButton = page.locator("button[aria-label*=\"menu\"]");
     await expect(hamburgerButton).not.toBeVisible();
   });
 
