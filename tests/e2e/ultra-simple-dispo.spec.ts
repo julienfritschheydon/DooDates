@@ -65,14 +65,14 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
 
                 // L'interface Availability a un champ titre avec placeholder spécifique
                 // Utiliser le helper ou fallback sur sélecteur direct
-                const titleSelector = 'input[placeholder*='Planification'], input[placeholder*='titre' i], [data-testid='poll-title']';
+                const titleSelector = 'input[placeholder*="Planification"], input[placeholder*="titre" i], [data-testid="poll-title"]';
                 const titleInput = page.locator(titleSelector).first();
                 await expect(titleInput).toBeVisible({ timeout: timeouts.element });
                 await titleInput.fill('Réunion Équipe - Test E2E Dispo');
                 log('✅ Titre rempli');
 
                 // Description (optionnel)
-                const descInput = page.locator("textarea[placeholder*='Indiquez'], textarea[placeholder*='description' i]").first();
+                const descInput = page.locator("textarea[placeholder*="Indiquez"], textarea[placeholder*="description" i]").first();
                 if (await descInput.isVisible({ timeout: 2000 }).catch(() => false)) {
                     await descInput.fill('Test automatisé des disponibilités');
                 }
@@ -81,7 +81,7 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
 
                 // 3. Publier le sondage
                 log('🚀 Publication du sondage');
-                const createButton = page.locator("button:has-text('Créer le sondage'), button:has-text('Publier'), [data-testid='create-poll-button']").first();
+                const createButton = page.locator("button:has-text("Créer le sondage"), button:has-text("Publier"), [data-testid="create-poll-button"]").first();
 
                 // Attendre que le bouton soit enabled
                 await expect(createButton).toBeEnabled({ timeout: timeouts.element });
@@ -93,7 +93,7 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
 
                 // Vérifier succès ou redirection
                 const successIndicator = page
-                    .locator("[data-testid='success-message']")
+                    .locator("[data-testid="success-message"]")
                     .or(page.getByText(/Sondage (publié|créé)/i))
                     .first();
                 await expect(successIndicator).toBeVisible({ timeout: timeouts.element });
@@ -104,10 +104,10 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
                 await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
 
-                await expect(page).toHaveURL(/DooDates/.*\/availability-polls\/dashboard/);
+                await expect(page).toHaveURL(\/DooDates\/.*\\/availability-polls\\/dashboard\/);
 
                 // Vérifier contenu dashboard - le poll doit être visible ou message "Aucun"
-                const dashboardContent = page.locator("[data-testid='poll-item']")
+                const dashboardContent = page.locator("[data-testid="poll-item"]")
                     .or(page.locator("h3:has-text("Réunion Équipe")"))
                     .or(page.getByRole("heading", { level: 1 }))
                     .first();

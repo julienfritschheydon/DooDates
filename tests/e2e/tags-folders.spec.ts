@@ -83,7 +83,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -107,7 +107,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -175,7 +175,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -256,8 +256,8 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      await page.waitForSelector('[data-testid='poll-item']', { timeout: timeouts.element });
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      await page.waitForSelector('[data-testid="poll-item"]', { timeout: timeouts.element });
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -358,7 +358,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -382,7 +382,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Attendre que les cartes se chargent avec timeout adapté
       const timeouts = getTimeouts(browserName);
-      const conversationCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const conversationCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });

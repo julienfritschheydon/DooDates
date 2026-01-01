@@ -90,7 +90,7 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for chat input using resilient helper
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid='chat-input']").first();
+    const messageInput = page.locator("[data-testid="chat-input"]").first();
 
     // Send multiple messages in the chat
     for (let i = 1; i <= 3; i++) {
@@ -123,7 +123,7 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for input to be visible
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid='chat-input']").first();
+    const messageInput = page.locator("[data-testid="chat-input"]").first();
 
     // Send a message as guest
     await messageInput.fill('Guest message before auth');
@@ -151,7 +151,7 @@ test.describe('Authenticated User Workflow', () => {
     await waitForChatInput(page, timeouts.element);
 
     // Verify chat interface still works after auth
-    await expect(page.locator("[data-testid='chat-input']")).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator("[data-testid="chat-input"]")).toBeVisible({ timeout: timeouts.element });
 
     // Verify localStorage data persisted or migrated
     const authData = await page.evaluate(() => {
@@ -193,7 +193,7 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for input to be visible
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid='chat-input']").first();
+    const messageInput = page.locator("[data-testid="chat-input"]").first();
 
     // Send a message
     await messageInput.fill('Test persistence');
@@ -258,7 +258,7 @@ test.describe('Authenticated User Workflow', () => {
     }
 
     // Verify chat interface loads
-    await expect(newPage.locator("[data-testid='chat-input']")).toBeVisible({ timeout: timeouts.element });
+    await expect(newPage.locator("[data-testid="chat-input"]")).toBeVisible({ timeout: timeouts.element });
 
     await newPage.close();
   });
@@ -276,13 +276,13 @@ test.describe('Authenticated User Workflow', () => {
 
     // Create authenticated conversation
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid='chat-input']").first();
+    const messageInput = page.locator("[data-testid="chat-input"]").first();
     const hasMessageInput = await safeIsVisible(messageInput);
 
     if (hasMessageInput) {
       await messageInput.fill('Authenticated conversation before signout');
 
-      const sendButton = page.locator("[data-testid='send-message-button']");
+      const sendButton = page.locator("[data-testid="send-message-button"]");
       const hasSendButton = await safeIsVisible(sendButton);
       if (hasSendButton) {
         await sendButton.click();
@@ -308,7 +308,7 @@ test.describe('Authenticated User Workflow', () => {
     }
 
     // Verify back in guest mode (quota indicator may or may not be visible)
-    const quotaIndicator = page.locator("[data-testid='quota-indicator'], .quota-indicator").first();
+    const quotaIndicator = page.locator("[data-testid="quota-indicator"], .quota-indicator").first();
     const hasQuotaIndicator = await safeIsVisible(quotaIndicator);
     if (hasQuotaIndicator) {
       const quotaText = await quotaIndicator.textContent();
@@ -335,7 +335,7 @@ test.describe('Authenticated User Workflow', () => {
 
     // Wait for input to be visible
     await waitForChatInput(page, timeouts.element);
-    const messageInput = page.locator("[data-testid='chat-input']").first();
+    const messageInput = page.locator("[data-testid="chat-input"]").first();
 
     // Send a message to test functionality
     await messageInput.fill('Quota test');

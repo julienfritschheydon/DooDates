@@ -52,7 +52,7 @@ test.describe('Availability Poll Workflow', () => {
     await expect(page).toHaveURL(/DooDates\\/workspace\/availability\\/, { timeout: timeouts.navigation });
 
     // Fill poll title - use id="title" or placeholder containing "Planification"
-    const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*='Planification'], input[placeholder*='titre']', { browserName, timeout: timeouts.element });
+    const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]', { browserName, timeout: timeouts.element });
     await titleInput.fill('Test RDV - Disponibilités');
 
     // Optional: Fill description
@@ -132,7 +132,7 @@ test.describe('Availability Poll Workflow', () => {
         await waitForReactStable(page, { browserName }); // Wait for optimization
       } catch (error) {
         // Optimization may fail if calendar not connected - that's OK for MVP v1.0
-        console.log('Optimization skipped (calendar not connected)');
+        console.log("Optimization skipped (calendar not connected)');
       }
     }
 

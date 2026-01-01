@@ -8,7 +8,7 @@ test.describe("Language Selector E2E", () => {
     test("should switch language and persist preference", async ({ page }) => {
         // Try to find a language toggler
         // Common patterns: "FR/EN" button, globe icon, dropdown
-        const langToggle = page.locator("button[aria-label="Changer la langue"], [data-testid='language-selector'], button:has-text("FR"), button:has-text("EN")').first();
+        const langToggle = page.locator("button[aria-label="Changer la langue"], [data-testid="language-selector"], button:has-text("FR"), button:has-text("EN")').first();
 
         if (await langToggle.count() === 0) {
             test.skip(true, "Language selector not found in UI");

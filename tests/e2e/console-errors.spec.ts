@@ -359,7 +359,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
     // Le timeout est plus long pour webkit qui peut être plus lent
-    const createButton = page.locator("[data-testid='create-form-button']");
+    const createButton = page.locator("[data-testid="create-form-button"]");
 
     // Attendre que la réponse IA soit reçue et le bouton apparaisse
     // On attend d'abord qu'un message avec pollSuggestion apparaisse dans le DOM
@@ -367,7 +367,7 @@ test.describe('Console Errors & React Warnings', () => {
       // Attendre qu'un message avec le bouton create-form-button apparaisse
       await page.waitForFunction(
         () => {
-          const button = document.querySelector('[data-testid='create-form-button']') as HTMLElement | null;
+          const button = document.querySelector('[data-testid="create-form-button"]') as HTMLElement | null;
           return button !== null && button.offsetParent !== null; // Vérifier qu'il est visible
         },
         { timeout: 20000 }
@@ -445,7 +445,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     try {
-      await waitForElementReady(page, '[data-testid='create-form-button']', { browserName, timeout: timeouts.element * 2 });
+      await waitForElementReady(page, '[data-testid="create-form-button"]', { browserName, timeout: timeouts.element * 2 });
       // 📸 Capture 5 : Bouton trouvé et visible
       await page.screenshot({ path: 'test-results/debug-5-button-found.png', fullPage: true });
     } catch (error) {

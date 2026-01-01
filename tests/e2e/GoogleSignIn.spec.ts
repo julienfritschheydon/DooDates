@@ -24,7 +24,7 @@ test.describe("Google Sign In Flow", () => {
 
         // Check if we are "logged in" (e.g., Avatar visible, "Sign In" button gone)
         // Adjust selectors based on actual app
-        const avatar = page.locator(".avatar, [data-testid='user-avatar']");
+        const avatar = page.locator(".avatar, [data-testid="user-avatar"]");
         const signInBtn = page.locator("button:has-text("Sign in"), button:has-text("Connexion")");
 
         if (await avatar.isVisible()) {

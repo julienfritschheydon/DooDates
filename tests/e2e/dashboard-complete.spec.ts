@@ -79,13 +79,13 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     const timeouts = getTimeouts(browserName);
     
     // Attendre que l'élément dashboard-ready soit visible
-    await waitForElementReady(page, '[data-testid='dashboard-ready']', {
+    await waitForElementReady(page, '[data-testid="dashboard-ready"]', {
       browserName,
       timeout: timeouts.element,
     });
     
     // Attendre que les éléments de chargement disparaissent
-    await expect(page.locator("[data-testid='dashboard-loading']")).toHaveCount(0);
+    await expect(page.locator("[data-testid="dashboard-loading"]")).toHaveCount(0);
     
     // Attendre que le titre du dashboard soit visible (peut être "Tableau de bord" ou "Vos Sondages de Dates" selon le composant)
     const dashboardTitle = page.getByRole("heading").first();
@@ -127,7 +127,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForDashboardReady(page, browserName);
 
       // Attendre que les cartes se chargent
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Rechercher "active"
       const searchInput = page.getByTestId('search-conversations');
@@ -135,7 +135,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier que seules les conversations avec "active" sont affichées
       await waitForReactStable(page, { browserName });
-      const visibleCards = page.locator("[data-testid='poll-item']");
+      const visibleCards = page.locator("[data-testid="poll-item"]");
       const count = await visibleCards.count();
       expect(count).toBeGreaterThan(0);
     });
@@ -150,7 +150,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
       
       // Attendre que les filtres soient visibles
       const tousButton = await waitForElementReady(page, 'button:has-text("Tous")', { browserName, timeout: timeouts.element });
@@ -185,7 +185,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Ouvrir le menu des tags
       const tagsButton = await waitForElementReady(page, 'button:has-text("Tags")', { browserName });
@@ -215,7 +215,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Ouvrir le menu des dossiers
       const foldersButton = page.getByRole("button", { name: /Tous les dossiers/i }).first();
@@ -344,14 +344,14 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Vérifier que la vue grille est active par défaut (utiliser data-testid)
-      const gridButton = await waitForElementReady(page, '[data-testid='view-toggle-grid']', { browserName });
+      const gridButton = await waitForElementReady(page, '[data-testid="view-toggle-grid"]', { browserName });
       await expect(gridButton).toHaveClass(/bg-blue-500/);
 
       // Basculer vers la vue tableau (utiliser data-testid)
-      const tableButton = await waitForElementReady(page, '[data-testid='view-toggle-table']', { browserName });
+      const tableButton = await waitForElementReady(page, '[data-testid="view-toggle-table"]', { browserName });
       await tableButton.click();
 
       await waitForReactStable(page, { browserName });
@@ -368,7 +368,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForReactStable(page, { browserName });
 
       // Vérifier qu'on est de nouveau en mode grille
-      const pollItem = await waitForElementReady(page, '[data-testid='poll-item']', { browserName });
+      const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', { browserName });
       await expect(pollItem).toBeVisible({ timeout: timeouts.element });
     });
   });
@@ -383,7 +383,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForDashboardReady(page, browserName);
 
       // Récupérer directement la première carte via waitForElementReady pour éviter les race conditions
-      const firstCard = await waitForElementReady(page, '[data-testid='poll-item']', {
+      const firstCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
         browserName,
         timeout: timeouts.element,
       });
@@ -392,7 +392,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: timeouts.element });
 
       // Utiliser le bouton "Sélectionner" en haut pour sélectionner toutes les conversations
-      const selectionButton = await waitForElementReady(page, '[data-testid='selection-toggle-button']', { browserName, timeout: timeouts.element });
+      const selectionButton = await waitForElementReady(page, '[data-testid="selection-toggle-button"]', { browserName, timeout: timeouts.element });
       await selectionButton.click();
       
       // Attendre que React se mette à jour
@@ -427,10 +427,10 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Cliquer sur "Sélectionner" avec data-testid (fonctionne sur desktop et mobile)
-      const selectionButton = await waitForElementReady(page, '[data-testid='selection-toggle-button']', { browserName });
+      const selectionButton = await waitForElementReady(page, '[data-testid="selection-toggle-button"]', { browserName });
       await selectionButton.click();
 
       await waitForReactStable(page, { browserName });
@@ -469,7 +469,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Vérifier que la pagination est visible (si plus d'une page)
       const pagination = page.locator("nav[aria-label="pagination"]").first();
@@ -535,15 +535,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Trouver la carte et ouvrir le menu avec sélecteur robuste
-      const conversationCard = page.locator("[data-testid='poll-item']").first();
+      const conversationCard = page.locator("[data-testid="poll-item"]").first();
       
       // Utiliser le data-testid si disponible, sinon fallback sur l'ancienne méthode
       let menuButton;
       try {
-        menuButton = conversationCard.locator("[data-testid='conversation-menu-button']");
+        menuButton = conversationCard.locator("[data-testid="conversation-menu-button"]");
         await expect(menuButton).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher le dernier bouton visible dans la carte
@@ -570,7 +570,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Attendre que le menu s'ouvre et cliquer sur "Gérer les tags/dossier"
       let manageMenuItem;
       try {
-        manageMenuItem = page.locator("[data-testid='manage-tags-folder-menu-item']");
+        manageMenuItem = page.locator("[data-testid="manage-tags-folder-menu-item"]");
         await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte
@@ -582,7 +582,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Vérifier que le dialogue s'ouvre avec le data-testid si disponible
       let dialog;
       try {
-        dialog = page.locator("[data-testid='manage-tags-dialog']");
+        dialog = page.locator("[data-testid="manage-tags-dialog"]");
         await expect(dialog).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte
@@ -620,7 +620,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto("/date-polls/dashboard", { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
-      await waitForElementReady(page, '[data-testid='poll-item']', { browserName, timeout: timeouts.element });
+      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Rechercher quelque chose qui n'existe pas
       const searchInput = page.getByTestId('search-conversations');

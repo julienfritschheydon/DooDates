@@ -6,7 +6,7 @@ test.describe("Results Access Control - Creator Only", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*='Réunion']', "Test Creator Only");
+    await page.fill("input[placeholder*="Réunion"]', "Test Creator Only");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
@@ -51,7 +51,7 @@ test.describe("Results Access Control - Voters Only", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*='Réunion']', "Test Voters Only");
+    await page.fill("input[placeholder*="Réunion"]', "Test Voters Only");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
@@ -110,7 +110,7 @@ test.describe("Results Access Control - Public", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*='Réunion']', "Test Public");
+    await page.fill("input[placeholder*="Réunion"]', "Test Public");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
@@ -153,12 +153,12 @@ test.describe("Results Access Control - Form Polls", () => {
     await page.goto("/form-polls/workspace/form");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*='titre']', "Test Form Access Control");
+    await page.fill("input[placeholder*="titre"]', "Test Form Access Control");
     
     // Ajouter une question
     await page.click('button:has-text("Ajouter une question")');
     await page.waitForTimeout(500);
-    await page.fill('input[placeholder*='question']', "Test question");
+    await page.fill('input[placeholder*="question"]', "Test question");
     
     // Scroll vers paramètres
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

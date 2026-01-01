@@ -123,7 +123,7 @@ test.describe("Voice Recognition E2E", () => {
         await page.fill('input[placeholder='Ton prénom..."]', "Voice Tester");
 
         // Start Quizz
-        await page.click("button:has-text('Commencer le quiz')");
+        await page.click("button:has-text("Commencer le quiz")");
 
         // Check we are on the question
         await expect(page.locator("text=Say something?")).toBeVisible();

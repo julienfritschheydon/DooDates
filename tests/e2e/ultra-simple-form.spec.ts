@@ -187,7 +187,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
 
           await expect(page).toHaveURL(/\/DooDates\/.*\/form-polls\/dashboard/);
 
-          const pollItem = await waitForElementReady(page, '[data-testid='poll-item']', {
+          const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
             browserName,
             timeout: timeouts.element,
           });

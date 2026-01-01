@@ -191,15 +191,15 @@ test.describe('🔒 E2E Security Tests - Rate Limiting & RGPD', () => {
       await page.waitForTimeout(500);
 
       // Vérifier la présence de bannière consentement
-      const consentBanner = page.locator("[data-testid='consent-banner'], .consent-banner, #cookie-consent");
+      const consentBanner = page.locator("[data-testid="consent-banner"], .consent-banner, #cookie-consent");
       const hasConsentBanner = await consentBanner.count().then(count => count > 0);
 
       if (hasConsentBanner) {
         await expect(consentBanner).toBeVisible({ timeout: 5000 });
 
         // Tester les boutons de consentement
-        const acceptButton = consentBanner.locator("button:has-text('Accepter'), button:has-text('Accept all')");
-        const rejectButton = consentBanner.locator("button:has-text('Refuser'), button:has-text('Reject')");
+        const acceptButton = consentBanner.locator("button:has-text("Accepter"), button:has-text("Accept all")");
+        const rejectButton = consentBanner.locator("button:has-text("Refuser"), button:has-text("Reject")");
 
         const hasAcceptButton = await acceptButton.count().then(count => count > 0);
         const hasRejectButton = await rejectButton.count().then(count => count > 0);

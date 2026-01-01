@@ -152,7 +152,7 @@ export async function publishPollAndGetInfo(
 ): Promise<PollCreationResult> {
   const timeouts = getTimeouts(browserName);
 
-  const finalizeBtn = await waitForElementReady(page, 'button:has-text('Publier le sondage')', {
+  const finalizeBtn = await waitForElementReady(page, 'button:has-text("Publier le sondage")', {
     browserName,
     timeout: timeouts.element,
   });
