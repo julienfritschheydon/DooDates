@@ -35,7 +35,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         }, pollData);
 
         // Aller sur la page de vote
-        await page.goto("poll/${pollData.slug}`);
+        await page.goto(`/poll/${pollData.slug}`);
         await page.waitForLoadState("networkidle");
 
         // Vérifier l'écran de clôture
@@ -43,7 +43,7 @@ test.describe("Poll Enforcement - Closure Rules", () => {
         await expect(page.locator("text=La date limite pour participer à ce sondage est dépassée.")).toBeVisible();
 
         // Vérifier que le bouton de vote n'est pas là
-        await expect(page.locator("button:has-text("Voter")")).not.toBeVisible();
+        await expect(page.locator('button:has-text("Voter")')).not.toBeVisible();
     });
 
     test("should display closure screen for Form Poll that reached max responses", async ({ page }) => {

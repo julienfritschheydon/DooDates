@@ -11,7 +11,7 @@ async function openMonthContaining(page: Page, dateStr: string, browserName: str
   const target = page.locator(`[data-date="${dateStr}"]`).first();
   for (let i = 0; i < 6; i++) {
     if (await target.isVisible()) return;
-    const nextBtn = page.locator("svg[data-lucide="chevron-right"]").locator("xpath=ancestor::button[1]");
+    const nextBtn = page.locator('svg[data-lucide="chevron-right"]').locator("xpath=ancestor::button[1]");
     if (await nextBtn.count()) {
       await robustClick(nextBtn);
       // Wait for the calendar to update after clicking next month

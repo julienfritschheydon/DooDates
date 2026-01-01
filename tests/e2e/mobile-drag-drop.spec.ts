@@ -41,7 +41,7 @@ test.describe('Mobile Drag and Drop', () => {
     await page.mouse.up();
     
     // Verify the order has changed
-    const newFirstItemText = await page.locator("[data-testid="draggable-item"]").first().textContent();
+    const newFirstItemText = await page.locator('[data-testid="draggable-item"]').first().textContent();
     expect(newFirstItemText).not.toBe(firstItemText);
   });
 
