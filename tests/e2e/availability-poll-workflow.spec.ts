@@ -83,7 +83,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 2: Client submits availabilities
     // Navigate to vote page
-    await page.goto("/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

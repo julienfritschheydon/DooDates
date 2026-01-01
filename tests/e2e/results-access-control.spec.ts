@@ -6,7 +6,7 @@ test.describe("Results Access Control - Creator Only", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*="Réunion"]', "Test Creator Only");
+    await page.fill('input[placeholder*="Réunion"]', "Test Creator Only");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');

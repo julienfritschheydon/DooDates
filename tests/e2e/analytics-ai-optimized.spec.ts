@@ -146,7 +146,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     await insightsAccordion.click();
 
     await waitForReactStable(page, { browserName });
-    const insightCards = page.locator("[data-testid="insight-card"]");
+    const insightCards = page.locator('[data-testid="insight-card"]');
     const firstCardVisible = await safeIsVisible(insightCards.first());
     if (firstCardVisible) {
       await expect(insightCards.first()).toBeVisible({ timeout: timeouts.element });
