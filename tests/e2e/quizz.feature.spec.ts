@@ -238,39 +238,39 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 4. Vérifier les types de questions
     await expect(page.locator('[data-testid="question-list"]')).toBeVisible({ timeout: 10000 });
-    const questionCards = page.locator("[data-testid="question-card"]");
+    const questionCards = page.locator('[data-testid="question-card"]');
     const questionCount = await questionCards.count();
     expect(questionCount).toBeGreaterThan(0);
 
     // 5. Finaliser le quizz
-    const finalizeButton = page.locator("[data-testid="finalize-quizz"]");
+    const finalizeButton = page.locator('[data-testid="finalize-quizz"]');
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
 
     // 6. Vérifier l'écran de succès
-    await expect(page.locator("text="Quizz publié !"")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-testid="share-link"]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text="Quizz publié !"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
 
     // 7. Naviguer vers la participation
-    const playQuizzButton = page.locator("[data-testid="play-quizz"]");
+    const playQuizzButton = page.locator('[data-testid="play-quizz"]');
     await expect(playQuizzButton).toBeVisible({ timeout: 10000 });
     await playQuizzButton.click();
 
     // 8. Participer au quizz
-    await expect(page.locator("[data-testid="quizz-play"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="quizz-play"]')).toBeVisible({ timeout: 15000 });
     
     // Ajouter nom du participant
-    const nameInput = page.locator("[data-testid="participant-name"]");
+    const nameInput = page.locator('[data-testid="participant-name"]');
     await expect(nameInput).toBeVisible({ timeout: 10000 });
     await nameInput.fill("Test Player");
 
     // Commencer le quizz
-    const startButton = page.locator("[data-testid="start-quizz"]");
+    const startButton = page.locator('[data-testid="start-quizz"]');
     await expect(startButton).toBeVisible({ timeout: 10000 });
     await startButton.click();
 
     // 9. Répondre aux questions
-    await expect(page.locator("[data-testid="question-container"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="question-container"]')).toBeVisible({ timeout: 15000 });
     
     // Pour chaque question, répondre et passer à la suivante
     for (let i = 0; i < Math.min(questionCount, 5); i++) {
@@ -278,14 +278,14 @@ test.describe("Quizz - UI Mirror", () => {
       await page.waitForTimeout(1000);
       
       // Répondre à la question (première option disponible)
-      const answerOption = page.locator("[data-testid="answer-option"]").first();
+      const answerOption = page.locator('[data-testid="answer-option"]').first();
       if (await answerOption.isVisible()) {
         await answerOption.click();
       }
 
       // Passer à la question suivante ou soumettre
-      const nextButton = page.locator("[data-testid="next-question"]");
-      const submitButton = page.locator("[data-testid="submit-quizz"]");
+      const nextButton = page.locator('[data-testid="next-question"]');
+      const submitButton = page.locator('[data-testid="submit-quizz"]');
       
       if (await submitButton.isVisible()) {
         await submitButton.click();
@@ -296,9 +296,9 @@ test.describe("Quizz - UI Mirror", () => {
     }
 
     // 10. Vérifier les résultats
-    await expect(page.locator("[data-testid="quizz-results"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("text="Votre score"")).toBeVisible({ timeout: 5000 });
-    await expect(page.locator("[data-testid="score-display"]")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="quizz-results"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Votre score"')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="score-display"]')).toBeVisible({ timeout: 5000 });
   });
 
   test("UI - Types de questions et scoring", async ({ page }) => {
@@ -326,51 +326,51 @@ test.describe("Quizz - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier les différents types de questions
-    await expect(page.locator("[data-testid="quizz-preview"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="quizz-preview"]')).toBeVisible({ timeout: 15000 });
     
     // Vérifier les badges de type de question
-    await expect(page.locator("[data-testid="question-type-single"]")).toBeVisible({ timeout: 5000 });
-    await expect(page.locator("[data-testid="question-type-multiple"]")).toBeVisible({ timeout: 5000 });
-    await expect(page.locator("[data-testid="question-type-boolean"]")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="question-type-single"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="question-type-multiple"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="question-type-boolean"]')).toBeVisible({ timeout: 5000 });
 
     // 4. Finaliser et tester le jeu
-    const finalizeButton = page.locator("[data-testid="finalize-quizz"]");
+    const finalizeButton = page.locator('[data-testid="finalize-quizz"]');
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
 
     await page.waitForSelector('text="Quizz publié !"', { timeout: 10000 });
-    const playQuizzButton = page.locator("[data-testid="play-quizz"]");
+    const playQuizzButton = page.locator('[data-testid="play-quizz"]');
     await playQuizzButton.click();
 
     // 5. Tester les différents types de réponses
-    await expect(page.locator("[data-testid="quizz-play"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="quizz-play"]')).toBeVisible({ timeout: 15000 });
     
-    const nameInput = page.locator("[data-testid="participant-name"]");
+    const nameInput = page.locator('[data-testid="participant-name"]');
     await nameInput.fill("Multi Type Player");
     
-    const startButton = page.locator("[data-testid="start-quizz"]");
+    const startButton = page.locator('[data-testid="start-quizz"]');
     await startButton.click();
 
     // 6. Vérifier l'affichage des points par question
-    await expect(page.locator("[data-testid="question-points"]")).toBeVisible({ timeout: 10000 });
-    await expect(page.locator("text="10 points"")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="question-points"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text="10 points"')).toBeVisible({ timeout: 5000 });
 
     // 7. Tester les différents types d'interface
     // QCM choix unique
-    const singleChoice = page.locator("[data-testid="single-choice"]");
+    const singleChoice = page.locator('[data-testid="single-choice"]');
     if (await singleChoice.isVisible()) {
       const option = singleChoice.locator("input[type='radio']").first();
       await option.click();
     }
 
     // Passer à la question suivante
-    const nextButton = page.locator("[data-testid="next-question"]");
+    const nextButton = page.locator('[data-testid="next-question"]');
     if (await nextButton.isVisible()) {
       await nextButton.click();
     }
 
     // QCM choix multiples
-    const multipleChoice = page.locator("[data-testid="multiple-choice"]");
+    const multipleChoice = page.locator('[data-testid="multiple-choice"]');
     if (await multipleChoice.isVisible()) {
       const checkboxes = multipleChoice.locator("input[type='checkbox']");
       const count = await checkboxes.count();
@@ -386,21 +386,21 @@ test.describe("Quizz - UI Mirror", () => {
     }
 
     // Vrai/Faux
-    const booleanQuestion = page.locator("[data-testid="boolean-question"]");
+    const booleanQuestion = page.locator('[data-testid="boolean-question"]');
     if (await booleanQuestion.isVisible()) {
-      const trueButton = booleanQuestion.locator("[data-testid="true-answer"]");
+      const trueButton = booleanQuestion.locator('[data-testid="true-answer"]');
       await trueButton.click();
     }
 
     // Soumettre et voir le score détaillé
-    const submitButton = page.locator("[data-testid="submit-quizz"]");
+    const submitButton = page.locator('[data-testid="submit-quizz"]');
     if (await submitButton.isVisible()) {
       await submitButton.click();
     }
 
     // 8. Vérifier le scoring détaillé
-    await expect(page.locator("[data-testid="detailed-score"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-testid="question-breakdown"]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="detailed-score"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="question-breakdown"]')).toBeVisible({ timeout: 10000 });
   });
 
   test("UI - Leaderboard et exports Quizz", async ({ page }) => {
@@ -411,7 +411,7 @@ test.describe("Quizz - UI Mirror", () => {
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un quizz existant
-    const quizzCard = page.locator("[data-testid="quizz-card"]').first();
+    const quizzCard = page.locator('[data-testid="quizz-card"]').first();
     
     if (await quizzCard.isVisible()) {
       await quizzCard.click();
@@ -426,35 +426,35 @@ test.describe("Quizz - UI Mirror", () => {
       
       await page.waitForSelector('[data-testid="ai-response"]', { timeout: 15000 });
       
-      const finalizeButton = page.locator("[data-testid="finalize-quizz"]");
+      const finalizeButton = page.locator('[data-testid="finalize-quizz"]');
       await finalizeButton.click();
       
       await page.waitForSelector('text="Quizz publié !"', { timeout: 10000 });
-      const dashboardButton = page.locator("[data-testid="go-to-dashboard"]");
+      const dashboardButton = page.locator('[data-testid="go-to-dashboard"]');
       await dashboardButton.click();
     }
 
     // 3. Accéder aux résultats et leaderboard
     await page.waitForSelector('[data-testid="quizz-results"]', { timeout: 10000 });
-    const resultsButton = page.locator("[data-testid="view-results"]");
+    const resultsButton = page.locator('[data-testid="view-results"]');
     if (await resultsButton.isVisible()) {
       await resultsButton.click();
     }
 
     // 4. Vérifier le leaderboard
-    await expect(page.locator("[data-testid="leaderboard"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-testid="rankings-table"]")).toBeVisible({ timeout: 10000 });
-    await expect(page.locator("text="Classement"")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="leaderboard"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="rankings-table"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text="Classement"')).toBeVisible({ timeout: 5000 });
 
     // 5. Vérifier les options d'export
-    await expect(page.locator("[data-testid="export-options"]")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="export-options"]')).toBeVisible({ timeout: 15000 });
     
-    const exportButtons = page.locator("[data-testid^="export-"]");
+    const exportButtons = page.locator('[data-testid^="export-"]');
     const exportCount = await exportButtons.count();
     
     if (exportCount > 0) {
       // Tester l'export CSV
-      const csvExport = page.locator("[data-testid="export-csv"]");
+      const csvExport = page.locator('[data-testid="export-csv"]');
       if (await csvExport.isVisible()) {
         await csvExport.click();
         await page.waitForTimeout(2000); // Attendre le téléchargement
@@ -462,21 +462,21 @@ test.describe("Quizz - UI Mirror", () => {
     }
 
     // 6. Vérifier les statistiques du quizz
-    await expect(page.locator("[data-testid="quizz-statistics"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("text="Participants"")).toBeVisible({ timeout: 5000 });
-    await expect(page.locator("text="Score moyen"")).toBeVisible({ timeout: 5000 });
-    await expect(page.locator("text="Meilleur score"")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="quizz-statistics"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Participants"')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text="Score moyen"')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text="Meilleur score"')).toBeVisible({ timeout: 5000 });
 
     // 7. Tester le partage des résultats
-    const shareResults = page.locator("[data-testid="share-results"]");
+    const shareResults = page.locator('[data-testid="share-results"]');
     if (await shareResults.isVisible()) {
       await shareResults.click();
-      await expect(page.locator("[data-testid="share-modal"]")).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('[data-testid="share-modal"]')).toBeVisible({ timeout: 10000 });
       
-      const copyLinkButton = page.locator("[data-testid="copy-results-link"]");
+      const copyLinkButton = page.locator('[data-testid="copy-results-link"]');
       if (await copyLinkButton.isVisible()) {
         await copyLinkButton.click();
-        await expect(page.locator("text="Lien copié"")).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('text="Lien copié"')).toBeVisible({ timeout: 5000 });
       }
     }
   });

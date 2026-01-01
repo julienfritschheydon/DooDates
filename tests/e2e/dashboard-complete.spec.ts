@@ -257,7 +257,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier le toast de succès (optionnel - utiliser le pattern des autres tests)
       try {
-        await expect(page.locator("div[data-state="open"]", { hasText: /Tag créé/i })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]').filter({ hasText: /Tag créé/i })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -301,7 +301,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Vérifier le toast de succès (optionnel - utiliser le pattern des autres tests)
       try {
-        await expect(page.locator("div[data-state="open"]", { hasText: /Dossier créé/i })).toBeVisible({ timeout: 3000 });
+        await expect(page.locator('div[data-state="open"]').filter({ hasText: /Dossier créé/i })).toBeVisible({ timeout: 3000 });
       } catch (e) {
         console.log('Toast non visible, mais l\'action a réussi');
       }
@@ -472,7 +472,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Vérifier que la pagination est visible (si plus d'une page)
-      const pagination = page.locator("nav[aria-label="pagination"]").first();
+      const pagination = page.locator('nav[aria-label="pagination"]').first();
       if (await pagination.isVisible({ timeout: timeouts.element })) {
         await expect(pagination).toBeVisible({ timeout: timeouts.element });
 
@@ -481,7 +481,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         await expect(page1Text).toBeVisible({ timeout: timeouts.element });
 
         // Cliquer sur "Suivant" si disponible
-        const nextButton = page.getByRole("link", { name: /Suivant/i }).or(page.locator("a[aria-label="Go to next page"]"));
+        const nextButton = page.getByRole("link", { name: /Suivant/i }).or(page.locator('a[aria-label="Go to next page"]'));
         if (await nextButton.count() > 0 && await nextButton.isEnabled()) {
           await nextButton.click();
           await waitForReactStable(page, { browserName });
@@ -523,7 +523,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier qu'on est bien sur l'accueil
-      await expect(page).toHaveURL(/DooDates\\/\/$\\/);
+      await expect(page).toHaveURL(/DooDates\/$/);
     });
   });
 
@@ -538,12 +538,12 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Trouver la carte et ouvrir le menu avec sélecteur robuste
-      const conversationCard = page.locator("[data-testid="poll-item"]").first();
+      const conversationCard = page.locator('[data-testid="poll-item"]').first();
       
       // Utiliser le data-testid si disponible, sinon fallback sur l'ancienne méthode
       let menuButton;
       try {
-        menuButton = conversationCard.locator("[data-testid="conversation-menu-button"]");
+        menuButton = conversationCard.locator('[data-testid="conversation-menu-button"]');
         await expect(menuButton).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher le dernier bouton visible dans la carte
@@ -570,7 +570,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Attendre que le menu s'ouvre et cliquer sur "Gérer les tags/dossier"
       let manageMenuItem;
       try {
-        manageMenuItem = page.locator("[data-testid="manage-tags-folder-menu-item"]");
+        manageMenuItem = page.locator('[data-testid="manage-tags-folder-menu-item"]');
         await expect(manageMenuItem).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte
@@ -582,7 +582,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Vérifier que le dialogue s'ouvre avec le data-testid si disponible
       let dialog;
       try {
-        dialog = page.locator("[data-testid="manage-tags-dialog"]");
+        dialog = page.locator('[data-testid="manage-tags-dialog"]');
         await expect(dialog).toBeVisible({ timeout: timeouts.element / 2 });
       } catch (e) {
         // Fallback : chercher par texte

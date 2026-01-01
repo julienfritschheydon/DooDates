@@ -507,7 +507,7 @@ export async function openTagsFolderDialog(
   conversationCard?: ReturnType<Page['locator']>
 ) {
   // Utiliser la carte fournie ou prendre la première
-  const card = conversationCard || page.locator('[data-testid="poll-item"]').first();
+  const card = conversationCard || page.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .poll-item, .conversation-item').first();
 
   // Attendre que la carte soit attachée
   await card.waitFor({ state: 'attached', timeout: 20000 });

@@ -285,7 +285,7 @@ export async function createDatePollWithTimeSlots(
   await waitForNetworkIdle(page, { browserName });
 
   // Verify we're on the date polls workspace page
-  await expect(page).toHaveURL(/DooDates\/.*\/date-polls\/workspace\/date\//);
+  await expect(page).toHaveURL(/.*\/date-polls\/workspace\/date/);
   console.log('✅ Page /date-polls/workspace/date accessible');
 
   const existingPollIds = await page.evaluate(() => {

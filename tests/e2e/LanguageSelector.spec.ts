@@ -35,7 +35,7 @@ test.describe("Language Selector E2E", () => {
         const page = await context.newPage();
         await page.goto("/DooDates/");
         // Should default to French
-        const html = page.locator("html');
+        const html = page.locator('html');
         // Check lang attribute if set, or guess by content
         // This is a "soft" assertion as implementation might default to EN
         if (await html.getAttribute('lang')) {

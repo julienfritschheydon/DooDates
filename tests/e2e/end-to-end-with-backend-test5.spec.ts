@@ -185,7 +185,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
 
       // Stratégie appareil B : ouvrir la première conversation
       let firstConversationB = pageB
-        .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+        .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
         .first();
       try {
         await expect(firstConversationB).toBeVisible({ timeout: 5000 });
@@ -193,7 +193,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
         await pageB.reload({ waitUntil: 'domcontentloaded' });
         await waitForConversationsInDashboard(pageB);
         firstConversationB = pageB
-          .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
           .first();
         await expect(firstConversationB).toBeVisible({ timeout: 10000 });
       }
@@ -251,7 +251,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
         openedByHelper = true;
       } catch {
         let firstConversationA = pageA
-          .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
           .first();
         try {
           await expect(firstConversationA).toBeVisible({ timeout: 5000 });
@@ -259,7 +259,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
           await pageA.reload({ waitUntil: 'domcontentloaded' });
           await waitForConversationsInDashboard(pageA);
           firstConversationA = pageA
-            .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+            .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
             .first();
           await expect(firstConversationA).toBeVisible({ timeout: 10000 });
         }
@@ -268,7 +268,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
 
       await pageA.waitForURL(/\/workspace\?conversationId=/, { timeout: 10000 });
 
-      const messageInputARefresh = pageA.locator("[data-testid="chat-input"]");
+      const messageInputARefresh = pageA.locator('[data-testid="chat-input"]');
       await expect(messageInputARefresh).toBeVisible({ timeout: 10000 });
       await waitForElementReady(pageA, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
 

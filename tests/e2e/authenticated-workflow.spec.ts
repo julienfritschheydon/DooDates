@@ -282,7 +282,7 @@ test.describe('Authenticated User Workflow', () => {
     if (hasMessageInput) {
       await messageInput.fill('Authenticated conversation before signout');
 
-      const sendButton = page.locator("[data-testid="send-message-button"]");
+      const sendButton = page.locator('[data-testid="send-message-button"]');
       const hasSendButton = await safeIsVisible(sendButton);
       if (hasSendButton) {
         await sendButton.click();
@@ -308,7 +308,7 @@ test.describe('Authenticated User Workflow', () => {
     }
 
     // Verify back in guest mode (quota indicator may or may not be visible)
-    const quotaIndicator = page.locator("[data-testid="quota-indicator"], .quota-indicator").first();
+    const quotaIndicator = page.locator('[data-testid="quota-indicator"], .quota-indicator').first();
     const hasQuotaIndicator = await safeIsVisible(quotaIndicator);
     if (hasQuotaIndicator) {
       const quotaText = await quotaIndicator.textContent();

@@ -98,12 +98,12 @@ test.describe('Dashboard - Cas Limites', () => {
       });
 
       // Vérifier que des cartes de conversation sont visibles
-      const conversationCards = page.locator("[data-testid="poll-item"]");
+      const conversationCards = page.locator('[data-testid="poll-item"]');
       const cardCount = await conversationCards.count();
       expect(cardCount).toBeGreaterThan(0);
 
       // Vérifier que la pagination fonctionne (si elle existe)
-      const pagination = page.locator("[role="navigation"]").filter({ hasText: /suivant|next/i });
+      const pagination = page.locator('[role="navigation"]').filter({ hasText: /suivant|next/i });
       const hasPagination = await pagination.count();
       if (hasPagination > 0) {
         // Vérifier qu'on peut interagir avec la pagination sans crash
@@ -183,7 +183,7 @@ test.describe('Dashboard - Cas Limites', () => {
       await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier que les tags sont visibles dans le dialogue
-      const dialog = page.locator("[role="dialog"]").filter({ hasText: 'Gérer les tags et le dossier' });
+      const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
       await expect(dialog).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier qu'au moins quelques tags sont visibles (scroll peut être nécessaire)
@@ -260,7 +260,7 @@ test.describe('Dashboard - Cas Limites', () => {
       await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier que les dossiers sont visibles dans le dialogue
-      const dialog = page.locator("[role="dialog"]").filter({ hasText: 'Gérer les tags et le dossier' });
+      const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
       await expect(dialog).toBeVisible({ timeout: timeouts.element });
 
       // Vérifier qu'au moins un dossier est visible
@@ -376,7 +376,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
       for (const { char, expectedMatch } of specialCharacters) {
         // Trouver le champ de recherche
-        const searchInput = page.locator("input[type='search'], input[placeholder*="Rechercher"], input[placeholder*="Search"]").first();
+        const searchInput = page.locator('input[type="search"], input[placeholder*="Rechercher"], input[placeholder*="Search"]').first();
         await searchInput.waitFor({ state: 'visible', timeout: timeouts.element });
 
         // Effectuer la recherche
@@ -390,7 +390,7 @@ test.describe('Dashboard - Cas Limites', () => {
 
         // Si on s'attend à un match, vérifier qu'au moins une carte est visible
         if (expectedMatch) {
-          const cards = page.locator("[data-testid="poll-item"]");
+          const cards = page.locator('[data-testid="poll-item"]');
           const cardCount = await cards.count();
           expect(cardCount).toBeGreaterThan(0);
         }

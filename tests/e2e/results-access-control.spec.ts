@@ -51,7 +51,7 @@ test.describe("Results Access Control - Voters Only", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*="Réunion"]', "Test Voters Only");
+    await page.fill('input[placeholder*="Réunion"]', "Test Voters Only");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
@@ -75,10 +75,10 @@ test.describe("Results Access Control - Voters Only", () => {
     const pollSlug = resultsUrl.split("/results/")[1];
     
     // Aller à la page de vote
-    await page.goto("/poll/${pollSlug}`);
+    await page.goto(`/poll/${pollSlug}`);
     await page.waitForLoadState("networkidle");
     
-    // Avant de voter, essayer d"accéder aux résultats
+    // Avant de voter, essayer d'accéder aux résultats
     await page.goto(resultsUrl);
     await page.waitForLoadState("networkidle");
     
@@ -86,12 +86,12 @@ test.describe("Results Access Control - Voters Only", () => {
     await expect(page.locator("text=voter pour voir les résultats")).toBeVisible();
     
     // Retourner voter
-    await page.goto("/poll/${pollSlug}`);
+    await page.goto(`/poll/${pollSlug}`);
     await page.waitForLoadState("networkidle");
     
     // Voter (sélectionner une date et soumettre)
-    // Note: Ceci dépend de l"implémentation exacte du composant de vote
-    await page.click('button:has-text("Disponible")').first();
+    // Note: Ceci dépend de l'implémentation exacte du composant de vote
+    await page.locator('button:has-text("Disponible")').first().click();
     await page.click('button:has-text("Valider")');
     await page.waitForTimeout(2000);
     
@@ -110,7 +110,7 @@ test.describe("Results Access Control - Public", () => {
     await page.goto("/date-polls/workspace/date");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*="Réunion"]', "Test Public");
+    await page.fill('input[placeholder*="Réunion"]', "Test Public");
     
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
@@ -153,7 +153,7 @@ test.describe("Results Access Control - Form Polls", () => {
     await page.goto("/form-polls/workspace/form");
     await page.waitForLoadState("networkidle");
 
-    await page.fill("input[placeholder*="titre"]', "Test Form Access Control");
+    await page.fill('input[placeholder*="titre"]', "Test Form Access Control");
     
     // Ajouter une question
     await page.click('button:has-text("Ajouter une question")');

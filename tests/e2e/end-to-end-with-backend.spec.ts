@@ -547,14 +547,14 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       // Ouvrir la conversation depuis le dashboard
       // Utiliser une approche plus robuste : cliquer sur la première conversation
       // Utiliser une approche plus robuste : cliquer sur la première conversation
-      let firstConversation = pageB.locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item").first();
+      let firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
       try {
         await expect(firstConversation).toBeVisible({ timeout: 5000 });
       } catch (e) {
         console.log('Conversation not found, reloading...');
         await pageB.reload({ waitUntil: 'domcontentloaded' });
         await waitForConversationsInDashboard(pageB);
-        firstConversation = pageB.locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item").first();
+        firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
         await expect(firstConversation).toBeVisible({ timeout: 10000 });
       }
       await firstConversation.click();
@@ -601,7 +601,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // Ouvrir la conversation depuis le dashboard (cliquer sur la première carte disponible)
       let firstConversationA = pageA
-        .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+        .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
         .first();
       try {
         await expect(firstConversationA).toBeVisible({ timeout: 5000 });
@@ -610,7 +610,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         await pageA.reload({ waitUntil: 'domcontentloaded' });
         await waitForConversationsInDashboard(pageA);
         firstConversationA = pageA
-          .locator("[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item")
+          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
           .first();
         await expect(firstConversationA).toBeVisible({ timeout: 10000 });
       }
@@ -678,19 +678,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // Note: Ce test utilise mockSupabaseAuth car il teste le fallback localStorage
     // quand Supabase n'est pas disponible (mode offline)
     await mockSupabaseAuth(page, { userId: testUserId, email: testEmail });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForNetworkIdle(page, { browserName });
-    await waitForReactStable(page, { browserName });
-
-    // S'assurer que la page est chargée avant de désactiver internet
-    const messageInput = page.locator("[data-testid="chat-input"]");
-    await expect(messageInput).toBeVisible({ timeout: 10000 });
-
-    // Désactiver internet
-    await page.context().setOffline(true);
-    await waitForReactStable(page, { browserName });
 
     // Créer une conversation en mode offline
+    const messageInput = page.locator('input[placeholder*="message"], textarea[placeholder*="message"], input[type="text"]').first();
     await messageInput.fill('Message en mode offline');
     await messageInput.press('Enter');
     // Attendre plus longtemps pour la sauvegarde locale

@@ -103,7 +103,7 @@ test.describe("FormPolls - API Contract", () => {
     const voteResponse = await request.post(`/api/formpolls/${poll.slug}/vote`, {
       data: votePayload
     });
-
+    
     expect(voteResponse.status()).toBe(200);
     const voteResult = await voteResponse.json();
     expect(voteResult.success).toBe(true);
