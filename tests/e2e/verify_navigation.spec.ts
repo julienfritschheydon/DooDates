@@ -36,7 +36,7 @@ test.describe('UI Consistency and Navigation', () => {
 
         // Check "Tableau de bord" link
         await page.getByText('Tableau de bord').click();
-        await expect(page).toHaveURL(/.*\/date-polls\/dashboard/);
+        await expect(page).toHaveURL(/DooDates/.*\/date-polls\/dashboard/);
     });
 
     test('AICreationWorkspace Form Dashboard link points to correct dashboard', async ({ page }) => {
@@ -49,6 +49,6 @@ test.describe('UI Consistency and Navigation', () => {
         await expect(page.getByText('Tableau de bord')).toBeVisible();
 
         await page.getByText('Tableau de bord').click();
-        await expect(page).toHaveURL(/.*\/form-polls\/dashboard/);
+        await expect(page).toHaveURL(/DooDates/.*\/form-polls\/dashboard/);
     });
 });

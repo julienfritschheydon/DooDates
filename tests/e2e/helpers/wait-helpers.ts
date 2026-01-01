@@ -79,11 +79,11 @@ export async function waitForElementReady(
  * @example
  * ```typescript
  * // ❌ AVANT
- * await page.goto('/dashboard');
+ * await page.goto('/DooDates/dashboard');
  * await page.waitForTimeout(2000);
  * 
  * // ✅ APRÈS
- * await page.goto('/dashboard');
+ * await page.goto('/DooDates/dashboard');
  * await waitForNetworkIdle(page, { browserName });
  * ```
  */
@@ -316,11 +316,11 @@ export async function waitForCondition(
  * @example
  * ```typescript
  * // ❌ AVANT
- * await page.goto('/dashboard');
+ * await page.goto('/DooDates/dashboard');
  * await page.waitForTimeout(1000);
  * 
  * // ✅ APRÈS
- * await page.goto('/dashboard');
+ * await page.goto('/DooDates/dashboard');
  * await waitForVisibleAndStable(page.locator('[data-testid="poll-item"]'), { browserName });
  * ```
  */

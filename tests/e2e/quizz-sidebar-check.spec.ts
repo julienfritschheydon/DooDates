@@ -79,7 +79,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     await page.locator('a[href*="/quizz/documentation"]').first().click();
     
     // Vérifier la navigation
-    await expect(page).toHaveURL(/\/quizz\/documentation/);
+    await expect(page).toHaveURL(/DooDates/\/quizz\/documentation/);
     await expect(page.locator("text=Documentation")).toBeVisible();
   });
 });

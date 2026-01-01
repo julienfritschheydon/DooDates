@@ -523,7 +523,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForNetworkIdle(page, { browserName });
 
       // Vérifier qu'on est bien sur l'accueil
-      await expect(page).toHaveURL(/\/$/);
+      await expect(page).toHaveURL(/DooDates/\/$/);
     });
   });
 

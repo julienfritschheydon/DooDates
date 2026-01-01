@@ -35,7 +35,7 @@ let pollCreated = false;
  * Aligné sur l'implémentation de fixtures.ts (sélecteurs éprouvés).
  */
 async function closePoll(page: any, browserName: string, slug: string): Promise<void> {
-  await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
 
   // Cliquer sur "Terminer"
   const closeButton = page.locator('button:has-text("Terminer")');
@@ -101,7 +101,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
     await setupAllMocksWithoutNavigation(page);
 
     const targetUrl = pollSlug
-      ? `/poll/${pollSlug}/results?e2e-test=true`
+      ? '/DooDates/poll/${pollSlug}/results?e2e-test=true`
       : "/results?e2e-test=true";
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
@@ -172,7 +172,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto(`/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -223,7 +223,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
       currentPollSlug = await createPollWithVotesAndClose(page, browserName, 3);
     }
     
-    await page.goto(`/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/poll/${currentPollSlug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

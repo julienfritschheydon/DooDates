@@ -71,7 +71,7 @@ test.describe('Guest Quota System', () => {
     const timeouts = getTimeouts(browserName);
     
     // Désactiver le bypass E2E pour ce test
-    await page.goto('/create/ai?type=date&e2e-test=false', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create/ai?type=date&e2e-test=false', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -119,7 +119,7 @@ test.describe('Guest Quota System', () => {
     const timeouts = getTimeouts(browserName);
     
     // Bypass E2E pour ce test (sinon les limites ne s'appliquent pas)
-    await page.goto('/create/ai?type=date&e2e-test=false', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create/ai?type=date&e2e-test=false', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Déclencher la génération du fingerprint

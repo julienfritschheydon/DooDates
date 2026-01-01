@@ -281,7 +281,7 @@ test.describe("Availability Polls - UI Mirror", () => {
     test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
     
     // 1. Naviguer vers le dashboard
-    await page.goto("/dashboard");
+    await page.goto('/DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un sondage de disponibilité existant

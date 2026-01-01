@@ -21,7 +21,7 @@ test.describe('Quizz - Ultra Simple Workflow', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    await expect(page).toHaveURL(/\/quizz\/workspace/);
+    await expect(page).toHaveURL(/DooDates/\/quizz\/workspace/);
 
     const quizTitle = 'Test Ultra Simple Quizz';
 
@@ -58,7 +58,7 @@ test.describe('Quizz - Ultra Simple Workflow', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    await expect(page).toHaveURL(/\/quizz\/dashboard/);
+    await expect(page).toHaveURL(/DooDates/\/quizz\/dashboard/);
     await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
 
     // Vérifier qu'au moins un élément de liste est présent

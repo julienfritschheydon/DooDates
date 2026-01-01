@@ -536,12 +536,12 @@ export async function voteOnPollComplete(
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
 
   // Navigation vers page de vote
-  await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
   // Vérifier que la page de vote est visible
-  await expect(page).toHaveURL(/\/poll\/[^\/]+/, { timeout: timeouts.navigation });
+  await expect(page).toHaveURL(/DooDates/\/poll\/[^\/]+/, { timeout: timeouts.navigation });
 
   // Remplir le nom du votant
   const nameInput = page.locator('#voter-name-input, input[placeholder*="nom" i], input[placeholder*="Nom" i], input[placeholder*="name" i], input[placeholder*="Name" i], input[type="text"]:visible').first();
@@ -802,7 +802,7 @@ export async function verifyPollBySlugInDashboard(
   // 1. Chercher dans tous les poll-item
   for (let i = 0; i < itemCount; i++) {
     const item = pollItems.nth(i);
-    const link = item.locator(`a[href*="/poll/${expectedSlug}"]`).first();
+    const link = item.locator(`a[href*='/DooDates/poll/${expectedSlug}"]`).first();
     if (await link.isVisible({ timeout }).catch(() => false)) {
       console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé dans poll-item #${i}`);
       return;
@@ -810,7 +810,7 @@ export async function verifyPollBySlugInDashboard(
   }
 
   // 2. Fallback : scanner tous les liens de la page
-  const anyLink = page.locator(`a[href*="/poll/${expectedSlug}"]`).first();
+  const anyLink = page.locator(`a[href*='/DooDates/poll/${expectedSlug}"]`).first();
   if (await anyLink.isVisible({ timeout }).catch(() => false)) {
     console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé via scan global des liens`);
     return;

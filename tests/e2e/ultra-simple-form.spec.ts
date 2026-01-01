@@ -145,7 +145,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
         if (pollSlug) {
           // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
-          await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+          await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
           await waitForNetworkIdle(page, { browserName });
           const pollPageTitle = await page.title();
           log(`ℹ️ Titre page votant: ${pollPageTitle}`);
@@ -185,7 +185,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           await waitForNetworkIdle(page, { browserName });
           await waitForReactStable(page, { browserName });
 
-          await expect(page).toHaveURL(/.*\/form-polls\/dashboard/);
+          await expect(page).toHaveURL(/\/DooDates\/.*\/form-polls\/dashboard/);
 
           const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
             browserName,

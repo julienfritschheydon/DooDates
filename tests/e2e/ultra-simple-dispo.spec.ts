@@ -104,7 +104,7 @@ test.describe('DooDates - Test Ultra Simple Dispo (Availability)', () => {
                 await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard, { waitUntil: 'domcontentloaded' });
                 await waitForNetworkIdle(page, { browserName });
 
-                await expect(page).toHaveURL(/.*\/availability-polls\/dashboard/);
+                await expect(page).toHaveURL(/DooDates/.*\/availability-polls\/dashboard/);
 
                 // Vérifier contenu dashboard - le poll doit être visible ou message "Aucun"
                 const dashboardContent = page.locator('[data-testid="poll-item"]')

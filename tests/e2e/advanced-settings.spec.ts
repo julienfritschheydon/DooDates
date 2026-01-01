@@ -50,7 +50,7 @@ test.describe("Advanced Settings - Date Polls", () => {
     await page.waitForTimeout(2000);
 
     // Vérifier que le sondage a été créé
-    await expect(page).toHaveURL(/\/results\//);
+    await expect(page).toHaveURL(/DooDates/\/results\//);
   });
 });
 
