@@ -538,7 +538,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // FIX: Vérifier visuellement que l'utilisateur N'EST PLUS en mode invité
       // Si "Invité" est visible, l'auth n'a pas fonctionné côté UI
-      await expect(pageB.locator("text="Invité"")).not.toBeVisible({ timeout: 10000 });
+      await expect(pageB.locator('text="Invité"')).not.toBeVisible({ timeout: 10000 });
 
       // Attendre que les conversations soient chargées dans le dashboard
       const conversationsLoaded = await waitForConversationsInDashboard(pageB);

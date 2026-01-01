@@ -233,11 +233,11 @@ test.describe("Quizz - UI Mirror", () => {
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 30000 });
 
     // 3. Vérifier que le quizz est créé
-    await expect(page.locator("[data-testid="quizz-preview"]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("text="Questions"")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="quizz-preview"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Questions"')).toBeVisible({ timeout: 10000 });
 
     // 4. Vérifier les types de questions
-    await expect(page.locator("[data-testid="question-list"]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="question-list"]')).toBeVisible({ timeout: 10000 });
     const questionCards = page.locator("[data-testid="question-card"]");
     const questionCount = await questionCards.count();
     expect(questionCount).toBeGreaterThan(0);

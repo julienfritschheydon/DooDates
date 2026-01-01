@@ -172,7 +172,7 @@ test.describe.skip('Debug - Test 5 fusion localStorage + Supabase', () => {
       expect(sessionB.hasSession).toBeTruthy();
       expect(sessionB.userId).toBe(testUserId);
 
-      await expect(pageB.locator("text="Invité"")).not.toBeVisible({ timeout: 10000 });
+      await expect(pageB.locator('text="Invité"')).not.toBeVisible({ timeout: 10000 });
 
       const conversationsLoaded = await waitForConversationsInDashboard(pageB);
       expect(conversationsLoaded).toBeTruthy();
