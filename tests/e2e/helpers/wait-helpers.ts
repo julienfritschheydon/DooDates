@@ -375,7 +375,8 @@ export async function waitForChatInputReady(
   options?: { timeout?: number },
 ): Promise<ReturnType<Page['locator']>> {
   const timeouts = getTimeouts(browserName);
-  const timeout = options?.timeout ?? timeouts.element;
+  // Augmenter le timeout pour éviter les timeouts de 60s
+  const timeout = Math.max(options?.timeout ?? timeouts.element, 20000);
 
   // 1. Tentative directe sur l'input de chat dédié
   const chatInput = page.locator('[data-testid="chat-input"]').first();

@@ -54,7 +54,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
   /**
    * Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard.
    */
-  test.skip('Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional', async ({ page, browserName }) => {
+  test('Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional', async ({ page, browserName }) => {
     // Logger contextualisé pour identifier rapidement les traces liées à ce test.
     const log = mkLogger('UltraSimpleForm');
     // Timeouts adaptatifs (mobile vs desktop) pour réduire les faux positifs.

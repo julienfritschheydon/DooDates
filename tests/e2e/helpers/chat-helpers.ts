@@ -48,6 +48,15 @@ export async function navigateToWorkspace(
   });
 
   await waitForPageLoad(page, browserName);
+  
+  // Attendre que le chat input soit disponible avant de continuer
+  try {
+    await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+    console.log('✅ Chat input trouvé après navigation');
+  } catch (error) {
+    console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
+    // Continuer avec les fallbacks existants
+  }
 
   // Attendre que React soit stable avant de chercher le chat input
   await waitForReactStable(page, { browserName });
