@@ -1,14 +1,11 @@
 // Base Playwright primitives + helpers utilisés dans l'ensemble du scénario.
-import { test, expect, Page, Locator } from '@playwright/test';
-import { withConsoleGuard, PRODUCT_ROUTES } from './utils';
+import { test, expect } from '@playwright/test';
+import { navigateToWorkspace } from './helpers/chat-helpers';
+import { robustNavigation } from './helpers/robust-navigation';
+import { sendChatCommand } from './helpers/poll-helpers';
 import { setupTestEnvironment } from './helpers/test-setup';
-import { sendChatCommand, voteOnPollComplete } from './helpers/poll-helpers';
-import { createFormPollViaAI } from './helpers/poll-form-helpers';
-import { authenticateUser } from './helpers/auth-helpers';
-
-// Outils communs pour synchroniser l'état réseau/React et ajuster les timeouts selon le navigateur.
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
+import { waitForNetworkIdle, waitForReactStable } from './helpers/wait-helpers';
 
 // Logger scoped pour suivre précisément chaque étape dans les traces.
 const mkLogger = (scope: string) => (...parts: any[]) => console.log(`[${scope}]`, ...parts);
@@ -145,9 +142,12 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
         
         // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
         if (pollSlug) {
-          // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
-          await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
-          await waitForNetworkIdle(page, { browserName });
+          // Navigation robuste vers la page publique du formulaire
+          await robustNavigation(page, `/DooDates/poll/${pollSlug}`, browserName, {
+            waitUntil: 'domcontentloaded',
+            waitForChat: false
+          });
+          
           const pollPageTitle = await page.title();
           log(`ℹ️ Titre page votant: ${pollPageTitle}`);
 

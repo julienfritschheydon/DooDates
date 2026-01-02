@@ -253,7 +253,7 @@ export async function navigateToWorkspace(
       try {
         // 1. Vérifier d'abord que la page est réellement chargée
         console.log('🔍 Vérification chargement page...');
-        await page.waitForLoadState('domcontentloaded', { timeout: 20000 });
+        await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
         console.log('✅ DOM content loaded');
         
         // 2. Attendre que React soit réellement rendu (pas seulement le JS)
@@ -264,19 +264,19 @@ export async function navigateToWorkspace(
           // Vérifier que le contenu n'est pas du JavaScript non rendu
           const content = root.textContent || '';
           return !content.includes('function()') && content.length > 100;
-        }, { timeout: 20000 });
+        }, { timeout: 15000 });
         
         console.log('✅ React app rendered successfully');
         
         // 3. Vérifier que le body est visible
-        const bodyVisible = await page.locator('body').isVisible({ timeout: 10000 });
+        const bodyVisible = await page.locator('body').isVisible({ timeout: 8000 });
         if (!bodyVisible) {
           throw new Error('Body element not visible after page load');
         }
         console.log('✅ Body element visible');
         
-        // 4. Attendre le chat input avec timeout plus long
-        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 20000 });
+        // 4. Attendre le chat input avec timeout standardisé
+        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
         console.log('✅ Chat input trouvé après navigation');
       } catch (error) {
         console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
@@ -292,7 +292,7 @@ export async function navigateToWorkspace(
         throw new Error('Page was closed before chat input search');
       }
 
-      // Attendre que le chat input soit prêt via le helper résilient
+      // Attendre que le chat input soit prêt via le helper résilient avec timeout standardisé
       await waitForChatInputReady(page, browserName, { timeout: 15000 });
     } else {
       console.log('⏭️ Skip chat input wait (waitForChat: false)');

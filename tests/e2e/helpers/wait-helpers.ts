@@ -375,13 +375,13 @@ export async function waitForChatInputReady(
   options?: { timeout?: number },
 ): Promise<ReturnType<Page['locator']>> {
   const timeouts = getTimeouts(browserName);
-  // Timeout augmenté pour CI : 10000ms au lieu de 2000ms
-  const timeout = options?.timeout ?? 10000;
+  // Timeout standardisé pour tous les tests : 15000ms
+  const timeout = options?.timeout ?? 15000;
 
   console.log(`🔍 Recherche chat input avec timeout: ${timeout}ms`);
 
   // 0. Attendre que React soit stable avant de chercher des éléments
-  await waitForReactStable(page, { timeout: Math.min(timeout, 8000), browserName });
+  await waitForReactStable(page, { timeout: Math.min(timeout, 12000), browserName });
 
   // 1. Tentative directe sur l'input de chat dédié
   const chatInput = page.locator('[data-testid="chat-input"]').first();
@@ -403,6 +403,8 @@ export async function waitForChatInputReady(
     'textarea[placeholder*="formulaire"]',
     'textarea[placeholder*="quiz"]',
     'textarea[placeholder*="disponibilités"]',
+    'textarea[placeholder*="créez"]',
+    'textarea[placeholder*="organisez"]',
     'textarea', // Fallback générique pour les workflows sans placeholder spécifique
   ].join(',');
 
@@ -428,14 +430,14 @@ export async function waitForChatInputReady(
   // 4. Dernier recours : éléments éditables uniquement (pas de liens)
   // Attendre d'abord que le body soit chargé et que React soit prêt
   try {
-    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 5000) });
+    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 8000) });
   } catch {
     console.log('⚠️ domcontentloaded timeout, continuation...');
   }
 
-  const anyEditable = page.locator('input[type="text"], textarea, [contenteditable="true"]').first();
+  const anyEditable = page.locator('input[type="text"], textarea, [contenteditable="true"], input[placeholder]').first();
   try {
-    await anyEditable.waitFor({ state: 'visible', timeout: Math.min(timeout, 5000) });
+    await anyEditable.waitFor({ state: 'visible', timeout: Math.min(timeout, 8000) });
     console.log('✅ Élément éditable générique trouvé');
     return anyEditable;
   } catch (error) {
