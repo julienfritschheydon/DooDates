@@ -161,57 +161,29 @@ if [ "$BRANCH" = "staging" ]; then
   exit 0
 fi
 
-# Branche pre-prod: validation complète (comme main mais sans E2E smoke)
+# Branche pre-prod: validation rapide (essentiel uniquement)
 if [ "$BRANCH" = "pre-prod" ]; then
-  echo "🚀 Branche PRE-PROD: validation complète..."
+  echo "🚀 Branche PRE-PROD: validation rapide..."
   
-  # 1. Lint strict
-  echo "🔍 ESLint strict..."
-  npx eslint . --report-unused-disable-directives --max-warnings 100
+  # 1. Lint léger
+  echo "🔍 ESLint léger..."
+  npx eslint . --max-warnings 50 --quiet
   if [ $? -ne 0 ]; then
-    echo "❌ Erreurs lint - Commit bloqué"
+    echo "❌ Erreurs lint critiques - Commit bloqué"
     exit 1
   fi
   
-  # 2. Type-check
-  echo "🔍 Vérification TypeScript..."
-  npm run type-check
-  if [ $? -ne 0 ]; then
-    echo "❌ Erreurs TypeScript - Commit bloqué"
-    exit 1
-  fi
-  
-  # 3. Tests unitaires rapides
-  echo "🧪 Tests unitaires rapides..."
-  npm run test:unit:fast
-  if [ $? -ne 0 ]; then
-    echo "❌ Tests unitaires échoués - Commit bloqué"
-    exit 1
-  fi
-  
-  # 4. Error Handling
-  echo "🛡️ Vérification Error Handling..."
-  npm run test:error-handling
-  if [ $? -ne 0 ]; then
-    echo "❌ Violations Error Handling - Commit bloqué"
-    exit 1
-  fi
-  
-  # 5. Tests E2E critiques
-  echo "🌐 Tests E2E critiques..."
-  npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
-  if [ $? -ne 0 ]; then
-    echo "❌ Tests E2E critiques échoués - Commit bloqué"
-    exit 1
-  fi
-  
-  # 6. Formatage
+  # 2. Formatage uniquement
   if [ "$NO_FORMAT" != "1" ]; then
-    echo "💅 Formatage du code..."
-    npm run format
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format' ou utilisez NO_FORMAT=1"
+      exit 1
+    fi
   fi
   
-  echo "✅ Pre-commit (pre-prod) validé - Commit autorisé"
+  echo "✅ Pre-commit (pre-prod) validé rapide - Tests complets gérés par CI"
   exit 0
 fi
 
