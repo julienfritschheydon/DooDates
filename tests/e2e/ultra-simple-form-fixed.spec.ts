@@ -63,7 +63,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     await chatInput.waitFor({ state: 'visible', timeout: timeouts.element });
     
     // Envoyer la commande de création
-    await sendChatCommand(page, chatInput, 'crée un questionnaire avec 2 questions pour organiser une formation');
+    await sendChatCommand(page, browserName, chatInput, 'crée un questionnaire avec 2 questions pour organiser une formation');
     
     // Attendre la réponse IA
     await page.waitForTimeout(3000);
@@ -75,13 +75,13 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
 
     // Étape 2 — Ajout d'une question via IA
     log('✏️ Ajout d\'une question via IA');
-    await sendChatCommand(page, chatInput, 'ajoute une question sur les préférences alimentaires');
+    await sendChatCommand(page, browserName, chatInput, 'ajoute une question sur les préférences alimentaires');
     await page.waitForTimeout(2000);
     log('✅ Question supplémentaire ajoutée');
 
     // Étape 3 — Suppression d'une question via IA
     log('🗑️ Suppression d\'une question via IA');
-    await sendChatCommand(page, chatInput, 'supprime la dernière question');
+    await sendChatCommand(page, browserName, chatInput, 'supprime la dernière question');
     await page.waitForTimeout(2000);
     log('✅ Question supprimée');
 
