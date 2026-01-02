@@ -202,13 +202,13 @@ export function MigrationProgress({
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           {isActive && onCancel && (
-            <Button variant="outline" size="sm" onClick={onCancel} className="flex-1">
+            <Button variant="outline" size="sm" onClick={onCancel} className="flex-1" data-testid="migrationprogress-button">
               Cancel
             </Button>
           )}
 
           {isFailed && onRetry && (
-            <Button variant="outline" size="sm" onClick={onRetry} className="flex-1">
+            <Button variant="outline" size="sm" onClick={onRetry} className="flex-1" data-testid="migrationprogress-button">
               Retry
             </Button>
           )}

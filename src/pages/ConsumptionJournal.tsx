@@ -83,7 +83,7 @@ export default function ConsumptionJournal() {
     } else if (location.pathname.includes("/date-polls/")) {
       navigate("/date-polls/dashboard");
     } else {
-      navigate("/dashboard");
+      navigate("/date-polls/dashboard"); // Redirection par défaut vers date-polls
     }
   };
   const [journal, setJournal] = useState<CreditJournalEntry[]>([]);
@@ -282,6 +282,7 @@ export default function ConsumptionJournal() {
                   variant="ghost"
                   onClick={handleBack}
                   className={`mb-4 text-gray-400 hover:text-white hover:${theme.bg}`}
+                  data-testid="journal-back-dashboard"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Retour au dashboard

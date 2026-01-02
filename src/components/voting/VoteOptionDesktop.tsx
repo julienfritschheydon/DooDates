@@ -92,6 +92,7 @@ const VoteOptionDesktop: React.FC<VoteOptionDesktopProps> = ({
               ? "bg-blue-500/30 border-blue-500 ring-1 ring-blue-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535] hover:border-blue-500/50"
           }`}
+          data-testid={`vote-option-yes-${option.id}`}
           title="Oui"
         >
           <div className="flex items-center justify-center gap-2">
@@ -134,6 +135,7 @@ const VoteOptionDesktop: React.FC<VoteOptionDesktopProps> = ({
               ? "bg-orange-500/30 border-orange-500 ring-1 ring-orange-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535] hover:border-orange-500/50"
           }`}
+          data-testid={`vote-option-maybe-${option.id}`}
           title="Peut-être"
         >
           <div className="flex items-center justify-center gap-2">
@@ -180,6 +182,7 @@ const VoteOptionDesktop: React.FC<VoteOptionDesktopProps> = ({
               ? "bg-red-500/30 border-red-500 ring-1 ring-red-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535] hover:border-red-500/50"
           }`}
+          data-testid={`vote-option-no-${option.id}`}
           title="Non"
         >
           <div className="flex items-center justify-center gap-2">

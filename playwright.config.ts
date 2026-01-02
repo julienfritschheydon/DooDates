@@ -32,13 +32,21 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // Utiliser plus de workers pour accélérer l'exécution (75% des CPU disponibles en local, 3 en CI)
   workers: process.env.CI ? 3 : Math.floor(os.cpus().length * 0.75),
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['line'],
+    ['list'],
+  ],
   timeout: 60000,
   use: {
     baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
+    // Sortie des traces et screenshots dans test-results/
+    video: 'retain-on-failure',
   },
 
   projects: [

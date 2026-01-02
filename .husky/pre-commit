@@ -416,6 +416,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# 5c. Audit Data-testid (multilingue)
+echo "🔍 Audit Data-testid (multilingue)..."
+node scripts/data-testid-auditor.cjs
+if [ $? -ne 0 ]; then
+  echo "❌ Boutons sans data-testid détectés - Commit bloqué"
+  echo "💡 Pour corriger automatiquement: npm run audit:data-testid:fix"
+  echo "💡 Pour ignorer temporairement: git commit --no-verify"
+  exit 1
+fi
+
 # 6. Formatage automatique (optionnel)
 # Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
 if [ "$NO_FORMAT" != "1" ]; then

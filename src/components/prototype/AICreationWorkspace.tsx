@@ -502,6 +502,7 @@ export function AICreationWorkspace({
                         : "/date-polls/dashboard"
                   }
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
+                  data-testid="go-to-dashboard"
                 >
                   <LazyIconWrapper Icon={Check} className="w-5 h-5" />
                   Aller au Tableau de bord
@@ -535,6 +536,7 @@ export function AICreationWorkspace({
                       });
                     }}
                     className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                    data-testid="copy-link"
                   >
                     Copier
                   </button>

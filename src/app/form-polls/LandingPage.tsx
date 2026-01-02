@@ -128,6 +128,7 @@ export const LandingPage: React.FC = () => {
                   size="lg"
                   onClick={() => navigate("/create/form")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all durée-300"
+                  data-testid="create-form-button"
                 >
                   <span className="flex items-center gap-2">
                     Créer un formulaire

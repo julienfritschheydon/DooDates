@@ -1986,34 +1986,40 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Reset quota
     await resetGuestQuota(page);
 
-    // Simuler création d'un date poll en manipulant directement le localStorage
+    // Simuler l'incrémentation du quota (comme le ferait l'app lors de la création)
     await page.evaluate(() => {
-      const STORAGE_KEY = 'doodates_quota_consumed';
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const allData = stored ? JSON.parse(stored) : {};
+      try {
+        const STORAGE_KEY = 'doodates_quota_consumed';
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const allData = stored ? JSON.parse(stored) : {};
 
-      const current = allData['guest'] || {
-        conversationsCreated: 0,
-        datePollsCreated: 0,
-        formPollsCreated: 0,
-        quizzCreated: 0,
-        availabilityPollsCreated: 0,
-        aiMessages: 0,
-        analyticsQueries: 0,
-        simulations: 0,
-        totalCreditsConsumed: 0,
-        userId: 'guest',
-      };
+        if (!allData['guest']) {
+          allData['guest'] = {
+            conversationsCreated: 0,
+            datePollsCreated: 0,
+            formPollsCreated: 0,
+            quizzCreated: 0,
+            availabilityPollsCreated: 0,
+            aiMessages: 0,
+            analyticsQueries: 0,
+            simulations: 0,
+            totalCreditsConsumed: 0,
+            userId: 'guest',
+          };
+        }
 
-      current.datePollsCreated = (current.datePollsCreated || 0) + 1;
-      current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
+        allData['guest'].datePollsCreated = (allData['guest'].datePollsCreated || 0) + 1;
+        allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
 
-      allData['guest'] = current;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+      } catch {
+        // ignore errors
+      }
     });
 
     // Attendre que le quota soit mis à jour
-    await page.waitForTimeout(timeouts.element);
+    await page.waitForTimeout(1000);
+    await waitForReactStable(page, { browserName });
 
     const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
 
@@ -2143,7 +2149,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.availabilityPollsCreated = (current.availabilityPollsCreated || 0) + 1;
       current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 1;
 
@@ -2190,7 +2195,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.datePollsCreated = (current.datePollsCreated || 0) + 1;
       current.formPollsCreated = (current.formPollsCreated || 0) + 1;
       current.quizzCreated = (current.quizzCreated || 0) + 1;
@@ -2240,7 +2244,6 @@ test.describe('Quota Tracking - Complete Tests', () => {
         userId: 'guest',
       };
 
-      // pollsCreated supprimé - calculer à la volée si nécessaire
       current.datePollsCreated = (current.datePollsCreated || 0) + 1;
       current.formPollsCreated = (current.formPollsCreated || 0) + 1;
       current.totalCreditsConsumed = (current.totalCreditsConsumed || 0) + 2;

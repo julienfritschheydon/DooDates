@@ -294,6 +294,7 @@ export const DataControl: React.FC = () => {
                         <button
                           onClick={() => postponeDeletion(warning.type)}
                           className="text-orange-300 hover:text-orange-100 font-medium underline"
+                          data-testid="data-control-postpone"
                         >
                           Reporter de 30 jours
                         </button>
@@ -302,6 +303,7 @@ export const DataControl: React.FC = () => {
                     <button
                       onClick={() => setShowPreview(true)}
                       className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-sm font-medium"
+                      data-testid="data-control-preview"
                     >
                       Voir les données
                     </button>
@@ -438,6 +440,7 @@ export const DataControl: React.FC = () => {
                 <button
                   onClick={handleExportData}
                   className="flex items-center justify-between p-6 bg-green-900/30 rounded-lg hover:bg-green-900/50 transition-colors group"
+                  data-testid="data-control-export"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-800/50 rounded-full flex items-center justify-center">
@@ -458,6 +461,7 @@ export const DataControl: React.FC = () => {
                 <button
                   onClick={handleDeleteAccount}
                   className="flex items-center justify-between p-6 bg-red-900/30 rounded-lg hover:bg-red-900/50 transition-colors group"
+                  data-testid="data-control-delete"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-red-800/50 rounded-full flex items-center justify-center">

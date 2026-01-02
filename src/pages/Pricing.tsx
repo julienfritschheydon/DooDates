@@ -252,7 +252,7 @@ export function PricingPage() {
             <p className="text-xl mb-8 opacity-90">
               Commencez gratuitement, aucune carte bancaire requise
             </p>
-            <Button size="lg" variant="secondary" onClick={handleGetStarted}>
+            <Button size="lg" variant="secondary" onClick={handleGetStarted} data-testid="pricing-get-started">
               Essayer gratuitement
             </Button>
           </div>

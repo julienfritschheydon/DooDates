@@ -1,0 +1,236 @@
+{
+  "timestamp": "2026-01-02T15:43:15.724Z",
+  "summary": {
+    "totalFiles": 313,
+    "totalButtons": 54,
+    "missingDataTestId": 27,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Theme.tsx",
+      "line": 14,
+      "content": "<Button variant=\"ghost\" onClick={() => navigate(-1)} className=\"mb-4\" data-testid=\"theme-back\">",
+      "button": "<Button variant=\"ghost\" onClick={() =>",
+      "suggestedTestId": "theme-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Theme.tsx",
+      "line": 28,
+      "content": "<Button onClick={() => navigate(\"/settings\")} className=\"mt-4\" data-testid=\"theme-view-settings\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "theme-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\ResultsPage.tsx",
+      "line": 14,
+      "content": "<Button variant=\"ghost\" onClick={() => navigate(-1)} className=\"mb-4\" data-testid=\"results-page-back\">",
+      "button": "<Button variant=\"ghost\" onClick={() =>",
+      "suggestedTestId": "results-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\ResultsPage.tsx",
+      "line": 28,
+      "content": "<Button onClick={() => navigate(\"/dashboard\")} className=\"mt-4\" data-testid=\"results-page-dashboard\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "results-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Recent.tsx",
+      "line": 14,
+      "content": "<Button variant=\"ghost\" onClick={() => navigate(-1)} className=\"mb-4\" data-testid=\"recent-back\">",
+      "button": "<Button variant=\"ghost\" onClick={() =>",
+      "suggestedTestId": "recent-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Recent.tsx",
+      "line": 28,
+      "content": "<Button onClick={() => navigate(\"/dashboard\")} className=\"mt-4\" data-testid=\"recent-dashboard\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "recent-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Profile.tsx",
+      "line": 14,
+      "content": "<Button variant=\"ghost\" onClick={() => navigate(-1)} className=\"mb-4\" data-testid=\"profile-back\">",
+      "button": "<Button variant=\"ghost\" onClick={() =>",
+      "suggestedTestId": "profile-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 156,
+      "content": "<Button onClick={() => navigate(\"/\")} className=\"mt-4 w-full\" data-testid=\"availability-vote-back-home\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 156,
+      "content": "<Button onClick={() => navigate(\"/\")} className=\"mt-4 w-full\" data-testid=\"availability-back-home\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AuthCallback.tsx",
+      "line": 178,
+      "content": "<Button onClick={() => navigate(\"/dashboard\")} className=\"flex-1\" data-testid=\"auth-go-dashboard\">",
+      "button": "<Button onClick={() =>",
+      "suggestedTestId": "authcallback-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\MigrationProgress.tsx",
+      "line": 205,
+      "content": "<Button variant=\"outline\" size=\"sm\" onClick={onCancel} className=\"flex-1\">",
+      "button": "<Button variant=\"outline\" size=\"sm\" onClick={onCancel} className=\"flex-1\">",
+      "suggestedTestId": "migrationprogress-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\MigrationProgress.tsx",
+      "line": 211,
+      "content": "<Button variant=\"outline\" size=\"sm\" onClick={onRetry} className=\"flex-1\">",
+      "button": "<Button variant=\"outline\" size=\"sm\" onClick={onRetry} className=\"flex-1\">",
+      "suggestedTestId": "migrationprogress-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\__tests__\\GeminiChatInterface.integration.test.tsx",
+      "line": 30,
+      "content": "<button onClick={onClose}>Close</button>",
+      "button": "<button onClick={onClose}>",
+      "suggestedTestId": "geminichatinterface.integration.test-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\__tests__\\GeminiChatInterface.integration.test.tsx",
+      "line": 56,
+      "content": "<button onClick={onClose}>Close Poll Creator</button>",
+      "button": "<button onClick={onClose}>",
+      "suggestedTestId": "geminichatinterface.integration.test-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\shared\\ProductHeader.tsx",
+      "line": 34,
+      "content": "<Button variant=\"ghost\" size=\"sm\" onClick={() => navigate(backTo)} className=\"p-2\" data-testid=\"product-header-back\">",
+      "button": "<Button variant=\"ghost\" size=\"sm\" onClick={() =>",
+      "suggestedTestId": "productheader-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 88,
+      "content": "<Button variant=\"outline\" size=\"sm\" onClick={() => setShowFilters(!showFilters)}>",
+      "button": "<Button variant=\"outline\" size=\"sm\" onClick={() =>",
+      "suggestedTestId": "productlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 108,
+      "content": "<Button onClick={handleCreateProduct}>",
+      "button": "<Button onClick={handleCreateProduct}>",
+      "suggestedTestId": "productlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 180,
+      "content": "<Button variant=\"outline\" className=\"mt-2\" onClick={actions.refreshProducts}>",
+      "button": "<Button variant=\"outline\" className=\"mt-2\" onClick={actions.refreshProducts}>",
+      "suggestedTestId": "productlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 201,
+      "content": "<Button onClick={handleCreateProduct}>",
+      "button": "<Button onClick={handleCreateProduct}>",
+      "suggestedTestId": "productlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ManageTagsFolderDialog.tsx",
+      "line": 228,
+      "content": "<Button variant=\"outline\" onClick={() => onOpenChange(false)} disabled={isSaving} data-testid=\"cancel-manage-tags\">",
+      "button": "<Button variant=\"outline\" onClick={() =>",
+      "suggestedTestId": "managetagsfolderdialog-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 348,
+      "content": "<Button size=\"sm\" onClick={handleDateRangeApply}>",
+      "button": "<Button size=\"sm\" onClick={handleDateRangeApply}>",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 502,
+      "content": "<Button variant=\"outline\" onClick={onClose}>",
+      "button": "<Button variant=\"outline\" onClick={onClose}>",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 506,
+      "content": "<Button onClick={handleResume} className=\"flex items-center gap-1\">",
+      "button": "<Button onClick={handleResume} className=\"flex items-center gap-1\">",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationList.tsx",
+      "line": 340,
+      "content": "<Button variant=\"outline\" onClick={() => window.location.reload()}>",
+      "button": "<Button variant=\"outline\" onClick={() =>",
+      "suggestedTestId": "conversationlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationHistory.tsx",
+      "line": 300,
+      "content": "<Button onClick={handleRetry} variant=\"outline\" className=\"gap-2\">",
+      "button": "<Button onClick={handleRetry} variant=\"outline\" className=\"gap-2\">",
+      "suggestedTestId": "conversationhistory-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationHistory.tsx",
+      "line": 337,
+      "content": "<Button onClick={onCreateConversation} variant=\"default\" className=\"gap-2\">",
+      "button": "<Button onClick={onCreateConversation} variant=\"default\" className=\"gap-2\">",
+      "suggestedTestId": "conversationhistory-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationActions.tsx",
+      "line": 189,
+      "content": "<Button variant=\"outline\" onClick={onClose} disabled={isSubmitting}>",
+      "button": "<Button variant=\"outline\" onClick={onClose} disabled={isSubmitting}>",
+      "suggestedTestId": "conversationactions-button"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "27 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

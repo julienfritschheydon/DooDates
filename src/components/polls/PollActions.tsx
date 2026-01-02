@@ -434,6 +434,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
                       setShowExportMenu(false);
                     }}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-t-md"
+                    data-testid="export-csv"
                   >
                     📊 CSV
                   </button>
@@ -443,6 +444,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
                       setShowExportMenu(false);
                     }}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    data-testid="export-pdf"
                   >
                     📄 PDF
                   </button>
@@ -452,6 +454,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
                       setShowExportMenu(false);
                     }}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    data-testid="export-json"
                   >
                     🔧 JSON
                   </button>
@@ -461,6 +464,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
                       setShowExportMenu(false);
                     }}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-b-md"
+                    data-testid="export-markdown"
                   >
                     📝 Markdown
                   </button>

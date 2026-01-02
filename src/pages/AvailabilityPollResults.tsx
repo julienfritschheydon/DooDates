@@ -16,6 +16,7 @@ import {
   Zap,
   ExternalLink,
   CheckCircle,
+  Home,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -152,7 +153,7 @@ const AvailabilityPollResults = () => {
         <Card className="bg-[#1e1e1e] border-gray-700 max-w-md">
           <CardContent className="pt-6">
             <p className="text-white text-center">Ce n'est pas un sondage de disponibilités</p>
-            <Button onClick={() => navigate("/")} className="mt-4 w-full">
+            <Button onClick={() => navigate("/")} className="mt-4 w-full" data-testid="availability-back-home">
               Retour à l'accueil
             </Button>
           </CardContent>
@@ -163,11 +164,12 @@ const AvailabilityPollResults = () => {
 
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
+    const deniedStatus = accessStatus as { allowed: false; reason: string; message: string };
     return (
       <ResultsAccessDenied
-        message={accessStatus.message}
+        message={deniedStatus.message}
         pollSlug={poll.slug}
-        showVoteButton={accessStatus.reason === "not-voted"}
+        showVoteButton={deniedStatus.reason === "not-voted"}
       />
     );
   }
@@ -294,18 +296,20 @@ const AvailabilityPollResults = () => {
           className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
           title="Rafraîchir"
           aria-label="Rafraîchir"
+          data-testid="availability-refresh"
         >
           <Loader2 className="w-6 h-6" />
         </Button>
         <Button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/availability-polls/dashboard")}
           variant="ghost"
           size="icon"
           className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-          title="Retour"
-          aria-label="Retour"
+          title="Tableau de bord"
+          aria-label="Tableau de bord"
+          data-testid="availability-dashboard"
         >
-          <X className="w-6 h-6" />
+          <Home className="w-6 h-6" />
         </Button>
       </div>
 
@@ -448,6 +452,7 @@ const AvailabilityPollResults = () => {
                       }}
                       variant="outline"
                       className="border-green-600 text-green-400 hover:bg-green-600/20"
+                      data-testid="availability-add-google-calendar"
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Ajouter à Google Calendar
@@ -458,6 +463,7 @@ const AvailabilityPollResults = () => {
                       }}
                       variant="outline"
                       className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                      data-testid="availability-open-calendar"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Ouvrir mon calendrier
@@ -527,6 +533,7 @@ const AvailabilityPollResults = () => {
                       variant="outline"
                       size="sm"
                       className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                      data-testid="availability-optimize"
                     >
                       {isOptimizing ? (
                         <>
@@ -546,6 +553,7 @@ const AvailabilityPollResults = () => {
                     variant="outline"
                     size="sm"
                     className="border-green-600 text-green-400 hover:bg-green-600/20"
+                    data-testid="availability-add-slot"
                   >
                     + Ajouter un créneau
                   </Button>
@@ -660,6 +668,7 @@ const AvailabilityPollResults = () => {
                               variant="ghost"
                               size="icon"
                               className="text-red-400 hover:text-red-500 hover:bg-red-500/20"
+                              data-testid="availability-remove-slot"
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -672,6 +681,7 @@ const AvailabilityPollResults = () => {
                     onClick={handleSaveProposedSlots}
                     disabled={isSaving || selectedSlots.size === 0}
                     className="w-full bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    data-testid="availability-save-slots"
                   >
                     {isSaving ? (
                       <>

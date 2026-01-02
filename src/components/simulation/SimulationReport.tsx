@@ -180,7 +180,7 @@ export function SimulationReport({
               {formatTimeWithSeconds(metrics.avgTotalTime)}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors" data-testid="simulation-report-close">
             <X className="w-6 h-6" />
           </button>
         </div>

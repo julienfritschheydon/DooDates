@@ -320,7 +320,67 @@ export async function createDatePollWithTimeSlots(
 
   const input = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
 
-  await input.fill(promptMessage);
+  // Vérifier que l'élément est bien un input avant de faire fill
+  try {
+    const tagName = await input.evaluate(el => el.tagName.toLowerCase());
+    const role = await input.getAttribute('role');
+    const isEditable = await input.evaluate(el => {
+      const editable = el as HTMLElement;
+      return editable.isContentEditable || ['input', 'textarea'].includes(editable.tagName.toLowerCase());
+    });
+    
+    if (!isEditable && tagName !== 'input' && tagName !== 'textarea') {
+      console.log('⚠️ waitForChatInputReady a retourné un élément non-éditable, recherche alternative...');
+      
+      // Chercher un vrai input de manière flexible
+      const inputSelectors = [
+        page.locator('input[placeholder*="message"], textarea[placeholder*="message"]'),
+        page.locator('input[type="text"], textarea'),
+        page.locator('[contenteditable="true"]'),
+        page.locator('input:visible, textarea:visible').first()
+      ];
+      
+      let realInput = null;
+      for (const selector of inputSelectors) {
+        try {
+          await expect(selector).toBeVisible({ timeout: 2000 });
+          const isRealEditable = await selector.evaluate(el => {
+            const editable = el as HTMLElement;
+            return editable.isContentEditable || ['input', 'textarea'].includes(editable.tagName.toLowerCase());
+          });
+          if (isRealEditable) {
+            realInput = selector;
+            break;
+          }
+        } catch (e) {
+          // Continuer avec le sélecteur suivant
+        }
+      }
+      
+      if (!realInput) {
+        console.log('⚠️ Aucun input éditable trouvé, tentative directe');
+        try {
+          await input.fill(promptMessage);
+        } catch (fillError) {
+          console.log('⚠️ Impossible de remplir l\'input, test skip');
+          throw new Error('Chat input non disponible pour créer le sondage');
+        }
+      } else {
+        await realInput.fill(promptMessage);
+      }
+    } else {
+      await input.fill(promptMessage);
+    }
+  } catch (e) {
+    console.log('⚠️ Erreur vérification input, tentative directe');
+    try {
+      await input.fill(promptMessage);
+    } catch (fillError) {
+      console.log('⚠️ Impossible de remplir l\'input, test skip');
+      throw new Error('Chat input non disponible pour créer le sondage');
+    }
+  }
+  
   console.log(`✉️ Prompt IA saisi (${promptMessage.length} caractères)`);
 
   const sendButton = page.locator('[data-testid="send-message-button"]').first();

@@ -301,6 +301,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
                   size="icon"
                   onClick={onBack}
                   className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
+                  data-testid="vote-results-back"
                 >
                   <ArrowLeft className="h-6 w-6 text-gray-300" />
                 </Button>
@@ -320,6 +321,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
                   size="icon"
                   onClick={handleShare}
                   className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
+                  data-testid="vote-results-share"
                 >
                   <Share2 className="h-6 w-6 text-gray-300" />
                 </Button>

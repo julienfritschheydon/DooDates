@@ -136,19 +136,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="flex items-center space-x-2">
           {onView && (
-            <Button variant="outline" size="sm" onClick={onView}>
+            <Button variant="outline" size="sm" onClick={onView} data-testid="product-card-view">
               <Eye className="h-4 w-4 mr-1" />
               Voir
             </Button>
           )}
           {onEdit && (
-            <Button variant="outline" size="sm" onClick={onEdit}>
+            <Button variant="outline" size="sm" onClick={onEdit} data-testid="product-card-edit">
               <Edit className="h-4 w-4 mr-1" />
               Modifier
             </Button>
           )}
           {onShare && (
-            <Button variant="outline" size="sm" onClick={onShare}>
+            <Button variant="outline" size="sm" onClick={onShare} data-testid="product-card-share">
               <Share2 className="h-4 w-4 mr-1" />
               Partager
             </Button>
@@ -159,6 +159,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               size="sm"
               onClick={onDelete}
               className="text-red-600 hover:text-red-700"
+              data-testid="product-card-delete"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Supprimer
