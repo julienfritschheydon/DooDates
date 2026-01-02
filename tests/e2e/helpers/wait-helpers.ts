@@ -375,18 +375,22 @@ export async function waitForChatInputReady(
   options?: { timeout?: number },
 ): Promise<ReturnType<Page['locator']>> {
   const timeouts = getTimeouts(browserName);
-  const timeout = options?.timeout ?? 2000; // Réduit de 3000ms à 2000ms
+  // Timeout augmenté pour CI : 10000ms au lieu de 2000ms
+  const timeout = options?.timeout ?? 10000;
+
+  console.log(`🔍 Recherche chat input avec timeout: ${timeout}ms`);
 
   // 0. Attendre que React soit stable avant de chercher des éléments
-  await waitForReactStable(page, { timeout: Math.min(timeout, 1500), browserName });
+  await waitForReactStable(page, { timeout: Math.min(timeout, 8000), browserName });
 
   // 1. Tentative directe sur l'input de chat dédié
   const chatInput = page.locator('[data-testid="chat-input"]').first();
   try {
     await chatInput.waitFor({ state: 'visible', timeout });
+    console.log('✅ Chat input [data-testid="chat-input"] trouvé');
     return chatInput;
   } catch {
-    // Fallback si l'input n'est pas encore monté ou pas visible
+    console.log('⚠️ Chat input principal non trouvé, tentative fallbacks...');
   }
 
   // 2. Fallback sur des éléments représentatifs du workspace IA
@@ -395,37 +399,44 @@ export async function waitForChatInputReady(
     '[data-poll-preview]',
     'textarea[placeholder*="Décrivez votre sondage"]',
     'textarea[placeholder*="Décrivez votre formulaire"]',
+    'textarea[placeholder*="sondage"]',
+    'textarea[placeholder*="formulaire"]',
+    'textarea[placeholder*="quiz"]',
+    'textarea[placeholder*="disponibilités"]',
     'textarea', // Fallback générique pour les workflows sans placeholder spécifique
   ].join(',');
 
   const chatOrPreview = page.locator(chatOrPreviewSelector).first();
   try {
     await chatOrPreview.waitFor({ state: 'visible', timeout });
+    console.log('✅ Éditable trouvé via fallback selector');
     return chatOrPreview;
   } catch {
-    // Dernier fallback ci-dessous
+    console.log('⚠️ Fallback selector échoué, tentative agent root...');
   }
 
   // 3. Fallback dédié : marqueur racine de la page agent
   const agentRoot = page.locator('[data-testid="agent-page-root"]').first();
   try {
     await agentRoot.waitFor({ state: 'visible', timeout });
+    console.log('✅ Agent root trouvé');
     return agentRoot;
   } catch {
-    // Continuer vers le tout dernier recours
+    console.log('⚠️ Agent root non trouvé, dernier recours...');
   }
 
   // 4. Dernier recours : éléments éditables uniquement (pas de liens)
   // Attendre d'abord que le body soit chargé et que React soit prêt
   try {
-    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 2000) });
+    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 5000) });
   } catch {
-    // Ignorer si le timeout est dépassé, continuer quand même
+    console.log('⚠️ domcontentloaded timeout, continuation...');
   }
 
   const anyEditable = page.locator('input[type="text"], textarea, [contenteditable="true"]').first();
   try {
-    await anyEditable.waitFor({ state: 'visible', timeout: Math.min(timeout, 2000) });
+    await anyEditable.waitFor({ state: 'visible', timeout: Math.min(timeout, 5000) });
+    console.log('✅ Élément éditable générique trouvé');
     return anyEditable;
   } catch (error) {
     // Si même le dernier recours échoue, vérifier si la page est chargée
@@ -433,6 +444,24 @@ export async function waitForChatInputReady(
     if (!bodyVisible) {
       throw new Error(`Page not loaded: body element not visible. No editable input found. Original error: ${error}`);
     }
+    
+    // Debug : compter les éléments disponibles
+    try {
+      const allInputs = await page.locator('input, textarea, [contenteditable="true"]').count();
+      const allVisible = await page.locator('input:visible, textarea:visible, [contenteditable="true"]:visible').count();
+      console.log(`🔍 Debug: ${allInputs} inputs trouvés, ${allVisible} visibles`);
+      
+      // Lister les placeholders disponibles
+      const textareas = await page.locator('textarea').all();
+      for (let i = 0; i < Math.min(textareas.length, 3); i++) {
+        const placeholder = await textareas[i].getAttribute('placeholder');
+        const isVisible = await textareas[i].isVisible();
+        console.log(`🔍 Textarea ${i}: placeholder="${placeholder}", visible=${isVisible}`);
+      }
+    } catch (debugError) {
+      console.log('⚠️ Debug info impossible:', debugError);
+    }
+    
     // Si le body est visible mais aucun élément éditable, c'est un problème critique
     throw new Error(`No editable input found on page. Body visible but no input/textarea available.`);
   }
