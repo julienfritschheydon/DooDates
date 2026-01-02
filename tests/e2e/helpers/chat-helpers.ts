@@ -68,85 +68,16 @@ export async function detectPollType(page: Page): Promise<WorkspaceType> {
 }
 
 /**
- * Trouve la zone chat principale quel que soit le type de poll
- * Utilise une stratégie de détection robuste avec fallbacks multiples
+ * Trouve la zone chat principale
+ * Simplifié : retourne directement [data-testid="chat-input"]
  * 
  * @param page - La page Playwright
  * @returns Le locator de la zone chat trouvée
  */
 export async function findChatZone(page: Page): Promise<ReturnType<Page['locator']>> {
-  // 1. Essayer l'input de chat principal (le plus fiable)
   const chatInput = page.locator('[data-testid="chat-input"]').first();
-  try {
-    await chatInput.waitFor({ state: 'visible', timeout: 2000 });
-    return chatInput;
-  } catch {
-    // Continuer avec les fallbacks
-  }
-
-  // 2. Essayer les conteneurs de chat
-  const chatContainers = [
-    '[data-testid="gemini-chat"]',
-    '[data-testid="chat-interface"]',
-    '[data-testid="chat-container"]',
-    '[data-testid="conversation-container"]'
-  ];
-  
-  for (const selector of chatContainers) {
-    try {
-      const container = page.locator(selector).first();
-      await container.waitFor({ state: 'visible', timeout: 1000 });
-      return container;
-    } catch {
-      continue;
-    }
-  }
-
-  // 3. Essayer les textareas avec placeholders spécifiques
-  const textareaSelectors = [
-    'textarea[placeholder*="IA"]',
-    'textarea[placeholder*="sondage"]',
-    'textarea[placeholder*="formulaire"]',
-    'textarea[placeholder*="Décrivez"]',
-    'textarea[placeholder*="Organisez"]'
-  ];
-  
-  for (const selector of textareaSelectors) {
-    try {
-      const textarea = page.locator(selector).first();
-      await textarea.waitFor({ state: 'visible', timeout: 1000 });
-      return textarea;
-    } catch {
-      continue;
-    }
-  }
-
-  // 4. Fallback sur la zone preview (souvent adjacente au chat)
-  const previewSelectors = [
-    '[data-poll-preview]',
-    '[data-testid="poll-preview"]',
-    '[data-testid="form-preview"]',
-    '[data-testid="preview-container"]'
-  ];
-  
-  for (const selector of previewSelectors) {
-    try {
-      const preview = page.locator(selector).first();
-      await preview.waitFor({ state: 'visible', timeout: 1000 });
-      return preview;
-    } catch {
-      continue;
-    }
-  }
-
-  // 5. Dernier recours : premier textarea/input éditable
-  const anyEditable = page.locator('textarea, input[type="text"], [contenteditable="true"]').first();
-  try {
-    await anyEditable.waitFor({ state: 'visible', timeout: 2000 });
-    return anyEditable;
-  } catch {
-    throw new Error('Chat zone not found: No chat input, container, or editable element detected');
-  }
+  await chatInput.waitFor({ state: 'visible', timeout: 15000 });
+  return chatInput;
 }
 
 /**
@@ -270,50 +201,21 @@ export async function navigateToWorkspace(
       const shouldWaitForChat = options?.waitForChat !== false;
       
       if (shouldWaitForChat) {
-        // Attendre que le chat input soit disponible avant de continuer
-        try {
-          // 1. Vérifier d'abord que la page est réellement chargée
-          console.log('🔍 Vérification chargement page...');
-          await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-          console.log('✅ DOM content loaded');
-          
-          // 2. Attendre que React soit réellement rendu (pas seulement le JS)
-          await page.waitForFunction(() => {
-            const root = document.getElementById('root');
-            if (!root) return false;
-            
-            const content = root.textContent || '';
-            return !content.includes('function()') && content.length > 100;
-          }, { timeout: 15000 });
-          
-          console.log('✅ React app rendered successfully');
-          
-          // 3. Vérifier que le body est visible
-          const bodyVisible = await page.locator('body').isVisible({ timeout: 8000 });
-          if (!bodyVisible) {
-            throw new Error('Body element not visible after page load');
-          }
-          console.log('✅ Body element visible');
-          
-          // 4. Attendre le chat input avec timeout plus long
-          await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
-          console.log('✅ Chat input trouvé après navigation');
-        } catch (error) {
-          console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
-          console.log('⚠️ Erreur détaillée:', error instanceof Error ? error.message : String(error));
-          // Continuer avec les fallbacks existants
-        }
-
-        // Attendre que React soit stable avant de chercher le chat input
-        await waitForReactStable(page, { browserName });
+        // Simplifié : le chat input est toujours trouvé avec [data-testid="chat-input"]
+        // Inutile de passer par les fallbacks complexes qui ajoutent 15s de timeout
+        console.log('🔍 Recherche chat input avec timeout: 15000ms');
         
-        // Vérification défensive avant waitForChatInputReady
-        if (page.isClosed()) {
-          throw new Error('Page was closed before chat input search');
+        try {
+          // Attendre directement le chat input avec un timeout raisonnable
+          await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+          console.log('✅ Chat input [data-testid="chat-input"] trouvé');
+        } catch (error) {
+          console.log('⚠️ Erreur détaillée:', error instanceof Error ? error.message : String(error));
+          throw new Error('Chat input [data-testid="chat-input"] non trouvé après 15s');
         }
 
-        // Attendre que le chat input soit prêt via le helper résilient avec timeout standardisé
-        await waitForChatInputReady(page, browserName, { timeout: 15000 });
+        // Attendre que React soit stable
+        await waitForReactStable(page, { browserName });
       } else {
         console.log('⏭️ Skip chat input wait (waitForChat: false)');
         // Juste attendre que React soit stable
@@ -373,7 +275,7 @@ export async function navigateToWorkspace(
       }
     }
   }
-}
+
 
 /**
  * Navigue vers le workspace avec détection automatique du type
@@ -435,64 +337,37 @@ export async function navigateToFormWorkspace(
 
 /**
  * Attend que le champ de saisie du chat soit visible
- * Utilise waitForChatInputReady pour une stratégie robuste avec fallbacks
+ * Simplifié : le chat input est toujours [data-testid="chat-input"]
  *
  * @param page - La page Playwright
- * @param browserNameOrTimeout - Le nom du navigateur (string) ou timeout en ms (number) pour compatibilité
- * @param timeout - Timeout en ms (optionnel, utilise les timeouts par défaut si non fourni)
+ * @param timeout - Timeout en ms (optionnel, 15000ms par défaut)
  */
 export async function waitForChatInput(
   page: Page,
-  browserNameOrTimeout?: string | number,
   timeout?: number
 ) {
-  console.log('🔍 waitForChatInput: Recherche du chat input...');
-
-  // Gérer la compatibilité avec l'ancienne signature: waitForChatInput(page, timeout)
-  let browserName: string = 'chromium';
-  let actualTimeout: number | undefined;
-
-  if (typeof browserNameOrTimeout === 'string') {
-    browserName = browserNameOrTimeout;
-    actualTimeout = timeout;
-  } else if (typeof browserNameOrTimeout === 'number') {
-    // Ancienne signature: waitForChatInput(page, timeout)
-    actualTimeout = browserNameOrTimeout;
-  } else {
-    // Pas de paramètres: utiliser les valeurs par défaut
-    actualTimeout = timeout;
-  }
+  const actualTimeout = timeout || 15000;
+  console.log(`🔍 waitForChatInput: Recherche du chat input avec timeout ${actualTimeout}ms...`);
 
   try {
-    // Utiliser la stratégie robuste avec fallbacks
-    const chatInput = await waitForChatInputReady(page, browserName, { timeout: actualTimeout });
-
-    // Vérifier que c'est bien l'input de chat (pas un fallback)
-    const testId = await chatInput.getAttribute('data-testid');
-    if (testId === 'chat-input') {
-      console.log('✅ waitForChatInput: Chat input trouvé et visible');
-    } else {
-      console.log(`⚠️ waitForChatInput: Fallback utilisé (${testId || 'unknown'}), mais élément interactif trouvé`);
-    }
-
-    // Vérifier que l'élément est visible et interactif
-    await expect(chatInput).toBeVisible({ timeout: actualTimeout || 5000 });
+    // Attendre directement le chat input
+    const chatInput = page.locator('[data-testid="chat-input"]');
+    await chatInput.waitFor({ state: 'visible', timeout: actualTimeout });
+    
+    // Vérifier qu'il est bien interactif
+    await expect(chatInput).toBeVisible({ timeout: actualTimeout });
+    await expect(chatInput).toBeEnabled({ timeout: actualTimeout });
+    
+    console.log('✅ waitForChatInput: Chat input [data-testid="chat-input"] trouvé et prêt');
+    return chatInput;
+    
   } catch (error) {
-    // Diagnostic en cas d'échec
     console.log('❌ waitForChatInput: Échec de la recherche du chat input');
 
     // Vérifier si la page est fermée
     if (page.isClosed()) {
       console.log('❌ La page est fermée - impossible de continuer');
       throw new Error('Page is closed - cannot continue with chat input search');
-    }
-
-    // Lister tous les éléments avec data-testid pour debug
-    try {
-      const allTestIds = await page.locator('[data-testid]').all();
-      console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
-    } catch (debugError) {
-      console.log('❌ Impossible de lister les éléments - page probablement fermée');
     }
 
     // Prendre un screenshot pour debug
@@ -503,13 +378,13 @@ export async function waitForChatInput(
       console.log('❌ Impossible de prendre un screenshot');
     }
 
-    throw error;
+    throw new Error(`Chat input [data-testid="chat-input"] non trouvé après ${actualTimeout}ms`);
   }
 }
 
 /**
- * Envoie un message dans le chat avec détection automatique de la zone chat
- * Version améliorée qui utilise findChatZone pour une détection robuste
+ * Envoie un message dans le chat
+ * Simplifié : utilise directement [data-testid="chat-input"]
  * 
  * @param page - La page Playwright
  * @param message - Le message à envoyer
@@ -521,32 +396,12 @@ export async function sendChatMessage(
   options?: {
     waitForResponse?: boolean;
     timeout?: number;
-    useAutoDetection?: boolean; // Utiliser findChatZone automatiquement
   }
 ) {
   const timeout = options?.timeout || 10000;
-  const useAutoDetection = options?.useAutoDetection !== false; // true par défaut
   
-  // Trouver la zone chat automatiquement si demandé
-  let messageInput;
-  if (useAutoDetection) {
-    try {
-      const chatZone = await findChatZone(page);
-      // Si la zone trouvée est un input/textarea, l'utiliser directement
-      const tagName = await chatZone.evaluate(el => el.tagName.toLowerCase());
-      if (tagName === 'textarea' || tagName === 'input') {
-        messageInput = chatZone;
-      } else {
-        // Sinon, chercher l'input à l'intérieur de la zone
-        messageInput = chatZone.locator('textarea, input[type="text"]').first();
-      }
-    } catch (error) {
-      console.log('⚠️ Auto-detection failed, falling back to default selector');
-      messageInput = page.locator('[data-testid="chat-input"]');
-    }
-  } else {
-    messageInput = page.locator('[data-testid="chat-input"]');
-  }
+  // Utiliser directement le chat input
+  const messageInput = page.locator('[data-testid="chat-input"]');
 
   await expect(messageInput).toBeVisible({ timeout });
   await expect(messageInput).toBeEnabled({ timeout });
@@ -707,8 +562,7 @@ export async function verifyChatFunctionality(
     if (options?.testMessage) {
       await sendChatMessage(page, testMessage, { 
         timeout, 
-        waitForResponse: false, // Ne pas attendre de réponse pour un test simple
-        useAutoDetection: true 
+        waitForResponse: false // Ne pas attendre de réponse pour un test simple
       });
       console.log('✅ Test message sent successfully');
     }
