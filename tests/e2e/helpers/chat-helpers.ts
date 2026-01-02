@@ -226,16 +226,41 @@ export async function navigateToWorkspace(
 
   try {
     console.log(`🚀 Navigation vers: ${finalUrl}`);
+    
+    // Vérification défensive juste avant la navigation
+    if (page.isClosed()) {
+      throw new Error('Cannot navigate: page is already closed before goto');
+    }
+    
+    // Navigation avec timeout augmenté et waitUntil plus robuste
     await page.goto(finalUrl, {
       waitUntil: options?.waitUntil || 'networkidle', // Plus robuste que domcontentloaded
-      timeout: 30000 // Timeout explicite pour éviter les timeouts par défaut
+      timeout: 45000 // Timeout augmenté de 30s à 45s pour CI
     });
 
     console.log(`✅ Navigation terminée: ${page.url()}`);
 
-    // Vérifier que la navigation a réussi
+    // Vérification immédiate après navigation
     if (page.isClosed()) {
-      throw new Error('Page was closed during navigation');
+      // Screenshot de debug pour voir ce qui s'est passé
+      try {
+        await page.screenshot({ 
+          path: `debug-page-closed-after-goto-${Date.now()}.png`, 
+          fullPage: true 
+        });
+        console.log('📸 Screenshot sauvegardé: page fermée après goto');
+      } catch (screenshotError) {
+        console.log('⚠️ Impossible de sauvegarder le screenshot:', screenshotError);
+      }
+      throw new Error('Page was closed immediately after navigation');
+    }
+
+    // Attendre un peu pour laisser le temps à la page de se stabiliser
+    await page.waitForTimeout(1000);
+    
+    // Vérification après le temps d'attente
+    if (page.isClosed()) {
+      throw new Error('Page was closed during stabilization after navigation');
     }
 
     await waitForPageLoad(page, browserName);

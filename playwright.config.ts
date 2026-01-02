@@ -27,11 +27,11 @@ export default defineConfig({
     // Tests de tracking des crédits - maintenant migrés et prêts pour tests
     // '**/quota-tracking-complete.spec.ts', // Retiré de l'exclusion après migration
   ],
-  fullyParallel: true,
+  fullyParallel: false, // Désactiver le parallélisme complet pour éviter les crashes
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  // Utiliser plus de workers pour accélérer l'exécution (75% des CPU disponibles en local, 3 en CI)
-  workers: process.env.CI ? 3 : Math.floor(os.cpus().length * 0.75),
+  // Réduire les workers pour éviter les crashes de ressources en CI
+  workers: process.env.CI ? 1 : Math.min(2, Math.floor(os.cpus().length * 0.5)),
   reporter: [
     ['html'],
     ['json', { outputFile: 'test-results/results.json' }],
