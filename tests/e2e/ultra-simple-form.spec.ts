@@ -72,13 +72,22 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     await createButton.waitFor({ state: 'visible', timeout: 10000 });
     await createButton.click();
     
-    // Attendre que le formulaire soit créé et affiché
+    // Attendre que le formulaire soit créé en brouillon
+    await page.waitForTimeout(2000);
+    
+    // CLIQUER SUR LE BOUTON "PUBLICATION" pour publier le formulaire
+    log('🔘 Clic sur le bouton PUBLICATION');
+    const publishButton = page.locator('button').filter({ hasText: /publication|publier/i }).first();
+    await publishButton.waitFor({ state: 'visible', timeout: 10000 });
+    await publishButton.click();
+    
+    // Attendre que le formulaire soit publié et affiché
     await page.waitForTimeout(3000);
     
     // Vérifier que le formulaire est créé
     const formTitle = await page.locator('h1').first().textContent({ timeout: 15000 });
     expect(formTitle).toBeTruthy();
-    log('✅ Formulaire généré:', formTitle);
+    log('✅ Formulaire généré et publié:', formTitle);
 
     // Étape 2 — Ajout d'une question via IA
     log('✏️ Ajout d\'une question via IA');
@@ -102,13 +111,11 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     // Étape 5 — Test vote
     log('🗳️ Test vote sur formulaire');
     
-    // Simuler une navigation vers la page de vote
-    await robustNavigation(page, '/DooDates/dashboard', browserName, {
-      waitUntil: 'domcontentloaded',
-      waitForChat: false
-    });
+    // Navigation simple vers le dashboard
+    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(2000);
     
-    log('✅ Vote simulé avec succès');
+    log('✅ Navigation vers le dashboard réussie');
 
     // Étape 6 — Vérification dashboard
     log('📊 Vérification dashboard');

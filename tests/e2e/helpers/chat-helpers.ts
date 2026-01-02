@@ -213,163 +213,165 @@ export async function navigateToWorkspace(
   options?: {
     addE2EFlag?: boolean;
     waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
-    waitForChat?: boolean; // Nouvelle option pour attendre le chat
+    waitForChat?: boolean;
   }
 ) {
-  // Vérifier si la page est déjà fermée
-  if (page.isClosed()) {
-    throw new Error('Cannot navigate: page is already closed.');
-  }
+  let navigationAttempts = 0;
+  const maxAttempts = 2;
 
-  const url = WORKSPACE_URLS[workspaceType];
-  const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
-
-  try {
-    console.log(`🚀 Navigation vers: ${finalUrl}`);
-    
-    // Vérification défensive juste avant la navigation
-    if (page.isClosed()) {
-      throw new Error('Cannot navigate: page is already closed before goto');
-    }
-    
-    // Navigation avec timeout augmenté et waitUntil plus robuste
-    await page.goto(finalUrl, {
-      waitUntil: options?.waitUntil || 'networkidle', // Plus robuste que domcontentloaded
-      timeout: 45000 // Timeout augmenté de 30s à 45s pour CI
-    });
-
-    console.log(`✅ Navigation terminée: ${page.url()}`);
-
-    // Vérification immédiate après navigation
-    if (page.isClosed()) {
-      // Screenshot de debug pour voir ce qui s'est passé
-      try {
-        await page.screenshot({ 
-          path: `debug-page-closed-after-goto-${Date.now()}.png`, 
-          fullPage: true 
-        });
-        console.log('📸 Screenshot sauvegardé: page fermée après goto');
-      } catch (screenshotError) {
-        console.log('⚠️ Impossible de sauvegarder le screenshot:', screenshotError);
-      }
-      throw new Error('Page was closed immediately after navigation');
-    }
-
-    // Attendre un peu pour laisser le temps à la page de se stabiliser
-    await page.waitForTimeout(1000);
-    
-    // Vérification après le temps d'attente
-    if (page.isClosed()) {
-      throw new Error('Page was closed during stabilization after navigation');
-    }
-
-    await waitForPageLoad(page, browserName);
-    
-    // Vérification défensive après chaque opération critique
-    if (page.isClosed()) {
-      throw new Error('Page was closed after page load');
-    }
-    
-    // N'attendre le chat que si explicitement demandé (par défaut oui pour compatibilité)
-    const shouldWaitForChat = options?.waitForChat !== false;
-    
-    if (shouldWaitForChat) {
-      // Attendre que le chat input soit disponible avant de continuer
-      try {
-        // 1. Vérifier d'abord que la page est réellement chargée
-        console.log('🔍 Vérification chargement page...');
-        await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-        console.log('✅ DOM content loaded');
-        
-        // 2. Attendre que React soit réellement rendu (pas seulement le JS)
-        await page.waitForFunction(() => {
-          const root = document.getElementById('root');
-          if (!root) return false;
-          
-          // Vérifier que le contenu n'est pas du JavaScript non rendu
-          const content = root.textContent || '';
-          return !content.includes('function()') && content.length > 100;
-        }, { timeout: 15000 });
-        
-        console.log('✅ React app rendered successfully');
-        
-        // 3. Vérifier que le body est visible
-        const bodyVisible = await page.locator('body').isVisible({ timeout: 8000 });
-        if (!bodyVisible) {
-          throw new Error('Body element not visible after page load');
-        }
-        console.log('✅ Body element visible');
-        
-        // 4. Attendre le chat input avec timeout standardisé
-        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
-        console.log('✅ Chat input trouvé après navigation');
-      } catch (error) {
-        console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
-        console.log('⚠️ Erreur détaillée:', error instanceof Error ? error.message : String(error));
-        // Continuer avec les fallbacks existants
-      }
-
-      // Attendre que React soit stable avant de chercher le chat input
-      await waitForReactStable(page, { browserName });
+  while (navigationAttempts < maxAttempts) {
+    try {
+      console.log(`🚀 Navigation attempt ${navigationAttempts + 1}/${maxAttempts} to ${workspaceType}`);
       
-      // Vérification défensive avant waitForChatInputReady
+      // Vérifier si la page est déjà fermée
       if (page.isClosed()) {
-        throw new Error('Page was closed before chat input search');
+        throw new Error('Cannot navigate: page is already closed.');
       }
 
-      // Attendre que le chat input soit prêt via le helper résilient avec timeout standardisé
-      await waitForChatInputReady(page, browserName, { timeout: 15000 });
-    } else {
-      console.log('⏭️ Skip chat input wait (waitForChat: false)');
-      // Juste attendre que React soit stable
-      await waitForReactStable(page, { browserName });
-    }
-    
-    // Vérification défensive finale
-    if (page.isClosed()) {
-      throw new Error('Page was closed at end of navigation');
-    }
-  } catch (error) {
-    console.error('❌ Navigation failed:', error);
-    
-    // Vérifier si la page est fermée
-    if (page.isClosed()) {
-      console.error('❌ Page was closed during navigation');
-      throw new Error('Navigation failed: Page was closed during navigation');
-    }
-    
-    // Screenshot pour le debug
-    try {
-      await page.screenshot({ 
-        path: `debug-navigation-failed-${Date.now()}.png`, 
-        fullPage: true 
+      const url = WORKSPACE_URLS[workspaceType];
+      const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
+
+      console.log(`🚀 Navigation vers: ${finalUrl}`);
+      
+      // Vérification défensive juste avant la navigation
+      if (page.isClosed()) {
+        throw new Error('Cannot navigate: page is already closed before goto');
+      }
+      
+      // Navigation avec timeout augmenté et waitUntil plus robuste
+      await page.goto(finalUrl, {
+        waitUntil: options?.waitUntil || 'networkidle',
+        timeout: 45000
       });
-      console.log('📸 Screenshot de debug sauvegardé');
-    } catch (screenshotError) {
-      console.log('⚠️ Impossible de sauvegarder le screenshot:', screenshotError);
+
+      console.log(`✅ Navigation terminée: ${page.url()}`);
+
+      // Vérification immédiate après navigation
+      if (page.isClosed()) {
+        throw new Error('Page was closed immediately after navigation');
+      }
+
+      // Attendre un peu pour laisser le temps à la page de se stabiliser
+      await page.waitForTimeout(1000);
+      
+      // Vérification après le temps d'attente
+      if (page.isClosed()) {
+        throw new Error('Page was closed during stabilization after navigation');
+      }
+
+      await waitForPageLoad(page, browserName);
+      
+      // Vérification défensive après chaque opération critique
+      if (page.isClosed()) {
+        throw new Error('Page was closed after page load');
+      }
+      
+      // N'attendre le chat que si explicitement demandé (par défaut oui pour compatibilité)
+      const shouldWaitForChat = options?.waitForChat !== false;
+      
+      if (shouldWaitForChat) {
+        // Attendre que le chat input soit disponible avant de continuer
+        try {
+          // 1. Vérifier d'abord que la page est réellement chargée
+          console.log('🔍 Vérification chargement page...');
+          await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+          console.log('✅ DOM content loaded');
+          
+          // 2. Attendre que React soit réellement rendu (pas seulement le JS)
+          await page.waitForFunction(() => {
+            const root = document.getElementById('root');
+            if (!root) return false;
+            
+            const content = root.textContent || '';
+            return !content.includes('function()') && content.length > 100;
+          }, { timeout: 15000 });
+          
+          console.log('✅ React app rendered successfully');
+          
+          // 3. Vérifier que le body est visible
+          const bodyVisible = await page.locator('body').isVisible({ timeout: 8000 });
+          if (!bodyVisible) {
+            throw new Error('Body element not visible after page load');
+          }
+          console.log('✅ Body element visible');
+          
+          // 4. Attendre le chat input avec timeout plus long
+          await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+          console.log('✅ Chat input trouvé après navigation');
+        } catch (error) {
+          console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
+          console.log('⚠️ Erreur détaillée:', error instanceof Error ? error.message : String(error));
+          // Continuer avec les fallbacks existants
+        }
+
+        // Attendre que React soit stable avant de chercher le chat input
+        await waitForReactStable(page, { browserName });
+        
+        // Vérification défensive avant waitForChatInputReady
+        if (page.isClosed()) {
+          throw new Error('Page was closed before chat input search');
+        }
+
+        // Attendre que le chat input soit prêt via le helper résilient avec timeout standardisé
+        await waitForChatInputReady(page, browserName, { timeout: 15000 });
+      } else {
+        console.log('⏭️ Skip chat input wait (waitForChat: false)');
+        // Juste attendre que React soit stable
+        await waitForReactStable(page, { browserName });
+      }
+      
+      // Vérification défensive finale
+      if (page.isClosed()) {
+        throw new Error('Page was closed at end of navigation');
+      }
+
+      console.log(`✅ Navigation réussie à la tentative ${navigationAttempts + 1}`);
+      return; // Succès, sortir de la boucle
+
+      } catch (error) {
+        navigationAttempts++;
+        console.error(`❌ Navigation attempt ${navigationAttempts} failed:`, error instanceof Error ? error.message : String(error));
+        
+        // Screenshot pour le debug
+        try {
+          await page.screenshot({ 
+            path: `debug-navigation-failed-attempt-${navigationAttempts}-${Date.now()}.png`, 
+            fullPage: true 
+          });
+          console.log('📸 Screenshot de debug sauvegardé');
+        } catch (screenshotError) {
+          console.log('⚠️ Impossible de sauvegarder le screenshot:', screenshotError);
+        }
+        
+        // Logs détaillés pour le debug
+        try {
+          const pageUrl = page.url();
+          const pageTitle = await page.title();
+          console.log(`🔍 Debug info - URL: ${pageUrl}, Title: ${pageTitle}`);
+          console.log(`🔍 Page closed: ${page.isClosed()}`);
+          
+          // Vérifier le body
+          const bodyExists = await page.locator('body').count() > 0;
+          const bodyVisible = bodyExists ? await page.locator('body').isVisible() : false;
+          console.log(`🔍 Body exists: ${bodyExists}, visible: ${bodyVisible}`);
+          
+          // Vérifier le root
+          const rootExists = await page.locator('#root').count() > 0;
+          console.log(`🔍 Root exists: ${rootExists}`);
+          
+        } catch (debugError) {
+          console.log('⚠️ Impossible de récupérer les infos de debug:', debugError);
+        }
+        
+        if (navigationAttempts >= maxAttempts) {
+          throw new Error(`Navigation failed after ${maxAttempts} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        
+        // Attendre avant de réessayer
+        console.log(`⏳ Attente avant retry ${navigationAttempts + 1}...`);
+        await page.waitForTimeout(2000);
+      }
     }
-    
-    // Logs détaillés pour le debug
-    try {
-      const pageUrl = page.url();
-      const pageTitle = await page.title();
-      console.log(`🔍 Debug info - URL: ${pageUrl}, Title: ${pageTitle}`);
-      console.log(`🔍 Page closed: ${page.isClosed()}`);
-      
-      // Vérifier le body
-      const bodyExists = await page.locator('body').count() > 0;
-      const bodyVisible = bodyExists ? await page.locator('body').isVisible() : false;
-      console.log(`🔍 Body exists: ${bodyExists}, visible: ${bodyVisible}`);
-      
-      // Vérifier le root
-      const rootExists = await page.locator('#root').count() > 0;
-      console.log(`🔍 Root exists: ${rootExists}`);
-      
-    } catch (debugError) {
-      console.log('⚠️ Impossible de récupérer les infos de debug:', debugError);
-    }
-    
-    throw new Error(`Navigation to workspace failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
