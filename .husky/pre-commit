@@ -25,109 +25,71 @@ if echo "$BRANCH" | grep -qE "^test"; then
   exit 0
 fi
 
-# Branche bug: validation légère (lint + error handling + format)
+# Branche bug: validation ultra-rapide (formatage uniquement)
 if [ "$BRANCH" = "bug" ]; then
-  echo "🐛 Branche BUG: validation légère..."
+  echo "🐛 Branche BUG: validation ultra-rapide..."
   
-  # 1. Lint rapide (quiet = pas de warnings)
-  echo "🔍 ESLint..."
-  npx eslint . --report-unused-disable-directives --max-warnings 1000 --quiet
+  # 1. Lint critique uniquement
+  echo "🔍 ESLint critique..."
+  npx eslint . --max-warnings 10 --quiet
   if [ $? -ne 0 ]; then
-    echo "❌ Erreurs lint - Commit bloqué"
+    echo "❌ Erreurs lint critiques - Commit bloqué"
     exit 1
   fi
   
-  # 1b. Vérification Jest vs Vitest (éviter les erreurs CI)
-  echo "🧪 Vérification Jest vs Vitest..."
-  JEST_VIOLATIONS=$(git diff --cached --name-only | grep -E '\.test\.(ts|tsx)$' | xargs grep -l '@jest/globals\|jest\.mock\|jest\.fn' 2>/dev/null || true)
-  if [ -n "$JEST_VIOLATIONS" ]; then
-    echo "❌ Utilisation de Jest détectée dans des fichiers Vitest:"
-    echo "$JEST_VIOLATIONS"
-    echo "💡 Remplacez '@jest/globals' par 'vitest'"
-    echo "💡 Remplacez 'jest.mock' par 'vi.mock'"
-    echo "💡 Remplacez 'jest.fn' par 'vi.fn'"
-    exit 1
-  fi
-  
-  # 2. Error Handling (CRITIQUE - sur toutes les branches)
-  echo "🛡️ Vérification Error Handling..."
-  npm run test:error-handling
-  if [ $? -ne 0 ]; then
-    echo "❌ Violations Error Handling - Commit bloqué"
-    echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
-    echo "💡 Utilisez logError() au lieu de 'console.error'"
-    exit 1
-  fi
-  
-  # 3. Tests unitaires rapides
-  echo "🧪 Tests unitaires rapides..."
-  npm run test:unit:fast
-  if [ $? -ne 0 ]; then
-    echo "❌ Tests unitaires échoués - Commit bloqué"
-    exit 1
-  fi
-  
-  # 4. Formatage
+  # 2. Formatage uniquement
   if [ "$NO_FORMAT" != "1" ]; then
-    echo "💅 Formatage du code..."
-    npm run format
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
   fi
   
-  echo "✅ Pre-commit (bug) validé - Commit autorisé"
+  echo "✅ Pre-commit (bug) validé ultra-rapide - Tests gérés par CI"
   exit 0
 fi
 
-# Branche testing: validation légère+ (lint + type-check + error handling)
+# Branche testing: validation rapide (lint + format)
 if [ "$BRANCH" = "testing" ]; then
-  echo "🧪 Branche TESTING: validation légère+..."
+  echo "🧪 Branche TESTING: validation rapide..."
   
-  # 1. Lint rapide
-  echo "🔍 ESLint..."
-  npx eslint . --report-unused-disable-directives --max-warnings 1000 --quiet
+  # 1. Lint léger
+  echo "🔍 ESLint léger..."
+  npx eslint . --max-warnings 30 --quiet
   if [ $? -ne 0 ]; then
-    echo "❌ Erreurs lint - Commit bloqué"
+    echo "❌ Erreurs lint critiques - Commit bloqué"
     exit 1
   fi
   
-  # 2. Type-check
-  echo "🔍 Vérification TypeScript..."
-  npm run type-check
-  if [ $? -ne 0 ]; then
-    echo "❌ Erreurs TypeScript - Commit bloqué"
-    exit 1
-  fi
-  
-  # 3. Error Handling
-  echo "🛡️ Vérification Error Handling..."
-  npm run test:error-handling
-  if [ $? -ne 0 ]; then
-    echo "❌ Violations Error Handling - Commit bloqué"
-    exit 1
-  fi
-  
-  # 4. Formatage
+  # 2. Formatage uniquement
   if [ "$NO_FORMAT" != "1" ]; then
-    echo "💅 Formatage du code..."
-    npm run format
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
   fi
   
-  echo "✅ Pre-commit (testing) validé - Commit autorisé"
+  echo "✅ Pre-commit (testing) validé rapide - Tests complets gérés par CI"
   exit 0
 fi
 
-# Branche staging: validation intermédiaire (lint + type-check + error handling + E2E critiques)
+# Branche staging: validation intermédiaire (lint + type-check + format)
 if [ "$BRANCH" = "staging" ]; then
   echo "🎭 Branche STAGING: validation intermédiaire..."
   
-  # 1. Lint
-  echo "🔍 ESLint..."
-  npx eslint . --report-unused-disable-directives --max-warnings 500
+  # 1. Lint standard
+  echo "🔍 ESLint standard..."
+  npx eslint . --max-warnings 100
   if [ $? -ne 0 ]; then
     echo "❌ Erreurs lint - Commit bloqué"
     exit 1
   fi
   
-  # 2. Type-check
+  # 2. Type-check (important pour staging)
   echo "🔍 Vérification TypeScript..."
   npm run type-check
   if [ $? -ne 0 ]; then
@@ -135,29 +97,17 @@ if [ "$BRANCH" = "staging" ]; then
     exit 1
   fi
   
-  # 3. Error Handling
-  echo "🛡️ Vérification Error Handling..."
-  npm run test:error-handling
-  if [ $? -ne 0 ]; then
-    echo "❌ Violations Error Handling - Commit bloqué"
-    exit 1
-  fi
-  
-  # 4. Tests E2E critiques
-  echo "🌐 Tests E2E critiques..."
-  npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
-  if [ $? -ne 0 ]; then
-    echo "❌ Tests E2E critiques échoués - Commit bloqué"
-    exit 1
-  fi
-  
-  # 5. Formatage
+  # 3. Formatage uniquement
   if [ "$NO_FORMAT" != "1" ]; then
-    echo "💅 Formatage du code..."
-    npm run format
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
   fi
   
-  echo "✅ Pre-commit (staging) validé - Commit autorisé"
+  echo "✅ Pre-commit (staging) validé - E2E et tests complets gérés par CI"
   exit 0
 fi
 

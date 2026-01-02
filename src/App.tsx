@@ -582,7 +582,10 @@ const App = () => {
                                 <Route path="/docs/:docId" element={<Docs />} />
 
                                 {/* Product Dashboards */}
-                                {/* Product Dashboards */}
+                                <Route
+                                  path="/DooDates/date-polls/dashboard"
+                                  element={<DatePollsDashboard />}
+                                />
                                 <Route
                                   path="/date-polls/dashboard"
                                   element={<DatePollsDashboard />}

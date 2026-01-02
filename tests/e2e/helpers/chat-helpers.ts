@@ -40,29 +40,44 @@ export async function navigateToWorkspace(
     waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
   }
 ) {
+  // Vérifier si la page est déjà fermée
+  if (page.isClosed()) {
+    throw new Error('Cannot navigate: page is already closed.');
+  }
+
   const url = WORKSPACE_URLS[workspaceType];
   const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
 
-  await page.goto(finalUrl, {
-    waitUntil: options?.waitUntil || 'domcontentloaded'
-  });
-
-  await waitForPageLoad(page, browserName);
-  
-  // Attendre que le chat input soit disponible avant de continuer
   try {
-    await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
-    console.log('✅ Chat input trouvé après navigation');
+    await page.goto(finalUrl, {
+      waitUntil: options?.waitUntil || 'domcontentloaded'
+    });
+
+    // Vérifier que la navigation a réussi
+    if (page.isClosed()) {
+      throw new Error('Page was closed during navigation');
+    }
+
+    await waitForPageLoad(page, browserName);
+    
+    // Attendre que le chat input soit disponible avant de continuer
+    try {
+      await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+      console.log('✅ Chat input trouvé après navigation');
+    } catch (error) {
+      console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
+      // Continuer avec les fallbacks existants
+    }
+
+    // Attendre que React soit stable avant de chercher le chat input
+    await waitForReactStable(page, { browserName });
+
+    // Attendre que le chat soit prêt avec la stratégie robuste
+    await waitForChatInput(page, browserName);
   } catch (error) {
-    console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
-    // Continuer avec les fallbacks existants
+    console.error('❌ Navigation failed:', error);
+    throw new Error(`Navigation to workspace failed: ${error instanceof Error ? error.message : String(error)}`);
   }
-
-  // Attendre que React soit stable avant de chercher le chat input
-  await waitForReactStable(page, { browserName });
-
-  // Attendre que le chat soit prêt avec la stratégie robuste
-  await waitForChatInput(page, browserName);
 }
 
 /**
@@ -143,13 +158,27 @@ export async function waitForChatInput(
     // Diagnostic en cas d'échec
     console.log('❌ waitForChatInput: Échec de la recherche du chat input');
 
+    // Vérifier si la page est fermée
+    if (page.isClosed()) {
+      console.log('❌ La page est fermée - impossible de continuer');
+      throw new Error('Page is closed - cannot continue with chat input search');
+    }
+
     // Lister tous les éléments avec data-testid pour debug
-    const allTestIds = await page.locator('[data-testid]').all();
-    console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
+    try {
+      const allTestIds = await page.locator('[data-testid]').all();
+      console.log(`🔍 waitForChatInput: ${allTestIds.length} éléments avec data-testid trouvés`);
+    } catch (debugError) {
+      console.log('❌ Impossible de lister les éléments - page probablement fermée');
+    }
 
     // Prendre un screenshot pour debug
-    await page.screenshot({ path: 'debug-chat-input.png', fullPage: true });
-    console.log('🔍 waitForChatInput: Screenshot sauvegardé dans debug-chat-input.png');
+    try {
+      await page.screenshot({ path: 'debug-chat-input.png', fullPage: true });
+      console.log('🔍 waitForChatInput: Screenshot sauvegardé dans debug-chat-input.png');
+    } catch (screenshotError) {
+      console.log('❌ Impossible de prendre un screenshot');
+    }
 
     throw error;
   }
