@@ -113,7 +113,11 @@ fi
 
 # Branche pre-prod: validation rapide (essentiel uniquement)
 if [ "$BRANCH" = "pre-prod" ]; then
-  echo "🚀 Branche PRE-PROD: validation rapide..."
+  echo "🚀 Branche PRE-PROD: validation RAPIDE (pre-commit)"
+  echo "ℹ️  Tests E2E complets seront exécutés dans GitHub Actions (version FULL)"
+  echo "⚡  Pre-commit: Lint + Format uniquement (~10s)"
+  echo "🔄  GitHub Actions: Tests E2E complets (~56s)"
+  echo ""
   
   # 1. Lint léger
   echo "🔍 ESLint léger..."
@@ -133,7 +137,9 @@ if [ "$BRANCH" = "pre-prod" ]; then
     fi
   fi
   
-  echo "✅ Pre-commit (pre-prod) validé rapide - Tests complets gérés par CI"
+  echo "✅ Pre-commit PREPROD terminé (RAPIDE ✅)"
+  echo "🔄 Prochaine étape: GitHub Actions exécutera les tests E2E FULL"
+  echo "📊 Répartition: Pre-commit (~10s) + GitHub Actions (~56s) = ~1min total"
   exit 0
 fi
 

@@ -225,9 +225,13 @@ export async function navigateToWorkspace(
   const finalUrl = options?.addE2EFlag ? `${url}?e2e-test=true` : url;
 
   try {
+    console.log(`🚀 Navigation vers: ${finalUrl}`);
     await page.goto(finalUrl, {
-      waitUntil: options?.waitUntil || 'networkidle' // Plus robuste que domcontentloaded
+      waitUntil: options?.waitUntil || 'networkidle', // Plus robuste que domcontentloaded
+      timeout: 30000 // Timeout explicite pour éviter les timeouts par défaut
     });
+
+    console.log(`✅ Navigation terminée: ${page.url()}`);
 
     // Vérifier que la navigation a réussi
     if (page.isClosed()) {
@@ -276,6 +280,28 @@ export async function navigateToWorkspace(
     }
   } catch (error) {
     console.error('❌ Navigation failed:', error);
+    
+    // Screenshot pour le debug
+    try {
+      await page.screenshot({ 
+        path: `debug-navigation-failed-${Date.now()}.png`, 
+        fullPage: true 
+      });
+      console.log('📸 Screenshot de debug sauvegardé');
+    } catch (screenshotError) {
+      console.log('⚠️ Impossible de sauvegarder le screenshot:', screenshotError);
+    }
+    
+    // Logs détaillés pour le debug
+    try {
+      const pageUrl = page.url();
+      const pageTitle = await page.title();
+      console.log(`🔍 Debug info - URL: ${pageUrl}, Title: ${pageTitle}`);
+      console.log(`🔍 Page closed: ${page.isClosed()}`);
+    } catch (debugError) {
+      console.log('⚠️ Impossible de récupérer les infos de debug:', debugError);
+    }
+    
     throw new Error(`Navigation to workspace failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

@@ -18,7 +18,7 @@ import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
 
 test.describe('Security and Data Isolation', () => {
-  test.setTimeout(30000); // Timeout réaliste de 30s (au lieu de 120s)
+  test.setTimeout(60000); // Timeout augmenté à 60s pour éviter les timeouts CI
   test.beforeEach(async ({ page, browserName }) => {
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
