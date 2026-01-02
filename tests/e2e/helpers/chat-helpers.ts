@@ -251,6 +251,18 @@ export async function navigateToWorkspace(
     if (shouldWaitForChat) {
       // Attendre que le chat input soit disponible avant de continuer
       try {
+        // Attendre d'abord que React soit réellement rendu (pas seulement le JS)
+        await page.waitForFunction(() => {
+          const root = document.getElementById('root');
+          if (!root) return false;
+          
+          // Vérifier que le contenu n'est pas du JavaScript non rendu
+          const content = root.textContent || '';
+          return !content.includes('function()') && content.length > 100;
+        }, { timeout: 15000 });
+        
+        console.log('✅ React app rendered successfully');
+        
         await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
         console.log('✅ Chat input trouvé après navigation');
       } catch (error) {
