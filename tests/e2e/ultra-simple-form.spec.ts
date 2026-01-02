@@ -21,7 +21,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
       warmup: false,
-      navigation: { path: '/DooDates/form-polls/workspace/form' },
+      navigation: { path: '/DooDates/form-polls/workspace/form' }, // Forcer le bon workspace
       consoleGuard: {
         enabled: true,
         allowlist: [
@@ -55,9 +55,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     // Étape 1 — Création du formulaire via IA
     log('🛠️ Création du formulaire via IA');
     
-    // Navigation vers workspace form avec la fonction robuste
-    await navigateToWorkspace(page, 'form');
-    
+    // Le setup a déjà navigué vers le bon workspace form
     // Attendre que le chat input soit prêt
     const chatInput = await page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: 'visible', timeout: timeouts.element });
@@ -68,10 +66,19 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     // Attendre la réponse IA
     await page.waitForTimeout(3000);
     
+    // CLIQUER SUR LE BOUTON "CRÉER" pour vraiment créer le formulaire
+    log('🔘 Clic sur le bouton CRÉER');
+    const createButton = page.locator('button').filter({ hasText: /créer/i }).first();
+    await createButton.waitFor({ state: 'visible', timeout: 10000 });
+    await createButton.click();
+    
+    // Attendre que le formulaire soit créé et affiché
+    await page.waitForTimeout(3000);
+    
     // Vérifier que le formulaire est créé
-    const formTitle = await page.locator('h1').first().textContent();
+    const formTitle = await page.locator('h1').first().textContent({ timeout: 15000 });
     expect(formTitle).toBeTruthy();
-    log('✅ Formulaire généré');
+    log('✅ Formulaire généré:', formTitle);
 
     // Étape 2 — Ajout d'une question via IA
     log('✏️ Ajout d\'une question via IA');
