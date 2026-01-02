@@ -179,7 +179,7 @@ export async function waitForReactStable(
     }
 
     // Laisser la boucle d'événements avancer via un petit yield basé sur l'état de chargement
-    await page.waitForLoadState('domcontentloaded').catch(() => { });
+    await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => { });
   }
 }
 
@@ -375,8 +375,10 @@ export async function waitForChatInputReady(
   options?: { timeout?: number },
 ): Promise<ReturnType<Page['locator']>> {
   const timeouts = getTimeouts(browserName);
-  // Augmenter le timeout pour éviter les timeouts de 60s
-  const timeout = Math.max(options?.timeout ?? timeouts.element, 20000);
+  const timeout = options?.timeout ?? 2000; // Réduit de 3000ms à 2000ms
+
+  // 0. Attendre que React soit stable avant de chercher des éléments
+  await waitForReactStable(page, { timeout: Math.min(timeout, 1500), browserName });
 
   // 1. Tentative directe sur l'input de chat dédié
   const chatInput = page.locator('[data-testid="chat-input"]').first();
@@ -413,26 +415,25 @@ export async function waitForChatInputReady(
     // Continuer vers le tout dernier recours
   }
 
-  // 4. Dernier recours : n'importe quel élément interactif (pattern beta-key)
+  // 4. Dernier recours : éléments éditables uniquement (pas de liens)
   // Attendre d'abord que le body soit chargé et que React soit prêt
   try {
-    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 10000) });
+    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 2000) });
   } catch {
     // Ignorer si le timeout est dépassé, continuer quand même
   }
 
-  const anyInteractive = page.locator('input, button, [role="button"], a[href]').first();
+  const anyEditable = page.locator('input[type="text"], textarea, [contenteditable="true"]').first();
   try {
-    await anyInteractive.waitFor({ state: 'visible', timeout });
-    return anyInteractive;
+    await anyEditable.waitFor({ state: 'visible', timeout: Math.min(timeout, 2000) });
+    return anyEditable;
   } catch (error) {
     // Si même le dernier recours échoue, vérifier si la page est chargée
     const bodyVisible = await page.locator('body').isVisible().catch(() => false);
     if (!bodyVisible) {
-      throw new Error(`Page not loaded: body element not visible. Original error: ${error}`);
+      throw new Error(`Page not loaded: body element not visible. No editable input found. Original error: ${error}`);
     }
-    // Si le body est visible mais aucun élément interactif, c'est peut-être une page vide
-    // Retourner le body comme fallback ultime
-    return page.locator('body');
+    // Si le body est visible mais aucun élément éditable, c'est un problème critique
+    throw new Error(`No editable input found on page. Body visible but no input/textarea available.`);
   }
 }

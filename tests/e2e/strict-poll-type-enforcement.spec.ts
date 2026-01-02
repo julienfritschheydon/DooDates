@@ -89,7 +89,7 @@ test.describe("Strict Poll Type Enforcement", () => {
 
   test("should block creating a date poll in form workspace", async ({ page }) => {
     // 1. Navigate to Form Workspace
-    await page.goto("workspace/form");
+    await page.goto("/DooDates/workspace/form");
 
     // 2. Mock AI response to propose a DATE poll
     await page.route("**/functions/v1/hyper-task", async (route) => {

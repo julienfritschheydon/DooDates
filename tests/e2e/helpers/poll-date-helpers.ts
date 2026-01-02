@@ -281,7 +281,7 @@ export async function createDatePollWithTimeSlots(
   console.log(`📅 Dates à sélectionner: ${dates.join(', ')}`);
 
   // Navigate to date polls workspace (new product-specific route)
-  await page.goto('date-polls/workspace/date', { waitUntil: "domcontentloaded" });
+  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Verify we're on the date polls workspace page
@@ -318,7 +318,7 @@ export async function createDatePollWithTimeSlots(
     options.aiPrompt ||
     `Crée un sondage "${options.title}" avec les dates ${dates.join(', ')} et propose quelques créneaux.`;
 
-  const input = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+  const input = await waitForChatInputReady(page, browserName, { timeout: 2000 });
 
   // Vérifier que l'élément est bien un input avant de faire fill
   try {

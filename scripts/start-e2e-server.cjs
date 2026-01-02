@@ -85,7 +85,7 @@ function waitForServer(url, maxAttempts = 30, interval = 2000) {
 function startVite() {
   console.log(`Starting Vite dev server on port ${PORT}...`);
 
-  const viteProcess = exec(`npx vite --mode test --port ${PORT}`, {
+  const viteProcess = exec(`npx vite --mode development --port ${PORT}`, {
     env: {
       ...process.env,
       NODE_ENV: 'test',

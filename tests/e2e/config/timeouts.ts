@@ -13,39 +13,39 @@ export interface TimeoutConfig {
 }
 
 const BASE_TIMEOUTS: TimeoutConfig = {
-  element: 15000,       // 15s (augmenté de 5s) - Attente d'un élément visible
-  network: 25000,       // 25s (augmenté de 5s) - Attente réseau inactif
-  navigation: 20000,    // 20s (augmenté de 7.5s) - Navigation entre pages
-  aiResponse: 25000,    // 25s (augmenté de 5s) - Réponse de l'IA
-  animation: 4000,      // 4s (augmenté de 1s) - Animations CSS/transitions
-  stability: 3000,      // 3s (augmenté de 1s) - Stabilité React (re-renders)
+  element: 2000,        // 2s (réduit de 1s) - Éléments interactifs rapides
+  network: 3000,        // 3s (réduit de 2s) - Réseau rapide
+  navigation: 5000,    // 5s (réduit de 0s) - Navigation SPA optimisée
+  aiResponse: 5000,     // 5s (réduit de 3s) - IA locale rapide
+  animation: 1000,      // 1s (réduit de 1s) - Animations légères
+  stability: 800,       // 0.8s (réduit de 0.7s) - React rapide
 };
 
 const FIREFOX_TIMEOUTS: TimeoutConfig = {
-  element: 20000,      // Firefox est plus lent
-  network: 40000,      // networkidle peut prendre plus de temps
-  navigation: 20000,
-  aiResponse: 35000,
-  animation: 3000,
-  stability: 1500,
-};
-
-const WEBKIT_TIMEOUTS: TimeoutConfig = {
-  element: 15000,      // WebKit peut être plus lent
-  network: 35000,
-  navigation: 18000,
-  aiResponse: 35000,
-  animation: 2500,
+  element: 3000,       // Firefox plus lent mais 3s suffit
+  network: 5000,       // networkidle peut prendre plus de temps
+  navigation: 5000,
+  aiResponse: 8000,
+  animation: 1500,
   stability: 1200,
 };
 
+const WEBKIT_TIMEOUTS: TimeoutConfig = {
+  element: 2500,       // WebKit peut être plus lent
+  network: 4000,
+  navigation: 4000,
+  aiResponse: 6000,
+  animation: 1500,
+  stability: 1000,
+};
+
 const MOBILE_TIMEOUTS: TimeoutConfig = {
-  element: 20000,      // Mobile est généralement plus lent
-  network: 40000,
-  navigation: 25000,
-  aiResponse: 40000,
-  animation: 3000,
-  stability: 1500,
+  element: 4000,       // Mobile est plus lent mais 4s suffit
+  network: 6000,
+  navigation: 7000,
+  aiResponse: 8000,
+  animation: 1500,
+  stability: 1200,
 };
 
 /**

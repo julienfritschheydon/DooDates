@@ -70,7 +70,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
   
   if (!navigated) {
     // Last resort: try with base path from page context
-    await page.goto('date-polls/data-control', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto('/DooDates/date-polls/data-control', { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(2000);
   }
   
@@ -308,7 +308,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
   if (!navigated) {
     // Last resort: try with date-polls/settings and wait longer
     try {
-      await page.goto('date-polls/settings', { waitUntil: 'networkidle', timeout: 30000 });
+      await page.goto('/DooDates/date-polls/settings', { waitUntil: 'networkidle', timeout: 30000 });
       await page.waitForTimeout(3000);
       
       // Verify we're on the right page
@@ -493,7 +493,7 @@ export async function cleanupTestUserData(userId: string): Promise<void> {
 
   if (conversations && conversations.length > 0) {
     const pollIds = conversations
-      .map(c => c.poll_id || c.id); // poll_id might be in conversation or use conversation id
+      .map(c => c.id); // Use conversation id as poll id in new schema
 
     // Delete votes first (if any)
     if (pollIds.length > 0) {
