@@ -108,7 +108,7 @@ test.describe('DooDates - Test Ultra Simple Quizz', () => {
                 await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
                 await waitForNetworkIdle(page, { browserName });
 
-                await expect(page).toHaveURL(/DooDates\/.*\/quizz\/dashboard\//);
+                await expect(page).toHaveURL(/DooDates\/quizz\/dashboard\/?$/);
 
                 // Vérifier contenu dashboard
                 const dashboardContent = page
