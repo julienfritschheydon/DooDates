@@ -203,7 +203,12 @@ export function generateSettingsSummary(settings: AdvancedSettings): string[] {
 
   if ((settings as FormPollSettings | QuizzSettings).expiresAt) {
     const date = new Date((settings as FormPollSettings | QuizzSettings).expiresAt!);
-    summary.push(`Ferme le ${date.toLocaleDateString()}`);
+    const dateStr = date.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit", 
+      year: "numeric"
+    });
+    summary.push(`Ferme le ${dateStr}`);
   }
 
   if (settings.sendEmailCopy) {
