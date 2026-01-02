@@ -38,6 +38,7 @@ export async function navigateToWorkspace(
   options?: {
     addE2EFlag?: boolean;
     waitUntil?: 'domcontentloaded' | 'networkidle' | 'load';
+    waitForChat?: boolean; // Nouvelle option pour attendre le chat
   }
 ) {
   // Vérifier si la page est déjà fermée
@@ -60,20 +61,29 @@ export async function navigateToWorkspace(
 
     await waitForPageLoad(page, browserName);
     
-    // Attendre que le chat input soit disponible avant de continuer
-    try {
-      await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
-      console.log('✅ Chat input trouvé après navigation');
-    } catch (error) {
-      console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
-      // Continuer avec les fallbacks existants
+    // N'attendre le chat que si explicitement demandé (par défaut oui pour compatibilité)
+    const shouldWaitForChat = options?.waitForChat !== false;
+    
+    if (shouldWaitForChat) {
+      // Attendre que le chat input soit disponible avant de continuer
+      try {
+        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+        console.log('✅ Chat input trouvé après navigation');
+      } catch (error) {
+        console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
+        // Continuer avec les fallbacks existants
+      }
+
+      // Attendre que React soit stable avant de chercher le chat input
+      await waitForReactStable(page, { browserName });
+
+      // Attendre que le chat soit prêt avec la stratégie robuste
+      await waitForChatInput(page, browserName);
+    } else {
+      console.log('⏭️ Skip chat input wait (waitForChat: false)');
+      // Juste attendre que React soit stable
+      await waitForReactStable(page, { browserName });
     }
-
-    // Attendre que React soit stable avant de chercher le chat input
-    await waitForReactStable(page, { browserName });
-
-    // Attendre que le chat soit prêt avec la stratégie robuste
-    await waitForChatInput(page, browserName);
   } catch (error) {
     console.error('❌ Navigation failed:', error);
     throw new Error(`Navigation to workspace failed: ${error instanceof Error ? error.message : String(error)}`);

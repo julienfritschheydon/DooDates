@@ -33,7 +33,7 @@ test.describe('Security and Data Isolation', () => {
     const timeouts = getTimeouts(browserName);
     
     // Verify basic navigation doesn't crash on security-sensitive pages
-    await navigateToWorkspace(page, browserName, 'default');
+    await navigateToWorkspace(page, browserName, 'default', { waitForChat: false });
     await expect(page).toHaveTitle(/DooDates/);
     
     await page.goto("/create", { waitUntil: 'domcontentloaded' });
@@ -45,14 +45,14 @@ test.describe('Security and Data Isolation', () => {
     await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
     
     // Test workspace again for consistency
-    await navigateToWorkspace(page, browserName, 'default');
+    await navigateToWorkspace(page, browserName, 'default', { waitForChat: false });
     await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
   });
 
 
 
   test('should handle authentication token security @smoke @critical', async ({ page, browserName }) => {
-    await navigateToWorkspace(page, browserName, 'default');
+    await navigateToWorkspace(page, browserName, 'default', { waitForChat: false });
     
     const timeouts = getTimeouts(browserName);
     

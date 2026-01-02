@@ -6,7 +6,37 @@
  */
 
 const { chromium } = require('playwright');
-const { navigateToWorkspace } = require('../tests/e2e/helpers/chat-helpers.ts');
+
+// Fonction simple de navigation sans import TypeScript
+async function simpleNavigateToWorkspace(page) {
+  console.log('🔄 Navigation simple...');
+  
+  if (page.isClosed()) {
+    throw new Error('Cannot navigate: page is already closed.');
+  }
+  
+  try {
+    await page.goto('http://localhost:8080/DooDates/', { 
+      timeout: 30000,
+      waitUntil: 'domcontentloaded'
+    });
+    
+    // Vérifier que la navigation a réussi
+    if (page.isClosed()) {
+      throw new Error('Page was closed during navigation');
+    }
+    
+    console.log('✅ Navigation réussie');
+    
+    // Attendre un peu pour React
+    await page.waitForTimeout(2000);
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Navigation failed:', error.message);
+    throw error;
+  }
+}
 
 async function debugPageClosure() {
   console.log('🔍 DEBUG E2E: Test de fermeture de page...');
@@ -54,7 +84,7 @@ async function debugPageClosure() {
 
     // 4. Test de navigation avec retry
     console.log('🧪 Test 1: Navigation simple...');
-    await testNavigationWithRetry(page, context, 'default');
+    await testNavigationWithRetry(page, context);
 
     console.log('🧪 Test 2: Navigation avec rechargement...');
     await testNavigationWithReload(page, context);
@@ -99,7 +129,7 @@ async function debugPageClosure() {
   }
 }
 
-async function testNavigationWithRetry(page, context, workspaceType = 'default') {
+async function testNavigationWithRetry(page, context) {
   let attempts = 0;
   const maxAttempts = 3;
   
