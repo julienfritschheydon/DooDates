@@ -251,7 +251,12 @@ export async function navigateToWorkspace(
     if (shouldWaitForChat) {
       // Attendre que le chat input soit disponible avant de continuer
       try {
-        // Attendre d'abord que React soit réellement rendu (pas seulement le JS)
+        // 1. Vérifier d'abord que la page est réellement chargée
+        console.log('🔍 Vérification chargement page...');
+        await page.waitForLoadState('domcontentloaded', { timeout: 20000 });
+        console.log('✅ DOM content loaded');
+        
+        // 2. Attendre que React soit réellement rendu (pas seulement le JS)
         await page.waitForFunction(() => {
           const root = document.getElementById('root');
           if (!root) return false;
@@ -259,14 +264,23 @@ export async function navigateToWorkspace(
           // Vérifier que le contenu n'est pas du JavaScript non rendu
           const content = root.textContent || '';
           return !content.includes('function()') && content.length > 100;
-        }, { timeout: 15000 });
+        }, { timeout: 20000 });
         
         console.log('✅ React app rendered successfully');
         
-        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
+        // 3. Vérifier que le body est visible
+        const bodyVisible = await page.locator('body').isVisible({ timeout: 10000 });
+        if (!bodyVisible) {
+          throw new Error('Body element not visible after page load');
+        }
+        console.log('✅ Body element visible');
+        
+        // 4. Attendre le chat input avec timeout plus long
+        await page.waitForSelector('[data-testid="chat-input"]', { timeout: 20000 });
         console.log('✅ Chat input trouvé après navigation');
       } catch (error) {
         console.log('⚠️ Chat input non trouvé immédiatement, utilisation des fallbacks...');
+        console.log('⚠️ Erreur détaillée:', error instanceof Error ? error.message : String(error));
         // Continuer avec les fallbacks existants
       }
 
@@ -279,7 +293,7 @@ export async function navigateToWorkspace(
       }
 
       // Attendre que le chat input soit prêt via le helper résilient
-      await waitForChatInputReady(page, browserName);
+      await waitForChatInputReady(page, browserName, { timeout: 15000 });
     } else {
       console.log('⏭️ Skip chat input wait (waitForChat: false)');
       // Juste attendre que React soit stable
@@ -292,6 +306,12 @@ export async function navigateToWorkspace(
     }
   } catch (error) {
     console.error('❌ Navigation failed:', error);
+    
+    // Vérifier si la page est fermée
+    if (page.isClosed()) {
+      console.error('❌ Page was closed during navigation');
+      throw new Error('Navigation failed: Page was closed during navigation');
+    }
     
     // Screenshot pour le debug
     try {
@@ -310,6 +330,16 @@ export async function navigateToWorkspace(
       const pageTitle = await page.title();
       console.log(`🔍 Debug info - URL: ${pageUrl}, Title: ${pageTitle}`);
       console.log(`🔍 Page closed: ${page.isClosed()}`);
+      
+      // Vérifier le body
+      const bodyExists = await page.locator('body').count() > 0;
+      const bodyVisible = bodyExists ? await page.locator('body').isVisible() : false;
+      console.log(`🔍 Body exists: ${bodyExists}, visible: ${bodyVisible}`);
+      
+      // Vérifier le root
+      const rootExists = await page.locator('#root').count() > 0;
+      console.log(`🔍 Root exists: ${rootExists}`);
+      
     } catch (debugError) {
       console.log('⚠️ Impossible de récupérer les infos de debug:', debugError);
     }
