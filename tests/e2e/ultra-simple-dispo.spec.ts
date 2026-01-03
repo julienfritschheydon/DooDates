@@ -108,11 +108,8 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
         await waitForReactStable(page, { browserName });
         await waitForNetworkIdle(page, { browserName });
 
-        // Vérifier succès ou redirection
-        const successIndicator = page
-          .locator('[data-testid="success-message"]')
-          .or(page.getByText(/Sondage (publié|créé)/i))
-          .first();
+        // Vérifier succès - utiliser le data-testid ajouté
+        const successIndicator = page.locator('[data-testid="success-message"]').first();
         await expect(successIndicator).toBeVisible({ timeout: timeouts.element });
         log("✅ Sondage créé");
 

@@ -181,7 +181,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     <Check className="w-7 h-7 text-green-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-white">
+                    <CardTitle className="text-2xl text-white" data-testid="success-message">
                       Sondage Disponibilités créé !
                     </CardTitle>
                     <p className="text-gray-300 mt-1">
