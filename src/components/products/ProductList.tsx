@@ -85,7 +85,12 @@ export const ProductList: React.FC = () => {
               />
             </div>
 
-            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} data-testid="productlist-button">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="productlist-button"
+            >
               <Filter className="h-4 w-4 mr-2" />
               Filtres
             </Button>
@@ -177,7 +182,12 @@ export const ProductList: React.FC = () => {
           <CardContent className="py-8">
             <div className="text-center text-red-600">
               <p>Erreur lors du chargement des produits</p>
-              <Button variant="outline" className="mt-2" onClick={actions.refreshProducts} data-testid="productlist-button">
+              <Button
+                variant="outline"
+                className="mt-2"
+                onClick={actions.refreshProducts}
+                data-testid="productlist-button"
+              >
                 Réessayer
               </Button>
             </div>

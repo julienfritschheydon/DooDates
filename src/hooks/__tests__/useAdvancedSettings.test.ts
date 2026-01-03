@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useAdvancedSettings, useDefaultSettings, useSettingsValidation } from "../useAdvancedSettings";
+import {
+  useAdvancedSettings,
+  useDefaultSettings,
+  useSettingsValidation,
+} from "../useAdvancedSettings";
 import type { AdvancedSettings } from "@/lib/settingsLogic";
 import type { DatePollSettings } from "@/lib/products/date-polls/date-polls-service";
 import type { FormPollSettings } from "@/lib/products/form-polls/form-polls-service";
@@ -36,7 +40,7 @@ const mockCheckSettingsCompatibility = vi.mocked(checkSettingsCompatibility);
 describe("useAdvancedSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Configuration par défaut des mocks
     mockGetDefaultSettings.mockReturnValue({
       showLogo: true,
@@ -65,9 +69,7 @@ describe("useAdvancedSettings", () => {
 
   describe("Initialisation", () => {
     it("devrait initialiser avec les paramètres par défaut", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       expect(mockGetDefaultSettings).toHaveBeenCalledWith("date");
       expect(result.current.settings).toEqual({
@@ -87,8 +89,8 @@ describe("useAdvancedSettings", () => {
         resultsVisibility: "public",
       } as DatePollSettings);
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date", initialSettings })
+      const { result } = renderHook(() =>
+        useAdvancedSettings({ pollType: "date", initialSettings }),
       );
 
       expect(result.current.settings).toEqual({
@@ -99,16 +101,14 @@ describe("useAdvancedSettings", () => {
     });
 
     it("devrait désactiver la validation automatique si demandé", () => {
-      renderHook(() => 
-        useAdvancedSettings({ pollType: "date", autoValidate: false })
-      );
+      renderHook(() => useAdvancedSettings({ pollType: "date", autoValidate: false }));
 
       expect(mockValidateAdvancedSettings).not.toHaveBeenCalled();
     });
 
     it("devrait désactiver la transformation automatique si demandé", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date", autoTransform: false })
+      const { result } = renderHook(() =>
+        useAdvancedSettings({ pollType: "date", autoTransform: false }),
       );
 
       act(() => {
@@ -121,9 +121,7 @@ describe("useAdvancedSettings", () => {
 
   describe("Mise à jour des paramètres", () => {
     it("devrait mettre à jour un paramètre spécifique", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       act(() => {
         result.current.updateSetting("showLogo", false);
@@ -135,9 +133,7 @@ describe("useAdvancedSettings", () => {
     });
 
     it("devrait mettre à jour tous les paramètres", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       const newSettings = {
         showLogo: false,
@@ -154,9 +150,7 @@ describe("useAdvancedSettings", () => {
     });
 
     it("devrait accepter une fonction pour mettre à jour les paramètres", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       act(() => {
         result.current.setSettings((prev) => ({
@@ -178,9 +172,7 @@ describe("useAdvancedSettings", () => {
         warnings: [],
       });
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       act(() => {
         result.current.updateSetting("emailForCopy", "invalid-email");
@@ -197,9 +189,7 @@ describe("useAdvancedSettings", () => {
         warnings: ["Attention warning"],
       });
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       expect(result.current.validation.warnings).toContain("Attention warning");
     });
@@ -214,9 +204,7 @@ describe("useAdvancedSettings", () => {
       };
       mockTransformAdvancedSettings.mockReturnValue(transformedSettings);
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       act(() => {
         result.current.updateSetting("showLogo", false);
@@ -229,9 +217,7 @@ describe("useAdvancedSettings", () => {
 
   describe("Réinitialisation", () => {
     it("devrait réinitialiser aux valeurs par défaut", () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       // Modifier les paramètres
       act(() => {
@@ -252,9 +238,7 @@ describe("useAdvancedSettings", () => {
 
   describe("Chargement", () => {
     it("devrait charger des paramètres externes", async () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       const loadedSettings = {
         showLogo: false,
@@ -273,12 +257,10 @@ describe("useAdvancedSettings", () => {
 
   describe("Sauvegarde", () => {
     it("devrait sauvegarder avec succès", async () => {
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       let saveResult: boolean | undefined;
-      
+
       await act(async () => {
         saveResult = await result.current.save();
       });
@@ -295,9 +277,7 @@ describe("useAdvancedSettings", () => {
         warnings: [],
       });
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       let saveResult: boolean | undefined;
 
@@ -317,9 +297,7 @@ describe("useAdvancedSettings", () => {
         warnings: [],
       });
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       let saveResult: boolean | undefined;
 
@@ -336,28 +314,18 @@ describe("useAdvancedSettings", () => {
     it("devrait calculer le niveau de restriction", () => {
       mockGetRestrictionLevel.mockReturnValue("high");
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
       expect(result.current.restrictionLevel).toBe("high");
       expect(mockGetRestrictionLevel).toHaveBeenCalledWith(result.current.settings);
     });
 
     it("devrait générer un résumé", () => {
-      mockGenerateSettingsSummary.mockReturnValue([
-        "Connexion requise",
-        "Résultats privés",
-      ]);
+      mockGenerateSettingsSummary.mockReturnValue(["Connexion requise", "Résultats privés"]);
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "date" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
-      expect(result.current.summary).toEqual([
-        "Connexion requise",
-        "Résultats privés",
-      ]);
+      expect(result.current.summary).toEqual(["Connexion requise", "Résultats privés"]);
       expect(mockGenerateSettingsSummary).toHaveBeenCalledWith(result.current.settings);
     });
   });
@@ -370,9 +338,7 @@ describe("useAdvancedSettings", () => {
         expiresAt: undefined,
       } as FormPollSettings);
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "form" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "form" }));
 
       expect(mockGetDefaultSettings).toHaveBeenCalledWith("form");
       expect(result.current.settings).toHaveProperty("maxResponses");
@@ -387,9 +353,7 @@ describe("useAdvancedSettings", () => {
         timeLimit: undefined,
       } as QuizzSettings);
 
-      const { result } = renderHook(() => 
-        useAdvancedSettings({ pollType: "quizz" })
-      );
+      const { result } = renderHook(() => useAdvancedSettings({ pollType: "quizz" }));
 
       expect(mockGetDefaultSettings).toHaveBeenCalledWith("quizz");
       expect(result.current.settings).toHaveProperty("allowRetry");
@@ -458,9 +422,7 @@ describe("Edge Cases", () => {
     const originalConsoleError = console.error;
     console.error = vi.fn();
 
-    const { result } = renderHook(() => 
-      useAdvancedSettings({ pollType: "date" })
-    );
+    const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
     // Simuler une erreur dans la sauvegarde
     mockCheckSettingsCompatibility.mockImplementation(() => {
@@ -486,9 +448,7 @@ describe("Edge Cases", () => {
       warnings: [],
     });
 
-    const { result } = renderHook(() => 
-      useAdvancedSettings({ pollType: "date" })
-    );
+    const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
     expect(() => {
       act(() => {
@@ -502,9 +462,7 @@ describe("Edge Cases", () => {
   it("devrait gérer les transformations qui retournent undefined", () => {
     mockTransformAdvancedSettings.mockReturnValue(undefined as any);
 
-    const { result } = renderHook(() => 
-      useAdvancedSettings({ pollType: "date" })
-    );
+    const { result } = renderHook(() => useAdvancedSettings({ pollType: "date" }));
 
     act(() => {
       result.current.updateSetting("showLogo", false);

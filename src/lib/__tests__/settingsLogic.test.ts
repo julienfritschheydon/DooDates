@@ -129,7 +129,9 @@ describe("SettingsLogic - Advanced Validation", () => {
 
       const result = validateAdvancedSettings(settings, "form");
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("L'adresse email est obligatoire si l'envoi par email est activé");
+      expect(result.errors).toContain(
+        "L'adresse email est obligatoire si l'envoi par email est activé",
+      );
     });
 
     it("devrait détecter une erreur d'email invalide", () => {
@@ -180,7 +182,9 @@ describe("SettingsLogic - Advanced Validation", () => {
 
       const result = validateAdvancedSettings(settings, "date");
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain("La connexion est requise mais les réponses multiples sont autorisées");
+      expect(result.warnings).toContain(
+        "La connexion est requise mais les réponses multiples sont autorisées",
+      );
       // Le deuxième warning ne s'applique que si oneResponsePerPerson est true
       expect(result.warnings.length).toBe(1);
     });
@@ -196,7 +200,9 @@ describe("SettingsLogic - Advanced Validation", () => {
 
       const result = checkSettingsCompatibility(settings, "date");
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("Les sondages de date ne supportent pas la limite de réponses");
+      expect(result.errors).toContain(
+        "Les sondages de date ne supportent pas la limite de réponses",
+      );
       expect(result.errors).toContain("Les sondages de date ne supportent pas de date limite");
     });
 
@@ -386,7 +392,7 @@ describe("SettingsLogic - Utilitaires", () => {
   describe("getDefaultSettings", () => {
     it("devrait retourner les paramètres par défaut pour les date polls", () => {
       const defaults = getDefaultSettings("date");
-      
+
       expect(defaults.showLogo).toBe(true);
       expect(defaults.requireAuth).toBe(false);
       expect(defaults.resultsVisibility).toBe("public");
@@ -396,7 +402,7 @@ describe("SettingsLogic - Utilitaires", () => {
 
     it("devrait retourner les paramètres par défaut pour les form polls", () => {
       const defaults = getDefaultSettings("form");
-      
+
       expect(defaults.showLogo).toBe(true);
       expect(defaults.requireAuth).toBe(false);
       expect((defaults as FormPollSettings).maxResponses).toBeUndefined();
@@ -405,7 +411,7 @@ describe("SettingsLogic - Utilitaires", () => {
 
     it("devrait retourner les paramètres par défaut pour les quizz", () => {
       const defaults = getDefaultSettings("quizz");
-      
+
       expect(defaults.showLogo).toBe(true);
       expect(defaults.requireAuth).toBe(false);
       expect((defaults as QuizzSettings).allowRetry).toBe(false);
@@ -419,7 +425,7 @@ describe("SettingsLogic - Edge Cases", () => {
   it("devrait gérer les paramètres vides", () => {
     const settings = {} as any;
     const result = validateAdvancedSettings(settings, "date");
-    
+
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });

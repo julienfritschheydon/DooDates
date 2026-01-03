@@ -11,7 +11,8 @@ const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 const mode = getMode();
 const isProduction = mode === "production";
 // En test, si les variables sont définies, ne pas considérer comme local dev
-const isTestEnv = mode === "test" || (typeof process !== "undefined" && process?.env?.NODE_ENV === "test");
+const isTestEnv =
+  mode === "test" || (typeof process !== "undefined" && process?.env?.NODE_ENV === "test");
 const isLocalDev = !supabaseUrl || !supabaseAnonKey;
 
 // Debug: Log des variables d'environnement (développement uniquement)

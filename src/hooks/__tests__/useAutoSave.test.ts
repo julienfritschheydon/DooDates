@@ -346,7 +346,7 @@ describe("useAutoSave", () => {
         await result.current.startNewConversation();
         await result.current.addMessage(createMockMessage());
         // Attendre un peu que les opérations asynchrones se terminent
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       expect(result.current.getRealConversationId()).toBe(conversation.id);

@@ -13,7 +13,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
@@ -63,7 +63,7 @@ describe("FormPollCreator - Debug", () => {
     localStorageMock.setItem.mockClear();
     localStorageMock.removeItem.mockClear();
     localStorageMock.clear.mockClear();
-    
+
     // Cancel all pending promises and timers
     vi.useFakeTimers();
     vi.runAllTimers();

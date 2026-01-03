@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
 import { logError } from "@/lib/error-handling";
 import type { AdvancedSettings } from "@/lib/settingsLogic";
-import { 
-  validateAdvancedSettings, 
-  transformAdvancedSettings, 
+import {
+  validateAdvancedSettings,
+  transformAdvancedSettings,
   getDefaultSettings,
   getRestrictionLevel,
   generateSettingsSummary,
   checkSettingsCompatibility,
-  type SettingsValidationResult 
+  type SettingsValidationResult,
 } from "@/lib/settingsLogic";
 
 export interface UseAdvancedSettingsOptions {
@@ -20,7 +20,9 @@ export interface UseAdvancedSettingsOptions {
 
 export interface UseAdvancedSettingsReturn {
   settings: AdvancedSettings;
-  setSettings: (settings: AdvancedSettings | ((prev: AdvancedSettings) => AdvancedSettings)) => void;
+  setSettings: (
+    settings: AdvancedSettings | ((prev: AdvancedSettings) => AdvancedSettings),
+  ) => void;
   updateSetting: <K extends keyof AdvancedSettings>(key: K, value: AdvancedSettings[K]) => void;
   resetSettings: () => void;
   validation: SettingsValidationResult;
@@ -36,7 +38,9 @@ export interface UseAdvancedSettingsReturn {
  * Hook pour gérer les paramètres avancés des polls
  * avec validation, transformation et utilitaires intégrés
  */
-export function useAdvancedSettings(options: UseAdvancedSettingsOptions): UseAdvancedSettingsReturn {
+export function useAdvancedSettings(
+  options: UseAdvancedSettingsOptions,
+): UseAdvancedSettingsReturn {
   const { pollType, initialSettings, autoValidate = true, autoTransform = true } = options;
 
   // État des paramètres
@@ -59,47 +63,59 @@ export function useAdvancedSettings(options: UseAdvancedSettingsOptions): UseAdv
   const [isLoading, setIsLoading] = useState(false);
 
   // Validation automatique
-  const validateSettings = useCallback((settingsToValidate: AdvancedSettings) => {
-    if (!autoValidate) return;
-    
-    const result = validateAdvancedSettings(settingsToValidate, pollType);
-    setValidation(result);
-    return result;
-  }, [pollType, autoValidate]);
+  const validateSettings = useCallback(
+    (settingsToValidate: AdvancedSettings) => {
+      if (!autoValidate) return;
+
+      const result = validateAdvancedSettings(settingsToValidate, pollType);
+      setValidation(result);
+      return result;
+    },
+    [pollType, autoValidate],
+  );
 
   // Transformation automatique
-  const transformSettings = useCallback((settingsToTransform: AdvancedSettings) => {
-    if (!autoTransform) return settingsToTransform;
-    
-    return transformAdvancedSettings(settingsToTransform, {
-      removeEmpty: true,
-      sanitizeEmail: true,
-      validateDates: true,
-    });
-  }, [autoTransform]);
+  const transformSettings = useCallback(
+    (settingsToTransform: AdvancedSettings) => {
+      if (!autoTransform) return settingsToTransform;
+
+      return transformAdvancedSettings(settingsToTransform, {
+        removeEmpty: true,
+        sanitizeEmail: true,
+        validateDates: true,
+      });
+    },
+    [autoTransform],
+  );
 
   // Mettre à jour les paramètres
-  const setSettings = useCallback((newSettings: AdvancedSettings | ((prev: AdvancedSettings) => AdvancedSettings)) => {
-    setSettingsState((prev) => {
-      const updated = typeof newSettings === "function" ? newSettings(prev) : newSettings;
-      const transformed = transformSettings(updated);
-      
-      // Si la transformation retourne undefined, utiliser les paramètres mis à jour
-      const finalSettings = transformed || updated;
-      
-      validateSettings(finalSettings);
-      setIsDirty(true);
-      return finalSettings;
-    });
-  }, [transformSettings, validateSettings]);
+  const setSettings = useCallback(
+    (newSettings: AdvancedSettings | ((prev: AdvancedSettings) => AdvancedSettings)) => {
+      setSettingsState((prev) => {
+        const updated = typeof newSettings === "function" ? newSettings(prev) : newSettings;
+        const transformed = transformSettings(updated);
+
+        // Si la transformation retourne undefined, utiliser les paramètres mis à jour
+        const finalSettings = transformed || updated;
+
+        validateSettings(finalSettings);
+        setIsDirty(true);
+        return finalSettings;
+      });
+    },
+    [transformSettings, validateSettings],
+  );
 
   // Mettre à jour un paramètre spécifique
-  const updateSetting = useCallback(<K extends keyof AdvancedSettings>(key: K, value: AdvancedSettings[K]) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }, [setSettings]);
+  const updateSetting = useCallback(
+    <K extends keyof AdvancedSettings>(key: K, value: AdvancedSettings[K]) => {
+      setSettings((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    },
+    [setSettings],
+  );
 
   // Réinitialiser aux valeurs par défaut
   const resetSettings = useCallback(() => {
@@ -109,17 +125,20 @@ export function useAdvancedSettings(options: UseAdvancedSettingsOptions): UseAdv
   }, [pollType, setSettings]);
 
   // Charger des paramètres
-  const load = useCallback((loadedSettings: AdvancedSettings) => {
-    setIsLoading(true);
-    try {
-      const transformed = transformSettings(loadedSettings);
-      setSettingsState(transformed);
-      validateSettings(transformed);
-      setIsDirty(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [transformSettings, validateSettings]);
+  const load = useCallback(
+    (loadedSettings: AdvancedSettings) => {
+      setIsLoading(true);
+      try {
+        const transformed = transformSettings(loadedSettings);
+        setSettingsState(transformed);
+        validateSettings(transformed);
+        setIsDirty(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [transformSettings, validateSettings],
+  );
 
   // Sauvegarder (simulation - à adapter selon les besoins)
   const save = useCallback(async (): Promise<boolean> => {
@@ -135,9 +154,9 @@ export function useAdvancedSettings(options: UseAdvancedSettingsOptions): UseAdv
         return false;
       }
     } catch (error) {
-      logError(error instanceof Error ? error : new Error(String(error)), { 
+      logError(error instanceof Error ? error : new Error(String(error)), {
         component: "useAdvancedSettings",
-        operation: "save"
+        operation: "save",
       });
       return false;
     }
@@ -145,13 +164,13 @@ export function useAdvancedSettings(options: UseAdvancedSettingsOptions): UseAdv
     // Simulation de sauvegarde
     try {
       // Ici vous pourriez appeler une API ou localStorage
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       setIsDirty(false);
       return true;
     } catch (error) {
-      logError(error instanceof Error ? error : new Error(String(error)), { 
+      logError(error instanceof Error ? error : new Error(String(error)), {
         component: "useAdvancedSettings",
-        operation: "save"
+        operation: "save",
       });
       return false;
     }
@@ -193,19 +212,19 @@ export function useDefaultSettings(pollType: "date" | "form" | "quizz") {
  * Hook pour la validation indépendante des paramètres
  */
 export function useSettingsValidation() {
-  const validate = useCallback((
-    settings: AdvancedSettings, 
-    pollType: "date" | "form" | "quizz"
-  ): SettingsValidationResult => {
-    return validateAdvancedSettings(settings, pollType);
-  }, []);
+  const validate = useCallback(
+    (settings: AdvancedSettings, pollType: "date" | "form" | "quizz"): SettingsValidationResult => {
+      return validateAdvancedSettings(settings, pollType);
+    },
+    [],
+  );
 
-  const checkCompatibility = useCallback((
-    settings: AdvancedSettings, 
-    pollType: "date" | "form" | "quizz"
-  ): SettingsValidationResult => {
-    return checkSettingsCompatibility(settings, pollType);
-  }, []);
+  const checkCompatibility = useCallback(
+    (settings: AdvancedSettings, pollType: "date" | "form" | "quizz"): SettingsValidationResult => {
+      return checkSettingsCompatibility(settings, pollType);
+    },
+    [],
+  );
 
   return {
     validate,

@@ -337,7 +337,11 @@ export function ConversationList({
         <p className="text-gray-500 mb-4">
           {error.message || "Une erreur est survenue lors du chargement des conversations."}
         </p>
-        <Button variant="outline" onClick={() => window.location.reload()} data-testid="conversation-list-retry">
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          data-testid="conversation-list-retry"
+        >
           Réessayer
         </Button>
       </div>

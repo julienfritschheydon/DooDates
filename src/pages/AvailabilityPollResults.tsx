@@ -153,7 +153,11 @@ const AvailabilityPollResults = () => {
         <Card className="bg-[#1e1e1e] border-gray-700 max-w-md">
           <CardContent className="pt-6">
             <p className="text-white text-center">Ce n'est pas un sondage de disponibilités</p>
-            <Button onClick={() => navigate("/")} className="mt-4 w-full" data-testid="availability-back-home">
+            <Button
+              onClick={() => navigate("/")}
+              className="mt-4 w-full"
+              data-testid="availability-back-home"
+            >
               Retour à l'accueil
             </Button>
           </CardContent>

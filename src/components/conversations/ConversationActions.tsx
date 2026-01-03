@@ -186,7 +186,12 @@ function RenameDialog({ isOpen, currentTitle, onClose, onConfirm, language }: Re
           />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting} data-testid="conversationactions-button">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+            data-testid="conversationactions-button"
+          >
             {text.cancel}
           </Button>
           <Button

@@ -49,7 +49,10 @@ export function PollPreview({ poll }: PollPreviewProps) {
     const pollUrl = `/poll/${publishedPoll.slug || publishedPoll.id}`;
 
     return (
-      <div className="min-h-[400px] bg-[#0a0a0a] flex items-center justify-center p-8" data-testid="form-success-screen">
+      <div
+        className="min-h-[400px] bg-[#0a0a0a] flex items-center justify-center p-8"
+        data-testid="form-success-screen"
+      >
         <div className="max-w-2xl w-full">
           <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
             {/* Icône de succès */}
@@ -249,7 +252,11 @@ export function PollPreview({ poll }: PollPreviewProps) {
   // Preview pour questionnaire/formulaire - UTILISER L'EXPÉRIENCE EXISTANTE
   if (poll.type === "form") {
     return (
-      <div className="bg-[#0a0a0a] rounded-lg shadow-sm" data-poll-preview data-testid="poll-preview">
+      <div
+        className="bg-[#0a0a0a] rounded-lg shadow-sm"
+        data-poll-preview
+        data-testid="poll-preview"
+      >
         {/* <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Édition du questionnaire</h3>
           <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>

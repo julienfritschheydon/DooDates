@@ -191,16 +191,19 @@ export default function FormPollCreator({
   useEffect(() => {
     if (!user && typeof window !== "undefined") {
       setIsLoadingEmail(true);
-      guestEmailService.getGuestEmail().then((email) => {
-        if (email) setGuestEmail(email);
-        setIsLoadingEmail(false);
-      }).catch((error) => {
-        logError(error, {
-          component: 'FormPollCreator',
-          operation: 'getGuestEmail'
+      guestEmailService
+        .getGuestEmail()
+        .then((email) => {
+          if (email) setGuestEmail(email);
+          setIsLoadingEmail(false);
+        })
+        .catch((error) => {
+          logError(error, {
+            component: "FormPollCreator",
+            operation: "getGuestEmail",
+          });
+          setIsLoadingEmail(false);
         });
-        setIsLoadingEmail(false);
-      });
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
       setIsEmailFieldDismissed(dismissed);
     }
@@ -793,51 +796,50 @@ export default function FormPollCreator({
                     placeholder="votre@email.com"
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
-                    onBlur={() =>
-                      guestEmail && guestEmailService.saveGuestEmail(guestEmail)
-                    }
+                    onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
                     className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
                   />
                   <p className="text-xs text-gray-600 mt-1">
-                    Invité : données conservées 1 an. Email recommandé pour alerte avant suppression.
+                    Invité : données conservées 1 an. Email recommandé pour alerte avant
+                    suppression.
                   </p>
                 </div>
               )}
 
               <Collapsible open={isConfigPanelOpen} onOpenChange={setIsConfigPanelOpen}>
-                  <CollapsibleTrigger 
-                    className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
-                    role="button"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Settings className="w-5 h-5 text-gray-300" />
-                      <span className="text-sm font-medium text-gray-300">
-                        Paramètres de configuration
-                      </span>
-                    </div>
-                    {isConfigPanelOpen ? (
-                      <ChevronUp className="w-5 h-5 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2 space-y-4">
-                    {/* Paramètres du sondage */}
-                    <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-                      <PollSettingsForm
-                        settings={settings}
-                        onSettingsChange={setSettings}
-                        pollType="form"
-                        themeId={themeId}
-                        onThemeChange={setThemeId}
-                        displayMode={displayMode}
-                        onDisplayModeChange={setDisplayMode}
-                        resultsVisibility={resultsVisibility}
-                        onResultsVisibilityChange={setResultsVisibility}
-                      />
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                <CollapsibleTrigger
+                  className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
+                  role="button"
+                >
+                  <div className="flex items-center gap-3">
+                    <Settings className="w-5 h-5 text-gray-300" />
+                    <span className="text-sm font-medium text-gray-300">
+                      Paramètres de configuration
+                    </span>
+                  </div>
+                  {isConfigPanelOpen ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 space-y-4">
+                  {/* Paramètres du sondage */}
+                  <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+                    <PollSettingsForm
+                      settings={settings}
+                      onSettingsChange={setSettings}
+                      pollType="form"
+                      themeId={themeId}
+                      onThemeChange={setThemeId}
+                      displayMode={displayMode}
+                      onDisplayModeChange={setDisplayMode}
+                      resultsVisibility={resultsVisibility}
+                      onResultsVisibilityChange={setResultsVisibility}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </div>
         </div>
