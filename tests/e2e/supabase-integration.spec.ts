@@ -18,7 +18,7 @@ test.describe.skip("Supabase Integration", () => {
   test.setTimeout(60000); // 60s pour les opérations Supabase
 
   // Skip sur mobile jusqu'à ce que /diagnostic/supabase soit optimisé pour mobile
-  test.skip(({ isMobile }) => isMobile, 'Diagnostic page not optimized for mobile yet');
+  test.skip(({ isMobile }) => isMobile, "Diagnostic page not optimized for mobile yet");
 
   test("should have all Supabase tests passing", async ({ page }) => {
     // Naviguer vers la page de diagnostic (utilise baseURL de playwright.config.ts)
@@ -35,7 +35,7 @@ test.describe.skip("Supabase Integration", () => {
     // Attendre que TOUS les tests soient terminés (pas de "pending")
     await page.waitForFunction(
       () => {
-        const results = document.querySelectorAll('[data-test-status]');
+        const results = document.querySelectorAll("[data-test-status]");
         if (results.length === 0) return false;
 
         const allCompleted = Array.from(results).every((el) => {
@@ -86,9 +86,10 @@ test.describe.skip("Supabase Integration", () => {
 
     // Au moins 80% des tests doivent réussir
     const successRate = successCount / testResults.length;
-    expect(successRate, `Taux de succès trop bas: ${(successRate * 100).toFixed(1)}%`).toBeGreaterThanOrEqual(
-      0.8,
-    );
+    expect(
+      successRate,
+      `Taux de succès trop bas: ${(successRate * 100).toFixed(1)}%`,
+    ).toBeGreaterThanOrEqual(0.8);
 
     // Si des tests échouent, afficher les détails
     if (errorCount > 0) {
@@ -105,7 +106,7 @@ test.describe.skip("Supabase Integration", () => {
     // Attendre la fin des tests
     await page.waitForFunction(
       () => {
-        const results = document.querySelectorAll('[data-test-status]');
+        const results = document.querySelectorAll("[data-test-status]");
         if (results.length === 0) return false;
         return Array.from(results).every((el) => {
           const status = el.getAttribute("data-test-status");
@@ -145,7 +146,7 @@ test.describe.skip("Supabase Integration", () => {
     expect(resultsVisible).toBeGreaterThan(0);
 
     // Vérifier que chaque test a un nom et un statut
-    const testElements = await page.$$('[data-test-status]');
+    const testElements = await page.$$("[data-test-status]");
     for (const element of testElements) {
       const name = await element.getAttribute("data-test-name");
       const status = await element.getAttribute("data-test-status");
@@ -155,4 +156,3 @@ test.describe.skip("Supabase Integration", () => {
     }
   });
 });
-

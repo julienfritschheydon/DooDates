@@ -28,8 +28,8 @@
 1. **Sélection du mode**
    - Ordre des questions : séquentiel ou aléatoire.
    - Mode d’évaluation :
-     - *Strict* : réponse attendue assez précise, peu de tolérance.
-     - *Pédagogique* : plus tolérant, insiste sur explication.
+     - _Strict_ : réponse attendue assez précise, peu de tolérance.
+     - _Pédagogique_ : plus tolérant, insiste sur explication.
 
 2. **Pour chaque question**
    - L’IA lit la question à voix haute (TTS).
@@ -86,12 +86,12 @@
 
 ### 4.1. Principe général
 
-- **Interrogation orale = feature premium**  
+- **Interrogation orale = feature premium**
   - Disponible **uniquement pour les clients payants** (abonnement ou packs de crédits).
   - Les comptes gratuits voient la feature mais ne peuvent lancer qu’un **nombre très limité** de sessions de démo (ex. 1–2 sessions de 3 questions).
 
-- **Unité de consommation**  
-  - 1 *session d’interrogation orale* consomme des crédits en fonction :
+- **Unité de consommation**
+  - 1 _session d’interrogation orale_ consomme des crédits en fonction :
     - Du nombre de questions.
     - De la durée d’écoute (STT).
     - Du nombre d’appels LLM (évaluation par question).
@@ -109,7 +109,7 @@
 
 Exemple (indicatif, à ajuster après calculs réels coûts API) :
 
-- 1 question orale = 0,2 crédit  
+- 1 question orale = 0,2 crédit
 - 1 session de 10 questions = 2 crédits
 
 #### 4.2.1. Exemple chiffré coût → prix → marge

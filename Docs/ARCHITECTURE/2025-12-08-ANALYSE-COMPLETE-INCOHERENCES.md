@@ -9,14 +9,15 @@
 
 ### 1. **Bouton Retour (Back Button)** ⚠️ **MAJEUR**
 
-| Produit | Présence | Localisation | Code |
-|---------|----------|--------------|------|
-| **Quizz** | ✅ **OUI** | `QuizzCreate.tsx` ligne 251 | `<ArrowLeft />` |
-| **Date Polls** | ❌ **NON** | - | - |
-| **Form Polls** | ❌ **NON** | - | - |
-| **Availability** | ❌ **NON** | - | - |
+| Produit          | Présence   | Localisation                | Code            |
+| ---------------- | ---------- | --------------------------- | --------------- |
+| **Quizz**        | ✅ **OUI** | `QuizzCreate.tsx` ligne 251 | `<ArrowLeft />` |
+| **Date Polls**   | ❌ **NON** | -                           | -               |
+| **Form Polls**   | ❌ **NON** | -                           | -               |
+| **Availability** | ❌ **NON** | -                           | -               |
 
 **Code Quizz :**
+
 ```tsx
 <button
   onClick={() => navigate("/quizz")}
@@ -27,11 +28,13 @@
 ```
 
 **Impact :**
+
 - ❌ **Incohérence navigation** : Quizz a un bouton retour, pas les autres
 - ❌ **UX différente** : Utilisateur doit utiliser le sidebar pour les autres produits
 - ❌ **Confusion** : Pourquoi Quizz a un retour et pas les autres ?
 
 **Recommandation :**
+
 - ✅ **Ajouter partout** : Bouton retour dans tous les créateurs
 - ✅ **Ou supprimer** : Supprimer de Quizz pour cohérence
 
@@ -67,11 +70,13 @@
 #### **Date/Form Polls : Mix des deux**
 
 **Impact :**
+
 - ❌ **Styles différents** : `<Button>` a des styles prédéfinis, `<button>` non
 - ❌ **Accessibilité** : `<Button>` a des focus states, `<button>` non
 - ❌ **Maintenance** : Difficile de changer le style global
 
 **Recommandation :**
+
 - ✅ **Utiliser `<Button>` partout** : Composant shadcn/ui pour cohérence
 - ✅ **Créer variants** : `variant="ghost"`, `variant="outline"`, etc.
 
@@ -85,7 +90,7 @@
 // LandingPage.tsx ligne 140
 <Button
   size="lg"
-  className="px-8 py-6 text-base font-medium"  // py-6 = 24px padding !
+  className="px-8 py-6 text-base font-medium" // py-6 = 24px padding !
 >
   Créer un quiz
 </Button>
@@ -103,17 +108,19 @@
 
 **Comparaison :**
 
-| Produit | Padding | Text Size | Icon Size |
-|---------|---------|-----------|-----------|
+| Produit           | Padding       | Text Size   | Icon Size |
+| ----------------- | ------------- | ----------- | --------- |
 | **Quizz Landing** | `py-6` (24px) | `text-base` | `w-5 h-5` |
-| **Availability** | `py-2` (8px) | `text-sm` | `w-4 h-4` |
-| **Date/Form** | Variable | Variable | Variable |
+| **Availability**  | `py-2` (8px)  | `text-sm`   | `w-4 h-4` |
+| **Date/Form**     | Variable      | Variable    | Variable  |
 
 **Impact :**
+
 - ❌ **Hiérarchie visuelle** : Boutons Quizz semblent plus importants
 - ❌ **Cohérence** : Même action, tailles différentes
 
 **Recommandation :**
+
 - ✅ **Définir des tailles standard** : `sm`, `default`, `lg`
 - ✅ **Utiliser `size` prop** : `<Button size="lg">` au lieu de classes custom
 
@@ -136,11 +143,13 @@
 #### **Date/Form : Couleurs Blue/Violet**
 
 **Problème :**
+
 - ✅ **Couleurs thématiques OK** : Chaque produit a sa couleur
 - ❌ **Gradients incohérents** : Quizz utilise des gradients, autres non
 - ❌ **Hover states différents** : Certains changent de couleur, d'autres de luminosité
 
 **Recommandation :**
+
 - ✅ **Garder couleurs thématiques** : Blue, Violet, Emerald, Amber
 - ✅ **Uniformiser hover states** : Tous avec luminosité -100 ou tous avec gradients
 - ❌ **Éviter mix** : Pas de gradients sur certains et pas d'autres
@@ -167,17 +176,19 @@
 
 **Comparaison :**
 
-| Produit | Padding Top | Max Width | Container Padding |
-|---------|-------------|-----------|-------------------|
-| **Availability** | `pt-20` (80px) | `max-w-2xl` (672px) | `p-4 sm:p-6` |
-| **Quizz** | Aucun | Aucun | `p-4 sm:p-6` |
-| **Date/Form** | Variable | Variable | Variable |
+| Produit          | Padding Top    | Max Width           | Container Padding |
+| ---------------- | -------------- | ------------------- | ----------------- |
+| **Availability** | `pt-20` (80px) | `max-w-2xl` (672px) | `p-4 sm:p-6`      |
+| **Quizz**        | Aucun          | Aucun               | `p-4 sm:p-6`      |
+| **Date/Form**    | Variable       | Variable            | Variable          |
 
 **Impact :**
+
 - ❌ **Espace perdu** : Availability a 80px de padding inutile
 - ❌ **Responsive différent** : Certains ont max-width, d'autres non
 
 **Recommandation :**
+
 - ✅ **Standardiser padding** : `pt-8` ou `pt-12` partout
 - ✅ **Standardiser max-width** : `max-w-4xl` ou `max-w-6xl` selon le contenu
 
@@ -199,16 +210,18 @@
 
 **Comparaison :**
 
-| Classe | Valeur | Utilisation |
-|--------|--------|-------------|
-| `rounded-lg` | 8px | Availability, Date, Form |
-| `rounded-xl` | 12px | Quizz Landing |
-| `rounded-md` | 6px | Certains boutons |
+| Classe       | Valeur | Utilisation              |
+| ------------ | ------ | ------------------------ |
+| `rounded-lg` | 8px    | Availability, Date, Form |
+| `rounded-xl` | 12px   | Quizz Landing            |
+| `rounded-md` | 6px    | Certains boutons         |
 
 **Impact :**
+
 - ❌ **Cohérence visuelle** : Coins plus ou moins arrondis selon le produit
 
 **Recommandation :**
+
 - ✅ **Standardiser** : `rounded-lg` (8px) partout
 - ✅ **Ou** : `rounded-xl` (12px) pour les cartes, `rounded-lg` pour les boutons
 
@@ -231,9 +244,11 @@
 #### **Date/Form : Aucune shadow**
 
 **Impact :**
+
 - ❌ **Profondeur visuelle** : Certains éléments semblent "flotter", d'autres non
 
 **Recommandation :**
+
 - ✅ **Standardiser** : `shadow-sm` pour les cartes, `shadow-lg` pour les modales
 - ✅ **Ou supprimer** : Pas de shadow du tout pour un design flat
 
@@ -255,17 +270,19 @@
 
 **Comparaison :**
 
-| Taille | Pixels | Utilisation |
-|--------|--------|-------------|
-| `w-4 h-4` | 16px | Availability, certains boutons |
-| `w-5 h-5` | 20px | Quizz, headers |
-| `w-6 h-6` | 24px | Titres, headers |
+| Taille    | Pixels | Utilisation                    |
+| --------- | ------ | ------------------------------ |
+| `w-4 h-4` | 16px   | Availability, certains boutons |
+| `w-5 h-5` | 20px   | Quizz, headers                 |
+| `w-6 h-6` | 24px   | Titres, headers                |
 
 **Impact :**
+
 - ❌ **Hiérarchie visuelle** : Icônes plus ou moins importantes selon le produit
 
 **Recommandation :**
-- ✅ **Standardiser** : 
+
+- ✅ **Standardiser** :
   - `w-4 h-4` (16px) : Boutons, inline
   - `w-5 h-5` (20px) : Headers, navigation
   - `w-6 h-6` (24px) : Titres, hero sections
@@ -288,16 +305,18 @@
 
 **Comparaison :**
 
-| Gap | Pixels | Utilisation |
-|-----|--------|-------------|
-| `gap-2` | 8px | Petits éléments |
-| `gap-3` | 12px | Availability |
-| `gap-4` | 16px | Quizz, Date, Form |
+| Gap     | Pixels | Utilisation       |
+| ------- | ------ | ----------------- |
+| `gap-2` | 8px    | Petits éléments   |
+| `gap-3` | 12px   | Availability      |
+| `gap-4` | 16px   | Quizz, Date, Form |
 
 **Impact :**
+
 - ❌ **Densité visuelle** : Certains produits semblent plus "aérés"
 
 **Recommandation :**
+
 - ✅ **Standardiser** : `gap-4` (16px) pour les actions, `gap-2` (8px) pour les inline elements
 
 ---
@@ -318,17 +337,19 @@
 
 **Comparaison :**
 
-| Classe | Pixels | Utilisation |
-|--------|--------|-------------|
-| `text-sm` | 14px | Availability, descriptions |
-| `text-base` | 16px | Quizz, body text |
-| `text-lg` | 18px | Quizz Landing, headers |
-| `text-xl` | 20px | Titres |
+| Classe      | Pixels | Utilisation                |
+| ----------- | ------ | -------------------------- |
+| `text-sm`   | 14px   | Availability, descriptions |
+| `text-base` | 16px   | Quizz, body text           |
+| `text-lg`   | 18px   | Quizz Landing, headers     |
+| `text-xl`   | 20px   | Titres                     |
 
 **Impact :**
+
 - ❌ **Lisibilité** : Textes plus ou moins lisibles selon le produit
 
 **Recommandation :**
+
 - ✅ **Standardiser** :
   - `text-sm` (14px) : Labels, captions
   - `text-base` (16px) : Body text
@@ -414,38 +435,39 @@
 ```typescript
 export const DESIGN_TOKENS = {
   spacing: {
-    xs: 'gap-2',  // 8px
-    sm: 'gap-3',  // 12px
-    md: 'gap-4',  // 16px
-    lg: 'gap-6',  // 24px
+    xs: "gap-2", // 8px
+    sm: "gap-3", // 12px
+    md: "gap-4", // 16px
+    lg: "gap-6", // 24px
   },
   borderRadius: {
-    sm: 'rounded-md',  // 6px
-    md: 'rounded-lg',  // 8px
-    lg: 'rounded-xl',  // 12px
+    sm: "rounded-md", // 6px
+    md: "rounded-lg", // 8px
+    lg: "rounded-xl", // 12px
   },
   shadows: {
-    sm: 'shadow-sm',
-    md: 'shadow-md',
-    lg: 'shadow-lg',
+    sm: "shadow-sm",
+    md: "shadow-md",
+    lg: "shadow-lg",
   },
   iconSizes: {
-    sm: 'w-4 h-4',  // 16px
-    md: 'w-5 h-5',  // 20px
-    lg: 'w-6 h-6',  // 24px
+    sm: "w-4 h-4", // 16px
+    md: "w-5 h-5", // 20px
+    lg: "w-6 h-6", // 24px
   },
   textSizes: {
-    caption: 'text-sm',   // 14px
-    body: 'text-base',    // 16px
-    subtitle: 'text-lg',  // 18px
-    title: 'text-xl',     // 20px
-  }
+    caption: "text-sm", // 14px
+    body: "text-base", // 16px
+    subtitle: "text-lg", // 18px
+    title: "text-xl", // 20px
+  },
 };
 ```
 
 ### **2. Créer des Composants Génériques**
 
 **Fichiers à créer :**
+
 - `src/components/ui/ProductButton.tsx` : Bouton avec couleurs thématiques
 - `src/components/ui/ProductCard.tsx` : Carte avec styles cohérents
 - `src/components/ui/ProductHeader.tsx` : Header avec bouton retour optionnel
@@ -479,6 +501,7 @@ J'ai identifié **10 incohérences majeures** au-delà de tes 3 exemples :
 **Impact total : 12h de travail** pour tout harmoniser.
 
 **Priorité immédiate :**
+
 1. Bouton retour
 2. Composant Button
 3. Thème Availability

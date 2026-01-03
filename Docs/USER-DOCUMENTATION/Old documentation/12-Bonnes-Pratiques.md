@@ -21,13 +21,16 @@ Guide des meilleures pratiques pour créer des sondages efficaces et maximiser v
 ### 1. Questions Claires et Concises
 
 #### ❌ Mauvais
+
 ```
 "Est-ce que vous pensez que notre produit, qui a été lancé récemment,
  répond à vos attentes en termes de qualité et de fonctionnalités ?"
 ```
+
 **Problème :** Trop long, double question
 
 #### ✅ Bon
+
 ```
 "Notre produit répond-il à vos attentes ?"
 (Note : 1-5)
@@ -42,12 +45,15 @@ Puis séparément :
 ### 2. Une Idée par Question
 
 #### ❌ Mauvais
+
 ```
 "Êtes-vous satisfait de la qualité et du prix ?"
 ```
+
 **Problème :** Si oui pour qualité mais non pour prix, comment répondre ?
 
 #### ✅ Bon
+
 ```
 Q1. "Êtes-vous satisfait de la qualité ?" (Rating 1-5)
 Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
@@ -58,12 +64,15 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 ### 3. Éviter les Questions Suggestives
 
 #### ❌ Mauvais
+
 ```
 "Notre excellent service client vous a-t-il satisfait ?"
 ```
+
 **Problème :** "excellent" influence la réponse
 
 #### ✅ Bon
+
 ```
 "Comment évaluez-vous notre service client ?"
 (1 = Très insatisfait, 5 = Très satisfait)
@@ -74,6 +83,7 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 ### 4. Options Mutuellement Exclusives
 
 #### ❌ Mauvais
+
 ```
 "Quel est votre âge ?"
 ○ 18-25
@@ -82,6 +92,7 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 ```
 
 #### ✅ Bon
+
 ```
 "Quel est votre âge ?"
 ○ 18-24
@@ -95,6 +106,7 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 ### 5. Toujours Prévoir "Autre"
 
 #### ✅ Bon
+
 ```
 "Comment avez-vous connu DooDates ?"
 □ Réseaux sociaux
@@ -112,13 +124,13 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 
 **Taux de complétion selon la durée :**
 
-| Durée | Taux de Complétion |
-|-------|-------------------|
-| < 2 min | 90% ✅ |
-| 2-5 min | 75% ✅ |
-| 5-10 min | 55% ⚠️ |
-| 10-15 min | 35% ❌ |
-| > 15 min | 15% ❌ |
+| Durée     | Taux de Complétion |
+| --------- | ------------------ |
+| < 2 min   | 90% ✅             |
+| 2-5 min   | 75% ✅             |
+| 5-10 min  | 55% ⚠️             |
+| 10-15 min | 35% ❌             |
+| > 15 min  | 15% ❌             |
 
 **Recommandation :** Visez 3-5 minutes maximum
 
@@ -127,6 +139,7 @@ Q2. "Êtes-vous satisfait du prix ?" (Rating 1-5)
 ### 2. Afficher la Progression
 
 **Mode multi-étapes :**
+
 ```
 ████████░░░░░░░░░░░░░░ 40%
 Question 4 sur 10
@@ -139,11 +152,13 @@ Question 4 sur 10
 ### 3. Message d'Introduction Motivant
 
 #### ❌ Mauvais
+
 ```
 "Merci de répondre à ce questionnaire"
 ```
 
 #### ✅ Bon
+
 ```
 "🎯 Votre avis compte !
 
@@ -154,6 +169,7 @@ Vos réponses sont anonymes et confidentielles."
 ```
 
 **Éléments clés :**
+
 - ✅ Durée annoncée (transparence)
 - ✅ Bénéfice clair (réduction)
 - ✅ Rassurance (anonymat)
@@ -178,6 +194,7 @@ Vos réponses sont anonymes et confidentielles."
 ### 5. Moment Optimal d'Envoi
 
 **Taux d'ouverture par jour :**
+
 - 📊 **Mardi** : 100% (baseline)
 - 📊 **Mercredi** : 95%
 - 📊 **Jeudi** : 90%
@@ -186,6 +203,7 @@ Vos réponses sont anonymes et confidentielles."
 - 📊 **Weekend** : 40%
 
 **Heure optimale :**
+
 - ✅ **9h-11h** : +25% vs moyenne
 - ✅ **14h-16h** : +15%
 - ❌ **12h-13h** : -20% (pause déjeuner)
@@ -196,6 +214,7 @@ Vos réponses sont anonymes et confidentielles."
 ### 6. Relances Stratégiques
 
 **Calendrier de relances :**
+
 ```
 Jour 0 : Envoi initial (100 invitations)
 ↓
@@ -207,6 +226,7 @@ Jour 7 : Relance 2 finale (15 restants)
 **Messages de relance :**
 
 **Relance 1 (Jour 3) :**
+
 ```
 Objet : [Rappel] Votre avis en 3 minutes ? 🎯
 
@@ -223,6 +243,7 @@ Merci d'avance !
 ```
 
 **Relance 2 (Jour 7) - Dernière chance :**
+
 ```
 Objet : [Dernière chance] L'enquête ferme ce soir 🔒
 
@@ -247,12 +268,15 @@ Merci pour votre temps précieux !
 ### 1. Biais de Confirmation
 
 #### ❌ Problème
+
 ```
 "Êtes-vous d'accord que notre produit est excellent ?"
 ```
+
 **Biais :** Suggère qu'il est excellent, pousse vers le "oui"
 
 #### ✅ Solution
+
 ```
 "Comment évaluez-vous notre produit ?"
 (1 = Très mauvais, 5 = Excellent)
@@ -280,12 +304,14 @@ Paramètres → "Ordre aléatoire des options" → Activé
 **Problème :** Les gens répondent ce qui est socialement acceptable
 
 #### ❌ Mauvais
+
 ```
 "Utilisez-vous des produits éco-responsables ?"
 → Tout le monde dira "oui" même si faux
 ```
 
 #### ✅ Meilleur
+
 ```
 "Quelle proportion de vos achats sont éco-responsables ?"
 ○ 0-25%
@@ -303,12 +329,14 @@ Paramètres → "Ordre aléatoire des options" → Activé
 **Problème :** Le contexte influence la réponse
 
 #### ❌ Mauvais
+
 ```
 Q1. "Notre concurrent coûte 50€. Quel prix seriez-vous prêt à payer ?"
 → 50€ devient l'ancre mentale
 ```
 
 #### ✅ Bon
+
 ```
 Q1. "Quel prix seriez-vous prêt à payer pour ce produit ?"
 (Sans mention de concurrent)
@@ -333,12 +361,14 @@ Q1. "Quel prix seriez-vous prêt à payer pour ce produit ?"
 ```
 
 #### ❌ Mauvais Ordre
+
 ```
 Q1. "Racontez-nous votre pire expérience client" (Texte libre)
 → Trop difficile en premier, risque d'abandon
 ```
 
 #### ✅ Bon Ordre
+
 ```
 Q1. "Note globale de satisfaction ?" (Rating 1-5)
 → Facile, engageant
@@ -384,11 +414,13 @@ Section 4 : Recommandations (2 questions)
 **Règle d'or :** Maximum 30% de questions obligatoires
 
 **Obligatoires :**
+
 - ✅ Informations critiques uniquement
 - ✅ Questions de segmentation (âge, rôle)
 - ✅ NPS ou satisfaction globale
 
 **Optionnelles :**
+
 - ✅ Commentaires texte libre
 - ✅ Détails complémentaires
 - ✅ Coordonnées (email, téléphone)
@@ -401,14 +433,14 @@ Section 4 : Recommandations (2 questions)
 
 **Timing optimal selon le contexte :**
 
-| Contexte | Moment Idéal |
-|----------|--------------|
-| **Achat e-commerce** | 3 jours après livraison |
-| **Service client** | Immédiatement après résolution |
-| **App SaaS** | Après 3 utilisations (engagement) |
-| **Restaurant** | En fin de repas ou lendemain |
-| **Événement** | Lendemain (souvenirs frais) |
-| **Formation** | Fin de session + J+30 (recul) |
+| Contexte             | Moment Idéal                      |
+| -------------------- | --------------------------------- |
+| **Achat e-commerce** | 3 jours après livraison           |
+| **Service client**   | Immédiatement après résolution    |
+| **App SaaS**         | Après 3 utilisations (engagement) |
+| **Restaurant**       | En fin de repas ou lendemain      |
+| **Événement**        | Lendemain (souvenirs frais)       |
+| **Formation**        | Fin de session + J+30 (recul)     |
 
 ---
 
@@ -417,16 +449,19 @@ Section 4 : Recommandations (2 questions)
 **Par type de relation :**
 
 **Clients récurrents :**
+
 - ✅ Trimestriel : Acceptable
 - ⚠️ Mensuel : Limite haute
 - ❌ Hebdomadaire : Trop fréquent (fatigue)
 
 **Utilisateurs app :**
+
 - ✅ Tous les 3-6 mois
 - ✅ Après changements majeurs
 - ❌ À chaque mise à jour mineure
 
 **Événements ponctuels :**
+
 - ✅ 1 feedback par événement
 - ❌ Plusieurs par événement (sauf A/B test)
 
@@ -435,14 +470,17 @@ Section 4 : Recommandations (2 questions)
 ### 3. Durée de Collecte
 
 **Sondages courts (< 5 questions) :**
+
 - 📅 **3-7 jours** optimal
 - ⚠️ > 14 jours : Baisse de qualité (biais)
 
 **Enquêtes longues (10+ questions) :**
+
 - 📅 **7-14 jours** optimal
 - ✅ Permet 2 relances
 
 **Études de marché :**
+
 - 📅 **14-30 jours** acceptable
 - ✅ Large échantillon nécessaire
 
@@ -453,6 +491,7 @@ Section 4 : Recommandations (2 questions)
 ### 1. Contraste et Lisibilité
 
 **Recommandations WCAG 2.1 :**
+
 - ✅ Contraste minimum : 4.5:1 (texte normal)
 - ✅ Contraste minimum : 3:1 (texte large)
 - ✅ Taille police : ≥ 16px sur mobile
@@ -464,6 +503,7 @@ Section 4 : Recommandations (2 questions)
 ### 2. Navigation Clavier
 
 **Testez votre formulaire :**
+
 ```
 1. Tab → Passer à la question suivante
 2. Entrée → Sélectionner une option
@@ -478,19 +518,21 @@ Section 4 : Recommandations (2 questions)
 ### 3. Lecteurs d'Écran
 
 **Bonnes pratiques :**
+
 - ✅ Texte alternatif pour images
 - ✅ Labels explicites pour champs
 - ✅ Structure sémantique (H1, H2, etc.)
 - ✅ Messages d'erreur clairs
 
 **Exemple :**
+
 ```html
 <!-- ❌ Mauvais -->
-<input type="text">
+<input type="text" />
 
 <!-- ✅ Bon -->
 <label for="nom">Nom complet</label>
-<input id="nom" type="text" aria-describedby="nom-aide">
+<input id="nom" type="text" aria-describedby="nom-aide" />
 <span id="nom-aide">Prénom et nom de famille</span>
 ```
 
@@ -509,7 +551,7 @@ Section 4 : Recommandations (2 questions)
 
 "☑ J'accepte que mes réponses soient utilisées pour améliorer
    le service. Mes données seront conservées 2 ans puis supprimées.
-   
+
    [En savoir plus sur la politique de confidentialité]"
 ```
 
@@ -538,6 +580,7 @@ Section 4 : Recommandations (2 questions)
 **Ne collectez que le nécessaire :**
 
 #### ❌ Trop intrusif
+
 ```
 Q1. Nom complet
 Q2. Email
@@ -548,6 +591,7 @@ Q5. Date de naissance
 ```
 
 #### ✅ Proportionné
+
 ```
 Q1. Âge (tranche)
 Q2. Email (optionnel, uniquement si souhaitez être recontacté)
@@ -566,6 +610,7 @@ Q2. Email (optionnel, uniquement si souhaitez être recontacté)
 ```
 
 **Dans DooDates :**
+
 ```
 Résultats → Menu ⋮ → "Supprimer une réponse spécifique"
 → Recherchez par email ou timestamp
@@ -578,6 +623,7 @@ Résultats → Menu ⋮ → "Supprimer une réponse spécifique"
 **Avant de partager votre sondage, vérifiez :**
 
 ### Contenu
+
 - [ ] Titre clair et engageant
 - [ ] Introduction motivante (durée + bénéfice)
 - [ ] Questions claires (1 idée par question)
@@ -587,24 +633,28 @@ Résultats → Menu ⋮ → "Supprimer une réponse spécifique"
 - [ ] Durée totale < 5 minutes
 
 ### Structure
+
 - [ ] Ordre logique (facile → difficile)
 - [ ] Groupement par thématique
 - [ ] ≤ 30% questions obligatoires
 - [ ] Logique conditionnelle testée
 
 ### Technique
+
 - [ ] Test de simulation (30+ réponses fictives)
 - [ ] Vérification mobile (responsive)
 - [ ] Navigation clavier fonctionnelle
 - [ ] Aucune erreur de typo
 
 ### Légal
+
 - [ ] Consentement RGPD si données personnelles
 - [ ] Politique de confidentialité accessible
 - [ ] Durée de conservation indiquée
 - [ ] Contact DPO fourni
 
 ### Diffusion
+
 - [ ] Lien de partage testé
 - [ ] Email/message d'invitation rédigé
 - [ ] Calendrier de relances défini
@@ -615,11 +665,13 @@ Résultats → Menu ⋮ → "Supprimer une réponse spécifique"
 ## 📚 Ressources Complémentaires
 
 **Guides connexes :**
+
 - [Rédiger de Bonnes Questions (Détaillé)](./04-Formulaires-Questionnaires.md#types-de-questions)
 - [Optimiser le Taux de Réponse](./09-Export-Partage.md#stratégies-de-diffusion)
 - [Conformité RGPD](./14-FAQ.md#sécurité-et-confidentialité)
 
 **Outils externes :**
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [CNIL - Guide RGPD](https://www.cnil.fr/fr/rgpd)
 
@@ -630,4 +682,3 @@ Résultats → Menu ⋮ → "Supprimer une réponse spécifique"
 ---
 
 **© 2025 DooDates - Bonnes Pratiques v1.0**
-

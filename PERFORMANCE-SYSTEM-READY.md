@@ -7,6 +7,7 @@
 **Page accessible :** `http://localhost:8080/DooDates/performance`
 
 **Fonctionnalités :**
+
 - ✅ Affichage des métriques E2E actuelles
 - ✅ Affichage des métriques Lighthouse CI
 - ✅ Système d'alertes de régression
@@ -16,37 +17,44 @@
 ### 2. 🗄️ Base de Données Supabase
 
 **Tables créées (migrations prêtes) :**
+
 - ✅ `web_vitals` - Métriques utilisateurs en temps réel
 - ✅ `performance_metrics` - Métriques des workflows CI/CD
 - ✅ `performance_alerts` - Alertes de régression automatiques
 
 **Sécurité :**
+
 - ✅ RLS (Row Level Security) activé
 - ✅ Policies configurées pour lecture/écriture
 
 ### 3. 🔧 Scripts et Outils
 
 **Scripts créés :**
+
 - ✅ `scripts/send-performance-metrics.js` - Envoi métriques à Supabase
 - ✅ `scripts/extract-e2e-metrics.js` - Extraction métriques E2E
 - ✅ `scripts/apply-performance-migrations.sql` - Migration SQL complète
 - ✅ `scripts/test-performance-system.sh` - Tests end-to-end
 
 **Fichiers de configuration :**
+
 - ✅ `e2e-metrics-example.json` - Exemple de métriques E2E
 - ✅ `public/performance-baseline.json` - Baseline de référence
 
 ### 4. 🤖 Workflows GitHub Actions
 
 **Modifié :**
+
 - ✅ `.github/workflows/lighthouse.yml` - Envoi automatique des métriques Lighthouse
 
 **À ajouter (optionnel) :**
+
 - ⏳ Envoi métriques E2E dans workflows de tests
 
 ### 5. 📚 Documentation Complète
 
 **Guides créés :**
+
 - ✅ `Docs/PERFORMANCE/README.md` - Vue d'ensemble
 - ✅ `Docs/PERFORMANCE/INSTALLATION-GUIDE.md` - Installation pas à pas
 - ✅ `Docs/PERFORMANCE/MONITORING-SYSTEM.md` - Documentation technique
@@ -54,6 +62,7 @@
 ### 6. 🧪 Tracking Web Vitals
 
 **Fonctionnalités :**
+
 - ✅ Hook `useWebVitals` corrigé (API v5)
 - ✅ Tracking automatique : CLS, FID, FCP, LCP, TTFB, INP
 - ✅ Envoi à Supabase en production
@@ -64,6 +73,7 @@
 ### Étape 1: Appliquer les Migrations SQL ⚠️ CRITIQUE
 
 **Option A - Via Dashboard Supabase (Recommandé) :**
+
 1. Allez sur https://supabase.com/dashboard
 2. Sélectionnez votre projet DooDates
 3. Cliquez sur "SQL Editor" → "New query"
@@ -72,6 +82,7 @@
 6. Vérifiez que 3 tables sont créées
 
 **Option B - Via CLI :**
+
 ```bash
 supabase login
 supabase link --project-ref <votre-project-ref>
@@ -105,6 +116,7 @@ npm run dev
 ```
 
 Vous devriez voir :
+
 - Section "Aucune alerte active" (ou alertes si régressions)
 - Métriques E2E avec valeurs
 - Métriques Lighthouse CI avec valeurs
@@ -115,6 +127,7 @@ Vous devriez voir :
 ### Nouveaux Fichiers (18)
 
 **Frontend :**
+
 - `src/services/performance-collector.ts`
 - `src/components/performance/PerformanceAlerts.tsx`
 - `src/pages/Performance.tsx` (modifié)
@@ -122,26 +135,31 @@ Vous devriez voir :
 - `src/lib/web-vitals-tracker.ts` (modifié)
 
 **Backend/Scripts :**
+
 - `scripts/send-performance-metrics.js`
 - `scripts/extract-e2e-metrics.js`
 - `scripts/apply-performance-migrations.sql`
 - `scripts/test-performance-system.sh`
 
 **Base de données :**
+
 - `supabase/migrations/20251219_create_web_vitals.sql`
 - `supabase/migrations/20251219_create_performance_tables.sql`
 
 **Configuration :**
+
 - `e2e-metrics-example.json`
 - `public/performance-baseline.json`
 
 **Documentation :**
+
 - `Docs/PERFORMANCE/README.md`
 - `Docs/PERFORMANCE/INSTALLATION-GUIDE.md`
 - `Docs/PERFORMANCE/MONITORING-SYSTEM.md`
 - `PERFORMANCE-SYSTEM-READY.md` (ce fichier)
 
 **Workflows :**
+
 - `.github/workflows/lighthouse.yml` (modifié)
 
 ## 🎯 Utilisation
@@ -149,11 +167,13 @@ Vous devriez voir :
 ### Consulter les Métriques
 
 **Dashboard Web :**
+
 ```
 http://localhost:8080/DooDates/performance
 ```
 
 **Supabase Dashboard :**
+
 - Table Editor → `performance_metrics`
 - Table Editor → `performance_alerts`
 - Table Editor → `web_vitals`
@@ -161,6 +181,7 @@ http://localhost:8080/DooDates/performance
 ### Envoyer des Métriques Manuellement
 
 **E2E :**
+
 ```bash
 node scripts/send-performance-metrics.js \
   --source e2e \
@@ -168,6 +189,7 @@ node scripts/send-performance-metrics.js \
 ```
 
 **Lighthouse :**
+
 ```bash
 # Après avoir généré un rapport Lighthouse
 node scripts/send-performance-metrics.js \
@@ -197,12 +219,14 @@ node scripts/send-performance-metrics.js \
 ## 📊 Métriques Trackées
 
 ### E2E (Tests Playwright)
+
 - Dashboard 50 conversations (< 3.0s)
 - Dashboard 200 conversations (< 5.0s)
 - Menu Tags (< 500ms)
 - Menu Dossiers (< 500ms)
 
 ### Lighthouse CI
+
 - Performance Score (≥ 90)
 - LCP - Largest Contentful Paint (< 2.5s)
 - CLS - Cumulative Layout Shift (< 0.1)
@@ -210,6 +234,7 @@ node scripts/send-performance-metrics.js \
 - FID - First Input Delay (< 100ms)
 
 ### Web Vitals (Production)
+
 - CLS, FID, FCP, LCP, TTFB, INP
 - Collectés automatiquement depuis les utilisateurs
 - Stockés dans `web_vitals` table
@@ -217,6 +242,7 @@ node scripts/send-performance-metrics.js \
 ## 🐛 Dépannage Rapide
 
 ### Dashboard vide
+
 ```bash
 # Vérifier que le fichier baseline existe
 ls -la public/performance-baseline.json
@@ -226,6 +252,7 @@ Ctrl + Shift + R
 ```
 
 ### Métriques non envoyées
+
 ```bash
 # Vérifier les variables d'environnement
 echo $VITE_SUPABASE_URL
@@ -238,9 +265,10 @@ node scripts/send-performance-metrics.js \
 ```
 
 ### Alertes non créées
+
 ```sql
 -- Vérifier les policies RLS dans Supabase
-SELECT * FROM pg_policies 
+SELECT * FROM pg_policies
 WHERE tablename IN ('performance_metrics', 'performance_alerts');
 ```
 
@@ -270,7 +298,7 @@ Une fois toutes les étapes complétées, vous aurez :
 ✅ **Alertes automatiques** en cas de régression  
 ✅ **Historique** des performances sur 7 jours  
 ✅ **Intégration CI/CD** avec workflows GitHub  
-✅ **Documentation complète** pour maintenance  
+✅ **Documentation complète** pour maintenance
 
 ---
 
@@ -279,4 +307,3 @@ Une fois toutes les étapes complétées, vous aurez :
 **Version :** 1.0.0
 
 **Questions ?** Consultez la documentation dans `Docs/PERFORMANCE/`
-

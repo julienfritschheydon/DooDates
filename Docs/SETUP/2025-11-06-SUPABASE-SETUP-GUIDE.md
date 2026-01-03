@@ -21,6 +21,7 @@ SELECT code, expires_at FROM generate_beta_key(
 ```
 
 **Générer plusieurs clés en une fois :**
+
 ```sql
 -- Générer 10 clés pour un batch de testeurs
 SELECT code, expires_at FROM generate_beta_key(
@@ -31,8 +32,9 @@ SELECT code, expires_at FROM generate_beta_key(
 ```
 
 **Voir toutes les clés générées :**
+
 ```sql
-SELECT 
+SELECT
   code,
   status,
   credits_monthly,
@@ -44,6 +46,7 @@ ORDER BY created_at DESC;
 ```
 
 **Exporter les clés en CSV :**
+
 1. Exécutez la requête ci-dessus
 2. Cliquez sur "Export" dans Supabase SQL Editor
 3. Choisissez "CSV"
@@ -53,8 +56,8 @@ ORDER BY created_at DESC;
 ```sql
 INSERT INTO beta_keys (code, status, credits_monthly, expires_at, notes)
 VALUES (
-  'BETA-' || upper(substring(md5(random()::text) from 1 for 4)) || '-' || 
-           upper(substring(md5(random()::text) from 1 for 4)) || '-' || 
+  'BETA-' || upper(substring(md5(random()::text) from 1 for 4)) || '-' ||
+           upper(substring(md5(random()::text) from 1 for 4)) || '-' ||
            upper(substring(md5(random()::text) from 1 for 4)),
   'active',
   1000,
@@ -65,6 +68,7 @@ RETURNING code;
 ```
 
 **Activer une clé bêta (dans l'app) :**
+
 - L'utilisateur doit entrer le code dans l'interface (bouton "Clé bêta" dans le menu de gauche)
 - Le code doit être validé et assigné à `user.id`
 - Les quotas doivent être créés dans `user_quotas`
@@ -74,8 +78,9 @@ RETURNING code;
 **Méthode 1 : Dans Supabase Dashboard**
 
 1. **Vérifier la clé dans `beta_keys` :**
+
    ```sql
-   SELECT 
+   SELECT
      code,
      status,
      assigned_to,
@@ -86,15 +91,16 @@ RETURNING code;
    WHERE code = 'BETA-XXXX-XXXX-XXXX'  -- Remplacez par votre code
    ORDER BY created_at DESC;
    ```
-   
+
    **Résultat attendu :**
    - `status`: `'used'` (au lieu de `'active'`)
    - `assigned_to`: votre `user.id` (UUID)
    - `redeemed_at`: date/heure d'activation
 
 2. **Vérifier les quotas dans `user_quotas` :**
+
    ```sql
-   SELECT 
+   SELECT
      uq.user_id,
      au.email,
      uq.tier,
@@ -106,7 +112,7 @@ RETURNING code;
    JOIN auth.users au ON uq.user_id = au.id
    WHERE uq.user_id = 'VOTRE_USER_ID'  -- Remplacez par votre user.id
    ```
-   
+
    **Résultat attendu :**
    - `tier`: `'beta'`
    - `credits_total`: `1000`
@@ -121,12 +127,13 @@ RETURNING code;
 
 **📊 Comparaison des quotas :**
 
-| Tier | Crédits IA | Sondages max | Support |
-|------|------------|--------------|---------|
-| **Free** (sans clé bêta) | 20/mois | 20 total | Non garanti |
-| **Beta** (avec clé bêta) | 1000/mois | 999999 (illimité) | Prioritaire ✅ |
+| Tier                     | Crédits IA | Sondages max      | Support        |
+| ------------------------ | ---------- | ----------------- | -------------- |
+| **Free** (sans clé bêta) | 20/mois    | 20 total          | Non garanti    |
+| **Beta** (avec clé bêta) | 1000/mois  | 999999 (illimité) | Prioritaire ✅ |
 
 **Note :** Un utilisateur connecté sans clé bêta aura automatiquement le tier `free` avec :
+
 - `credits_total`: `20`
 - `credits_remaining`: `20`
 - `max_polls`: `20`
@@ -151,7 +158,7 @@ Les quotas sont créés automatiquement lors de la première connexion ou lors d
 
 ```sql
 -- Vérifier les quotas créés
-SELECT 
+SELECT
   uq.user_id,
   au.email,
   uq.tier,
@@ -171,4 +178,3 @@ ORDER BY uq.created_at DESC;
 - [Planning Jour 5](./2.%20Planning.md#jour-5)
 
 ---
-

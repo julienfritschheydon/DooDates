@@ -11,36 +11,36 @@ permissions:
 jobs:
   preprod-validation:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          
+          node-version: "20"
+          cache: "npm"
+
       - name: 📦 Install Dependencies
         run: npm ci
-        
+
       - name: 🧪 Tests Unitaires Complets
         run: npm run test:unit:fast
         timeout-minutes: 5
-        
+
       - name: 📝 TypeScript Check
         run: npm run type-check
         timeout-minutes: 3
-        
+
       - name: 🧹 Linting & Formatage
         run: npm run lint -- --max-warnings=0
         timeout-minutes: 3
-        
+
       - name: 🏗️ Build Validation
         run: npm run build
         timeout-minutes: 5
-        
+
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
         uses: actions/cache@v4
@@ -49,13 +49,13 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-        
+
       - name: 🧭 Install Playwright (for debug test)
         run: |
           echo "🔧 Installation de Playwright pour le test de debug CI"
           npx playwright install --with-deps
         timeout-minutes: 3
-        
+
       - name: 🔍 CI Debug - Chat Input Analysis (FIRST E2E TEST)
         run: |
           echo "🔍 DÉBUT DE L'ANALYSE CI DEBUG - Chat Input"
@@ -67,7 +67,7 @@ jobs:
           CI=true NODE_ENV=development BASE_URL=http://localhost:8080/DooDates VITE_GEMINI_API_KEY=TEST_MODE npx playwright test tests/e2e/ci-debug-chat-input.spec.ts --project=chromium --reporter=list
         timeout-minutes: 5
         continue-on-error: false
-        
+
       - name: 📸 Upload CI Debug Screenshots (always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -77,7 +77,7 @@ jobs:
             test-results/**/*.png
             ci-debug-*.png
           retention-days: 7
-        
+
       - name: Install Playwright (only if tests pass)
         run: |
           if [ "${{ job.status }}" == "success" ]; then
@@ -88,17 +88,17 @@ jobs:
             exit 1
           fi
         timeout-minutes: 3
-        
+
       - name: Tests E2E Smoke
         run: npm run test:e2e:smoke
         timeout-minutes: 10
         continue-on-error: false
-        
+
       - name: Tests E2E Functional
         run: npm run test:e2e:functional
-        timeout-minutes: 20  
+        timeout-minutes: 20
         continue-on-error: false
-        
+
       - name: Pre-prod Validation Summary
         if: always()
         run: |
@@ -130,7 +130,7 @@ jobs:
         run: |
           git merge origin/pre-prod --no-ff -m "chore: auto-merge pre-prod to main [production release]"
           git push origin main
-          
+
       - name: 🏷️ Create Release Tag
         run: |
           TAG_NAME="release-$(date +%Y%m%d-%H%M%S)"

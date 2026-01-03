@@ -9,7 +9,10 @@ import { getTimeouts } from "./config/timeouts";
 // Étape 2: Test UI miroir pour vérifier que l'interface consomme correctement cette API
 
 test.describe("Hyper-task (Edge Function Gemini)", () => {
-  test.skip(({ browserName }) => browserName !== "chromium", "Optimisé pour Chromium (workspace IA)");
+  test.skip(
+    ({ browserName }) => browserName !== "chromium",
+    "Optimisé pour Chromium (workspace IA)",
+  );
 
   test("API hyper-task répond correctement pour un prompt simple", async ({ request }) => {
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -31,7 +34,9 @@ test.describe("Hyper-task (Edge Function Gemini)", () => {
       },
     });
 
-    expect(response.status(), "hyper-task devrait répondre HTTP 200 pour un prompt simple").toBe(200);
+    expect(response.status(), "hyper-task devrait répondre HTTP 200 pour un prompt simple").toBe(
+      200,
+    );
 
     const bodyText = await response.text();
 
@@ -48,7 +53,10 @@ test.describe("Hyper-task (Edge Function Gemini)", () => {
     expect(json.data.length).toBeGreaterThan(0);
   });
 
-  test("UI consomme hyper-task correctement pour un prompt simple", async ({ page, browserName }) => {
+  test("UI consomme hyper-task correctement pour un prompt simple", async ({
+    page,
+    browserName,
+  }) => {
     const timeouts = getTimeouts(browserName);
 
     // Pour ce test, on laisse l'Edge Function réelle répondre (pas de route() spécifique ici)

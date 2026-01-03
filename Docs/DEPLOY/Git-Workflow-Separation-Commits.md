@@ -1,11 +1,13 @@
 # Guide Git - Séparation des Fichiers dans les Commits
 
 ## 🎯 Objectif
+
 Séparer proprement les fichiers dans les commits quand on travaille sur une branche pour le déploiement en production.
 
 ## 📋 Méthodes Principales
 
 ### 1. **Git Interactive Staging** (Recommandé pour le quotidien)
+
 Utilise `git add -i` ou `git add -p` pour séparer les changements par fichier ou même par partie de fichier.
 
 ```bash
@@ -17,11 +19,13 @@ git add -p
 ```
 
 **Avantages :**
+
 - Permet de sélectionner précisément quelles modifications inclure
 - Fonctionne même dans un même fichier (hunks séparés)
 - Idéal pour commits logiques et reviewables
 
 **Workflow typique :**
+
 ```bash
 # 1. Voir les changements
 git status
@@ -39,6 +43,7 @@ git commit -m "feat: add CSV export functionality"
 ```
 
 ### 2. **Feature Branch + Cherry-Pick** (Recommandé pour production)
+
 Crée une branche de fonctionnalité, puis utilise `git cherry-pick` pour déployer uniquement les commits nécessaires.
 
 ```bash
@@ -53,11 +58,13 @@ git push origin main
 ```
 
 **Avantages :**
+
 - Contrôle exact des commits déployés
 - Évite de déployer du code non-testé
 - Historique propre en production
 
 **Workflow production :**
+
 ```bash
 # 1. Identifier les commits à déployer
 git log --oneline -10 feature/exports-formulaire
@@ -72,6 +79,7 @@ git push origin main
 ```
 
 ### 3. **Branches séparées par environnement** (Alternative)
+
 Maintiens des branches `staging` et `production` séparées.
 
 ```bash
@@ -81,7 +89,7 @@ git merge feature/nouvelle-fonction
 git push origin staging
 
 # Test, puis déploie en production
-git checkout production  
+git checkout production
 git cherry-pick <hash-specific>
 git push origin production
 ```
@@ -89,6 +97,7 @@ git push origin production
 ## 🔄 Workflow Recommandé pour DooDates
 
 ### Phase développement :
+
 1. **Branche de fonctionnalité** : `git checkout -b feature/exports-formulaire`
 2. **Commits atomiques** avec `git add -p` :
    - Un commit = une fonctionnalité logique
@@ -96,6 +105,7 @@ git push origin production
 3. **Push régulier** : `git push origin feature/exports-formulaire`
 
 ### Phase déploiement production :
+
 1. **Sélection des commits** : Identifie les hashes à déployer
 2. **Cherry-pick sélectif** :
    ```bash
@@ -136,6 +146,7 @@ git diff --cached
 ## 📝 Exemples Concrets
 
 ### Scénario 1: Développement d'une nouvelle fonctionnalité
+
 ```bash
 # Créer la branche
 git checkout -b feature/conditional-questions
@@ -163,6 +174,7 @@ git push origin feature/conditional-questions
 ```
 
 ### Scénario 2: Déploiement sélectif en production
+
 ```bash
 # Sur la branche feature
 git log --oneline -5
@@ -194,6 +206,7 @@ git push origin main
 ## 🔄 Alternatives
 
 ### Git Stash (pour changements temporaires)
+
 ```bash
 # Stasher les changements en cours
 git stash push -m "work in progress"
@@ -208,6 +221,7 @@ git stash pop
 ```
 
 ### Git Reset (pour réorganiser les commits)
+
 ```bash
 # Réorganiser les 3 derniers commits
 git rebase -i HEAD~3
@@ -219,4 +233,4 @@ git rebase -i HEAD~3
 
 **Note :** Ce guide est spécifiquement adapté pour le workflow de DooDates où la séparation entre développement et déploiement production est cruciale.
 
-*Créé le 28/11/2025*
+_Créé le 28/11/2025_

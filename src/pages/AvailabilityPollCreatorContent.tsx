@@ -305,6 +305,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </Label>
               <Input
                 id="title"
+                data-testid="poll-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Planification rendez-vous - Novembre 2025"
@@ -319,6 +320,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </Label>
               <Textarea
                 id="description"
+                data-testid="poll-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Indiquez vos disponibilités pour planifier notre prochain rendez-vous..."

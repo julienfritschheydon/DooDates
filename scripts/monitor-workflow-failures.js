@@ -4,16 +4,16 @@
  * Génère un rapport consultable par l'IA dans le dépôt
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
 // 🔥 NOUVEAU: Import de l'analyseur IA automatique
-import { analyzeWorkflowFailures } from './auto-workflow-analyzer.js';
+import { analyzeWorkflowFailures } from "./auto-workflow-analyzer.js";
 
 // Charger les variables d'environnement depuis .env.local si disponible
-const envLocalPath = path.join(process.cwd(), '.env.local');
+const envLocalPath = path.join(process.cwd(), ".env.local");
 if (fs.existsSync(envLocalPath)) {
   dotenv.config({ path: envLocalPath });
 }
@@ -22,28 +22,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const REPORT_DIR = path.join(process.cwd(), 'Docs', 'monitoring');
-const REPORT_FILE = path.join(REPORT_DIR, 'workflow-failures-report.md');
-const ARTIFACTS_DIR = path.join(process.cwd(), 'temp-artifacts');
-const GITHUB_API_BASE = process.env.GITHUB_API_URL || 'https://api.github.com';
-const REPO = process.env.GITHUB_REPOSITORY || 'owner/repo';
+const REPORT_DIR = path.join(process.cwd(), "Docs", "monitoring");
+const REPORT_FILE = path.join(REPORT_DIR, "workflow-failures-report.md");
+const ARTIFACTS_DIR = path.join(process.cwd(), "temp-artifacts");
+const GITHUB_API_BASE = process.env.GITHUB_API_URL || "https://api.github.com";
+const REPO = process.env.GITHUB_REPOSITORY || "owner/repo";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // 🔥 NOUVEAU: Focus sur le commit actuel
 const TRIGGER_COMMIT_SHA = process.env.GITHUB_SHA || process.env.GITHUB_EVENT_HEAD_SHA || null;
 const TRIGGER_WORKFLOW_NAME = process.env.GITHUB_WORKFLOW_TRIGGER_NAME || null;
-const TRIGGER_BRANCH = process.env.GITHUB_REF_NAME || 'develop';
-const TRIGGER_ACTOR = process.env.GITHUB_ACTOR || 'local-user';
-const TRIGGER_COMMIT_MESSAGE = process.env.GITHUB_EVENT_HEAD_COMMIT_MESSAGE || 'Local execution';
+const TRIGGER_BRANCH = process.env.GITHUB_REF_NAME || "develop";
+const TRIGGER_ACTOR = process.env.GITHUB_ACTOR || "local-user";
+const TRIGGER_COMMIT_MESSAGE = process.env.GITHUB_EVENT_HEAD_COMMIT_MESSAGE || "Local execution";
 
 // Workflows à monitorer
 const WORKFLOWS_TO_MONITOR = [
-  '1️⃣ PR Complete Validation',
-  '2️⃣ Develop → Main (Auto-merge)',
-  '3️⃣ Main Post-Merge E2E',
-  '4️⃣ Main Deploy Pages',
-  '6️⃣ Nightly Full Regression',
-  '7️⃣ Monthly Gemini',
+  "1️⃣ PR Complete Validation",
+  "2️⃣ Develop → Main (Auto-merge)",
+  "3️⃣ Main Post-Merge E2E",
+  "4️⃣ Main Deploy Pages",
+  "6️⃣ Nightly Full Regression",
+  "7️⃣ Monthly Gemini",
 ];
 
 /**
@@ -51,15 +51,15 @@ const WORKFLOWS_TO_MONITOR = [
  */
 async function getWorkflows() {
   if (!GITHUB_TOKEN) {
-    console.warn('⚠️ GITHUB_TOKEN non défini, utilisation de données mockées');
+    console.warn("⚠️ GITHUB_TOKEN non défini, utilisation de données mockées");
     return getMockWorkflows();
   }
 
   try {
     const response = await fetch(`${GITHUB_API_BASE}/repos/${REPO}/actions/workflows`, {
       headers: {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
       },
     });
 
@@ -70,7 +70,7 @@ async function getWorkflows() {
     const data = await response.json();
     return data.workflows || [];
   } catch (error) {
-    console.error('❌ Erreur lors de la récupération des workflows:', error.message);
+    console.error("❌ Erreur lors de la récupération des workflows:", error.message);
     return getMockWorkflows();
   }
 }
@@ -88,10 +88,10 @@ async function getWorkflowRuns(workflowId, limit = 10) {
       `${GITHUB_API_BASE}/repos/${REPO}/actions/workflows/${workflowId}/runs?per_page=${limit}`,
       {
         headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -101,7 +101,10 @@ async function getWorkflowRuns(workflowId, limit = 10) {
     const data = await response.json();
     return data.workflow_runs || [];
   } catch (error) {
-    console.error(`❌ Erreur lors de la récupération des runs pour workflow ${workflowId}:`, error.message);
+    console.error(
+      `❌ Erreur lors de la récupération des runs pour workflow ${workflowId}:`,
+      error.message,
+    );
     return getMockRuns();
   }
 }
@@ -119,10 +122,10 @@ async function getRunJobs(runId) {
       `${GITHUB_API_BASE}/repos/${REPO}/actions/runs/${runId}/jobs?per_page=100`,
       {
         headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -146,15 +149,12 @@ async function getJobLogs(jobId) {
   }
 
   try {
-    const response = await fetch(
-      `${GITHUB_API_BASE}/repos/${REPO}/actions/jobs/${jobId}/logs`,
-      {
-        headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      }
-    );
+    const response = await fetch(`${GITHUB_API_BASE}/repos/${REPO}/actions/jobs/${jobId}/logs`, {
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
@@ -177,18 +177,18 @@ function analyzeTestArtifacts(runId) {
   }
 
   const failures = [];
-  
+
   // Chercher les fichiers test-results.json dans les artefacts
   const findJsonFiles = (dir) => {
     const files = [];
     if (!fs.existsSync(dir)) return files;
-    
+
     const items = fs.readdirSync(dir, { withFileTypes: true });
     for (const item of items) {
       const fullPath = path.join(dir, item.name);
       if (item.isDirectory()) {
         files.push(...findJsonFiles(fullPath));
-      } else if (item.name === 'test-results.json') {
+      } else if (item.name === "test-results.json") {
         files.push(fullPath);
       }
     }
@@ -196,22 +196,22 @@ function analyzeTestArtifacts(runId) {
   };
 
   const jsonFiles = findJsonFiles(runDir);
-  
+
   for (const jsonFile of jsonFiles) {
     try {
-      const content = JSON.parse(fs.readFileSync(jsonFile, 'utf-8'));
-      
+      const content = JSON.parse(fs.readFileSync(jsonFile, "utf-8"));
+
       // Analyser les résultats Playwright
       if (content.suites) {
         for (const suite of content.suites) {
           for (const spec of suite.specs || []) {
             for (const test of spec.tests || []) {
               for (const result of test.results || []) {
-                if (result.status === 'failed' || result.status === 'timedOut') {
+                if (result.status === "failed" || result.status === "timedOut") {
                   failures.push({
                     file: spec.file,
                     title: spec.title,
-                    error: result.error?.message || 'Unknown error',
+                    error: result.error?.message || "Unknown error",
                     browser: suite.title,
                   });
                 }
@@ -233,46 +233,47 @@ function analyzeTestArtifacts(runId) {
  */
 function extractErrorsFromLogs(logs) {
   if (!logs) return [];
-  
+
   const errors = [];
-  const lines = logs.split('\n');
-  
+  const lines = logs.split("\n");
+
   // Patterns pour détecter les erreurs de tests Vitest
   const vitestFailurePattern = /FAIL\s+(.+\.test\.(?:ts|tsx|js|jsx))\s+\((\d+)\s+test.*?\)/i;
   const vitestTestPattern = /×\s+(.+?)\s+\((\d+)\s+ms\)/;
   const vitestAssertPattern = /AssertionError|Expected.*but got|Expected.*received/i;
   const vitestSummaryPattern = /Test Files\s+(\d+)\s+failed/i;
   const vitestTestCountPattern = /Tests\s+(\d+)\s+failed/i;
-  
+
   // Patterns pour détecter les erreurs Playwright
-  const playwrightErrorPattern = /Error:\s+.*expect\(.*\)\.(toContainText|toBeVisible|toBeEnabled|toHaveText)/i;
+  const playwrightErrorPattern =
+    /Error:\s+.*expect\(.*\)\.(toContainText|toBeVisible|toBeEnabled|toHaveText)/i;
   const playwrightTimeoutPattern = /Timeout.*ms|element\(s\) not found/i;
   const playwrightLocatorPattern = /Locator:\s+(.+)/i;
   const playwrightExpectedPattern = /Expected.*:\s*(.+)/i;
-  
+
   // Patterns généraux
   const errorPattern = /(Error|AssertionError|TypeError|ReferenceError|SyntaxError|Test failed)/i;
   const fileLinePattern = /at\s+(.+?):(\d+):(\d+)/;
   const fileLinePattern2 = /(.+\.(?:ts|tsx|js|jsx|spec\.ts)):(\d+):(\d+)/;
-  
+
   let currentError = null;
   let errorContext = [];
   let inErrorBlock = false;
-  
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const lineNum = i + 1;
-    
+
     // Détecter un échec de test Vitest
     const vitestMatch = line.match(vitestFailurePattern);
     if (vitestMatch) {
       if (currentError) {
         errors.push({
-          type: 'test_failure',
+          type: "test_failure",
           file: currentError.file,
           testName: currentError.testName,
           message: currentError.message,
-          context: errorContext.join('\n'),
+          context: errorContext.join("\n"),
           line: currentError.line,
         });
       }
@@ -286,7 +287,7 @@ function extractErrorsFromLogs(logs) {
       inErrorBlock = true;
       continue;
     }
-    
+
     // Détecter une erreur Playwright
     if (playwrightErrorPattern.test(line) || playwrightTimeoutPattern.test(line)) {
       if (!currentError) {
@@ -299,7 +300,7 @@ function extractErrorsFromLogs(logs) {
         inErrorBlock = true;
       }
       errorContext.push(line);
-      
+
       // Chercher le locator et l'expected
       const locatorMatch = line.match(playwrightLocatorPattern);
       if (locatorMatch && currentError) {
@@ -311,7 +312,7 @@ function extractErrorsFromLogs(logs) {
       }
       continue;
     }
-    
+
     // Détecter le nom du test qui échoue (Vitest)
     const vitestTestMatch = line.match(vitestTestPattern);
     if (vitestTestMatch && currentError) {
@@ -319,7 +320,7 @@ function extractErrorsFromLogs(logs) {
       errorContext.push(line);
       continue;
     }
-    
+
     // Détecter un fichier de test dans la ligne (pour Playwright)
     const fileMatch2 = line.match(fileLinePattern2);
     if (fileMatch2 && currentError && !currentError.file) {
@@ -328,9 +329,12 @@ function extractErrorsFromLogs(logs) {
       errorContext.push(line);
       continue;
     }
-    
+
     // Détecter une erreur (Vitest assertion)
-    if (vitestAssertPattern.test(line) || (errorPattern.test(line) && !playwrightErrorPattern.test(line))) {
+    if (
+      vitestAssertPattern.test(line) ||
+      (errorPattern.test(line) && !playwrightErrorPattern.test(line))
+    ) {
       if (!currentError) {
         currentError = {
           file: null,
@@ -346,7 +350,7 @@ function extractErrorsFromLogs(logs) {
       errorContext.push(line);
       continue;
     }
-    
+
     // Détecter un fichier et numéro de ligne dans la stack trace
     const fileMatch = line.match(fileLinePattern);
     if (fileMatch && currentError && !currentError.file) {
@@ -355,27 +359,29 @@ function extractErrorsFromLogs(logs) {
       errorContext.push(line);
       continue;
     }
-    
+
     // Continuer à collecter le contexte de l'erreur
     if (inErrorBlock && currentError) {
       // Collecter jusqu'à 15 lignes de contexte
       if (errorContext.length < 15) {
-        if (line.trim().startsWith('at ') || 
-            line.trim().startsWith('  ') || 
-            line.trim().startsWith('❌') ||
-            line.trim().startsWith('×') ||
-            line.trim() === '' ||
-            /^\s+\^/.test(line) ||
-            /Expected|Received|Assertion|Error/.test(line)) {
+        if (
+          line.trim().startsWith("at ") ||
+          line.trim().startsWith("  ") ||
+          line.trim().startsWith("❌") ||
+          line.trim().startsWith("×") ||
+          line.trim() === "" ||
+          /^\s+\^/.test(line) ||
+          /Expected|Received|Assertion|Error/.test(line)
+        ) {
           errorContext.push(line);
         } else if (errorContext.length > 3) {
           // Fin du bloc d'erreur
           errors.push({
-            type: currentError.testName ? 'test_failure' : 'error',
-            file: currentError.file || 'unknown',
+            type: currentError.testName ? "test_failure" : "error",
+            file: currentError.file || "unknown",
             testName: currentError.testName,
-            message: currentError.message || errorContext[0] || 'Unknown error',
-            context: errorContext.join('\n'),
+            message: currentError.message || errorContext[0] || "Unknown error",
+            context: errorContext.join("\n"),
             line: currentError.line,
           });
           currentError = null;
@@ -385,11 +391,11 @@ function extractErrorsFromLogs(logs) {
       } else {
         // Trop de lignes, sauvegarder et continuer
         errors.push({
-          type: currentError.testName ? 'test_failure' : 'error',
-          file: currentError.file || 'unknown',
+          type: currentError.testName ? "test_failure" : "error",
+          file: currentError.file || "unknown",
           testName: currentError.testName,
-          message: currentError.message || errorContext[0] || 'Unknown error',
-          context: errorContext.join('\n'),
+          message: currentError.message || errorContext[0] || "Unknown error",
+          context: errorContext.join("\n"),
           line: currentError.line,
         });
         currentError = null;
@@ -398,59 +404,62 @@ function extractErrorsFromLogs(logs) {
       }
     }
   }
-  
+
   // Sauvegarder la dernière erreur
   if (currentError && errorContext.length > 0) {
     errors.push({
-      type: currentError.testName ? 'test_failure' : 'error',
-      file: currentError.file || 'unknown',
+      type: currentError.testName ? "test_failure" : "error",
+      file: currentError.file || "unknown",
       testName: currentError.testName,
-      message: currentError.message || errorContext[0] || 'Unknown error',
-      context: errorContext.join('\n'),
+      message: currentError.message || errorContext[0] || "Unknown error",
+      context: errorContext.join("\n"),
       line: currentError.line,
     });
   }
-  
+
   // Filtrer les erreurs : exclure les logs normaux (Storage error de fallback Supabase)
-  const filteredErrors = errors.filter(err => {
+  const filteredErrors = errors.filter((err) => {
     // Exclure les erreurs qui sont juste des logs de fallback Supabase
-    if (err.message && err.message.includes('Erreur lors du chargement depuis Supabase, utilisation de localStorage')) {
+    if (
+      err.message &&
+      err.message.includes("Erreur lors du chargement depuis Supabase, utilisation de localStorage")
+    ) {
       // Garder seulement si c'est un vrai échec de test (avec testName)
       return err.testName !== null;
     }
     // Garder toutes les autres erreurs
     return true;
   });
-  
+
   // Formater les erreurs pour l'affichage
-  return filteredErrors.slice(0, 10).map(err => {
-    let formatted = '';
+  return filteredErrors.slice(0, 10).map((err) => {
+    let formatted = "";
     if (err.testName) {
       formatted += `Test: ${err.testName}\n`;
     }
-    if (err.file && err.file !== 'unknown') {
+    if (err.file && err.file !== "unknown") {
       // Nettoyer le chemin du fichier (enlever les codes ANSI et chemins absolus)
-      let cleanFile = err.file.replace(/\x1b\[[0-9;]*m/g, ''); // Enlever codes ANSI
-      cleanFile = cleanFile.replace(/.*\/(src|tests)\//, '$1/'); // Simplifier le chemin
+      let cleanFile = err.file.replace(/\x1b\[[0-9;]*m/g, ""); // Enlever codes ANSI
+      cleanFile = cleanFile.replace(/.*\/(src|tests)\//, "$1/"); // Simplifier le chemin
       formatted += `File: ${cleanFile}`;
       if (err.line) {
         formatted += `:${err.line}`;
       }
-      formatted += '\n';
+      formatted += "\n";
     }
     // Nettoyer le message (enlever timestamps et codes ANSI)
-    let cleanMessage = err.message.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, ''); // Timestamps
-    cleanMessage = cleanMessage.replace(/\x1b\[[0-9;]*m/g, ''); // Codes ANSI
-    cleanMessage = cleanMessage.replace(/\[22m|\[39m|\[90m|\[2m/g, ''); // Codes ANSI spécifiques
+    let cleanMessage = err.message.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, ""); // Timestamps
+    cleanMessage = cleanMessage.replace(/\x1b\[[0-9;]*m/g, ""); // Codes ANSI
+    cleanMessage = cleanMessage.replace(/\[22m|\[39m|\[90m|\[2m/g, ""); // Codes ANSI spécifiques
     formatted += `Error: ${cleanMessage.trim()}\n`;
     if (err.context) {
       // Nettoyer le contexte aussi
-      let cleanContext = err.context.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, '');
-      cleanContext = cleanContext.replace(/\x1b\[[0-9;]*m/g, '');
-      cleanContext = cleanContext.replace(/\[22m|\[39m|\[90m|\[2m/g, '');
+      let cleanContext = err.context.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, "");
+      cleanContext = cleanContext.replace(/\x1b\[[0-9;]*m/g, "");
+      cleanContext = cleanContext.replace(/\[22m|\[39m|\[90m|\[2m/g, "");
       formatted += `\n${cleanContext.substring(0, 800)}`;
       if (cleanContext.length > 800) {
-        formatted += '\n... (truncated)';
+        formatted += "\n... (truncated)";
       }
     }
     return formatted;
@@ -461,39 +470,45 @@ function extractErrorsFromLogs(logs) {
  * Génère le rapport markdown
  */
 async function generateReport() {
-  console.log('📊 Génération du rapport de monitoring des workflows...\n');
+  console.log("📊 Génération du rapport de monitoring des workflows...\n");
 
   const workflows = await getWorkflows();
   const reportSections = [];
-  
+
   // 🔥 NOUVEAU: Collecteur d'échecs pour l'analyse IA
   const allFailures = [];
-  
+
   // En-tête du rapport
   const now = new Date();
-  const runNumber = process.env.GITHUB_RUN_NUMBER ?? 'local';
-  const runId = process.env.GITHUB_RUN_ID ?? 'unknown';
+  const runNumber = process.env.GITHUB_RUN_NUMBER ?? "local";
+  const runId = process.env.GITHUB_RUN_ID ?? "unknown";
 
   reportSections.push(`# 📊 Rapport de Monitoring des Workflows GitHub Actions\n\n`);
-  reportSections.push(`**Dernière mise à jour:** ${now.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n`);
-  reportSections.push(`_Workflow run #${runNumber} (ID ${runId}) — génération UTC ${now.toISOString()}_\n\n`);
-  
+  reportSections.push(
+    `**Dernière mise à jour:** ${now.toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}\n\n`,
+  );
+  reportSections.push(
+    `_Workflow run #${runNumber} (ID ${runId}) — génération UTC ${now.toISOString()}_\n\n`,
+  );
+
   // 🔥 FOCUS SUR LE COMMIT ACTUEL
   if (TRIGGER_COMMIT_SHA) {
     reportSections.push(`## 🎯 Focus: Commit \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`\n\n`);
-    reportSections.push(`**Branche:** \`${TRIGGER_BRANCH || 'unknown'}\`\n`);
-    reportSections.push(`**Workflow déclencheur:** \`${TRIGGER_WORKFLOW_NAME || 'unknown'}\`\n\n`);
+    reportSections.push(`**Branche:** \`${TRIGGER_BRANCH || "unknown"}\`\n`);
+    reportSections.push(`**Workflow déclencheur:** \`${TRIGGER_WORKFLOW_NAME || "unknown"}\`\n\n`);
     reportSections.push(`> Ce rapport analyse **UNIQUEMENT** les échecs du commit actuel.\n\n`);
   } else {
     reportSections.push(`> Ce rapport analyse les échecs de workflows critiques.\n`);
   }
-  reportSections.push(`> Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.\n\n`);
+  reportSections.push(
+    `> Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.\n\n`,
+  );
   reportSections.push(`---\n\n`);
 
   // Analyser chaque workflow
   for (const workflowName of WORKFLOWS_TO_MONITOR) {
-    const workflow = workflows.find(w => w.name === workflowName);
-    
+    const workflow = workflows.find((w) => w.name === workflowName);
+
     if (!workflow) {
       console.log(`⚠️ Workflow "${workflowName}" non trouvé`);
       continue;
@@ -501,58 +516,67 @@ async function generateReport() {
 
     console.log(`📋 Analyse de "${workflowName}"...`);
     const runs = await getWorkflowRuns(workflow.id, 20);
-    
+
     // 🔥 FILTRE PAR COMMIT ACTUEL si disponible
     let filteredRuns = runs;
     if (TRIGGER_COMMIT_SHA) {
       console.log(`🎯 Filtrage sur commit: ${TRIGGER_COMMIT_SHA.substring(0, 7)}`);
-      filteredRuns = runs.filter(run => run.head_sha === TRIGGER_COMMIT_SHA);
+      filteredRuns = runs.filter((run) => run.head_sha === TRIGGER_COMMIT_SHA);
       console.log(`📊 ${filteredRuns.length} run(s) trouvé(s) pour ce commit`);
     }
-    
+
     // Filtrer les échecs récents (dernières 24h) OU du commit actuel
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentFailures = filteredRuns.filter(run => {
+    const recentFailures = filteredRuns.filter((run) => {
       if (TRIGGER_COMMIT_SHA) {
         // Si on filtre par commit, prendre tous les runs de ce commit (succès ou échec)
         return run.head_sha === TRIGGER_COMMIT_SHA;
       } else {
         // Sinon, prendre seulement les échecs récents
         const runDate = new Date(run.created_at);
-        return runDate >= oneDayAgo && run.conclusion === 'failure';
+        return runDate >= oneDayAgo && run.conclusion === "failure";
       }
     });
 
     // Filtrer les échecs des 7 derniers jours
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const weekFailures = runs.filter(run => {
+    const weekFailures = runs.filter((run) => {
       const runDate = new Date(run.created_at);
-      return runDate >= sevenDaysAgo && run.conclusion === 'failure';
+      return runDate >= sevenDaysAgo && run.conclusion === "failure";
     });
 
     // Dernier run
     const lastRun = runs[0];
     const lastRunDate = lastRun ? new Date(lastRun.created_at) : null;
-    const lastRunStatus = lastRun ? lastRun.conclusion : 'unknown';
+    const lastRunStatus = lastRun ? lastRun.conclusion : "unknown";
 
     // Section du workflow
     reportSections.push(`## ${workflowName}\n\n`);
-    
+
     // Statut global
-    const statusEmoji = lastRunStatus === 'success' ? '✅' : 
-                        lastRunStatus === 'failure' ? '❌' : 
-                        lastRunStatus === 'cancelled' ? '⏸️' : '⏳';
-    
-    reportSections.push(`**Statut:** ${statusEmoji} ${lastRunStatus || 'unknown'}\n\n`);
-    
+    const statusEmoji =
+      lastRunStatus === "success"
+        ? "✅"
+        : lastRunStatus === "failure"
+          ? "❌"
+          : lastRunStatus === "cancelled"
+            ? "⏸️"
+            : "⏳";
+
+    reportSections.push(`**Statut:** ${statusEmoji} ${lastRunStatus || "unknown"}\n\n`);
+
     if (lastRunDate) {
-      reportSections.push(`**Dernier run:** ${lastRunDate.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n`);
+      reportSections.push(
+        `**Dernier run:** ${lastRunDate.toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}\n\n`,
+      );
     }
 
     // Statistiques
     const totalRunsForCommit = TRIGGER_COMMIT_SHA ? filteredRuns.length : runs.length;
-    const failuresForCommit = TRIGGER_COMMIT_SHA ? recentFailures.filter(r => r.conclusion === 'failure').length : recentFailures.length;
-    
+    const failuresForCommit = TRIGGER_COMMIT_SHA
+      ? recentFailures.filter((r) => r.conclusion === "failure").length
+      : recentFailures.length;
+
     reportSections.push(`**Statistiques:**\n`);
     if (TRIGGER_COMMIT_SHA) {
       reportSections.push(`- 📊 **Total runs pour ce commit:** **${totalRunsForCommit}**\n`);
@@ -565,37 +589,43 @@ async function generateReport() {
 
     // Détails des échecs récents
     if (recentFailures.length > 0) {
-      const sectionTitle = TRIGGER_COMMIT_SHA ? `### 🔴 Échecs du commit actuel` : `### 🔴 Échecs récents (24h)`;
+      const sectionTitle = TRIGGER_COMMIT_SHA
+        ? `### 🔴 Échecs du commit actuel`
+        : `### 🔴 Échecs récents (24h)`;
       reportSections.push(`${sectionTitle}\n\n`);
-      
+
       for (const failure of recentFailures.slice(0, 5)) {
         const failureDate = new Date(failure.created_at);
         const jobs = await getRunJobs(failure.id);
-        const failedJobs = jobs.filter(j => j.conclusion === 'failure');
-        
-        reportSections.push(`#### Run #${failure.run_number} - ${failureDate.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n`);
+        const failedJobs = jobs.filter((j) => j.conclusion === "failure");
+
+        reportSections.push(
+          `#### Run #${failure.run_number} - ${failureDate.toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}\n\n`,
+        );
         reportSections.push(`- **Commit:** \`${failure.head_sha.substring(0, 7)}\`\n`);
-        reportSections.push(`- **Auteur:** ${failure.actor?.login || 'unknown'}\n`);
+        reportSections.push(`- **Auteur:** ${failure.actor?.login || "unknown"}\n`);
         reportSections.push(`- **Branche:** \`${failure.head_branch}\`\n`);
         reportSections.push(`- **Statut:** ${failure.conclusion}\n`);
         reportSections.push(`- **Lien:** [Voir les détails](${failure.html_url})\n`);
-        
+
         // 🔥 NOUVEAU: Collecter les données d'échec pour l'analyse IA
-        let failureError = '';
-        let failureLogs = '';
-        
+        let failureError = "";
+        let failureLogs = "";
+
         if (failedJobs.length > 0) {
           reportSections.push(`- **Jobs en échec:**\n`);
           for (const job of failedJobs) {
             reportSections.push(`  - ❌ \`${job.name}\` (${job.conclusion})\n`);
             // Afficher les steps qui ont échoué
             if (job.steps && job.steps.length > 0) {
-              const failedSteps = job.steps.filter(s => s.conclusion === 'failure');
+              const failedSteps = job.steps.filter((s) => s.conclusion === "failure");
               if (failedSteps.length > 0) {
-                reportSections.push(`    - Steps en échec: ${failedSteps.map(s => `\`${s.name}\``).join(', ')}\n`);
+                reportSections.push(
+                  `    - Steps en échec: ${failedSteps.map((s) => `\`${s.name}\``).join(", ")}\n`,
+                );
               }
             }
-            
+
             // Pour le dernier run seulement, analyser les artefacts ou les logs
             if (failure.id === recentFailures[0].id) {
               // D'abord essayer d'analyser les artefacts téléchargés
@@ -603,14 +633,20 @@ async function generateReport() {
               if (artifactFailures && artifactFailures.length > 0) {
                 reportSections.push(`    - **Tests en échec (${artifactFailures.length}):**\n`);
                 for (const testFailure of artifactFailures.slice(0, 10)) {
-                  reportSections.push(`      - ❌ **[${testFailure.browser}]** \`${testFailure.file}\`\n`);
+                  reportSections.push(
+                    `      - ❌ **[${testFailure.browser}]** \`${testFailure.file}\`\n`,
+                  );
                   reportSections.push(`        - Test: ${testFailure.title}\n`);
-                  reportSections.push(`        - Erreur: \`${testFailure.error.substring(0, 200)}${testFailure.error.length > 200 ? '...' : ''}\`\n`);
+                  reportSections.push(
+                    `        - Erreur: \`${testFailure.error.substring(0, 200)}${testFailure.error.length > 200 ? "..." : ""}\`\n`,
+                  );
                   // 🔥 Collecter l'erreur pour l'analyse IA
                   failureError = testFailure.error;
                 }
                 if (artifactFailures.length > 10) {
-                  reportSections.push(`      *... et ${artifactFailures.length - 10} autre(s) test(s) en échec*\n`);
+                  reportSections.push(
+                    `      *... et ${artifactFailures.length - 10} autre(s) test(s) en échec*\n`,
+                  );
                 }
               } else if (GITHUB_TOKEN) {
                 // Fallback sur les logs si pas d'artefacts
@@ -625,41 +661,49 @@ async function generateReport() {
                         reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
                         // 🔥 Collecter l'erreur pour l'analyse IA
                         if (!failureError) {
-                          failureError = error.split('\n')[0]; // Première ligne de l'erreur
+                          failureError = error.split("\n")[0]; // Première ligne de l'erreur
                         }
-                        failureLogs += error + '\n';
+                        failureLogs += error + "\n";
                       }
                       if (errors.length > 5) {
-                        reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
+                        reportSections.push(
+                          `      *... et ${errors.length - 5} autre(s) erreur(s)*\n`,
+                        );
                       }
                     } else {
                       reportSections.push(`    - ⚠️ Aucune erreur structurée détectée\n`);
                     }
                   }
                 } catch (err) {
-                  reportSections.push(`    - ⚠️ Impossible de récupérer les détails: ${err.message}\n`);
+                  reportSections.push(
+                    `    - ⚠️ Impossible de récupérer les détails: ${err.message}\n`,
+                  );
                 }
               }
             }
           }
         }
-        
+
         // 🔥 Ajouter cet échec au collecteur pour l'analyse IA
         allFailures.push({
           id: failure.id.toString(),
           name: workflowName,
           error: failureError,
-          logs: failureLogs
+          logs: failureLogs,
         });
-        
+
         reportSections.push(`\n`);
       }
     } else if (weekFailures.length > 0 && !TRIGGER_COMMIT_SHA) {
       reportSections.push(`### ⚠️ Échecs récents (7 jours)\n\n`);
-      reportSections.push(`Aucun échec dans les 24 dernières heures, mais **${weekFailures.length}** échec(s) cette semaine.\n\n`);
+      reportSections.push(
+        `Aucun échec dans les 24 dernières heures, mais **${weekFailures.length}** échec(s) cette semaine.\n\n`,
+      );
     } else if (TRIGGER_COMMIT_SHA) {
       reportSections.push(`### ✅ Aucun échec pour ce commit\n\n`);
-      reportSections.push(`Tous les workflows surveillés ont réussi pour le commit \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`.\n\n`);
+      reportSections.push(
+        `Tous les workflows surveillés ont réussi pour le commit \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`.\n\n`,
+      );
     } else {
       reportSections.push(`### ✅ Aucun échec récent\n\n`);
       reportSections.push(`Aucun échec détecté dans les 7 derniers jours.\n\n`);
@@ -670,46 +714,48 @@ async function generateReport() {
 
   // Résumé global
   reportSections.push(`## 📈 Résumé Global\n\n`);
-  
+
   let totalFailures24h = 0;
   let totalFailures7d = 0;
-  
+
   if (TRIGGER_COMMIT_SHA) {
     // Pour le focus commit, compter uniquement les échecs du commit actuel
     const commitFailures = [];
-    for (const workflow of workflows.filter(w => WORKFLOWS_TO_MONITOR.includes(w.name))) {
+    for (const workflow of workflows.filter((w) => WORKFLOWS_TO_MONITOR.includes(w.name))) {
       const runs = await getWorkflowRuns(workflow.id, 10);
-      const commitRuns = runs.filter(run => run.head_sha === TRIGGER_COMMIT_SHA);
-      commitFailures.push(...commitRuns.filter(run => run.conclusion === 'failure'));
+      const commitRuns = runs.filter((run) => run.head_sha === TRIGGER_COMMIT_SHA);
+      commitFailures.push(...commitRuns.filter((run) => run.conclusion === "failure"));
     }
-    
+
     totalFailures24h = commitFailures.length;
-    reportSections.push(`- 🎯 **Focus: Commit actuel** \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`\n`);
+    reportSections.push(
+      `- 🎯 **Focus: Commit actuel** \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`\n`,
+    );
     reportSections.push(`- ❌ **Échecs pour ce commit:** ${totalFailures24h}\n`);
   } else {
     // Logique originale pour les rapports généraux
     const allRuns = [];
-    for (const workflow of workflows.filter(w => WORKFLOWS_TO_MONITOR.includes(w.name))) {
+    for (const workflow of workflows.filter((w) => WORKFLOWS_TO_MONITOR.includes(w.name))) {
       const runs = await getWorkflowRuns(workflow.id, 10);
       allRuns.push(...runs);
     }
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    totalFailures24h = allRuns.filter(run => {
+    totalFailures24h = allRuns.filter((run) => {
       const runDate = new Date(run.created_at);
-      return runDate >= oneDayAgo && run.conclusion === 'failure';
+      return runDate >= oneDayAgo && run.conclusion === "failure";
     }).length;
 
-    totalFailures7d = allRuns.filter(run => {
+    totalFailures7d = allRuns.filter((run) => {
       const runDate = new Date(run.created_at);
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      return runDate >= sevenDaysAgo && run.conclusion === 'failure';
+      return runDate >= sevenDaysAgo && run.conclusion === "failure";
     }).length;
 
     reportSections.push(`- ❌ **Total échecs (24h):** ${totalFailures24h}\n`);
     reportSections.push(`- ❌ **Total échecs (7 jours):** ${totalFailures7d}\n`);
   }
-  
+
   reportSections.push(`- 📊 **Workflows monitorés:** ${WORKFLOWS_TO_MONITOR.length}\n\n`);
 
   // Recommandations
@@ -717,7 +763,9 @@ async function generateReport() {
     reportSections.push(`### ⚠️ Recommandations\n\n`);
     if (TRIGGER_COMMIT_SHA) {
       reportSections.push(`Des échecs ont été détectés pour le commit actuel. `);
-      reportSections.push(`Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.\n\n`);
+      reportSections.push(
+        `Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.\n\n`,
+      );
     } else {
       reportSections.push(`Des échecs ont été détectés dans les 24 dernières heures. `);
       reportSections.push(`Consultez les sections ci-dessus pour plus de détails.\n\n`);
@@ -725,51 +773,57 @@ async function generateReport() {
   } else {
     reportSections.push(`### ✅ État de santé\n\n`);
     if (TRIGGER_COMMIT_SHA) {
-      reportSections.push(`Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !\n\n`);
+      reportSections.push(
+        `Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !\n\n`,
+      );
     } else {
-      reportSections.push(`Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.\n\n`);
+      reportSections.push(
+        `Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.\n\n`,
+      );
     }
   }
 
   // 🔥 NOUVEAU: Analyse IA automatique des échecs avec contexte prédictif
-  console.log('🤖 Génération de l\'analyse IA automatique...');
+  console.log("🤖 Génération de l'analyse IA automatique...");
 
   // Préparer le contexte pour l'analyse prédictive
   const context = {
-    commitData: TRIGGER_COMMIT_SHA ? {
-      sha: TRIGGER_COMMIT_SHA,
-      branch: TRIGGER_BRANCH,
-      author: TRIGGER_ACTOR,
-      message: TRIGGER_COMMIT_MESSAGE,
-      files: [] // Pourrait être enrichi avec les fichiers modifiés
-    } : null,
+    commitData: TRIGGER_COMMIT_SHA
+      ? {
+          sha: TRIGGER_COMMIT_SHA,
+          branch: TRIGGER_BRANCH,
+          author: TRIGGER_ACTOR,
+          message: TRIGGER_COMMIT_MESSAGE,
+          files: [], // Pourrait être enrichi avec les fichiers modifiés
+        }
+      : null,
     failureHistory: [], // Pourrait être enrichi avec l'historique
-    lastSuccess: 'unknown',
+    lastSuccess: "unknown",
     failureRate: `${totalFailures24h}/${totalFailures24h + totalFailures7d}`,
     criticalWorkflows: WORKFLOWS_TO_MONITOR,
-    technologies: ['React', 'TypeScript', 'Playwright', 'Supabase', 'GitHub Actions']
+    technologies: ["React", "TypeScript", "Playwright", "Supabase", "GitHub Actions"],
   };
 
   const aiAnalysis = await analyzeWorkflowFailures(allFailures, context);
   if (aiAnalysis && aiAnalysis.trim()) {
     reportSections.push(aiAnalysis);
-    reportSections.push('\n---\n\n');
+    reportSections.push("\n---\n\n");
   }
 
   // Écrire le rapport
-  const reportContent = reportSections.join('');
-  
+  const reportContent = reportSections.join("");
+
   // Créer le dossier si nécessaire
   if (!fs.existsSync(REPORT_DIR)) {
     fs.mkdirSync(REPORT_DIR, { recursive: true });
   }
 
-  fs.writeFileSync(REPORT_FILE, reportContent, 'utf-8');
+  fs.writeFileSync(REPORT_FILE, reportContent, "utf-8");
   console.log(`\n✅ Rapport généré: ${REPORT_FILE}`);
   console.log(`📊 ${totalFailures24h} échec(s) détecté(s) dans les 24h`);
 
   // Générer un fichier JSON de statut rapide pour consultation facile
-  const statusFile = path.join(REPORT_DIR, 'workflow-status.json');
+  const statusFile = path.join(REPORT_DIR, "workflow-status.json");
   const statusData = {
     lastUpdate: now.toISOString(),
     runNumber,
@@ -778,16 +832,18 @@ async function generateReport() {
     totalFailures7d,
     workflowsMonitored: WORKFLOWS_TO_MONITOR.length,
     hasFailures: totalFailures24h > 0,
-    reportPath: 'Docs/monitoring/workflow-failures-report.md',
+    reportPath: "Docs/monitoring/workflow-failures-report.md",
     // 🔥 NOUVEAU: Informations sur le commit actuel
-    focusCommit: TRIGGER_COMMIT_SHA ? {
-      sha: TRIGGER_COMMIT_SHA,
-      shortSha: TRIGGER_COMMIT_SHA.substring(0, 7),
-      branch: TRIGGER_BRANCH,
-      workflowTrigger: TRIGGER_WORKFLOW_NAME,
-    } : null,
+    focusCommit: TRIGGER_COMMIT_SHA
+      ? {
+          sha: TRIGGER_COMMIT_SHA,
+          shortSha: TRIGGER_COMMIT_SHA.substring(0, 7),
+          branch: TRIGGER_BRANCH,
+          workflowTrigger: TRIGGER_WORKFLOW_NAME,
+        }
+      : null,
   };
-  fs.writeFileSync(statusFile, JSON.stringify(statusData, null, 2), 'utf-8');
+  fs.writeFileSync(statusFile, JSON.stringify(statusData, null, 2), "utf-8");
   console.log(`📊 Statut rapide généré: ${statusFile}`);
 
   // Créer/mettre à jour une issue GitHub si échecs critiques
@@ -804,12 +860,12 @@ async function generateReport() {
  */
 async function createOrUpdateAlertIssue(failures24h, failures7d, reportContent) {
   if (!GITHUB_TOKEN) {
-    console.log('⚠️ GITHUB_TOKEN non disponible, skip création issue');
+    console.log("⚠️ GITHUB_TOKEN non disponible, skip création issue");
     return;
   }
 
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const issueTitle = `🚨 CI/CD Health Alert - ${failures24h} échec(s) dans les 24h`;
 
     // Chercher une issue existante ouverte avec le label 'ci-health'
@@ -817,25 +873,24 @@ async function createOrUpdateAlertIssue(failures24h, failures7d, reportContent) 
       `${GITHUB_API_BASE}/repos/${REPO}/issues?state=open&labels=ci-health,automated&per_page=10`,
       {
         headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
         },
-      }
+      },
     );
-    
+
     let issues = [];
     if (response.ok) {
       issues = await response.json();
     }
 
-    const existingIssue = issues.find(issue => 
-      issue.title.includes('CI/CD Health Alert') && 
-      issue.state === 'open'
+    const existingIssue = issues.find(
+      (issue) => issue.title.includes("CI/CD Health Alert") && issue.state === "open",
     );
 
     const issueBody = `## 🚨 Alerte Santé CI/CD
 
-**Date:** ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
+**Date:** ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}
 
 ### 📊 Résumé
 - ❌ **Échecs (24h):** ${failures24h}
@@ -854,57 +909,48 @@ Lorsque cette issue est ouverte, l'IA doit automatiquement consulter le fichier 
 
     if (existingIssue) {
       // Mettre à jour l'issue existante
-      await fetch(
-        `${GITHUB_API_BASE}/repos/${REPO}/issues/${existingIssue.number}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: issueTitle,
-            body: issueBody,
-          }),
-        }
-      );
+      await fetch(`${GITHUB_API_BASE}/repos/${REPO}/issues/${existingIssue.number}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: issueTitle,
+          body: issueBody,
+        }),
+      });
 
       // Ajouter un commentaire avec le nouveau statut
-      await fetch(
-        `${GITHUB_API_BASE}/repos/${REPO}/issues/${existingIssue.number}/comments`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            body: `🔄 **Mise à jour** - ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n${failures24h} échec(s) détecté(s) dans les 24 dernières heures.`,
-          }),
-        }
-      );
+      await fetch(`${GITHUB_API_BASE}/repos/${REPO}/issues/${existingIssue.number}/comments`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          body: `🔄 **Mise à jour** - ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}\n\n${failures24h} échec(s) détecté(s) dans les 24 dernières heures.`,
+        }),
+      });
 
       console.log(`✅ Issue #${existingIssue.number} mise à jour`);
     } else {
       // Créer une nouvelle issue
-      const response = await fetch(
-        `${GITHUB_API_BASE}/repos/${REPO}/issues`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: issueTitle,
-            body: issueBody,
-            labels: ['ci-health', 'automated', 'urgent'],
-          }),
-        }
-      );
+      const response = await fetch(`${GITHUB_API_BASE}/repos/${REPO}/issues`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: issueTitle,
+          body: issueBody,
+          labels: ["ci-health", "automated", "urgent"],
+        }),
+      });
 
       if (response.ok) {
         const issue = await response.json();
@@ -915,7 +961,7 @@ Lorsque cette issue est ouverte, l'IA doit automatiquement consulter le fichier 
       }
     }
   } catch (error) {
-    console.error('❌ Erreur lors de la création/mise à jour de l\'issue:', error.message);
+    console.error("❌ Erreur lors de la création/mise à jour de l'issue:", error.message);
   }
 }
 
@@ -932,58 +978,50 @@ async function closeAlertIssuesIfResolved() {
       `${GITHUB_API_BASE}/repos/${REPO}/issues?state=open&labels=ci-health,automated&per_page=10`,
       {
         headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
         },
-      }
+      },
     );
-    
+
     let issues = [];
     if (response.ok) {
       issues = await response.json();
     }
 
-    const alertIssues = issues.filter(issue => 
-      issue.title.includes('CI/CD Health Alert')
-    );
+    const alertIssues = issues.filter((issue) => issue.title.includes("CI/CD Health Alert"));
 
     for (const issue of alertIssues) {
-      await fetch(
-        `${GITHUB_API_BASE}/repos/${REPO}/issues/${issue.number}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            state: 'closed',
-            state_reason: 'completed',
-          }),
-        }
-      );
+      await fetch(`${GITHUB_API_BASE}/repos/${REPO}/issues/${issue.number}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          state: "closed",
+          state_reason: "completed",
+        }),
+      });
 
       // Ajouter un commentaire de résolution
-      await fetch(
-        `${GITHUB_API_BASE}/repos/${REPO}/issues/${issue.number}/comments`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            body: `✅ **Résolu** - ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\nAucun échec détecté dans les 24 dernières heures. Le système CI/CD est de nouveau en bonne santé.`,
-          }),
-        }
-      );
+      await fetch(`${GITHUB_API_BASE}/repos/${REPO}/issues/${issue.number}/comments`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          body: `✅ **Résolu** - ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}\n\nAucun échec détecté dans les 24 dernières heures. Le système CI/CD est de nouveau en bonne santé.`,
+        }),
+      });
 
       console.log(`✅ Issue #${issue.number} fermée (problèmes résolus)`);
     }
   } catch (error) {
-    console.error('❌ Erreur lors de la fermeture des issues:', error.message);
+    console.error("❌ Erreur lors de la fermeture des issues:", error.message);
   }
 }
 
@@ -1005,8 +1043,7 @@ function getMockJobs() {
 }
 
 // Exécution
-generateReport().catch(error => {
-  console.error('❌ Erreur lors de la génération du rapport:', error);
+generateReport().catch((error) => {
+  console.error("❌ Erreur lors de la génération du rapport:", error);
   process.exit(1);
 });
-

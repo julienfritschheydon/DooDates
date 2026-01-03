@@ -9,32 +9,32 @@ permissions:
 jobs:
   testing-validation:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          
+          node-version: "20"
+          cache: "npm"
+
       - name: 📦 Install Dependencies
         run: npm ci
-        
+
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
-        
+
       - name: 📝 TypeScript Check
         run: npm run type-check || echo "TypeScript check completed with warnings"
-        
+
       - name: 🧹 Linting & Formatage
         run: npm run lint -- --max-warnings=30 || echo "Linting completed with warnings"
-        
+
       - name: 🏗️ Build Validation
         run: npm run build
-        
+
       - name: 📊 Tests Coverage Summary
         if: always()
         run: |
@@ -47,7 +47,7 @@ jobs:
   auto-merge-to-staging:
     needs: testing-validation
     runs-on: ubuntu-latest
-    if: false  # Auto-merge legacy désactivé
+    if: false # Auto-merge legacy désactivé
     steps:
       - name: ⏭️ Auto-merge désactivé
         run: echo "Auto-merge testing → staging legacy désactivé (utiliser les nouveaux workflows si besoin)"

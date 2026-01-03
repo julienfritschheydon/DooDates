@@ -35,7 +35,7 @@
     "audit:data-testid:fix": "node scripts/data-testid-auditor.cjs --fix",
     "audit:data-testid:verbose": "node scripts/data-testid-auditor.cjs --verbose",
     "type-check": "tsc --noEmit",
-    "test:e2e:functional": "PORT=$(npx -y get-port-cli) playwright test --project=chromium --grep @functional",
+    "test:e2e:functional": "node scripts/run-playwright-with-port.cjs test --project=chromium --grep @functional",
     "test:e2e:regression": "PORT=$(npx -y get-port-cli) playwright test",
     "test:e2e:critical": "PORT=$(npx -y get-port-cli) playwright test --grep @critical",
     "test:docs": "PORT=$(npx -y get-port-cli) playwright test tests/e2e/docs.spec.ts --project=chromium",

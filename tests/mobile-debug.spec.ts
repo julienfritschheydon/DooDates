@@ -1,10 +1,10 @@
-import { test, expect, Page } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
+import { test, expect, Page } from "@playwright/test";
+import * as fs from "fs";
+import * as path from "path";
 
 // Configuration du logger
-const logDir = 'logs/mobile-debug';
-const logFile = path.join(logDir, `test-${new Date().toISOString().replace(/[:.]/g, '-')}.log`);
+const logDir = "logs/mobile-debug";
+const logFile = path.join(logDir, `test-${new Date().toISOString().replace(/[:.]/g, "-")}.log`);
 
 // Créer le répertoire de logs s'il n'existe pas
 if (!fs.existsSync(logDir)) {
@@ -14,19 +14,19 @@ if (!fs.existsSync(logDir)) {
 // Fonction utilitaire pour logger dans la console et dans un fichier
 function log(message: string, data?: any) {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n`;
-  
+  const logMessage = `[${timestamp}] ${message}${data ? "\n" + JSON.stringify(data, null, 2) : ""}\n`;
+
   // Écrire dans la console
   console.log(logMessage);
-  
+
   // Écrire dans le fichier de log
-  fs.appendFileSync(logFile, logMessage, 'utf8');
+  fs.appendFileSync(logFile, logMessage, "utf8");
 }
 
 // Configuration du test
-test.describe('Débogage Gestes Mobiles', () => {
+test.describe("Débogage Gestes Mobiles", () => {
   let page: Page;
-  
+
   test.beforeAll(async ({ browser }) => {
     // Créer une nouvelle page avec des logs réseau et console
     const context = await browser.newContext({
@@ -34,59 +34,59 @@ test.describe('Débogage Gestes Mobiles', () => {
       isMobile: true,
       hasTouch: true,
       recordVideo: {
-        dir: 'test-results/videos/',
-        size: { width: 393, height: 851 }
-      }
+        dir: "test-results/videos/",
+        size: { width: 393, height: 851 },
+      },
     });
-    
+
     // Activer les logs réseau
-    context.on('request', request => 
-      log('NETWORK REQUEST', { url: request.url(), method: request.method() })
+    context.on("request", (request) =>
+      log("NETWORK REQUEST", { url: request.url(), method: request.method() }),
     );
-    
-    context.on('response', response => {
+
+    context.on("response", (response) => {
       if (response.status() >= 400) {
-        log('NETWORK ERROR', {
+        log("NETWORK ERROR", {
           url: response.url(),
           status: response.status(),
-          statusText: response.statusText()
+          statusText: response.statusText(),
         });
       }
     });
-    
+
     page = await context.newPage();
-    
+
     // Capturer les erreurs de console
-    page.on('console', msg => {
+    page.on("console", (msg) => {
       const type = msg.type();
-      if (type === 'error' || type === 'warning') {
+      if (type === "error" || type === "warning") {
         log(`CONSOLE ${type.toUpperCase()}`, msg.text());
       }
     });
-    
+
     // Capturer les erreurs de page
-    page.on('pageerror', error => {
-      log('PAGE ERROR', error.message);
+    page.on("pageerror", (error) => {
+      log("PAGE ERROR", error.message);
     });
-    
+
     // Capturer les requêtes réseau échouées
-    page.on('requestfailed', request => {
-      log('REQUEST FAILED', {
+    page.on("requestfailed", (request) => {
+      log("REQUEST FAILED", {
         url: request.url(),
-        failure: request.failure()?.errorText
+        failure: request.failure()?.errorText,
       });
     });
   });
-  
+
   test.afterAll(async () => {
     await page.close();
-    log('Test terminé. Les logs complets sont disponibles ici : ' + path.resolve(logFile));
+    log("Test terminé. Les logs complets sont disponibles ici : " + path.resolve(logFile));
   });
-  
-  test('Détection des conflits de gestes tactiles', async () => {
+
+  test("Détection des conflits de gestes tactiles", async () => {
     // Aller à la page de test
-    await page.goto('http://localhost:3000');
-    
+    await page.goto("http://localhost:3000");
+
     // Injecter du code pour surveiller les événements tactiles
     await page.addScriptTag({
       content: `
@@ -183,91 +183,91 @@ test.describe('Débogage Gestes Mobiles', () => {
         
         // Exposer les logs pour les tests
         window.getTouchEventLog = () => eventLog;
-      `
+      `,
     });
-    
+
     // Attendre que la page soit interactive
-    await page.waitForLoadState('networkidle');
-    
+    await page.waitForLoadState("networkidle");
+
     // Prendre une capture d'écran initiale
-    await page.screenshot({ path: 'test-results/mobile-debug-initial.png' });
-    
+    await page.screenshot({ path: "test-results/mobile-debug-initial.png" });
+
     // Attendre un peu pour voir les logs initiaux
     await page.waitForTimeout(1000);
-    
+
     // Exécuter un test de geste long
-    log('Début du test de long-press...');
+    log("Début du test de long-press...");
     const button = await page.$('button, [role="button"], .btn');
-    
+
     if (button) {
       const box = await button.boundingBox();
       if (box) {
         // Simuler un long-press (appui maintenu pendant 1,5 seconde)
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
         await page.mouse.down();
-        
+
         // Attendre 1,5 seconde pour simuler un long-press
         await page.waitForTimeout(1500);
-        
+
         // Déplacer légèrement pour simuler un glissement
         await page.mouse.move(box.x + box.width / 2 + 20, box.y + box.height / 2 + 20);
-        
+
         // Relâcher
         await page.mouse.up();
-        
-        log('Test de long-press terminé');
+
+        log("Test de long-press terminé");
       }
     } else {
-      log('Aucun bouton trouvé pour le test de long-press');
+      log("Aucun bouton trouvé pour le test de long-press");
     }
-    
+
     // Prendre une capture d'écran finale
-    await page.screenshot({ path: 'test-results/mobile-debug-final.png' });
-    
+    await page.screenshot({ path: "test-results/mobile-debug-final.png" });
+
     // Récupérer les logs d'événements tactiles
     const touchLogs = await page.evaluate(() => {
       // @ts-ignore - La fonction est définie dans le contexte de la page
       return window.getTouchEventLog ? window.getTouchEventLog() : [];
     });
-    
-    log('Résumé des événements tactiles capturés :', touchLogs);
-    
+
+    log("Résumé des événements tactiles capturés :", touchLogs);
+
     // Vérifier que nous avons capturé des événements tactiles
     expect(touchLogs.length).toBeGreaterThan(0);
-    
+
     // Vérifier la présence d'événements de type long-press
-    const hasLongPress = touchLogs.some((event: any) => 
-      event.type === 'touchmove' && 
-      touchLogs.some((e: any) => 
-        e.type === 'touchstart' && 
-        (event.timestamp - e.timestamp) > 500
-      )
+    const hasLongPress = touchLogs.some(
+      (event: any) =>
+        event.type === "touchmove" &&
+        touchLogs.some((e: any) => e.type === "touchstart" && event.timestamp - e.timestamp > 500),
     );
-    
-    log(`Détection de long-press: ${hasLongPress ? 'OUI' : 'NON'}`);
-    
+
+    log(`Détection de long-press: ${hasLongPress ? "OUI" : "NON"}`);
+
     // Vérifier la présence de conflits potentiels
     const potentialConflicts = [];
     for (let i = 0; i < touchLogs.length - 1; i++) {
       const current = touchLogs[i];
       const next = touchLogs[i + 1];
-      
-      if (current.type === 'touchstart' && 
-          (next.type === 'touchmove' || next.type === 'touchcancel') &&
-          (next.timestamp - current.timestamp) > 500) {
+
+      if (
+        current.type === "touchstart" &&
+        (next.type === "touchmove" || next.type === "touchcancel") &&
+        next.timestamp - current.timestamp > 500
+      ) {
         potentialConflicts.push({
           duration: next.timestamp - current.timestamp,
           start: current.position,
-          end: next.position || 'N/A',
-          element: current.target
+          end: next.position || "N/A",
+          element: current.target,
         });
       }
     }
-    
+
     if (potentialConflicts.length > 0) {
-      log('CONFLITS POTENTIELS DÉTECTÉS :', potentialConflicts);
+      log("CONFLITS POTENTIELS DÉTECTÉS :", potentialConflicts);
     } else {
-      log('Aucun conflit de gestes détecté');
+      log("Aucun conflit de gestes détecté");
     }
   });
 });

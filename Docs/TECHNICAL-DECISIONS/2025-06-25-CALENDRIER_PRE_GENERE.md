@@ -7,16 +7,19 @@ Au lieu de recalculer les dates à chaque requête, DooDates utilise maintenant 
 ## 🚀 Avantages
 
 ### Performance
+
 - **10x plus rapide** que les calculs à la volée
 - Recherche O(1) grâce aux index optimisés
 - Réduction de 90% de la charge CPU
 
 ### Fiabilité
+
 - Dates pré-calculées, pas d'erreurs de calcul
 - Cohérence garantie sur 100 ans
 - Métadonnées enrichies (jours fériés, semaines, trimestres)
 
 ### Expérience Utilisateur
+
 - Génération de sondages **instantanée**
 - Interface plus réactive
 - Pas de latence sur les calculs de dates
@@ -46,17 +49,17 @@ const stats = calendarQuery.getStats();
 
 ```typescript
 interface CalendarDay {
-  date: string;           // "2025-01-15"
-  year: number;           // 2025
-  month: number;          // 1-12
-  day: number;            // 1-31
-  dayOfWeek: number;      // 0=dimanche, 1=lundi, ..., 6=samedi
-  dayName: string;        // "lundi", "mardi", ...
-  monthName: string;      // "janvier", "février", ...
-  isWeekend: boolean;     // true/false
-  isHoliday?: boolean;    // Jours fériés français
-  weekNumber: number;     // Semaine dans l'année
-  quarterNumber: number;  // 1, 2, 3, 4
+  date: string; // "2025-01-15"
+  year: number; // 2025
+  month: number; // 1-12
+  day: number; // 1-31
+  dayOfWeek: number; // 0=dimanche, 1=lundi, ..., 6=samedi
+  dayName: string; // "lundi", "mardi", ...
+  monthName: string; // "janvier", "février", ...
+  isWeekend: boolean; // true/false
+  isHoliday?: boolean; // Jours fériés français
+  weekNumber: number; // Semaine dans l'année
+  quarterNumber: number; // 1, 2, 3, 4
 }
 ```
 
@@ -65,17 +68,18 @@ interface CalendarDay {
 ```typescript
 interface PreGeneratedCalendar {
   // Index pour recherche ultra-rapide
-  byYear: Record<number, CalendarDay[]>;        // Par année
-  byMonth: Record<string, CalendarDay[]>;       // Par mois "YYYY-MM"
-  byDayOfWeek: Record<number, CalendarDay[]>;   // Par jour semaine
-  weekends: CalendarDay[];                      // Tous les week-ends
-  weekdays: CalendarDay[];                      // Tous les jours ouvrables
+  byYear: Record<number, CalendarDay[]>; // Par année
+  byMonth: Record<string, CalendarDay[]>; // Par mois "YYYY-MM"
+  byDayOfWeek: Record<number, CalendarDay[]>; // Par jour semaine
+  weekends: CalendarDay[]; // Tous les week-ends
+  weekdays: CalendarDay[]; // Tous les jours ouvrables
 }
 ```
 
 ## 🎯 Utilisation dans DooDates
 
 ### Avant (Calculs à la volée)
+
 ```typescript
 // ❌ Lent - recalcule à chaque fois
 private parseWeekendRange(startMonth: number, endMonth: number): string[] {
@@ -94,12 +98,13 @@ private parseWeekendRange(startMonth: number, endMonth: number): string[] {
 ```
 
 ### Après (Calendrier pré-généré)
+
 ```typescript
 // ✅ Rapide - lookup direct dans l'index
 private parseWeekendRange(startMonth: number, endMonth: number): string[] {
   const startMonthKey = `${targetYear}-${startMonth.toString().padStart(2, '0')}`;
   const endMonthKey = `${targetYear}-${endMonth.toString().padStart(2, '0')}`;
-  
+
   const weekendDays = this.calendarQuery.getWeekendsInMonths(startMonthKey, endMonthKey);
   return weekendDays.map(day => day.date);
 }
@@ -108,16 +113,19 @@ private parseWeekendRange(startMonth: number, endMonth: number): string[] {
 ## 📈 Benchmarks
 
 ### Test 1: Week-ends été (juin-août)
+
 - **Pré-généré**: 0.12ms
 - **Calcul à la volée**: 1.45ms
 - **Gain**: 12x plus rapide
 
 ### Test 2: 6 lundis consécutifs
+
 - **Pré-généré**: 0.08ms
 - **Calcul à la volée**: 0.95ms
 - **Gain**: 11x plus rapide
 
 ### Test 3: Jours ouvrables d'une semaine
+
 - **Pré-généré**: 0.05ms
 - **Calcul à la volée**: 0.25ms
 - **Gain**: 5x plus rapide
@@ -127,35 +135,41 @@ private parseWeekendRange(startMonth: number, endMonth: number): string[] {
 Le calendrier est automatiquement mis en cache dans `localStorage` :
 
 ```typescript
-localStorage.setItem('doodates-calendar-cache', JSON.stringify({
-  version: '1.0',
-  generated: new Date().toISOString(),
-  calendar: preGeneratedCalendar
-}));
+localStorage.setItem(
+  "doodates-calendar-cache",
+  JSON.stringify({
+    version: "1.0",
+    generated: new Date().toISOString(),
+    calendar: preGeneratedCalendar,
+  }),
+);
 ```
 
 ## 🧪 Comment Tester
 
 1. **Benchmark automatique** (en développement):
+
 ```bash
 npm run dev
 # Les benchmarks s'affichent automatiquement dans la console
 ```
 
 2. **Test manuel dans la console**:
+
 ```javascript
-import { benchmark } from './src/lib/calendar-benchmark';
+import { benchmark } from "./src/lib/calendar-benchmark";
 benchmark(); // Lance tous les tests de performance
 ```
 
 3. **Test de requêtes**:
+
 ```javascript
-import CalendarQuery from './src/lib/calendar-generator';
+import CalendarQuery from "./src/lib/calendar-generator";
 const query = new CalendarQuery();
 
 // Exemples de requêtes ultra-rapides
-console.log(query.getWeekendsInRange('2025-06-01', '2025-08-31'));
-console.log(query.getNextNDaysOfWeek(1, 6, '2025-03-01')); // 6 lundis
+console.log(query.getWeekendsInRange("2025-06-01", "2025-08-31"));
+console.log(query.getNextNDaysOfWeek(1, 6, "2025-03-01")); // 6 lundis
 console.log(query.getStats());
 ```
 
@@ -178,16 +192,19 @@ console.log(query.getStats());
 ## 🎯 Impact Business
 
 ### Expérience Utilisateur
+
 - **Génération instantanée** des sondages
 - Interface plus fluide et réactive
 - Pas d'attente lors de la création
 
 ### Technique
+
 - **90% moins de CPU** utilisé pour les calculs de dates
 - Réduction significative de la complexité du code
 - Architecture plus robuste et maintenable
 
 ### Évolutivité
+
 - Supporte **100 ans de données** sans impact performance
 - Ajout facile de nouvelles métadonnées (jours fériés, etc.)
 - Base solide pour futures optimisations
@@ -201,4 +218,4 @@ console.log(query.getStats());
 
 ---
 
-*Cette optimisation transforme DooDates en une application ultra-réactive, capable de gérer n'importe quel volume de création de sondages sans latence.* 
+_Cette optimisation transforme DooDates en une application ultra-réactive, capable de gérer n'importe quel volume de création de sondages sans latence._

@@ -4254,173 +4254,47 @@
     ]
   ],
   "pageVisits": [
-    [
-      "/DooDates/date-polls",
-      519
-    ],
-    [
-      "/DooDates/date-polls/list",
-      152
-    ],
-    [
-      "/DooDates/",
-      168
-    ],
-    [
-      "/DooDates/date-polls/dashboard",
-      308
-    ],
-    [
-      "/DooDates/date-polls/workspace/date",
-      98
-    ],
-    [
-      "/DooDates/date-polls/settings",
-      101
-    ],
-    [
-      "/DooDates",
-      97
-    ],
-    [
-      "/DooDates/date-polls/docs",
-      58
-    ],
-    [
-      "/DooDates/date-polls/pricing",
-      18
-    ],
-    [
-      "/DooDates/support-policy",
-      27
-    ],
-    [
-      "/DooDates/security",
-      24
-    ],
-    [
-      "/DooDates/privacy",
-      24
-    ],
-    [
-      "/DooDates/settings",
-      11
-    ],
-    [
-      "/DooDates/date-polls/data-control",
-      7
-    ],
-    [
-      "/DooDates/date-polls/documentation",
-      11
-    ],
-    [
-      "/DooDates/terms",
-      18
-    ],
-    [
-      "/DooDates/contact",
-      15
-    ],
-    [
-      "/DooDates/about",
-      12
-    ],
-    [
-      "/DooDates/form-polls",
-      139
-    ],
-    [
-      "/DooDates/form-polls/list",
-      15
-    ],
-    [
-      "/DooDates/form-polls/dashboard",
-      230
-    ],
-    [
-      "/DooDates/form-polls/workspace/form",
-      149
-    ],
-    [
-      "/DooDates/form-polls/settings",
-      60
-    ],
-    [
-      "/DooDates/form-polls/docs",
-      28
-    ],
-    [
-      "/DooDates/availability-polls",
-      125
-    ],
-    [
-      "/DooDates/form-polls/documentation",
-      6
-    ],
-    [
-      "/DooDates/availability-polls/list",
-      10
-    ],
-    [
-      "/DooDates/form-polls/pricing",
-      19
-    ],
-    [
-      "/DooDates/quizz",
-      168
-    ],
-    [
-      "/DooDates/quizz/history",
-      110
-    ],
-    [
-      "/DooDates/availability-polls/dashboard",
-      158
-    ],
-    [
-      "/DooDates/availability-polls/workspace/availability",
-      95
-    ],
-    [
-      "/DooDates/quizz/dashboard",
-      32
-    ],
-    [
-      "/DooDates/quizz/create",
-      170
-    ],
-    [
-      "/DooDates/availability-polls/pricing",
-      13
-    ],
-    [
-      "/DooDates/quizz/pricing",
-      8
-    ],
-    [
-      "/DooDates/availability-polls/docs",
-      19
-    ],
-    [
-      "/DooDates/availability-polls/settings",
-      31
-    ],
-    [
-      "/DooDates/quizz/docs",
-      8
-    ],
-    [
-      "/DooDates/workspace/availability",
-      5
-    ],
-    [
-      "/DooDates/availability-polls/documentation",
-      1
-    ],
-    [
-      "/DooDates/form-polls/documentation/advanced",
-      3
-    ]
+    ["/DooDates/date-polls", 519],
+    ["/DooDates/date-polls/list", 152],
+    ["/DooDates/", 168],
+    ["/DooDates/date-polls/dashboard", 308],
+    ["/DooDates/date-polls/workspace/date", 98],
+    ["/DooDates/date-polls/settings", 101],
+    ["/DooDates", 97],
+    ["/DooDates/date-polls/docs", 58],
+    ["/DooDates/date-polls/pricing", 18],
+    ["/DooDates/support-policy", 27],
+    ["/DooDates/security", 24],
+    ["/DooDates/privacy", 24],
+    ["/DooDates/settings", 11],
+    ["/DooDates/date-polls/data-control", 7],
+    ["/DooDates/date-polls/documentation", 11],
+    ["/DooDates/terms", 18],
+    ["/DooDates/contact", 15],
+    ["/DooDates/about", 12],
+    ["/DooDates/form-polls", 139],
+    ["/DooDates/form-polls/list", 15],
+    ["/DooDates/form-polls/dashboard", 230],
+    ["/DooDates/form-polls/workspace/form", 149],
+    ["/DooDates/form-polls/settings", 60],
+    ["/DooDates/form-polls/docs", 28],
+    ["/DooDates/availability-polls", 125],
+    ["/DooDates/form-polls/documentation", 6],
+    ["/DooDates/availability-polls/list", 10],
+    ["/DooDates/form-polls/pricing", 19],
+    ["/DooDates/quizz", 168],
+    ["/DooDates/quizz/history", 110],
+    ["/DooDates/availability-polls/dashboard", 158],
+    ["/DooDates/availability-polls/workspace/availability", 95],
+    ["/DooDates/quizz/dashboard", 32],
+    ["/DooDates/quizz/create", 170],
+    ["/DooDates/availability-polls/pricing", 13],
+    ["/DooDates/quizz/pricing", 8],
+    ["/DooDates/availability-polls/docs", 19],
+    ["/DooDates/availability-polls/settings", 31],
+    ["/DooDates/quizz/docs", 8],
+    ["/DooDates/workspace/availability", 5],
+    ["/DooDates/availability-polls/documentation", 1],
+    ["/DooDates/form-polls/documentation/advanced", 3]
   ]
 }

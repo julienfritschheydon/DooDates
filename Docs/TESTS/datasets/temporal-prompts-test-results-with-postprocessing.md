@@ -12,10 +12,12 @@
 **Score** : 0.50/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 0
 
 **Violations** :
+
 - ❌ Absence de créneaux horaires
 - ❌ Trop peu de créneaux: 0 < 3
 
@@ -30,10 +32,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 6
 
 **Créneaux détaillés** :
+
 1. 09:00-12:00 (180min) sur 2025-12-21
 2. 09:30-12:30 (180min) sur 2025-12-21
 3. 10:00-13:00 (180min) sur 2025-12-21
@@ -52,10 +56,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 18:30-20:00 (90min) sur 2025-12-09
 2. 18:30-20:00 (90min) sur 2025-12-11
 
@@ -70,10 +76,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 1
 - Créneaux générés : 1
 
 **Créneaux détaillés** :
+
 1. 10:00-11:00 (60min) sur 2025-12-06
 
 **💡 Avis** :
@@ -87,10 +95,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 17:00-18:00 (60min) sur 2025-12-10
 2. 18:00-19:00 (60min) sur 2025-12-12
 
@@ -105,10 +115,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 10:00-12:00 (120min) sur 2025-12-06
 2. 15:00-17:00 (120min) sur 2025-12-07
 
@@ -123,10 +135,12 @@
 **Score** : 0.00/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 0
 - Créneaux générés : 0
 
 **Violations** :
+
 - ❌ Échec génération: Impossible de générer le sondage à partir de votre demande
 
 **💡 Avis** :
@@ -140,10 +154,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 11:30-13:00 (90min) sur 2025-12-27
 2. 11:30-13:00 (90min) sur 2025-12-21
 
@@ -158,10 +174,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 3
 - Créneaux générés : 3
 
 **Créneaux détaillés** :
+
 1. 19:00-21:00 (120min) sur 2026-03-27, 2026-03-28, 2026-03-29
 
 **💡 Avis** :
@@ -175,13 +193,16 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 8
 - Créneaux générés : 8
 
 **Créneaux détaillés** :
+
 1. 19:00-21:00 (120min) sur 2026-04-04, 2026-04-05, 2026-04-11, 2026-04-12, 2026-04-18, 2026-04-19, 2026-04-25, 2026-04-26
 
 **Violations** :
+
 - ❌ Trop de créneaux: 8 > 4
 
 **💡 Avis** :
@@ -195,6 +216,7 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 5
 - Créneaux générés : 0
 
@@ -209,13 +231,16 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 4
 - Créneaux générés : 7
 
 **Créneaux détaillés** :
+
 1. 18:30-21:00 (150min) sur 2025-12-02, 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08
 
 **Violations** :
+
 - ❌ Trop de créneaux: 7 > 5
 
 **💡 Avis** :
@@ -229,15 +254,18 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 5
 - Créneaux générés : 21
 
 **Créneaux détaillés** :
+
 1. 14:00-16:00 (120min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08, 2025-12-09
 2. 14:30-16:30 (120min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08, 2025-12-09
 3. 15:00-17:00 (120min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08, 2025-12-09
 
 **Violations** :
+
 - ❌ Trop de créneaux: 21 > 3
 
 **💡 Avis** :
@@ -251,10 +279,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 18:00-19:00 (60min) sur 2025-12-05
 2. 08:00-09:00 (60min) sur 2025-12-06
 
@@ -269,13 +299,16 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 7
 - Créneaux générés : 7
 
 **Créneaux détaillés** :
+
 1. 18:30-21:00 (150min) sur 2025-12-08, 2025-12-09, 2025-12-10, 2025-12-11, 2025-12-12, 2025-12-13, 2025-12-14
 
 **Violations** :
+
 - ❌ Trop de créneaux: 7 > 2
 
 **💡 Avis** :
@@ -289,10 +322,12 @@
 **Score** : 1.00/1.0 - ✅ RÉUSSI
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 2
 
 **Créneaux détaillés** :
+
 1. 09:00-11:00 (120min) sur 2026-04-25
 2. 14:00-16:00 (120min) sur 2026-04-26
 
@@ -307,10 +342,12 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 3
 - Créneaux générés : 30
 
 **Créneaux détaillés** :
+
 1. 09:00-09:30 (30min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-08, 2025-12-09
 2. 09:30-10:00 (30min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-08, 2025-12-09
 3. 10:00-10:30 (30min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-08, 2025-12-09
@@ -319,6 +356,7 @@
 6. 11:30-12:00 (30min) sur 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-08, 2025-12-09
 
 **Violations** :
+
 - ❌ Trop de créneaux: 30 > 4
 
 **💡 Avis** :
@@ -332,10 +370,12 @@
 **Score** : 0.90/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 4
 - Créneaux générés : 35
 
 **Créneaux détaillés** :
+
 1. 18:30-19:00 (30min) sur 2025-12-02, 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08
 2. 19:00-19:30 (30min) sur 2025-12-02, 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08
 3. 19:30-20:00 (30min) sur 2025-12-02, 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08
@@ -343,10 +383,10 @@
 5. 20:30-21:00 (30min) sur 2025-12-02, 2025-12-03, 2025-12-04, 2025-12-05, 2025-12-06, 2025-12-07, 2025-12-08
 
 **Violations** :
+
 - ❌ Trop de créneaux: 35 > 3
 
 **💡 Avis** :
 ⚠️ **À améliorer** : Le post-processor n'a pas complètement résolu le problème. Violations détectées : Trop de créneaux: 35 > 3.
 
 ---
-

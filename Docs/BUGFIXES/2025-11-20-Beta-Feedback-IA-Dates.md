@@ -11,6 +11,7 @@
 Tests manuels de l'IA ont révélé 5 bugs critiques dans la création et modification de sondages de dates. **Tous ont été corrigés.**
 
 **Prompt utilisateur testé:**
+
 > "Crée un sondage pour un week-end jeux. L'événement aura lieu le samedi et le dimanche. Sélectionner les dates correspondantes de mars et avril 2026"
 
 ---
@@ -18,22 +19,26 @@ Tests manuels de l'IA ont révélé 5 bugs critiques dans la création et modifi
 ## 🐛 Bug #1: Création Initiale - Dates Incomplètes
 
 ### Symptôme
+
 **Attendu:** Tous les samedis ET dimanches de mars ET avril 2026 (sans horaires)  
 **Obtenu:** Seulement samedi 7 mars et dimanche 8 mars 2026 (avec horaires)
 
 ### Analyse
 
 **Problème 1: Pattern "week-end" pas détecté**
+
 - Le prompt dit "week-end jeux" et "samedi et dimanche"
 - Le post-processor détecte uniquement "tous les [jour] de [mois]" (singulier)
 - Ne détecte PAS "samedi et dimanche" (plusieurs jours)
 
 **Problème 2: Pattern "mars et avril" pas détecté**
+
 - Le prompt dit "mars et avril 2026"
 - Le post-processor détecte uniquement UN mois
 - Ne détecte PAS "mars et avril" (plusieurs mois)
 
 **Problème 3: Gemini génère des horaires non demandés**
+
 - Le prompt ne mentionne PAS d'horaires
 - Gemini génère quand même "09:00 - 10:00, 11:00 - 12:00, 14:00 - 15:00"
 - Le prompt Gemini devrait être plus strict sur "pas d'horaires si non demandé"
@@ -52,6 +57,7 @@ const allWeekdaysPattern =
 ### Solution Proposée
 
 **1. Détecter "week-end" explicitement**
+
 ```typescript
 // Nouveau pattern pour week-end
 const weekendPattern = /week-?end|samedi\s+et\s+dimanche|dimanche\s+et\s+samedi/i;
@@ -61,12 +67,15 @@ if (weekendPattern.test(options.userInput)) {
 ```
 
 **2. Détecter plusieurs mois**
+
 ```typescript
 // Pattern pour "mars et avril", "mars, avril et mai", etc.
-const multiMonthPattern = /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(janvier|février|...|décembre)/i;
+const multiMonthPattern =
+  /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(janvier|février|...|décembre)/i;
 ```
 
 **3. Améliorer le prompt Gemini**
+
 ```typescript
 // Ajouter dans buildPollGenerationPrompt:
 "⚠️ HORAIRES: Ne générer timeSlots QUE si explicitement demandé
@@ -79,12 +88,14 @@ const multiMonthPattern = /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(ja
 ## Bug #2: Modification - Remplacement au lieu d'Ajout - RÉSOLU
 
 ### Symptôme
+
 **Attendu:** Ajouter les samedis de mars aux dates existantes (7 mars + 8 mars + 14 mars + 21 mars + 28 mars)  
 **Obtenu:** Remplace dimanche 8 mars par dimanche 1er mars (perd des dates)
 
 ### Analyse
 
 **Problème identifié: Combinaison des Bugs #3 et #4**
+
 - Le Bug #4 empêchait les actions `ADD_DATE` d'être dispatchées
 - Le Bug #3 ne détectait pas les doublons avant dispatch
 - Résultat: Aucun ajout ne fonctionnait réellement
@@ -97,6 +108,7 @@ const multiMonthPattern = /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(ja
 ### Solution Appliquée
 
 **Le Bug #2 est résolu automatiquement par les corrections des Bugs #3 et #4:**
+
 1. Bug #4 corrigé → Les actions `ADD_DATE` sont maintenant dispatchées
 2. Bug #3 corrigé → Les doublons sont détectés et ne sont pas ajoutés
 3. Le reducer fonctionne correctement → Les dates sont ajoutées sans remplacement
@@ -108,12 +120,14 @@ const multiMonthPattern = /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(ja
 ## ✅ Bug #3: Pas de Détection des Doublons - CORRIGÉ
 
 ### Symptôme
+
 **Attendu:** "La date 07/03/2026 est déjà dans le sondage"  
 **Obtenu:** Aucun message, génère une nouvelle suggestion
 
 ### Analyse
 
 **Problème: Actions dispatchées AVANT vérification des doublons**
+
 - L'utilisateur demande "ajoute le 7 mars 2026"
 - Le code détectait le doublon mais dispatchait l'action quand même (ligne 209-212)
 - Le message de feedback était correct mais l'action était exécutée
@@ -126,6 +140,7 @@ const multiMonthPattern = /(janvier|février|...|décembre)(\s+et\s+|\s*,\s*)(ja
 ### Solution Appliquée
 
 **Vérifier les doublons AVANT de dispatcher l'action**
+
 ```typescript
 // 🔧 FIX BUG #3: Vérifier les doublons AVANT de dispatcher
 const icon = dateActionIcons[intent.action] || "✅";
@@ -153,12 +168,14 @@ if (shouldDispatch) {
 ## ✅ Bug #4: Ajouts Après Création - Pas d'Effet Réel - CORRIGÉ
 
 ### Symptôme
+
 **Attendu:** Les dates s'ajoutent vraiment au sondage  
 **Obtenu:** Messages "Ajout de la date..." mais le sondage reste inchangé (toujours 7 et 8 mars)
 
 ### Analyse
 
 **Problème: Le switch ignorait toutes les actions sauf REPLACE_POLL**
+
 - Le message de feedback s'affichait correctement
 - Mais le `onDispatchAction` callback avait un switch incomplet
 - Toutes les actions `ADD_DATE`, `REMOVE_DATE`, etc. tombaient dans le `default` et étaient ignorées
@@ -171,6 +188,7 @@ if (shouldDispatch) {
 ### Solution Appliquée
 
 **Ajouter tous les cas manquants dans le switch:**
+
 ```typescript
 case "ADD_DATE":
 case "REMOVE_DATE":
@@ -192,6 +210,7 @@ case "ADD_TIMESLOT":
 ```
 
 **Résultat:**
+
 - Les actions `ADD_DATE` sont maintenant correctement dispatchées au reducer
 - Le reducer applique les modifications
 - L'état du sondage est mis à jour en temps réel
@@ -239,7 +258,7 @@ case "ADD_TIMESLOT":
    - Support `ADD_DATE`, `REMOVE_DATE`, `UPDATE_TITLE`, `ADD_TIMESLOT`
    - Les actions sont maintenant correctement dispatchées au reducer
 
-5. **`useIntentDetection.ts`** ✅
+7. **`useIntentDetection.ts`** ✅
    - Vérification des doublons AVANT dispatch (ligne 208-221)
    - Variable `shouldDispatch` pour contrôler l'exécution
    - Messages de feedback corrects même si action non dispatchée
@@ -259,8 +278,10 @@ case "ADD_TIMESLOT":
 ## 🧪 Tests à Créer
 
 ### Test 1: Week-end multi-mois
+
 ```typescript
-const input = "Crée un sondage pour un week-end jeux. L'événement aura lieu le samedi et le dimanche. Sélectionner les dates correspondantes de mars et avril 2026";
+const input =
+  "Crée un sondage pour un week-end jeux. L'événement aura lieu le samedi et le dimanche. Sélectionner les dates correspondantes de mars et avril 2026";
 const result = await geminiService.generatePollFromText(input);
 
 expect(result.dates).toHaveLength(18); // 9 week-ends × 2 jours
@@ -272,6 +293,7 @@ expect(result.timeSlots).toHaveLength(0); // Pas d'horaires
 ```
 
 ### Test 2: Ajout sans remplacement
+
 ```typescript
 const poll = { dates: ["2026-03-07", "2026-03-08"] };
 const input = "ajoute les samedi de mars";
@@ -284,6 +306,7 @@ expect(result.actions).not.toContainEqual({ type: "REMOVE_DATE", payload: "2026-
 ```
 
 ### Test 3: Détection doublons
+
 ```typescript
 const poll = { dates: ["2026-03-07"] };
 const input = "ajoute le 7 mars 2026";
@@ -332,7 +355,8 @@ expect(result.messages).toContainEqual({
 ### Symptôme
 
 **Attendu:** Drag-to-select fonctionne sur les dates (calendrier) et les horaires (grille horaire)  
-**Obtenu:** 
+**Obtenu:**
+
 - Le drag ne fonctionnait pas du tout sur les horaires
 - Le drag restait "bloqué" en mode actif sur le calendrier (impossible d'arrêter)
 - Sur mobile, les clics simples sur les dates ne fonctionnaient plus
@@ -340,22 +364,26 @@ expect(result.messages).toContainEqual({
 ### Analyse
 
 **Problème 1: Helpers instables dans PollCreator.tsx**
+
 - Les fonctions `formatSlotKey` et `getSlotsInRange` étaient redéfinies à chaque render
 - Le hook `useDragToSelect` perdait ses références
 - Résultat: `onDragEnd` n'était jamais appelé
 
 **Problème 2: Modifications hasardeuses dans useDragToSelect.ts**
+
 - Tentative de permettre `handleDragMove` sans `isDragging`
 - Causait un bug de drag permanent sur le calendrier
 - Le drag ne se terminait jamais (état bloqué)
 
 **Problème 3: Condition `!isMobile` bloquait les clics mobile**
+
 - Dans `Calendar.tsx` ligne 205: `if (!isPastDay && !isMobile)`
 - Empêchait les clics simples sur les dates en mode mobile
 
 ### Code Responsable
 
 **Fichiers:**
+
 1. `src/components/PollCreator.tsx` - Helpers redéfinis à chaque render
 2. `src/hooks/useDragToSelect.ts` - Logique de drag modifiée incorrectement
 3. `src/components/Calendar.tsx` - Condition mobile trop restrictive
@@ -363,6 +391,7 @@ expect(result.messages).toContainEqual({
 ### Solution Appliquée
 
 **1. Stabiliser les helpers (PollCreator.tsx)**
+
 ```typescript
 // ✅ Défini EN DEHORS du composant pour stabilité
 const formatSlotKey = (slot: TimeSlotWithDate): string => {
@@ -379,33 +408,35 @@ const createGetSlotsInRange = (timeGranularity: number) => {
 // ✅ Mémoiser avec useMemo APRÈS state
 const getSlotsInRange = React.useMemo(
   () => createGetSlotsInRange(state.timeGranularity),
-  [state.timeGranularity]
+  [state.timeGranularity],
 );
 ```
 
 **2. Restaurer la logique stable (useDragToSelect.ts)**
+
 ```typescript
 // ✅ Revenir à la version qui fonctionne
 const handleDragMove = useCallback(
   (item: T) => {
     if (!isDragging || !dragStartItem || isMobile()) return; // ✅ Condition stricte
-    
+
     const currentKey = getItemKey(item);
     const startKey = getItemKey(dragStartItem);
-    
+
     if (currentKey !== startKey) {
       setHasMoved(true);
     }
-    
+
     const itemsInRange = getItemsInRange(dragStartItem, item);
     const itemKeys = new Set(itemsInRange.map(getItemKey));
     setDraggedItems(itemKeys);
   },
-  [isDragging, dragStartItem, isMobile, getItemKey, getItemsInRange]
+  [isDragging, dragStartItem, isMobile, getItemKey, getItemsInRange],
 );
 ```
 
 **3. Permettre les clics mobile (Calendar.tsx)**
+
 ```typescript
 // ✅ Retirer la condition !isMobile
 onClick={(e) => {
@@ -417,6 +448,7 @@ onClick={(e) => {
 ```
 
 **4. Nettoyage complet des logs de debug**
+
 - Supprimé tous les `console.log('[DRAG_HORAIRES]')` dans PollCreator.tsx
 - Supprimé tous les `console.log('[MOUSE_MOVE]')` dans useDragToSelect.ts
 - Code propre et production-ready
@@ -424,14 +456,17 @@ onClick={(e) => {
 ### Résultat
 
 **Desktop ✅**
+
 - Drag-to-select sur les dates du calendrier → **FONCTIONNE**
 - Drag-to-extend sur les horaires → **FONCTIONNE**
 
 **Mobile ✅**
+
 - Clic simple sur les dates → **FONCTIONNE** (pas de drag, c'est normal)
 - Clic simple sur les horaires → **FONCTIONNE** (pas de drag, c'est normal)
 
 **Tablette ✅**
+
 - Clic simple sur les dates → **FONCTIONNE**
 - Clic simple sur les horaires → **FONCTIONNE**
 

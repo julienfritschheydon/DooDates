@@ -4,19 +4,19 @@
 
 ### 🎯 Documents Principaux (À Utiliser)
 
-| Document | Description | Statut |
-|----------|-------------|--------|
+| Document                                                         | Description                                                      | Statut        |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------- | ------------- |
 | **[DATABASE-SCHEMA-COMPLETE.md](./DATABASE-SCHEMA-COMPLETE.md)** | **Schéma de BDD complet** - Architecture conversation-centric V2 | ✅ **À JOUR** |
-| **[Branching-Strategy.md](./Branching-Strategy.md)** | **Stratégie de branches** - Git Worktrees + Tests progressifs | ✅ **À JOUR** |
-| **[GUIDE_TEST_SAUVEGARDE.md](../GUIDE_TEST_SAUVEGARDE.md)** | Guide de test pour vérifier la sauvegarde Supabase | ✅ **À JOUR** |
-| **[CORRECTIONS-ERREUR-400.md](../CORRECTIONS-ERREUR-400.md)** | Explication et correction de l'erreur 400 | ✅ **À JOUR** |
+| **[Branching-Strategy.md](./Branching-Strategy.md)**             | **Stratégie de branches** - Git Worktrees + Tests progressifs    | ✅ **À JOUR** |
+| **[GUIDE_TEST_SAUVEGARDE.md](../GUIDE_TEST_SAUVEGARDE.md)**      | Guide de test pour vérifier la sauvegarde Supabase               | ✅ **À JOUR** |
+| **[CORRECTIONS-ERREUR-400.md](../CORRECTIONS-ERREUR-400.md)**    | Explication et correction de l'erreur 400                        | ✅ **À JOUR** |
 
 ### 📖 Documents de Référence
 
-| Document | Description | Statut |
-|----------|-------------|--------|
-| [DATABASE-SCHEMA-COMPLETE.md](./Database/DATABASE-SCHEMA-COMPLETE.md) | 📌 **Architecture & Schéma BDD complet** - Modèle "conversation-centric" | ✅ **ACTUEL** |
-| [5. Database-Schema.md](./Database/Archive/5.%20Database-Schema-OBSOLETE.md) | Ancien schéma V1 centré polls (obsolète) | 📦 Archivé |
+| Document                                                                     | Description                                                              | Statut        |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------- |
+| [DATABASE-SCHEMA-COMPLETE.md](./Database/DATABASE-SCHEMA-COMPLETE.md)        | 📌 **Architecture & Schéma BDD complet** - Modèle "conversation-centric" | ✅ **ACTUEL** |
+| [5. Database-Schema.md](./Database/Archive/5.%20Database-Schema-OBSOLETE.md) | Ancien schéma V1 centré polls (obsolète)                                 | 📦 Archivé    |
 
 ---
 
@@ -70,6 +70,7 @@ Suivez le guide de test :
 ### 3. Code
 
 Le code est déjà mis à jour :
+
 - ✅ `src/hooks/usePolls.ts` - Ne charge plus depuis table `polls`
 - ✅ Utilise `localStorage` (qui reflète `conversations`)
 
@@ -110,7 +111,7 @@ Le code est déjà mis à jour :
 ### Récupérer mes sondages
 
 ```sql
-SELECT 
+SELECT
   id, title, poll_type, poll_status, poll_slug,
   poll_data, created_at
 FROM conversations
@@ -122,7 +123,7 @@ ORDER BY updated_at DESC;
 ### Récupérer un sondage public
 
 ```sql
-SELECT * 
+SELECT *
 FROM conversations
 WHERE poll_slug = 'reunion-equipe-a1b2c3'
   AND poll_status = 'active';
@@ -131,7 +132,7 @@ WHERE poll_slug = 'reunion-equipe-a1b2c3'
 ### Récupérer les votes
 
 ```sql
-SELECT 
+SELECT
   v.voter_name, v.voter_email, v.vote_data, v.created_at
 FROM votes v
 JOIN conversations c ON v.conversation_id = c.id
@@ -143,11 +144,11 @@ ORDER BY v.created_at DESC;
 
 ## 🛠️ Scripts SQL Disponibles
 
-| Script | Description | Quand l'utiliser |
-|--------|-------------|------------------|
-| `00-INIT-DATABASE-COMPLETE.sql` | Initialisation complète BDD | Nouveau projet |
-| `upgrade-conversations-for-polls.sql` | Ajoute colonnes polls à conversations | Migration V1→V2 |
-| `fix-400-errors.sql` | Correction erreurs 400 anciennes | Obsolète (V1) |
+| Script                                | Description                           | Quand l'utiliser |
+| ------------------------------------- | ------------------------------------- | ---------------- |
+| `00-INIT-DATABASE-COMPLETE.sql`       | Initialisation complète BDD           | Nouveau projet   |
+| `upgrade-conversations-for-polls.sql` | Ajoute colonnes polls à conversations | Migration V1→V2  |
+| `fix-400-errors.sql`                  | Correction erreurs 400 anciennes      | Obsolète (V1)    |
 
 ---
 
@@ -171,10 +172,12 @@ ORDER BY v.created_at DESC;
 ### Problèmes Courants
 
 **Erreur 400 sur `/rest/v1/polls`**
+
 - ✅ Corrigé - Le code ne charge plus depuis `polls`
 - 📖 Voir [CORRECTIONS-ERREUR-400.md](../CORRECTIONS-ERREUR-400.md)
 
 **Données non sauvegardées**
+
 - 📖 Suivre [GUIDE_TEST_SAUVEGARDE.md](../GUIDE_TEST_SAUVEGARDE.md)
 - Vérifier table `conversations`, pas `polls`
 
@@ -182,4 +185,3 @@ ORDER BY v.created_at DESC;
 
 **Date de mise à jour** : 7 Novembre 2025  
 **Version** : 2.0 - Architecture Conversation-Centric
-

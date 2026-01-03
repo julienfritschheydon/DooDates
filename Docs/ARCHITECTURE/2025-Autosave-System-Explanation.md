@@ -38,20 +38,22 @@ Vous tapez : "Réunion d'équipe"
 **Débounce :** 800ms
 
 **Déclencheurs :**
+
 - Modification du titre
 - Ajout/suppression/modification de questions
 - Changement du mode d'affichage (all-at-once / multi-step)
 
 **Code :**
+
 ```typescript
 useEffect(() => {
   if (!currentDraft.title.trim()) return; // Ne pas sauvegarder si vide
   if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
-  
+
   autosaveTimer.current = window.setTimeout(() => {
     upsertFormPoll(currentDraft, "draft");
   }, 800);
-  
+
   return () => {
     if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
   };
@@ -65,21 +67,23 @@ useEffect(() => {
 **Débounce :** 500ms
 
 **Déclencheurs :**
+
 - Toute modification du poll courant (créé via IA)
 
 **Code :**
+
 ```typescript
 useEffect(() => {
   if (!currentPoll) return;
-  
+
   if (persistenceTimerRef.current) {
     clearTimeout(persistenceTimerRef.current);
   }
-  
+
   persistenceTimerRef.current = setTimeout(() => {
     addPoll(currentPoll as StoragePoll);
   }, 500);
-  
+
   return () => {
     if (persistenceTimerRef.current) {
       clearTimeout(persistenceTimerRef.current);
@@ -95,9 +99,11 @@ useEffect(() => {
 **Type :** Sauvegarde immédiate (sans débounce)
 
 **Déclencheurs :**
+
 - Changement du poll courant dans l'éditeur
 
 **Code :**
+
 ```typescript
 useEffect(() => {
   if (currentPoll) {
@@ -163,4 +169,3 @@ Pour vérifier que l'autosave fonctionne :
 ---
 
 **Note :** Ce système est conçu pour être transparent et ne nécessite aucune action de votre part. Vos modifications sont automatiquement préservées.
-

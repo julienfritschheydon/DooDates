@@ -8,14 +8,16 @@ export default defineConfig({
   // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
   // This handles the /DooDates/ subdirectory deployment
   // DO NOT add basename to BrowserRouter in App.tsx - Vite handles this!
-  base: "/DooDates/",  // Base path statique pour GitHub Pages - plus de complexité
+  base: "/DooDates/", // Base path statique pour GitHub Pages - plus de complexité
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   define: {
-    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV === 'test' ? 'development' : process.env.NODE_ENV || "development"),
+    "process.env.NODE_ENV": JSON.stringify(
+      process.env.NODE_ENV === "test" ? "development" : process.env.NODE_ENV || "development",
+    ),
   },
   build: {
     rollupOptions: {
@@ -56,7 +58,7 @@ export default defineConfig({
       overlay: false,
     },
   },
-// Configuration spécifique pour les tests E2E
+  // Configuration spécifique pour les tests E2E
   // Utilise un port différent pour éviter les conflits
   preview: {
     port: 8081,

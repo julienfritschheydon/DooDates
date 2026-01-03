@@ -22,6 +22,7 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 ### Pourquoi Simuler ?
 
 **Avant de partager, vérifiez :**
+
 - ✅ **Logique conditionnelle** : Les questions s'affichent correctement
 - ✅ **Graphiques** : Les visualisations sont claires
 - ✅ **Durée** : Temps de complétion réaliste
@@ -29,6 +30,7 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 - ✅ **Clarté** : Pas de questions ambiguës
 
 **Bénéfices :**
+
 - 🎯 **Confiance** : Publiez sans crainte
 - 📊 **Aperçu** : Visualisez les résultats futurs
 - 🐛 **Bugs** : Détectez les problèmes avant
@@ -41,12 +43,14 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 ### Depuis l'Éditeur
 
 **Bouton "Simuler" :**
+
 ```
 Formulaire Éditeur
   → [🧪 Simuler des réponses]
 ```
 
 **Interface de configuration :**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  🧪 Simulation de Réponses IA               │
@@ -72,11 +76,11 @@ Formulaire Éditeur
 
 #### Nombre de Réponses
 
-| Nombre | Durée | Usage |
-|--------|-------|-------|
-| **20** | 30s | Test rapide, formulaire court |
-| **50** | 1min | Recommandé, statistiques fiables |
-| **100** | 2min | Analyse approfondie, gros volume |
+| Nombre  | Durée | Usage                            |
+| ------- | ----- | -------------------------------- |
+| **20**  | 30s   | Test rapide, formulaire court    |
+| **50**  | 1min  | Recommandé, statistiques fiables |
+| **100** | 2min  | Analyse approfondie, gros volume |
 
 ---
 
@@ -85,6 +89,7 @@ Formulaire Éditeur
 **Personnalisez le profil pour des réponses plus pertinentes :**
 
 **Exemples :**
+
 ```
 Restaurant :
 "Clients restaurant gastronomique, 30-60 ans, revenus moyens à élevés"
@@ -97,6 +102,7 @@ SaaS B2B :
 ```
 
 **Impact :**
+
 ```
 Sans profil : Réponses génériques
 Avec profil : Réponses contextualisées (+40% de pertinence)
@@ -107,6 +113,7 @@ Avec profil : Réponses contextualisées (+40% de pertinence)
 ### Processus de Génération
 
 **Étapes visibles :**
+
 ```
 🔄 Analyse du formulaire... (5s)
    ✓ 6 questions détectées
@@ -115,7 +122,7 @@ Avec profil : Réponses contextualisées (+40% de pertinence)
 
 🤖 Génération des réponses... (45s)
    ████████████████░░░░░░ 80% (40/50)
-   
+
 ✅ Simulation terminée ! (50 réponses générées)
    [Voir les résultats]
 ```
@@ -145,6 +152,7 @@ Taux de complétion : 94% (47/50)
 **Tous les graphiques standards :**
 
 #### Questions à Choix
+
 ```
 ┌─────────────────────────────────────────┐
 │  Q1: Niveau de satisfaction              │
@@ -158,6 +166,7 @@ Taux de complétion : 94% (47/50)
 ```
 
 #### NPS
+
 ```
 ┌─────────────────────────────────────────┐
 │  Q2: Net Promoter Score                  │
@@ -171,6 +180,7 @@ Taux de complétion : 94% (47/50)
 ```
 
 #### Rating
+
 ```
 ┌─────────────────────────────────────────┐
 │  Q3: Qualité du service                  │
@@ -207,6 +217,7 @@ Q6: Vos suggestions pour nous améliorer ?
 ### Vérifier la Logique Conditionnelle
 
 **Exemple :**
+
 ```
 Règle : Si Q1 = "Insatisfait" → Afficher Q7
 
@@ -227,6 +238,7 @@ Vérification :
 ### Définir un Objectif
 
 **Lors de la simulation :**
+
 ```
 Objectif du formulaire :
 [Mesurer la satisfaction client et identifier les axes d'amélioration prioritaires]
@@ -251,13 +263,13 @@ Objectif : "Mesurer la satisfaction client et identifier les axes d'amélioratio
    • Q1 (Rating global) ✓
    • Q2 (NPS) ✓
    • Q3-Q5 (Satisfaction par critère) ✓
-   
+
    → Objectif "Mesurer satisfaction" : 95% atteint
 
 2. ⚠️ Identification des axes d'amélioration
    • Q6 (Commentaires libres) ✓
    • ❌ Manque : Question directe sur les priorités d'amélioration
-   
+
    → Objectif "Identifier axes" : 75% atteint
 
 💡 Recommandations :
@@ -268,7 +280,7 @@ Objectif : "Mesurer la satisfaction client et identifier les axes d'amélioratio
    □ Qualité des produits
    □ Rapport qualité/prix
    □ Ambiance
-   
+
 2. Renforcer Q6 avec un prompt plus directif :
    "Citez 2-3 points d'amélioration concrets"
 
@@ -280,6 +292,7 @@ Objectif : "Mesurer la satisfaction client et identifier les axes d'amélioratio
 ### Appliquer les Recommandations
 
 **Boutons d'action :**
+
 ```
 [✓ Ajouter Q7 comme suggéré]
 [✓ Modifier Q6]
@@ -295,6 +308,7 @@ Objectif : "Mesurer la satisfaction client et identifier les axes d'amélioratio
 Le rapport PDF inclut :
 
 1. **Résumé Exécutif**
+
    ```
    • Nombre de réponses simulées
    • Temps moyen de complétion
@@ -307,11 +321,12 @@ Le rapport PDF inclut :
    - Statistiques détaillées
 
 3. **Analyse IA**
+
    ```
    💡 Points forts détectés :
    • Question 1-2 : Mesure satisfaction claire
    • Logique conditionnelle bien utilisée
-   
+
    ⚠️ Points d'amélioration :
    • Question 4 : Formulation ambiguë ("produit et prix")
    • Question 6 : Trop ouvert, manque de guidance
@@ -335,11 +350,13 @@ Le rapport PDF inclut :
 ### Exporter le Rapport
 
 **Formats :**
+
 ```
 [📄 Exporter en PDF]  [📊 Exporter en CSV]  [📝 Exporter en MD]
 ```
 
 **Usage :**
+
 - Partager avec l'équipe
 - Garder trace des tests
 - Documenter les itérations
@@ -351,6 +368,7 @@ Le rapport PDF inclut :
 ### Cycle d'Amélioration
 
 **Processus itératif :**
+
 ```
 1. Créer formulaire v1
    ↓
@@ -374,17 +392,20 @@ Le rapport PDF inclut :
 #### 1. Taux d'Abandon Élevé
 
 **Symptôme :**
+
 ```
 ⚠️ Taux d'abandon Q8 : 28%
 (Moyenne : 5%)
 ```
 
 **Causes possibles :**
+
 - Question trop complexe
 - Formulaire trop long
 - Question sensible mal placée
 
 **Solutions :**
+
 ```
 • Simplifier Q8
 • Déplacer Q8 plus tôt
@@ -396,16 +417,19 @@ Le rapport PDF inclut :
 #### 2. Réponses Manquant de Diversité
 
 **Symptôme :**
+
 ```
 Q3: 92% ont répondu "Oui"
 ```
 
 **Causes possibles :**
+
 - Question suggestive
 - Profil répondants trop homogène
 - Échelle mal calibrée
 
 **Solutions :**
+
 ```
 • Reformuler neutre : "Pensez-vous que..." → "Comment évaluez-vous..."
 • Varier le profil de simulation
@@ -417,17 +441,20 @@ Q3: 92% ont répondu "Oui"
 #### 3. Temps de Complétion Excessif
 
 **Symptôme :**
+
 ```
 ⚠️ Temps moyen : 8min 32s
 (Cible : < 5 min)
 ```
 
 **Causes :**
+
 - Trop de questions (15+)
 - Questions texte libre trop nombreuses
 - Matrixs complexes
 
 **Solutions :**
+
 ```
 • Réduire à 10 questions max
 • Remplacer 2 textes libres par choix multiples
@@ -463,6 +490,7 @@ Version B : Formulaire optimisé
 ### 1. Simulez Toujours Avant Publication
 
 **Checklist :**
+
 - [ ] Simulation avec 50+ réponses
 - [ ] Vérification logique conditionnelle
 - [ ] Validation de l'objectif
@@ -474,14 +502,16 @@ Version B : Formulaire optimisé
 ### 2. Utilisez un Profil Réaliste
 
 **❌ Mauvais :**
+
 ```
 Profil : [vide]
 → Réponses génériques et peu pertinentes
 ```
 
 **✅ Bon :**
+
 ```
-Profil : "Clients e-commerce fashion, femmes 25-45 ans, 
+Profil : "Clients e-commerce fashion, femmes 25-45 ans,
          achats fréquents, sensibles à la qualité"
 → Réponses contextualisées et utiles
 ```
@@ -491,6 +521,7 @@ Profil : "Clients e-commerce fashion, femmes 25-45 ans,
 ### 3. Itérez Plusieurs Fois
 
 **Nombre recommandé de simulations :**
+
 ```
 1ère simulation : Détection gros problèmes
 2ème simulation : Validation des corrections
@@ -504,6 +535,7 @@ Profil : "Clients e-commerce fashion, femmes 25-45 ans,
 ### 4. Gardez les Rapports
 
 **Documentation utile :**
+
 ```
 • Avant/Après les modifications
 • Justification des changements
@@ -519,6 +551,7 @@ Profil : "Clients e-commerce fashion, femmes 25-45 ans,
 **Oui, très réalistes !**
 
 Basées sur :
+
 - Patterns de réponses réelles analysées
 - Profil cible spécifié
 - Contexte du formulaire
@@ -531,6 +564,7 @@ Basées sur :
 ### La simulation consomme-t-elle mon quota IA ?
 
 **Oui, mais de manière optimisée :**
+
 ```
 1 simulation (50 réponses) = 1 crédit IA
 
@@ -548,6 +582,7 @@ Plan Pro : Illimité
 **Deux options :**
 
 1. **Mode Test** (par défaut)
+
    ```
    → Réponses visibles temporairement
    → Supprimées automatiquement après 24h
@@ -555,11 +590,12 @@ Plan Pro : Illimité
    ```
 
 2. **Mode Permanent** (option)
+
    ```
    → Réponses conservées
    → Mélangées aux vraies réponses
    → Utile pour démonstrations
-   
+
    ⚠️ Non recommandé (fausse les stats)
    ```
 
@@ -578,4 +614,3 @@ Plan Pro : Illimité
 ---
 
 **© 2025 DooDates - Simulation de Réponses v1.0**
-

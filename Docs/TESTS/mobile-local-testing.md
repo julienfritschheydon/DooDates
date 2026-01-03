@@ -5,12 +5,15 @@
 **La plus simple et rapide !**
 
 ### Étape 1 : Lance le serveur
+
 ```bash
 npm run dev
 ```
 
 ### Étape 2 : Récupère l'URL réseau
+
 Le terminal affiche :
+
 ```
 VITE v5.x.x  ready in XXX ms
 
@@ -19,6 +22,7 @@ VITE v5.x.x  ready in XXX ms
 ```
 
 ### Étape 3 : Ouvre sur ton mobile
+
 1. **Connecte ton téléphone au même WiFi** que ton PC
 2. Ouvre le navigateur mobile (Chrome/Safari)
 3. Tape l'URL : `http://192.168.1.X:8080/`
@@ -26,6 +30,7 @@ VITE v5.x.x  ready in XXX ms
 **C'est tout ! Ça marche instantanément** 🎉
 
 ### Avantages
+
 - ✅ Gratuit
 - ✅ Instantané (pas de build)
 - ✅ Hot reload (modifications en temps réel)
@@ -39,6 +44,7 @@ VITE v5.x.x  ready in XXX ms
 Si ton téléphone n'est pas sur le même WiFi que ton PC.
 
 ### Installation
+
 ```bash
 # Windows (avec Chocolatey)
 choco install ngrok
@@ -47,6 +53,7 @@ choco install ngrok
 ```
 
 ### Utilisation
+
 ```bash
 # Terminal 1 : Lance le serveur
 npm run dev
@@ -56,6 +63,7 @@ ngrok http 8080
 ```
 
 ### Résultat
+
 ```
 Forwarding  https://abc123.ngrok-free.app -> http://localhost:8080
             ↑ Cette URL fonctionne de n'importe où !
@@ -64,6 +72,7 @@ Forwarding  https://abc123.ngrok-free.app -> http://localhost:8080
 **Copie l'URL `https://abc123.ngrok-free.app` et ouvre-la sur ton mobile**
 
 ### Avantages
+
 - ✅ Fonctionne même en 4G/5G
 - ✅ Partage avec d'autres personnes
 - ✅ HTTPS automatique
@@ -89,6 +98,7 @@ Si tu veux juste tester rapidement sans téléphone :
 ### L'URL Network n'apparaît pas
 
 **Vérifier que `host: true` est dans `vite.config.ts` :**
+
 ```typescript
 server: {
   host: true,  // ← Doit être là
@@ -97,6 +107,7 @@ server: {
 ```
 
 **Relancer le serveur :**
+
 ```bash
 Ctrl+C
 npm run dev
@@ -105,11 +116,13 @@ npm run dev
 ### Le mobile ne charge pas
 
 **Vérifier le WiFi :**
+
 - PC et mobile sur le **même réseau WiFi**
 - Pas de VPN actif
 - Pare-feu Windows autorise le port 8080
 
 **Autoriser le port dans le pare-feu :**
+
 ```powershell
 # PowerShell en admin
 New-NetFirewallRule -DisplayName "Vite Dev Server" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
@@ -118,12 +131,14 @@ New-NetFirewallRule -DisplayName "Vite Dev Server" -Direction Inbound -LocalPort
 ### Erreur "Cannot GET /"
 
 **Vérifier que le serveur tourne :**
+
 ```bash
 # Doit afficher "ready in XXX ms"
 npm run dev
 ```
 
 **Vérifier l'URL :**
+
 - Utiliser `http://` (pas `https://`)
 - Utiliser l'IP affichée (pas localhost)
 - Utiliser le bon port (8080)
@@ -132,12 +147,12 @@ npm run dev
 
 ## 📊 Comparaison des méthodes
 
-| Méthode | Vitesse | Gratuit | Hot Reload | 4G/5G |
-|---------|---------|---------|------------|-------|
-| **Réseau local** | ⚡ Instantané | ✅ | ✅ | ❌ |
-| **ngrok** | 🚀 Rapide | ✅ | ✅ | ✅ |
-| **GitHub Pages** | 🐌 2-3 min | ✅ | ❌ | ✅ |
-| **Chrome DevTools** | ⚡ Instantané | ✅ | ✅ | N/A |
+| Méthode             | Vitesse       | Gratuit | Hot Reload | 4G/5G |
+| ------------------- | ------------- | ------- | ---------- | ----- |
+| **Réseau local**    | ⚡ Instantané | ✅      | ✅         | ❌    |
+| **ngrok**           | 🚀 Rapide     | ✅      | ✅         | ✅    |
+| **GitHub Pages**    | 🐌 2-3 min    | ✅      | ❌         | ✅    |
+| **Chrome DevTools** | ⚡ Instantané | ✅      | ✅         | N/A   |
 
 **Recommandation : Réseau local** (le plus simple et rapide)
 
@@ -148,24 +163,28 @@ npm run dev
 Une fois sur mobile :
 
 ### Navigation
+
 - [ ] Hamburger ouvre/ferme sidebar
 - [ ] Backdrop ferme sidebar
 - [ ] Scroll vertical fonctionne
 - [ ] Toggle Chat ↔ Preview
 
 ### Interactions tactiles
+
 - [ ] Tap sur boutons
 - [ ] Swipe pour scroll
 - [ ] Pinch to zoom (désactivé normalement)
 - [ ] Double tap
 
 ### Performance
+
 - [ ] Chargement rapide
 - [ ] Animations fluides
 - [ ] Pas de lag au scroll
 - [ ] Hot reload fonctionne
 
 ### Responsive
+
 - [ ] Texte lisible
 - [ ] Boutons cliquables
 - [ ] Pas de débordement horizontal

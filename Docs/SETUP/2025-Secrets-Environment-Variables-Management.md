@@ -11,7 +11,7 @@ Pour que le workflow de déploiement production fonctionne, ajoutez ces secrets 
 ```bash
 # Secrets Vercel requis
 VERCEL_TOKEN=your_vercel_token_here
-ORG_ID=your_vercel_org_id_here  
+ORG_ID=your_vercel_org_id_here
 PROJECT_ID=your_vercel_project_id_here
 TEAM_ID=your_vercel_team_id_here
 ```
@@ -23,6 +23,7 @@ TEAM_ID=your_vercel_team_id_here
    - Créer un nouveau token avec scope "Full Access"
 
 2. **ORG_ID & PROJECT_ID** :
+
    ```bash
    npx vercel link
    cat .vercel/project.json
@@ -44,4 +45,4 @@ Une fois les secrets configurés, les workflows GitHub Actions fonctionneront au
 
 - ❌ Ne jamais commiter ces valeurs dans le code
 - ✅ Utiliser uniquement GitHub Secrets
-- ✅ Accès limité aux collaborateurs autorisés 
+- ✅ Accès limité aux collaborateurs autorisés

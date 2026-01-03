@@ -26,10 +26,12 @@ Ce document regroupe tous les tests nécessaires pour valider l'ensemble des fon
 ### Fichiers de Tests
 
 **1. `tests/e2e/dashboard-complete.spec.ts`** - Tests complets du dashboard
+
 - 14 tests E2E couvrant toutes les fonctionnalités principales
 - Tests de navigation, recherche, filtres, vues, pagination, tags/dossiers
 
 **2. `tests/e2e/tags-folders.spec.ts`** - Tests spécifiques tags/dossiers
+
 - 6 tests E2E pour la gestion des tags et dossiers
 - Tests d'assignation, retrait, affichage
 
@@ -52,6 +54,7 @@ npx playwright test
 ### Tags de Test
 
 Les tests utilisent les tags Playwright suivants :
+
 - `@smoke` : Tests de base critiques
 - `@critical` : Tests critiques pour la fonctionnalité
 - `@functional` : Tests fonctionnels complets
@@ -60,6 +63,7 @@ Les tests utilisent les tags Playwright suivants :
 ### Couverture des Tests E2E
 
 **dashboard-complete.spec.ts :**
+
 - ✅ Chargement du dashboard
 - ✅ Recherche de conversations
 - ✅ Filtres par statut
@@ -78,6 +82,7 @@ Les tests utilisent les tags Playwright suivants :
 - ✅ Recherche sans résultats
 
 **tags-folders.spec.ts :**
+
 - ✅ Ouvrir dialogue de gestion
 - ✅ Assigner des tags
 - ✅ Assigner un dossier
@@ -92,17 +97,20 @@ Les tests utilisent les tags Playwright suivants :
 ### Fichiers de Tests Manuels
 
 **1. `Docs/TESTS/TESTS-MANUELS-DASHBOARD-COMPLET.md`** - Tests manuels complets
+
 - 71 tests manuels organisés en 10 catégories
 - Instructions étape par étape pour chaque test
 - Critères de validation pour chaque test
 
 **2. `Docs/TESTS/TESTS-MANUELS-TAGS-FOLDERS.md`** - Tests manuels spécifiques tags/dossiers
+
 - 26 tests manuels pour tags et dossiers
 - Tests d'affichage, filtrage, gestion
 
 ### Catégories de Tests Manuels
 
 **Dashboard Complet (71 tests) :**
+
 1. Navigation et Affichage (3 tests)
 2. Recherche (4 tests)
 3. Filtres par Statut (6 tests)
@@ -119,6 +127,7 @@ Les tests utilisent les tags Playwright suivants :
 14. Multi-Navigateurs (3 tests)
 
 **Tags et Dossiers (26 tests) :**
+
 1. Tests Fonctionnels de Base (6 tests)
 2. Tests d'Affichage (3 tests)
 3. Tests de Filtrage (3 tests)
@@ -144,6 +153,7 @@ Les tests utilisent les tags Playwright suivants :
 Documentation complète mise à jour avec toutes les fonctionnalités :
 
 **Sections principales :**
+
 1. Vue d'Ensemble
 2. Recherche et Filtres
 3. Vues (Grille/Tableau)
@@ -154,6 +164,7 @@ Documentation complète mise à jour avec toutes les fonctionnalités :
 8. Indicateur de Quota
 
 **Accès :**
+
 - URL : `/docs/10-Tableau-Bord.md`
 - Navigation depuis l'index de la documentation
 
@@ -164,12 +175,14 @@ Documentation complète mise à jour avec toutes les fonctionnalités :
 Avant de considérer le dashboard comme prêt :
 
 ### Tests Automatisés
+
 - [ ] Tous les tests E2E passent (20/20)
 - [ ] Tests exécutés sur Chrome
 - [ ] Tests exécutés sur Firefox (optionnel)
 - [ ] Aucune erreur console dans les tests
 
 ### Tests Manuels Critiques
+
 - [ ] Test 1 : Charger le dashboard ✅
 - [ ] Test 4 : Rechercher une conversation ✅
 - [ ] Test 8 : Filtrer par statut ✅
@@ -181,12 +194,14 @@ Avant de considérer le dashboard comme prêt :
 - [ ] Test 48 : Gérer tags/dossiers depuis carte ✅
 
 ### Documentation
+
 - [ ] Documentation utilisateur complète
 - [ ] Toutes les fonctionnalités documentées
 - [ ] Exemples clairs et complets
 - [ ] Instructions étape par étape
 
 ### Performance
+
 - [ ] Dashboard se charge rapidement (< 2s)
 - [ ] Pas de lag avec 50+ conversations
 - [ ] Pagination fonctionne correctement
@@ -205,6 +220,7 @@ Aucun problème connu actuellement.
 ### Données de Test
 
 Les tests E2E créent automatiquement :
+
 - 3 conversations de test avec différents statuts
 - 3 tags de test
 - 2 dossiers de test
@@ -215,6 +231,7 @@ Pour les tests manuels, utilisez les données recommandées dans chaque fichier 
 ### Environnement de Test
 
 **Recommandé :**
+
 - Navigateur : Chrome (pour E2E)
 - Données : Créer des conversations variées avec différents tags/dossiers
 - Écran : Tester sur différentes tailles (mobile, tablette, desktop)
@@ -222,6 +239,7 @@ Pour les tests manuels, utilisez les données recommandées dans chaque fichier 
 ### Exécution CI/CD
 
 Les tests E2E sont intégrés dans la CI :
+
 - Exécution automatique sur les pull requests
 - Rapport HTML généré automatiquement
 - Tests sur Chrome uniquement (CI)
@@ -231,11 +249,13 @@ Les tests E2E sont intégrés dans la CI :
 ## 📊 Résultats Attendus
 
 ### Tests E2E
+
 - **Temps d'exécution** : ~5-10 minutes pour tous les tests
 - **Taux de réussite attendu** : 100% (20/20)
 - **Navigateurs testés** : Chrome (obligatoire), Firefox/Safari (optionnel)
 
 ### Tests Manuels
+
 - **Temps estimé** : ~2-3 heures pour tous les tests
 - **Priorité** : Tests critiques (1-48) en premier
 - **Taux de réussite attendu** : 100% pour les tests critiques

@@ -51,10 +51,12 @@ Le système de monitoring des performances de DooDates collecte, analyse et aler
 ### 1. Migrations SQL
 
 **Fichiers:**
+
 - `supabase/migrations/20251219_create_web_vitals.sql` - Table pour Web Vitals
 - `supabase/migrations/20251219_create_performance_tables.sql` - Tables pour métriques et alertes
 
 **Tables créées:**
+
 - `web_vitals` - Métriques Web Vitals des utilisateurs
 - `performance_metrics` - Métriques des workflows CI/CD
 - `performance_alerts` - Alertes de régression
@@ -62,16 +64,19 @@ Le système de monitoring des performances de DooDates collecte, analyse et aler
 ### 2. Collecte des Métriques
 
 **Web Vitals Tracker** (`src/lib/web-vitals-tracker.ts`)
+
 - Collecte automatique des Core Web Vitals en production
 - Envoi à Supabase avec session ID
 - Support: CLS, FID, FCP, LCP, TTFB, INP
 
 **Performance Collector** (`src/services/performance-collector.ts`)
+
 - Collecte des métriques depuis les workflows
 - Détection automatique des régressions
 - Génération d'alertes (warning/critical)
 
 **Script GitHub Actions** (`scripts/send-performance-metrics.js`)
+
 - Envoi des métriques Lighthouse et E2E à Supabase
 - Transformation des données au format standard
 - Logging détaillé pour debugging
@@ -79,12 +84,14 @@ Le système de monitoring des performances de DooDates collecte, analyse et aler
 ### 3. Dashboard de Performance
 
 **PerformanceDashboard** (`src/components/performance/PerformanceDashboard.tsx`)
+
 - Affichage des métriques actuelles
 - Comparaison avec la baseline
 - Indicateurs visuels (✓ / ⚠️)
 - Historique sur 7 jours
 
 **PerformanceAlerts** (`src/components/performance/PerformanceAlerts.tsx`)
+
 - Affichage des alertes actives
 - Résolution manuelle des alertes
 - Sévérité (warning/critical)
@@ -95,17 +102,20 @@ Le système de monitoring des performances de DooDates collecte, analyse et aler
 **Fichier:** `performance-baseline.json`
 
 Contient les valeurs de référence pour :
+
 - **Lighthouse CI:** Performance Score, LCP, CLS, TBT, FID
 - **E2E:** Dashboard load times, menu interactions
 
 ## Seuils de Régression
 
 ### Avertissement (Warning)
+
 - Régression ≥ 20% par rapport à la baseline
 - Notification dans le dashboard
 - Badge jaune
 
 ### Critique (Critical)
+
 - Régression ≥ 50% par rapport à la baseline
 - Notification prioritaire
 - Badge rouge
@@ -123,6 +133,7 @@ supabase db push
 ```
 
 Ou manuellement via le dashboard Supabase :
+
 1. Aller dans SQL Editor
 2. Copier le contenu des fichiers de migration
 3. Exécuter les requêtes
@@ -156,6 +167,7 @@ Ajoutez à vos workflows existants :
 ### 3. Accéder au Dashboard
 
 Naviguez vers `/performance` dans l'application pour voir :
+
 - Métriques actuelles
 - Alertes actives
 - Historique des performances
@@ -163,6 +175,7 @@ Naviguez vers `/performance` dans l'application pour voir :
 ## Métriques Trackées
 
 ### Lighthouse CI
+
 - **Performance Score** (0-100) - Score global de performance
 - **LCP** (Largest Contentful Paint) - Temps de chargement du contenu principal
 - **CLS** (Cumulative Layout Shift) - Stabilité visuelle
@@ -171,6 +184,7 @@ Naviguez vers `/performance` dans l'application pour voir :
 - **FCP** (First Contentful Paint) - Premier rendu de contenu
 
 ### Tests E2E
+
 - **Dashboard 50 conv.** - Temps de chargement avec 50 conversations
 - **Dashboard 200 conv.** - Temps de chargement avec 200 conversations
 - **Menu Tags** - Temps d'ouverture du menu tags
@@ -178,6 +192,7 @@ Naviguez vers `/performance` dans l'application pour voir :
 - **Dashboards produits** - Temps de chargement par type de sondage
 
 ### Web Vitals (Production)
+
 - Métriques réelles des utilisateurs
 - Agrégation par page et session
 - Détection des problèmes en production
@@ -204,12 +219,12 @@ cp performance-baseline.json public/
 
 ```sql
 -- Supprimer les métriques de plus de 90 jours
-DELETE FROM performance_metrics 
+DELETE FROM performance_metrics
 WHERE timestamp < NOW() - INTERVAL '90 days';
 
 -- Supprimer les alertes résolues de plus de 30 jours
-DELETE FROM performance_alerts 
-WHERE resolved = true 
+DELETE FROM performance_alerts
+WHERE resolved = true
 AND resolved_at < NOW() - INTERVAL '30 days';
 ```
 
@@ -250,4 +265,3 @@ AND resolved_at < NOW() - INTERVAL '30 days';
 - [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)
 - [Playwright Performance Testing](https://playwright.dev/docs/test-advanced#measuring-performance)
 - [Supabase Realtime](https://supabase.com/docs/guides/realtime)
-

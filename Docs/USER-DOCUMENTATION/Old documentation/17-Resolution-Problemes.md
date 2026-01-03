@@ -23,6 +23,7 @@ Guide de dépannage pour résoudre rapidement les problèmes courants.
 **Causes possibles :**
 
 1. **Bloqueur de pop-ups activé**
+
    ```
    Solution :
    1. Autorisez les pop-ups pour doodates.com
@@ -30,6 +31,7 @@ Guide de dépannage pour résoudre rapidement les problèmes courants.
    ```
 
 2. **Cookies tiers désactivés**
+
    ```
    Solution (Chrome) :
    1. Paramètres → Confidentialité → Cookies
@@ -50,6 +52,7 @@ Guide de dépannage pour résoudre rapidement les problèmes courants.
 ### ❌ "Session expirée"
 
 **Solution :**
+
 ```
 1. Cliquez sur "Se reconnecter"
 2. Reconnectez-vous avec Google
@@ -57,6 +60,7 @@ Guide de dépannage pour résoudre rapidement les problèmes courants.
 ```
 
 **Prévention :**
+
 ```
 Paramètres → "Rester connecté" → Activé
 ```
@@ -68,6 +72,7 @@ Paramètres → "Rester connecté" → Activé
 **Cause :** Email utilisé avec un autre mode de connexion
 
 **Solution :**
+
 ```
 1. Essayez de vous connecter avec Google
    (même email que votre compte existant)
@@ -85,15 +90,17 @@ Paramètres → "Rester connecté" → Activé
 **Solutions :**
 
 1. **Vérifier la connexion internet**
+
    ```
    → Ouvrez un autre site pour tester
    → Réessayez si connexion rétablie
    ```
 
 2. **Quota IA épuisé**
+
    ```
    Vérifiez en haut à droite : "Conversations IA : 50/50"
-   
+
    Solutions :
    • Attendez le 1er du mois (reset)
    • Passez en Pro (conversations illimitées)
@@ -115,17 +122,19 @@ Paramètres → "Rester connecté" → Activé
 **Solutions :**
 
 1. **Vérifier le navigateur**
+
    ```
    Navigateurs supportés :
    ✅ Chrome 90+
    ✅ Firefox 88+
    ✅ Safari 14+
    ✅ Edge 90+
-   
+
    → Mettez à jour si version ancienne
    ```
 
 2. **Vider le cache**
+
    ```
    Chrome :
    1. Ctrl+Shift+Delete
@@ -136,11 +145,12 @@ Paramètres → "Rester connecté" → Activé
    ```
 
 3. **Mode navigation privée**
+
    ```
    Testez en navigation privée :
    Chrome : Ctrl+Shift+N
    Firefox : Ctrl+Shift+P
-   
+
    Si ça fonctionne → Problème d'extension
    ```
 
@@ -151,6 +161,7 @@ Paramètres → "Rester connecté" → Activé
 **Limitation technique : 100 questions max par formulaire**
 
 **Solutions :**
+
 ```
 1. Diviser en 2 formulaires séparés
    Formulaire A : Questions 1-50
@@ -174,6 +185,7 @@ Paramètres → "Rester connecté" → Activé
 **Solutions :**
 
 1. **Vote légitime à modifier**
+
    ```
    → Cliquez sur "Modifier mon vote"
    → Changez vos réponses
@@ -181,6 +193,7 @@ Paramètres → "Rester connecté" → Activé
    ```
 
 2. **Voter depuis un autre appareil**
+
    ```
    → Normal : 1 vote par appareil en mode invité
    → Solution : Utilisez un autre appareil/navigateur
@@ -202,11 +215,12 @@ Paramètres → "Rester connecté" → Activé
 **Vérifications :**
 
 1. **Réponse attendue**
+
    ```
    Exemple :
    Q1 : "Êtes-vous satisfait ?" → Réponse : "Non"
    Q2 (si Q1 = "Non") : "Pourquoi ?" → Devrait s'afficher
-   
+
    Si Q2 ne s'affiche pas :
    → Vérifiez que la condition est bien "Q1 = Non"
    → Pas "Q1 ≠ Oui" (différent si option "Neutre" existe)
@@ -227,12 +241,14 @@ Paramètres → "Rester connecté" → Activé
 **Causes possibles :**
 
 1. **Sondage supprimé**
+
    ```
    → Le créateur a supprimé le sondage
    → Contactez-le pour vérification
    ```
 
 2. **Sondage clôturé avec deadline**
+
    ```
    → Date de clôture dépassée
    → Demandez au créateur de le rouvrir
@@ -255,6 +271,7 @@ Paramètres → "Rester connecté" → Activé
 **Cause :** Problème d'encodage UTF-8
 
 **Solution :**
+
 ```
 1. N'ouvrez PAS le CSV en double-cliquant
 2. Excel → Données → Obtenir des données externes
@@ -273,6 +290,7 @@ Paramètres → "Rester connecté" → Activé
 **Solutions :**
 
 1. **Autoriser les téléchargements**
+
    ```
    Chrome :
    1. Paramètres → Confidentialité → Paramètres des sites
@@ -281,9 +299,10 @@ Paramètres → "Rester connecté" → Activé
    ```
 
 2. **PDF trop volumineux**
+
    ```
    Si > 1000 réponses → PDF peut être lourd (> 20 MB)
-   
+
    Solution :
    • Exportez en CSV pour Excel
    • Ou filtrez les réponses (ex: 100 dernières)
@@ -303,6 +322,7 @@ Paramètres → "Rester connecté" → Activé
 **Cause :** Caractères spéciaux non échappés
 
 **Solution :**
+
 ```
 1. Dashboard → Sondage
 2. Export → JSON
@@ -311,6 +331,7 @@ Paramètres → "Rester connecté" → Activé
 ```
 
 **Validation JSON :**
+
 ```
 Collez votre JSON dans : https://jsonlint.com/
 → Vérifie la validité et signale les erreurs
@@ -327,6 +348,7 @@ Collez votre JSON dans : https://jsonlint.com/
 **Solutions :**
 
 1. **Attendez le reset**
+
    ```
    Reset automatique le 1er de chaque mois (00:00 UTC)
    Exemple : 50 conversations épuisées le 20 nov
@@ -334,10 +356,11 @@ Collez votre JSON dans : https://jsonlint.com/
    ```
 
 2. **Passez en Pro**
+
    ```
    Compte → Abonnement → Voir les offres
    ```
-   
+
    Consultez la **[page Tarifs](/pricing)** pour choisir l'offre adaptée.
 
 3. **Optimisez votre usage**
@@ -357,26 +380,29 @@ Collez votre JSON dans : https://jsonlint.com/
 **Causes :**
 
 1. **Trop peu de réponses**
+
    ```
    < 10 réponses → Insights peu fiables
-   
+
    Solution : Attendez 30+ réponses
    ```
 
 2. **Questions mal formulées**
+
    ```
    Exemple : Question ambiguë
    "Êtes-vous satisfait du produit et du prix ?"
    → L'IA ne peut pas segmenter les 2 aspects
-   
+
    Solution : 1 question = 1 idée
    ```
 
 3. **Données incohérentes**
+
    ```
    Exemple : Âge = "Bleu" (erreur de saisie)
    → Fausse l'analyse IA
-   
+
    Solution : Validez les réponses aberrantes
    ```
 
@@ -389,12 +415,14 @@ Collez votre JSON dans : https://jsonlint.com/
 **Solutions :**
 
 1. **Rafraîchir la page**
+
    ```
    F5 ou Ctrl+R
    → Recharge les données
    ```
 
 2. **Vérifier le quota**
+
    ```
    Quota IA épuisé ? (voir section précédente)
    ```
@@ -414,15 +442,17 @@ Collez votre JSON dans : https://jsonlint.com/
 **Causes possibles :**
 
 1. **Trop d'onglets ouverts**
+
    ```
    Solution : Fermez les onglets inutiles
    Chrome peut ralentir avec 20+ onglets
    ```
 
 2. **Formulaire très long**
+
    ```
    > 50 questions → Peut ralentir sur mobile
-   
+
    Solution :
    • Mode multi-étapes (plus fluide)
    • Divisez en plusieurs formulaires
@@ -440,16 +470,18 @@ Collez votre JSON dans : https://jsonlint.com/
 **Solutions :**
 
 1. **Désactiver extensions**
+
    ```
    Certaines extensions bloquent les graphiques :
    • AdBlock
    • NoScript
    • Privacy Badger
-   
+
    → Désactivez temporairement
    ```
 
 2. **Vérifier JavaScript**
+
    ```
    1. Paramètres navigateur
    2. Confidentialité
@@ -470,22 +502,25 @@ Collez votre JSON dans : https://jsonlint.com/
 **Solutions :**
 
 1. **Mode responsive**
+
    ```
    Zoom du navigateur = 100%
    (Pincer pour dézoomer si besoin)
    ```
 
 2. **Orientation portrait**
+
    ```
    DooDates optimisé pour portrait sur mobile
    → Basculez en mode portrait
    ```
 
 3. **Navigateur obsolète**
+
    ```
    iOS : Safari 14+
    Android : Chrome 90+
-   
+
    → Mettez à jour votre OS/navigateur
    ```
 
@@ -496,6 +531,7 @@ Collez votre JSON dans : https://jsonlint.com/
 **Solutions :**
 
 1. **Distance optimale**
+
    ```
    Maintenez votre téléphone à :
    • 10-30 cm du QR Code
@@ -504,16 +540,18 @@ Collez votre JSON dans : https://jsonlint.com/
    ```
 
 2. **Luminosité**
+
    ```
    • QR Code bien éclairé (pas d'ombre)
    • Pas de reflet sur le QR Code
    ```
 
 3. **Application QR Code**
+
    ```
    iOS : Appareil photo natif (iOS 11+)
    Android : Google Lens ou app dédiée
-   
+
    Si échec : Saisissez le lien manuellement
    ```
 
@@ -524,6 +562,7 @@ Collez votre JSON dans : https://jsonlint.com/
 ### Avant de contacter le support
 
 **Checklist :**
+
 - [ ] J'ai vérifié cette page de dépannage
 - [ ] J'ai consulté la [FAQ](./14-FAQ.md)
 - [ ] J'ai essayé dans un autre navigateur
@@ -563,6 +602,7 @@ Collez votre JSON dans : https://jsonlint.com/
 ### Canaux de Support
 
 **1. Chat en ligne 💬**
+
 ```
 • Disponible : Lun-Ven 9h-18h CET
 • Réponse : < 5 minutes
@@ -570,6 +610,7 @@ Collez votre JSON dans : https://jsonlint.com/
 ```
 
 **2. Email 📧**
+
 ```
 • support@doodates.com
 • Réponse :
@@ -579,6 +620,7 @@ Collez votre JSON dans : https://jsonlint.com/
 ```
 
 **3. Signaler un bug 🐛**
+
 ```
 • Icône 🐛 en bas de page
 • Formulaire détaillé
@@ -590,6 +632,7 @@ Collez votre JSON dans : https://jsonlint.com/
 ### Support Premium
 
 **Plan Premium inclut :**
+
 - ✅ **Support prioritaire** : < 2h
 - ✅ **Chat dédié** : Disponible 24/7
 - ✅ **Appel téléphonique** : Sur RDV
@@ -600,11 +643,13 @@ Collez votre JSON dans : https://jsonlint.com/
 ## 🔍 Ressources Complémentaires
 
 **Documentation complète :**
+
 - [FAQ](./14-FAQ.md) - 50+ questions/réponses
 - [Glossaire](./15-Glossaire.md) - Tous les termes techniques
 - [Guide de démarrage](./01-Guide-Demarrage-Rapide.md) - Bases
 
 **Communauté :**
+
 - [Forum DooDates](https://forum.doodates.com) - Entraide communautaire
 - [Discord](https://discord.gg/doodates) - Chat temps réel
 - [Status Page](https://status.doodates.com) - État des services
@@ -616,4 +661,3 @@ Collez votre JSON dans : https://jsonlint.com/
 ---
 
 **© 2025 DooDates - Résolution de Problèmes v1.0**
-

@@ -22,8 +22,8 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -51,8 +51,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
@@ -143,8 +143,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke

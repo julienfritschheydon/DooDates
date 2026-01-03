@@ -11,20 +11,20 @@
 
 ```typescript
 // ❌ FRAGILE - Casse si on change le style
-page.locator('button[title="Vue grille"]')
+page.locator('button[title="Vue grille"]');
 
 // ❌ FRAGILE - Casse si on change la structure HTML
-page.locator('div.header > button.view-toggle')
+page.locator("div.header > button.view-toggle");
 
 // ❌ FRAGILE - Casse si on change le texte (i18n)
-page.getByText('Vue grille')
+page.getByText("Vue grille");
 ```
 
 ### **Avantages de data-testid**
 
 ```typescript
 // ✅ ROBUSTE - Découple le test du style et de la structure
-page.locator('[data-testid="view-toggle-grid"]')
+page.locator('[data-testid="view-toggle-grid"]');
 
 // ✅ INTENTION CLAIRE - On sait immédiatement ce qui est testé
 // ✅ MAINTENABLE - Un seul endroit à changer
@@ -43,13 +43,13 @@ data-testid="{component}-{element}-{action}"
 
 ### **Exemples**
 
-| Élément | data-testid | Raison |
-|---------|-------------|--------|
-| Bouton de connexion | `auth-button-login` | auth = contexte, button = type, login = action |
-| Input email | `auth-input-email` | auth = contexte, input = type, email = champ |
-| Toggle vue grille | `view-toggle-grid` | view = contexte, toggle = type, grid = valeur |
-| Card de conversation | `conversation-card` | conversation = type, card = élément |
-| Résultat de test Supabase | `supabase-test-result` | supabase = contexte, test-result = type |
+| Élément                   | data-testid            | Raison                                         |
+| ------------------------- | ---------------------- | ---------------------------------------------- |
+| Bouton de connexion       | `auth-button-login`    | auth = contexte, button = type, login = action |
+| Input email               | `auth-input-email`     | auth = contexte, input = type, email = champ   |
+| Toggle vue grille         | `view-toggle-grid`     | view = contexte, toggle = type, grid = valeur  |
+| Card de conversation      | `conversation-card`    | conversation = type, card = élément            |
+| Résultat de test Supabase | `supabase-test-result` | supabase = contexte, test-result = type        |
 
 ### **Règles**
 
@@ -147,14 +147,8 @@ expect(testResults[0].status).toBe("success");
 ```tsx
 // Composant
 <form data-testid="poll-creation-form">
-  <input
-    data-testid="poll-input-title"
-    placeholder="Titre du sondage"
-  />
-  <button
-    data-testid="poll-button-submit"
-    type="submit"
-  >
+  <input data-testid="poll-input-title" placeholder="Titre du sondage" />
+  <button data-testid="poll-button-submit" type="submit">
     Créer
   </button>
 </form>
@@ -162,7 +156,7 @@ expect(testResults[0].status).toBe("success");
 
 ```typescript
 // Test
-await page.locator('[data-testid="poll-input-title"]').fill('Mon sondage');
+await page.locator('[data-testid="poll-input-title"]').fill("Mon sondage");
 await page.locator('[data-testid="poll-button-submit"]').click();
 
 await expect(page.locator('[data-testid="poll-creation-form"]')).not.toBeVisible();
@@ -228,14 +222,15 @@ node scripts/verify-testability.cjs
 
 ### **Nos Patterns**
 
-| Pattern | Quand l'utiliser | Exemple |
-|---------|------------------|---------|
-| `data-testid` | Éléments interactifs critiques | `[data-testid="submit-button"]` |
-| `getByRole` | Sémantique HTML claire | `getByRole('button', { name: 'Submit' })` |
-| `getByLabel` | Labels de formulaire | `getByLabelText('Email')` |
-| `getByText` | Contenu unique | `getByText('Welcome back!')` |
+| Pattern       | Quand l'utiliser               | Exemple                                   |
+| ------------- | ------------------------------ | ----------------------------------------- |
+| `data-testid` | Éléments interactifs critiques | `[data-testid="submit-button"]`           |
+| `getByRole`   | Sémantique HTML claire         | `getByRole('button', { name: 'Submit' })` |
+| `getByLabel`  | Labels de formulaire           | `getByLabelText('Email')`                 |
+| `getByText`   | Contenu unique                 | `getByText('Welcome back!')`              |
 
 **Ordre de préférence** (du plus stable au plus fragile):
+
 1. `data-testid` (si élément critique)
 2. `getByRole` avec name
 3. `getByLabelText`
@@ -279,7 +274,7 @@ node scripts/verify-testability.cjs
 
 ```tsx
 // ✅ BON - data-attribute pour la valeur
-<div 
+<div
   data-testid="test-result"
   data-test-status="success"
   data-test-name="Connexion Supabase"
@@ -313,4 +308,3 @@ await conversation.locator('[data-testid="conversation-delete"]').click();
 **Date**: 2025-11-10  
 **Auteur**: DooDates Team  
 **Version**: 1.0
-

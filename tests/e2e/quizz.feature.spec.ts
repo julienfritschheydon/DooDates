@@ -3,11 +3,11 @@ import { navigateToWorkspace, waitForChatInput } from "./helpers/chat-helpers";
 
 /**
  * Tests API+UI pour la feature Quizz
- * 
+ *
  * Pattern API+UI :
  * - Test API pur : vérifie le contrat backend (Playwright request)
  * - Test UI miroir : vérifie que le frontend reflète fidèlement l'état backend
- * 
+ *
  * Features couvertes :
  * - Création de quizz (via IA et manuelle)
  * - Vote sur quizz (questions, réponses, scoring)
@@ -30,21 +30,21 @@ test.describe("Quizz - API Contract", () => {
           title: "Quel mot-clé pour déclarer une constante ?",
           options: ["var", "let", "const", "function"],
           correctAnswer: "const",
-          points: 10
+          points: 10,
         },
         {
-          id: "q2", 
+          id: "q2",
           type: "boolean",
           title: "JavaScript est un langage typé dynamiquement",
           correctAnswer: true,
-          points: 5
-        }
+          points: 5,
+        },
       ],
-      type: "quizz"
+      type: "quizz",
     };
 
     const createResponse = await request.post("/api/quizz", {
-      data: createPayload
+      data: createPayload,
     });
 
     expect(createResponse.status()).toBe(200);
@@ -52,7 +52,7 @@ test.describe("Quizz - API Contract", () => {
     expect(createdQuizz).toMatchObject({
       title: createPayload.title,
       description: createPayload.description,
-      type: "quizz"
+      type: "quizz",
     });
     expect(createdQuizz.id).toBeDefined();
     expect(createdQuizz.slug).toBeDefined();
@@ -60,7 +60,7 @@ test.describe("Quizz - API Contract", () => {
     // 2. Récupérer le Quizz créé
     const getResponse = await request.get(`/api/quizz/${createdQuizz.slug}`);
     expect(getResponse.status()).toBe(200);
-    
+
     const retrievedQuizz = await getResponse.json();
     expect(retrievedQuizz).toMatchObject(createdQuizz);
     expect(retrievedQuizz.questions).toEqual(createPayload.questions);
@@ -68,7 +68,7 @@ test.describe("Quizz - API Contract", () => {
     // 3. Vérifier que le quizz apparaît dans la liste
     const listResponse = await request.get("/api/quizz");
     expect(listResponse.status()).toBe(200);
-    
+
     const quizzList = await listResponse.json();
     const foundQuizz = quizzList.find((q: any) => q.id === createdQuizz.id);
     expect(foundQuizz).toBeDefined();
@@ -86,7 +86,7 @@ test.describe("Quizz - API Contract", () => {
           title: "Capitale de la France ?",
           options: ["Londres", "Berlin", "Paris", "Madrid"],
           correctAnswer: "Paris",
-          points: 10
+          points: 10,
         },
         {
           id: "q2",
@@ -94,10 +94,10 @@ test.describe("Quizz - API Contract", () => {
           title: "Quels sont des langages de programmation ?",
           options: ["JavaScript", "HTML", "Python", "CSS"],
           correctAnswer: ["JavaScript", "Python"],
-          points: 20
-        }
+          points: 20,
+        },
       ],
-      type: "quizz"
+      type: "quizz",
     };
 
     const createResponse = await request.post("/api/quizz", { data: quizzData });
@@ -109,12 +109,12 @@ test.describe("Quizz - API Contract", () => {
       participantName: "Alice",
       answers: [
         { questionId: "q1", answer: "Paris" },
-        { questionId: "q2", answer: ["JavaScript", "Python"] }
-      ]
+        { questionId: "q2", answer: ["JavaScript", "Python"] },
+      ],
     };
 
     const voteResponse = await request.post(`/api/quizz/${quizz.slug}/submit`, {
-      data: votePayload
+      data: votePayload,
     });
 
     expect(voteResponse.status()).toBe(200);
@@ -152,10 +152,10 @@ test.describe("Quizz - API Contract", () => {
           title: "2 + 2 = ?",
           options: ["3", "4", "5", "6"],
           correctAnswer: "4",
-          points: 10
-        }
+          points: 10,
+        },
       ],
-      type: "quizz"
+      type: "quizz",
     };
 
     const createResponse = await request.post("/api/quizz", { data: quizzData });
@@ -165,7 +165,7 @@ test.describe("Quizz - API Contract", () => {
     const participants = [
       { name: "John", answers: [{ questionId: "q1", answer: "4" }] },
       { name: "Jane", answers: [{ questionId: "q1", answer: "3" }] },
-      { name: "Bob", answers: [{ questionId: "q1", answer: "4" }] }
+      { name: "Bob", answers: [{ questionId: "q1", answer: "4" }] },
     ];
 
     for (const participant of participants) {
@@ -173,8 +173,8 @@ test.describe("Quizz - API Contract", () => {
         data: {
           quizzId: quizz.id,
           participantName: participant.name,
-          answers: participant.answers
-        }
+          answers: participant.answers,
+        },
       });
     }
 
@@ -185,18 +185,16 @@ test.describe("Quizz - API Contract", () => {
     const leaderboard = await leaderboardResponse.json();
     expect(leaderboard.rankings).toHaveLength(3);
     expect(leaderboard.rankings[0].score).toBe(10); // John et Bob ex-aequo
-    expect(leaderboard.rankings[2].score).toBe(0);  // Jane
+    expect(leaderboard.rankings[2].score).toBe(0); // Jane
 
     // 4. Tester les exports
     const exportFormats = ["csv", "json"];
-    
+
     for (const format of exportFormats) {
-      const exportResponse = await request.get(
-        `/api/quizz/${quizz.slug}/export?format=${format}`
-      );
-      
+      const exportResponse = await request.get(`/api/quizz/${quizz.slug}/export?format=${format}`);
+
       expect(exportResponse.status()).toBe(200);
-      
+
       if (format === "json") {
         const exportData = await exportResponse.json();
         expect(exportData.quizz).toBeDefined();
@@ -215,11 +213,17 @@ test.describe("Quizz - API Contract", () => {
 });
 
 test.describe("Quizz - UI Mirror", () => {
-  test.skip(() => true, "UI tests need data-testid alignment - skipping until components are properly tagged");
+  test.skip(
+    () => true,
+    "UI tests need data-testid alignment - skipping until components are properly tagged",
+  );
 
   test("UI - Création et participation Quizz", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le workspace
     await navigateToWorkspace(page, "chromium");
     await waitForChatInput(page);
@@ -258,7 +262,7 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 8. Participer au quizz
     await expect(page.locator('[data-testid="quizz-play"]')).toBeVisible({ timeout: 15000 });
-    
+
     // Ajouter nom du participant
     const nameInput = page.locator('[data-testid="participant-name"]');
     await expect(nameInput).toBeVisible({ timeout: 10000 });
@@ -270,13 +274,15 @@ test.describe("Quizz - UI Mirror", () => {
     await startButton.click();
 
     // 9. Répondre aux questions
-    await expect(page.locator('[data-testid="question-container"]')).toBeVisible({ timeout: 15000 });
-    
+    await expect(page.locator('[data-testid="question-container"]')).toBeVisible({
+      timeout: 15000,
+    });
+
     // Pour chaque question, répondre et passer à la suivante
     for (let i = 0; i < Math.min(questionCount, 5); i++) {
       // Attendre que la question s'affiche
       await page.waitForTimeout(1000);
-      
+
       // Répondre à la question (première option disponible)
       const answerOption = page.locator('[data-testid="answer-option"]').first();
       if (await answerOption.isVisible()) {
@@ -286,7 +292,7 @@ test.describe("Quizz - UI Mirror", () => {
       // Passer à la question suivante ou soumettre
       const nextButton = page.locator('[data-testid="next-question"]');
       const submitButton = page.locator('[data-testid="submit-quizz"]');
-      
+
       if (await submitButton.isVisible()) {
         await submitButton.click();
         break; // Dernière question
@@ -302,8 +308,11 @@ test.describe("Quizz - UI Mirror", () => {
   });
 
   test("UI - Types de questions et scoring", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le workspace
     await navigateToWorkspace(page, "chromium");
     await waitForChatInput(page);
@@ -327,11 +336,17 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 3. Vérifier les différents types de questions
     await expect(page.locator('[data-testid="quizz-preview"]')).toBeVisible({ timeout: 15000 });
-    
+
     // Vérifier les badges de type de question
-    await expect(page.locator('[data-testid="question-type-single"]')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('[data-testid="question-type-multiple"]')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('[data-testid="question-type-boolean"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="question-type-single"]')).toBeVisible({
+      timeout: 5000,
+    });
+    await expect(page.locator('[data-testid="question-type-multiple"]')).toBeVisible({
+      timeout: 5000,
+    });
+    await expect(page.locator('[data-testid="question-type-boolean"]')).toBeVisible({
+      timeout: 5000,
+    });
 
     // 4. Finaliser et tester le jeu
     const finalizeButton = page.locator('[data-testid="finalize-quizz"]');
@@ -344,10 +359,10 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 5. Tester les différents types de réponses
     await expect(page.locator('[data-testid="quizz-play"]')).toBeVisible({ timeout: 15000 });
-    
+
     const nameInput = page.locator('[data-testid="participant-name"]');
     await nameInput.fill("Multi Type Player");
-    
+
     const startButton = page.locator('[data-testid="start-quizz"]');
     await startButton.click();
 
@@ -400,35 +415,40 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 8. Vérifier le scoring détaillé
     await expect(page.locator('[data-testid="detailed-score"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="question-breakdown"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="question-breakdown"]')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("UI - Leaderboard et exports Quizz", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le dashboard
     await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un quizz existant
     const quizzCard = page.locator('[data-testid="quizz-card"]').first();
-    
+
     if (await quizzCard.isVisible()) {
       await quizzCard.click();
     } else {
       // Créer un nouveau quizz si aucun n'existe
       await navigateToWorkspace(page, "chromium");
       await waitForChatInput(page);
-      
+
       const chatInput = page.locator('[data-testid="chat-input"]');
       await chatInput.fill("Crée un quizz rapide de 3 questions");
       await chatInput.press("Enter");
-      
+
       await page.waitForSelector('[data-testid="ai-response"]', { timeout: 15000 });
-      
+
       const finalizeButton = page.locator('[data-testid="finalize-quizz"]');
       await finalizeButton.click();
-      
+
       await page.waitForSelector('text="Quizz publié !"', { timeout: 10000 });
       const dashboardButton = page.locator('[data-testid="go-to-dashboard"]');
       await dashboardButton.click();
@@ -448,10 +468,10 @@ test.describe("Quizz - UI Mirror", () => {
 
     // 5. Vérifier les options d'export
     await expect(page.locator('[data-testid="export-options"]')).toBeVisible({ timeout: 15000 });
-    
+
     const exportButtons = page.locator('[data-testid^="export-"]');
     const exportCount = await exportButtons.count();
-    
+
     if (exportCount > 0) {
       // Tester l'export CSV
       const csvExport = page.locator('[data-testid="export-csv"]');
@@ -472,7 +492,7 @@ test.describe("Quizz - UI Mirror", () => {
     if (await shareResults.isVisible()) {
       await shareResults.click();
       await expect(page.locator('[data-testid="share-modal"]')).toBeVisible({ timeout: 10000 });
-      
+
       const copyLinkButton = page.locator('[data-testid="copy-results-link"]');
       if (await copyLinkButton.isVisible()) {
         await copyLinkButton.click();

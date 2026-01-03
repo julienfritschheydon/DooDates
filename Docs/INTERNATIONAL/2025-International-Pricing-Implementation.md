@@ -3,6 +3,7 @@
 **Date :** 10 Novembre 2025  
 **Statut :** Guide d'implémentation Phase 0  
 **Documents liés :**
+
 - [INTERNATIONAL-LAUNCH-STRATEGY.md](./INTERNATIONAL-LAUNCH-STRATEGY.md) - Stratégie globale
 - [INTERNATIONAL-PRICING-ARCHITECTURE.md](./INTERNATIONAL-PRICING-ARCHITECTURE.md) - Spécifications techniques
 
@@ -46,20 +47,21 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-schema.sql
 ```
 
 **Vérifications :**
+
 ```sql
 -- Vérifier tables créées
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
   AND table_name IN ('regions', 'price_lists', 'products', 'product_prices');
 
 -- Vérifier colonnes users
-SELECT column_name FROM information_schema.columns 
-WHERE table_name = 'users' 
+SELECT column_name FROM information_schema.columns
+WHERE table_name = 'users'
   AND column_name IN ('detected_country', 'price_list_id', 'preferences');
 
 -- Vérifier functions
-SELECT routine_name FROM information_schema.routines 
-WHERE routine_schema = 'public' 
+SELECT routine_name FROM information_schema.routines
+WHERE routine_schema = 'public'
   AND routine_name IN ('get_price_list_for_country', 'get_user_pricing');
 ```
 
@@ -75,6 +77,7 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ```
 
 **Vérifications :**
+
 ```sql
 -- Vérifier données insérées
 SELECT COUNT(*) FROM regions;        -- Expected: 6
@@ -83,7 +86,7 @@ SELECT COUNT(*) FROM products;       -- Expected: 4
 SELECT COUNT(*) FROM product_prices; -- Expected: 24
 
 -- Afficher prix par région
-SELECT 
+SELECT
   r.name as region,
   pl.currency,
   p.code as product,
@@ -128,8 +131,8 @@ export interface Product {
   code: string;
   name: string;
   description?: string;
-  type: 'free' | 'one_time' | 'subscription' | 'credits';
-  billing_period?: 'monthly' | 'annual' | 'lifetime';
+  type: "free" | "one_time" | "subscription" | "credits";
+  billing_period?: "monthly" | "annual" | "lifetime";
   features: Record<string, any>;
   active: boolean;
   sort_order: number;
@@ -144,7 +147,7 @@ export interface ProductPrice {
   tax_rate: number;
   lemonsqueezy_variant_id?: string;
   lemonsqueezy_product_id?: string;
-  
+
   // Joined data
   product?: Product;
   price_list?: PriceList;
@@ -182,22 +185,21 @@ export interface UserGeography {
 
 ```typescript
 // src/lib/pricing/pricing-service.ts
-import { supabase } from '@/lib/supabase';
-import { PricingDisplay } from '@/types/pricing';
+import { supabase } from "@/lib/supabase";
+import { PricingDisplay } from "@/types/pricing";
 
 /**
  * Récupère les prix pour un pays donné
  */
-export async function getPricingForCountry(
-  country: string
-): Promise<PricingDisplay[]> {
+export async function getPricingForCountry(country: string): Promise<PricingDisplay[]> {
   // 1. Déterminer price list
   const priceListCode = getPriceListForCountry(country);
-  
+
   // 2. Récupérer prix depuis Supabase
   const { data, error } = await supabase
-    .from('product_prices')
-    .select(`
+    .from("product_prices")
+    .select(
+      `
       amount,
       tax_rate,
       lemonsqueezy_variant_id,
@@ -206,29 +208,26 @@ export async function getPricingForCountry(
         currency,
         region:regions!inner(tax_included)
       )
-    `)
-    .eq('price_list.code', priceListCode)
-    .eq('product.active', true)
-    .eq('price_list.active', true)
-    .order('product.sort_order');
-  
+    `,
+    )
+    .eq("price_list.code", priceListCode)
+    .eq("product.active", true)
+    .eq("price_list.active", true)
+    .order("product.sort_order");
+
   if (error) {
-    console.error('Error fetching pricing:', error);
+    console.error("Error fetching pricing:", error);
     throw error;
   }
-  
+
   // 3. Formater pour l'UI
-  return data.map(item => ({
+  return data.map((item) => ({
     productCode: item.product.code,
     productName: item.product.name,
     productDescription: item.product.description,
     amount: item.amount,
     currency: item.price_list.currency,
-    displayAmount: formatCurrency(
-      item.amount,
-      item.price_list.currency,
-      country
-    ),
+    displayAmount: formatCurrency(item.amount, item.price_list.currency, country),
     taxRate: item.tax_rate,
     taxIncluded: item.price_list.region.tax_included,
     features: item.product.features,
@@ -239,24 +238,22 @@ export async function getPricingForCountry(
 /**
  * Récupère les prix pour un utilisateur
  */
-export async function getPricingForUser(
-  userId: string
-): Promise<PricingDisplay[]> {
+export async function getPricingForUser(userId: string): Promise<PricingDisplay[]> {
   // Utiliser la fonction SQL get_user_pricing
-  const { data, error } = await supabase.rpc('get_user_pricing', {
-    p_user_id: userId
+  const { data, error } = await supabase.rpc("get_user_pricing", {
+    p_user_id: userId,
   });
-  
+
   if (error) throw error;
-  
+
   // Formater les résultats
-  return data.map(item => ({
+  return data.map((item) => ({
     productCode: item.product_code,
     productName: item.product_name,
     productDescription: item.product_description,
     amount: item.amount,
     currency: item.currency,
-    displayAmount: formatCurrency(item.amount, item.currency, 'US'),
+    displayAmount: formatCurrency(item.amount, item.currency, "US"),
     taxRate: item.tax_rate,
     taxIncluded: item.tax_included,
     features: item.features,
@@ -270,36 +267,40 @@ export async function getPricingForUser(
 function getPriceListForCountry(country: string): string {
   const mapping: Record<string, string> = {
     // Europe (EUR)
-    'FR': 'EU_EUR_2025', 'DE': 'EU_EUR_2025', 'IT': 'EU_EUR_2025',
-    'ES': 'EU_EUR_2025', 'BE': 'EU_EUR_2025', 'NL': 'EU_EUR_2025',
-    'PT': 'EU_EUR_2025', 'AT': 'EU_EUR_2025', 'IE': 'EU_EUR_2025',
-    'FI': 'EU_EUR_2025', 'GR': 'EU_EUR_2025', 'PL': 'EU_EUR_2025',
-    
+    FR: "EU_EUR_2025",
+    DE: "EU_EUR_2025",
+    IT: "EU_EUR_2025",
+    ES: "EU_EUR_2025",
+    BE: "EU_EUR_2025",
+    NL: "EU_EUR_2025",
+    PT: "EU_EUR_2025",
+    AT: "EU_EUR_2025",
+    IE: "EU_EUR_2025",
+    FI: "EU_EUR_2025",
+    GR: "EU_EUR_2025",
+    PL: "EU_EUR_2025",
+
     // Europe (autres devises)
-    'CH': 'CH_CHF_2025',
-    'GB': 'GB_GBP_2025',
-    'NO': 'NO_NOK_2025',
-    
+    CH: "CH_CHF_2025",
+    GB: "GB_GBP_2025",
+    NO: "NO_NOK_2025",
+
     // Amérique du Nord
-    'US': 'US_USD_2025',
-    'CA': 'CA_CAD_2025',
+    US: "US_USD_2025",
+    CA: "CA_CAD_2025",
   };
-  
-  return mapping[country] || 'EU_EUR_2025';
+
+  return mapping[country] || "EU_EUR_2025";
 }
 
 /**
  * Formate un montant en devise
  */
-function formatCurrency(
-  amount: number,
-  currency: string,
-  country: string
-): string {
+function formatCurrency(amount: number, currency: string, country: string): string {
   const locale = getLocaleForCountry(country);
-  
+
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency: currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -308,41 +309,48 @@ function formatCurrency(
 
 function getLocaleForCountry(country: string): string {
   const locales: Record<string, string> = {
-    'FR': 'fr-FR', 'DE': 'de-DE', 'IT': 'it-IT', 'ES': 'es-ES',
-    'CH': 'fr-CH', 'GB': 'en-GB', 'NO': 'no-NO',
-    'US': 'en-US', 'CA': 'en-CA',
+    FR: "fr-FR",
+    DE: "de-DE",
+    IT: "it-IT",
+    ES: "es-ES",
+    CH: "fr-CH",
+    GB: "en-GB",
+    NO: "no-NO",
+    US: "en-US",
+    CA: "en-CA",
   };
-  return locales[country] || 'en-US';
+  return locales[country] || "en-US";
 }
 ```
 
 **Tests :**
+
 ```typescript
 // src/lib/pricing/pricing-service.test.ts
-import { describe, it, expect } from 'vitest';
-import { getPricingForCountry } from './pricing-service';
+import { describe, it, expect } from "vitest";
+import { getPricingForCountry } from "./pricing-service";
 
-describe('Pricing Service', () => {
-  it('should return EUR prices for France', async () => {
-    const prices = await getPricingForCountry('FR');
-    
+describe("Pricing Service", () => {
+  it("should return EUR prices for France", async () => {
+    const prices = await getPricingForCountry("FR");
+
     expect(prices).toHaveLength(4);
-    expect(prices[0].currency).toBe('EUR');
-    expect(prices.find(p => p.productCode === 'PREMIUM')?.amount).toBe(6.95);
+    expect(prices[0].currency).toBe("EUR");
+    expect(prices.find((p) => p.productCode === "PREMIUM")?.amount).toBe(6.95);
   });
-  
-  it('should return USD prices for USA', async () => {
-    const prices = await getPricingForCountry('US');
-    
+
+  it("should return USD prices for USA", async () => {
+    const prices = await getPricingForCountry("US");
+
     expect(prices).toHaveLength(4);
-    expect(prices[0].currency).toBe('USD');
+    expect(prices[0].currency).toBe("USD");
   });
-  
-  it('should return CHF prices for Switzerland', async () => {
-    const prices = await getPricingForCountry('CH');
-    
-    expect(prices[0].currency).toBe('CHF');
-    expect(prices.find(p => p.productCode === 'PREMIUM')?.amount).toBe(7.50);
+
+  it("should return CHF prices for Switzerland", async () => {
+    const prices = await getPricingForCountry("CH");
+
+    expect(prices[0].currency).toBe("CHF");
+    expect(prices.find((p) => p.productCode === "PREMIUM")?.amount).toBe(7.5);
   });
 });
 ```
@@ -359,6 +367,7 @@ npm run test:integration pricing-service.test.ts
 ```
 
 **Checklist :**
+
 - [ ] Tests passent pour FR, US, CH, GB, CA
 - [ ] Montants corrects pour chaque région
 - [ ] Devises correctes
@@ -378,12 +387,12 @@ npm run test:integration pricing-service.test.ts
 
 ```typescript
 // supabase/functions/detect-country/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 interface DetectionResponse {
   country: string;
-  detectedBy: 'cloudflare' | 'ipinfo' | 'fallback';
+  detectedBy: "cloudflare" | "ipinfo" | "fallback";
   priceList: string;
   currency: string;
 }
@@ -391,55 +400,54 @@ interface DetectionResponse {
 serve(async (req) => {
   try {
     // 1. Tenter Cloudflare headers (gratuit)
-    const cfCountry = req.headers.get('cf-ipcountry');
-    
-    if (cfCountry && cfCountry !== 'XX') {
+    const cfCountry = req.headers.get("cf-ipcountry");
+
+    if (cfCountry && cfCountry !== "XX") {
       return new Response(
         JSON.stringify({
           country: cfCountry,
-          detectedBy: 'cloudflare',
+          detectedBy: "cloudflare",
           priceList: getPriceListForCountry(cfCountry),
           currency: getCurrencyForCountry(cfCountry),
         } as DetectionResponse),
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { "Content-Type": "application/json" } },
       );
     }
-    
+
     // 2. Fallback: IPinfo (si API key disponible)
-    const ipinfoKey = Deno.env.get('IPINFO_API_KEY');
-    
+    const ipinfoKey = Deno.env.get("IPINFO_API_KEY");
+
     if (ipinfoKey) {
-      const ip = req.headers.get('x-forwarded-for') || 'unknown';
+      const ip = req.headers.get("x-forwarded-for") || "unknown";
       const response = await fetch(`https://ipinfo.io/${ip}?token=${ipinfoKey}`);
       const data = await response.json();
-      
+
       return new Response(
         JSON.stringify({
           country: data.country,
-          detectedBy: 'ipinfo',
+          detectedBy: "ipinfo",
           priceList: getPriceListForCountry(data.country),
           currency: getCurrencyForCountry(data.country),
         } as DetectionResponse),
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { "Content-Type": "application/json" } },
       );
     }
-    
+
     // 3. Fallback ultime: US
     return new Response(
       JSON.stringify({
-        country: 'US',
-        detectedBy: 'fallback',
-        priceList: 'US_USD_2025',
-        currency: 'USD',
+        country: "US",
+        detectedBy: "fallback",
+        priceList: "US_USD_2025",
+        currency: "USD",
       } as DetectionResponse),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } },
     );
-    
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 });
 
@@ -449,15 +457,21 @@ function getPriceListForCountry(country: string): string {
 
 function getCurrencyForCountry(country: string): string {
   const currencies: Record<string, string> = {
-    'FR': 'EUR', 'DE': 'EUR', 'IT': 'EUR',
-    'CH': 'CHF', 'GB': 'GBP', 'NO': 'NOK',
-    'US': 'USD', 'CA': 'CAD',
+    FR: "EUR",
+    DE: "EUR",
+    IT: "EUR",
+    CH: "CHF",
+    GB: "GBP",
+    NO: "NOK",
+    US: "USD",
+    CA: "CAD",
   };
-  return currencies[country] || 'USD';
+  return currencies[country] || "USD";
 }
 ```
 
 **Déploiement :**
+
 ```bash
 # Déployer la fonction
 supabase functions deploy detect-country
@@ -474,9 +488,9 @@ curl https://YOUR_PROJECT.supabase.co/functions/v1/detect-country
 
 ```typescript
 // src/hooks/useGeography.ts
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 interface Geography {
   country: string;
@@ -488,13 +502,13 @@ interface Geography {
 
 export function useGeography(): Geography {
   const { user } = useAuth();
-  const [country, setCountryState] = useState<string>('US');
+  const [country, setCountryState] = useState<string>("US");
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     detectGeography();
   }, [user]);
-  
+
   async function detectGeography() {
     try {
       // 1. Check user preference
@@ -503,57 +517,57 @@ export function useGeography(): Geography {
         setIsLoading(false);
         return;
       }
-      
+
       // 2. Check stored detection
       if (user?.detected_country) {
         setCountryState(user.detected_country);
         setIsLoading(false);
         return;
       }
-      
+
       // 3. Call detection API
-      const { data } = await supabase.functions.invoke('detect-country');
-      
+      const { data } = await supabase.functions.invoke("detect-country");
+
       if (data?.country) {
         setCountryState(data.country);
-        
+
         // Store detection in user profile
         if (user) {
           await supabase
-            .from('users')
-            .update({ 
+            .from("users")
+            .update({
               detected_country: data.country,
-              detected_at: new Date().toISOString()
+              detected_at: new Date().toISOString(),
             })
-            .eq('id', user.id);
+            .eq("id", user.id);
         }
       }
-      
+
       setIsLoading(false);
     } catch (error) {
-      console.error('Geography detection failed:', error);
-      setCountryState('US'); // Fallback
+      console.error("Geography detection failed:", error);
+      setCountryState("US"); // Fallback
       setIsLoading(false);
     }
   }
-  
+
   async function setCountry(newCountry: string) {
     setCountryState(newCountry);
-    
+
     // Store user preference
     if (user) {
       await supabase
-        .from('users')
+        .from("users")
         .update({
           preferences: {
             ...user.preferences,
-            selectedCountry: newCountry
-          }
+            selectedCountry: newCountry,
+          },
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
     }
   }
-  
+
   return {
     country,
     currency: getCurrencyForCountry(country),
@@ -575,6 +589,7 @@ export function useGeography(): Geography {
 #### Tâche 3.1 : Créer Compte & Produits
 
 **Étapes :**
+
 1. Créer compte sur https://lemonsqueezy.com
 2. Créer store "DooDates"
 3. Créer 4 produits :
@@ -617,7 +632,7 @@ interface GeoBannerProps {
 
 export function GeoBanner({ detectedCountry, onAccept }: GeoBannerProps) {
   const [visible, setVisible] = useState(false);
-  
+
   useEffect(() => {
     // Vérifier si déjà dismissed
     const dismissed = localStorage.getItem('geo_banner_dismissed');
@@ -625,14 +640,14 @@ export function GeoBanner({ detectedCountry, onAccept }: GeoBannerProps) {
       setVisible(true);
     }
   }, []);
-  
+
   const handleDismiss = () => {
     setVisible(false);
     localStorage.setItem('geo_banner_dismissed', 'true');
   };
-  
+
   if (!visible) return null;
-  
+
   return (
     <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -673,63 +688,63 @@ export function GeoBanner({ detectedCountry, onAccept }: GeoBannerProps) {
 
 ```typescript
 // tests/e2e/international-pricing.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('International Pricing', () => {
-  test('should show EUR prices for French users', async ({ page }) => {
+test.describe("International Pricing", () => {
+  test("should show EUR prices for French users", async ({ page }) => {
     // Mock Cloudflare header
-    await page.route('**/functions/v1/detect-country', route => {
+    await page.route("**/functions/v1/detect-country", (route) => {
       route.fulfill({
-        json: { country: 'FR', currency: 'EUR', priceList: 'EU_EUR_2025' }
+        json: { country: "FR", currency: "EUR", priceList: "EU_EUR_2025" },
       });
     });
-    
-    await page.goto('/pricing');
-    
+
+    await page.goto("/pricing");
+
     // Vérifier devise
-    await expect(page.locator('[data-testid="premium-price"]')).toContainText('6,95 €');
-    await expect(page.locator('[data-testid="pro-price"]')).toContainText('29,00 €');
+    await expect(page.locator('[data-testid="premium-price"]')).toContainText("6,95 €");
+    await expect(page.locator('[data-testid="pro-price"]')).toContainText("29,00 €");
   });
-  
-  test('should show USD prices for US users', async ({ page }) => {
-    await page.route('**/functions/v1/detect-country', route => {
+
+  test("should show USD prices for US users", async ({ page }) => {
+    await page.route("**/functions/v1/detect-country", (route) => {
       route.fulfill({
-        json: { country: 'US', currency: 'USD', priceList: 'US_USD_2025' }
+        json: { country: "US", currency: "USD", priceList: "US_USD_2025" },
       });
     });
-    
-    await page.goto('/pricing');
-    
-    await expect(page.locator('[data-testid="premium-price"]')).toContainText('$6.95');
-    await expect(page.locator('[data-testid="pro-price"]')).toContainText('$29.00');
+
+    await page.goto("/pricing");
+
+    await expect(page.locator('[data-testid="premium-price"]')).toContainText("$6.95");
+    await expect(page.locator('[data-testid="pro-price"]')).toContainText("$29.00");
   });
-  
-  test('should allow manual country selection', async ({ page }) => {
-    await page.goto('/pricing');
-    
+
+  test("should allow manual country selection", async ({ page }) => {
+    await page.goto("/pricing");
+
     // Ouvrir sélecteur pays
     await page.click('[data-testid="country-selector"]');
-    
+
     // Sélectionner Suisse
     await page.click('option[value="CH"]');
-    
+
     // Vérifier prix CHF
-    await expect(page.locator('[data-testid="premium-price"]')).toContainText('CHF 7.50');
+    await expect(page.locator('[data-testid="premium-price"]')).toContainText("CHF 7.50");
   });
-  
-  test('should show geo-suggestion banner', async ({ page }) => {
-    await page.route('**/functions/v1/detect-country', route => {
+
+  test("should show geo-suggestion banner", async ({ page }) => {
+    await page.route("**/functions/v1/detect-country", (route) => {
       route.fulfill({
-        json: { country: 'FR', currency: 'EUR' }
+        json: { country: "FR", currency: "EUR" },
       });
     });
-    
-    await page.goto('/');
-    
+
+    await page.goto("/");
+
     // Banner visible
     await expect(page.locator('[data-testid="geo-banner"]')).toBeVisible();
-    await expect(page.locator('[data-testid="geo-banner"]')).toContainText('France');
-    
+    await expect(page.locator('[data-testid="geo-banner"]')).toContainText("France");
+
     // Dismiss banner
     await page.click('[data-testid="geo-banner-dismiss"]');
     await expect(page.locator('[data-testid="geo-banner"]')).not.toBeVisible();
@@ -744,30 +759,35 @@ test.describe('International Pricing', () => {
 ## ✅ Checklist Finale Phase 0
 
 ### Base de Données
+
 - [ ] Tables créées (regions, price_lists, products, product_prices)
 - [ ] Données initiales insérées (6 régions, 24 prix)
 - [ ] Functions SQL testées (get_price_list_for_country, get_user_pricing)
 - [ ] RLS policies configurées
 
 ### API & Services
+
 - [ ] Service `pricing-service.ts` fonctionnel
 - [ ] Hook `useGeography` fonctionnel
 - [ ] Edge function `detect-country` déployée
 - [ ] Tests unitaires passent (>90% coverage)
 
 ### Lemon Squeezy
+
 - [ ] Compte créé
 - [ ] Produits/variants créés
 - [ ] Variants mappés dans BDD
 - [ ] Webhook handler testé (sandbox)
 
 ### Conformité UE 2018/302
+
 - [ ] Bannière géo-suggestion implémentée
 - [ ] Sélecteur pays accessible (footer)
 - [ ] Pas de redirection forcée
 - [ ] Tests E2E conformité passent
 
 ### Tests
+
 - [ ] Tests unitaires pricing (100%)
 - [ ] Tests intégration Supabase
 - [ ] Tests E2E multi-pays (FR, US, CH, GB, CA)
@@ -817,12 +837,14 @@ curl -X POST https://YOUR_PROJECT.supabase.co/functions/v1/lemonsqueezy-webhook 
 ## 📚 Ressources
 
 ### Documentation
+
 - [Lemon Squeezy Docs](https://docs.lemonsqueezy.com/)
 - [Supabase Edge Functions](https://supabase.com/docs/guides/functions)
 - [IPinfo API](https://ipinfo.io/developers)
 - [Cloudflare IP Geolocation](https://developers.cloudflare.com/fundamentals/get-started/reference/cloudflare-headers/)
 
 ### Support
+
 - Questions : Créer issue GitHub
 - Bugs : Rapporter avec logs Sentry
 - Améliorations : Discussion GitHub
@@ -832,4 +854,3 @@ curl -X POST https://YOUR_PROJECT.supabase.co/functions/v1/lemonsqueezy-webhook 
 **Document maintenu par :** Équipe DooDates  
 **Dernière mise à jour :** 10 Novembre 2025  
 **Prochaine revue :** Fin Semaine 3 (validation Phase 0)
-

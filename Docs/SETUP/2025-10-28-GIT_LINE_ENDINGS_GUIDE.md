@@ -5,6 +5,7 @@
 Git convertit automatiquement les fins de ligne (LF ↔ CRLF) ce qui crée des changements non désirés lors des commits.
 
 **Symptômes :**
+
 ```
 warning: in the working copy of 'file.ts', LF will be replaced by CRLF
 ```
@@ -24,6 +25,7 @@ Fichier créé à la racine du projet qui force LF pour tous les fichiers texte 
 ```
 
 **Effet :**
+
 - ✅ Tous les fichiers texte utilisent LF (Unix) dans le repo
 - ✅ Git convertit automatiquement en CRLF sur Windows si nécessaire
 - ✅ Pas de changements intempestifs lors des commits
@@ -39,6 +41,7 @@ Configuration Prettier pour respecter LF :
 ```
 
 **Effet :**
+
 - ✅ Prettier ne change pas les fins de ligne
 - ✅ Cohérence avec `.gitattributes`
 
@@ -51,6 +54,7 @@ NO_FORMAT=1 git commit -m "message"
 ```
 
 **Effet :**
+
 - ✅ Pas de formatage automatique
 - ✅ Pas de changements de fins de ligne
 - ✅ Utile pour les commits rapides
@@ -72,18 +76,21 @@ git config --get core.autocrlf
 ## 📋 Workflow recommandé
 
 ### Commit normal (avec formatage)
+
 ```bash
 git add .
 git commit -m "feat: nouvelle fonctionnalité"
 ```
 
 ### Commit sans formatage
+
 ```bash
 git add .
 NO_FORMAT=1 git commit -m "wip: travail en cours"
 ```
 
 ### Commit rapide (mode fast)
+
 ```bash
 git add .
 FAST_HOOKS=1 git commit -m "fix: correction rapide"
@@ -92,6 +99,7 @@ FAST_HOOKS=1 git commit -m "fix: correction rapide"
 ## 🔍 Vérifier les fins de ligne d'un fichier
 
 ### Windows (PowerShell)
+
 ```powershell
 # Afficher les fins de ligne
 Get-Content file.ts -Raw | Format-Hex | Select-String "0D 0A|0A"
@@ -101,6 +109,7 @@ Get-Content file.ts -Raw | Format-Hex | Select-String "0D 0A|0A"
 ```
 
 ### Unix/Mac
+
 ```bash
 file file.ts
 # Affiche: "ASCII text" (LF) ou "ASCII text, with CRLF line terminators"
@@ -123,27 +132,31 @@ git status
 
 ## 📊 Résumé des fichiers de config
 
-| Fichier | Rôle | Priorité |
-|---------|------|----------|
-| `.gitattributes` | Force LF dans le repo | ⭐⭐⭐ |
-| `.prettierrc.json` | Prettier respecte LF | ⭐⭐ |
-| `.husky/pre-commit` | Formatage optionnel | ⭐ |
+| Fichier             | Rôle                  | Priorité |
+| ------------------- | --------------------- | -------- |
+| `.gitattributes`    | Force LF dans le repo | ⭐⭐⭐   |
+| `.prettierrc.json`  | Prettier respecte LF  | ⭐⭐     |
+| `.husky/pre-commit` | Formatage optionnel   | ⭐       |
 
 ## ❓ FAQ
 
 ### Pourquoi LF et pas CRLF ?
+
 - ✅ Standard Unix/Linux (serveurs, CI/CD)
 - ✅ Plus compact (1 byte vs 2)
 - ✅ Meilleure compatibilité cross-platform
 - ✅ Git gère la conversion automatiquement sur Windows
 
 ### Ça va casser mon éditeur Windows ?
+
 Non ! Les éditeurs modernes (VS Code, WebStorm, etc.) gèrent LF sans problème.
 
 ### Et si je travaille avec quelqu'un sur Mac/Linux ?
+
 C'est justement l'intérêt ! Avec `.gitattributes`, tout le monde a les mêmes fins de ligne dans le repo.
 
 ### Les warnings vont disparaître ?
+
 Oui, après avoir normalisé les fichiers existants avec `git add --renormalize .`
 
 ## 🚀 Actions à faire maintenant

@@ -4,23 +4,23 @@
  * Extrait les erreurs des rapports Playwright et les publie dans GitHub Actions
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const PROJECTS = ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safari'];
-const ARTIFACTS_DIR = path.join(process.cwd(), 'artifacts');
-const TEST_RESULTS_DIR = path.join(process.cwd(), 'test-results');
+const PROJECTS = ["chromium", "firefox", "webkit", "Mobile Chrome", "Mobile Safari"];
+const ARTIFACTS_DIR = path.join(process.cwd(), "artifacts");
+const TEST_RESULTS_DIR = path.join(process.cwd(), "test-results");
 
 // Détecter le contexte (nightly, develop, main, pr)
-const CONTEXT = process.argv[2] || 'nightly'; // 'nightly' par défaut
-const IS_DEVELOP = CONTEXT === 'develop';
-const IS_MAIN = CONTEXT === 'main';
-const IS_PR = CONTEXT === 'pr';
+const CONTEXT = process.argv[2] || "nightly"; // 'nightly' par défaut
+const IS_DEVELOP = CONTEXT === "develop";
+const IS_MAIN = CONTEXT === "main";
+const IS_PR = CONTEXT === "pr";
 
 /**
  * Trouve récursivement tous les fichiers JSON dans un dossier
@@ -28,7 +28,7 @@ const IS_PR = CONTEXT === 'pr';
 function findJsonFilesRecursive(dir, maxDepth = 3, currentDepth = 0) {
   const files = [];
   if (currentDepth >= maxDepth) return files;
-  
+
   try {
     if (!fs.existsSync(dir)) return files;
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -36,8 +36,11 @@ function findJsonFilesRecursive(dir, maxDepth = 3, currentDepth = 0) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         files.push(...findJsonFilesRecursive(fullPath, maxDepth, currentDepth + 1));
-      } else if (entry.name === 'test-results.json' || entry.name === 'results.json' || 
-                 (entry.name.endsWith('.json') && entry.name.includes('result'))) {
+      } else if (
+        entry.name === "test-results.json" ||
+        entry.name === "results.json" ||
+        (entry.name.endsWith(".json") && entry.name.includes("result"))
+      ) {
         files.push(fullPath);
       }
     }
@@ -53,10 +56,10 @@ function findJsonFilesRecursive(dir, maxDepth = 3, currentDepth = 0) {
  */
 function parsePlaywrightResults(projectName) {
   // Chercher test-results.json à la racine du projet (où Playwright le génère avec --reporter=json)
-  const projectRootJsonFile = path.join(process.cwd(), 'test-results.json');
+  const projectRootJsonFile = path.join(process.cwd(), "test-results.json");
   if (fs.existsSync(projectRootJsonFile)) {
     try {
-      const content = fs.readFileSync(projectRootJsonFile, 'utf-8');
+      const content = fs.readFileSync(projectRootJsonFile, "utf-8");
       const parsed = JSON.parse(content);
       if (parsed && (parsed.stats || parsed.suites)) {
         console.log(`  ✅ Résultats trouvés à la racine: ${projectRootJsonFile}`);
@@ -68,10 +71,10 @@ function parsePlaywrightResults(projectName) {
   }
 
   // Chercher test-results.json à la racine du dossier téléchargé
-  const rootJsonFile = path.join(TEST_RESULTS_DIR, 'test-results.json');
+  const rootJsonFile = path.join(TEST_RESULTS_DIR, "test-results.json");
   if (fs.existsSync(rootJsonFile)) {
     try {
-      const content = fs.readFileSync(rootJsonFile, 'utf-8');
+      const content = fs.readFileSync(rootJsonFile, "utf-8");
       const parsed = JSON.parse(content);
       if (parsed && (parsed.stats || parsed.suites)) {
         return parsed;
@@ -87,25 +90,28 @@ function parsePlaywrightResults(projectName) {
   // Chercher dans un sous-dossier spécifique au projet
   const resultsDir = path.join(TEST_RESULTS_DIR, projectName);
   if (fs.existsSync(resultsDir)) {
-    const resultsFile = path.join(resultsDir, 'results.json');
+    const resultsFile = path.join(resultsDir, "results.json");
     if (fs.existsSync(resultsFile)) {
       try {
-        const content = fs.readFileSync(resultsFile, 'utf-8');
+        const content = fs.readFileSync(resultsFile, "utf-8");
         const parsed = JSON.parse(content);
         if (parsed && (parsed.stats || parsed.suites)) {
           return parsed;
         }
       } catch (error) {
-        console.error(`Erreur lors de la lecture des résultats pour ${projectName}:`, error.message);
+        console.error(
+          `Erreur lors de la lecture des résultats pour ${projectName}:`,
+          error.message,
+        );
       }
     }
   }
 
   // Chercher test-results.json dans le dossier du projet
-  const projectJsonFile = path.join(TEST_RESULTS_DIR, projectName, 'test-results.json');
+  const projectJsonFile = path.join(TEST_RESULTS_DIR, projectName, "test-results.json");
   if (fs.existsSync(projectJsonFile)) {
     try {
-      const content = fs.readFileSync(projectJsonFile, 'utf-8');
+      const content = fs.readFileSync(projectJsonFile, "utf-8");
       const parsed = JSON.parse(content);
       if (parsed && (parsed.stats || parsed.suites)) {
         return parsed;
@@ -128,7 +134,7 @@ function parseArtifactResults(projectName) {
     const jsonFiles = findJsonFilesRecursive(TEST_RESULTS_DIR);
     for (const jsonFile of jsonFiles) {
       try {
-        const content = fs.readFileSync(jsonFile, 'utf-8');
+        const content = fs.readFileSync(jsonFile, "utf-8");
         const parsed = JSON.parse(content);
         if (parsed && (parsed.stats || parsed.suites)) {
           console.log(`  ✅ Résultats trouvés dans artefact: ${jsonFile}`);
@@ -139,15 +145,15 @@ function parseArtifactResults(projectName) {
       }
     }
   }
-  
+
   // Chercher dans test-results-{project} (artefact téléchargé pour nightly)
   const testResultsArtifactDir = path.join(TEST_RESULTS_DIR, `test-results-${projectName}`);
   if (fs.existsSync(testResultsArtifactDir)) {
     // Chercher test-results.json à la racine
-    const rootJson = path.join(testResultsArtifactDir, 'test-results.json');
+    const rootJson = path.join(testResultsArtifactDir, "test-results.json");
     if (fs.existsSync(rootJson)) {
       try {
-        const content = fs.readFileSync(rootJson, 'utf-8');
+        const content = fs.readFileSync(rootJson, "utf-8");
         return JSON.parse(content);
       } catch (error) {
         console.error(`Erreur lors de la lecture de ${rootJson}:`, error.message);
@@ -170,7 +176,11 @@ function parseArtifactResults(projectName) {
         const fullPath = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           files.push(...findJsonFiles(fullPath));
-        } else if (entry.name === 'test-results.json' || entry.name === 'results.json' || entry.name.endsWith('.json')) {
+        } else if (
+          entry.name === "test-results.json" ||
+          entry.name === "results.json" ||
+          entry.name.endsWith(".json")
+        ) {
           files.push(fullPath);
         }
       }
@@ -187,7 +197,7 @@ function parseArtifactResults(projectName) {
 
   // Essayer de parser le premier fichier JSON trouvé
   try {
-    const content = fs.readFileSync(jsonFiles[0], 'utf-8');
+    const content = fs.readFileSync(jsonFiles[0], "utf-8");
     return JSON.parse(content);
   } catch (error) {
     return null;
@@ -199,30 +209,30 @@ function parseArtifactResults(projectName) {
  */
 function extractTestErrors(test) {
   const errors = [];
-  
-  if (test.status === 'failed' || test.status === 'timedOut') {
+
+  if (test.status === "failed" || test.status === "timedOut") {
     const error = {
-      title: test.title || 'Test sans titre',
-      file: test.location?.file || 'Fichier inconnu',
+      title: test.title || "Test sans titre",
+      file: test.location?.file || "Fichier inconnu",
       line: test.location?.line || 0,
       status: test.status,
       duration: test.duration || 0,
       error: null,
-      attachments: []
+      attachments: [],
     };
 
     // Extraire le message d'erreur
     if (test.results && test.results.length > 0) {
       for (const result of test.results) {
-        if (result.status === 'failed' || result.status === 'timedOut') {
+        if (result.status === "failed" || result.status === "timedOut") {
           if (result.error) {
             error.error = {
-              message: result.error.message || 'Erreur inconnue',
-              stack: result.error.stack || ''
+              message: result.error.message || "Erreur inconnue",
+              stack: result.error.stack || "",
             };
           }
         }
-        
+
         // Extraire les attachments (screenshots, traces)
         if (result.attachments) {
           for (const attachment of result.attachments) {
@@ -230,7 +240,7 @@ function extractTestErrors(test) {
               error.attachments.push({
                 name: attachment.name,
                 path: attachment.path,
-                contentType: attachment.contentType
+                contentType: attachment.contentType,
               });
             }
           }
@@ -241,8 +251,8 @@ function extractTestErrors(test) {
     // Erreur directe du test
     if (test.errors && test.errors.length > 0) {
       error.error = {
-        message: test.errors[0].message || 'Erreur inconnue',
-        stack: test.errors[0].stack || ''
+        message: test.errors[0].message || "Erreur inconnue",
+        stack: test.errors[0].stack || "",
       };
     }
 
@@ -259,7 +269,7 @@ function extractTestErrors(test) {
  */
 function parseAllTests(suites) {
   const allErrors = [];
-  
+
   if (!suites || !Array.isArray(suites)) {
     return allErrors;
   }
@@ -285,9 +295,9 @@ function parseAllTests(suites) {
  * Génère le résumé Markdown
  */
 function generateMarkdownSummary(summaries) {
-  const date = new Date().toISOString().split('T')[0];
-  const time = new Date().toLocaleTimeString('fr-FR', { timeZone: 'UTC' });
-  
+  const date = new Date().toISOString().split("T")[0];
+  const time = new Date().toLocaleTimeString("fr-FR", { timeZone: "UTC" });
+
   // Titre selon le contexte
   let title;
   if (IS_DEVELOP) {
@@ -299,7 +309,7 @@ function generateMarkdownSummary(summaries) {
   } else {
     title = `📊 Résumé des Tests de Régression Nocturne`;
   }
-  
+
   let md = `# ${title}\n\n`;
   md += `**Date:** ${date} ${time} UTC\n\n`;
   md += `---\n\n`;
@@ -311,7 +321,7 @@ function generateMarkdownSummary(summaries) {
 
   for (const summary of summaries) {
     if (!summary) continue;
-    
+
     totalPassed += summary.passed || 0;
     totalFailed += summary.failed || 0;
     totalSkipped += summary.skipped || 0;
@@ -326,25 +336,25 @@ function generateMarkdownSummary(summaries) {
   md += `| ❌ Tests échoués | ${totalFailed} |\n`;
   md += `| ⏭️ Tests ignorés | ${totalSkipped} |\n`;
   md += `| 🔴 Erreurs totales | ${totalErrors} |\n`;
-  const expectedProjects = (IS_DEVELOP || IS_MAIN || IS_PR) ? 1 : PROJECTS.length;
-  md += `| 📦 Navigateurs testés | ${summaries.filter(s => s).length}/${expectedProjects} |\n\n`;
+  const expectedProjects = IS_DEVELOP || IS_MAIN || IS_PR ? 1 : PROJECTS.length;
+  md += `| 📦 Navigateurs testés | ${summaries.filter((s) => s).length}/${expectedProjects} |\n\n`;
 
   // Résultats par navigateur
   md += `## 🌐 Résultats par Navigateur\n\n`;
   for (const summary of summaries) {
     if (!summary) continue;
-    
-    let status = '⚠️';
+
+    let status = "⚠️";
     if (summary.noResults) {
-      status = '❌';
+      status = "❌";
     } else if (summary.failed > 0) {
-      status = '❌';
+      status = "❌";
     } else if (summary.passed > 0) {
-      status = '✅';
+      status = "✅";
     }
-    
+
     md += `### ${status} ${summary.project}\n\n`;
-    
+
     if (summary.noResults) {
       md += `⚠️ **Aucun résultat de test trouvé pour ce navigateur**\n\n`;
       md += `Les tests ont peut-être échoué avant de générer un rapport, ou les fichiers de résultats n'ont pas été trouvés.\n\n`;
@@ -352,8 +362,8 @@ function generateMarkdownSummary(summaries) {
       md += `- ✅ Réussis: ${summary.passed || 0}\n`;
       md += `- ❌ Échoués: ${summary.failed || 0}\n`;
       md += `- ⏭️ Ignorés: ${summary.skipped || 0}\n`;
-      md += `- ⏱️ Durée: ${summary.duration ? (summary.duration / 1000).toFixed(1) + 's' : 'N/A'}\n\n`;
-      
+      md += `- ⏱️ Durée: ${summary.duration ? (summary.duration / 1000).toFixed(1) + "s" : "N/A"}\n\n`;
+
       if (summary.errors.length > 0) {
         md += `**Erreurs détectées:** ${summary.errors.length}\n\n`;
       }
@@ -363,12 +373,12 @@ function generateMarkdownSummary(summaries) {
   // Détails des erreurs
   if (totalErrors > 0) {
     md += `## 🔴 Détails des Erreurs\n\n`;
-    
+
     for (const summary of summaries) {
       if (!summary || summary.errors.length === 0) continue;
-      
+
       md += `### ${summary.project}\n\n`;
-      
+
       for (let i = 0; i < summary.errors.length; i++) {
         const error = summary.errors[i];
         md += `#### ${i + 1}. ${error.title}\n\n`;
@@ -381,24 +391,24 @@ function generateMarkdownSummary(summaries) {
           md += `- **Durée:** ${(error.duration / 1000).toFixed(1)}s\n`;
         }
         md += `\n`;
-        
+
         if (error.error) {
           md += `**Message d'erreur:**\n`;
           md += `\`\`\`\n`;
           md += `${error.error.message}\n`;
           md += `\`\`\`\n\n`;
-          
+
           if (error.error.stack && error.error.stack.length > 0) {
             // Limiter la stack trace à 20 lignes
-            const stackLines = error.error.stack.split('\n').slice(0, 20);
+            const stackLines = error.error.stack.split("\n").slice(0, 20);
             md += `<details>\n<summary>Stack trace (${stackLines.length} lignes)</summary>\n\n`;
             md += `\`\`\`\n`;
-            md += stackLines.join('\n');
+            md += stackLines.join("\n");
             md += `\n\`\`\`\n\n`;
             md += `</details>\n\n`;
           }
         }
-        
+
         if (error.attachments && error.attachments.length > 0) {
           md += `**Attachments disponibles:**\n`;
           for (const attachment of error.attachments) {
@@ -406,7 +416,7 @@ function generateMarkdownSummary(summaries) {
           }
           md += `\n`;
         }
-        
+
         md += `---\n\n`;
       }
     }
@@ -442,25 +452,25 @@ function generateMarkdownSummary(summaries) {
 async function main() {
   let contextLabel;
   if (IS_DEVELOP) {
-    contextLabel = 'E2E Smoke (Develop)';
+    contextLabel = "E2E Smoke (Develop)";
   } else if (IS_MAIN) {
-    contextLabel = 'E2E (Main)';
+    contextLabel = "E2E (Main)";
   } else if (IS_PR) {
-    contextLabel = 'E2E (PR)';
+    contextLabel = "E2E (PR)";
   } else {
-    contextLabel = 'Régression Nocturne';
+    contextLabel = "Régression Nocturne";
   }
   console.log(`🔍 Analyse des résultats de ${contextLabel}...\n`);
 
   const summaries = [];
-  
+
   // Pour develop, main et PR, on ne teste que chromium (smoke tests)
   // Pour nightly, on teste tous les navigateurs
-  const projectsToTest = (IS_DEVELOP || IS_MAIN || IS_PR) ? ['chromium'] : PROJECTS;
+  const projectsToTest = IS_DEVELOP || IS_MAIN || IS_PR ? ["chromium"] : PROJECTS;
 
   for (const project of projectsToTest) {
     console.log(`📦 Analyse de ${project}...`);
-    
+
     // Debug: afficher la structure du dossier test-results
     if ((IS_DEVELOP || IS_MAIN || IS_PR) && fs.existsSync(TEST_RESULTS_DIR)) {
       console.log(`  📁 Contenu de test-results:`);
@@ -468,14 +478,14 @@ async function main() {
         const entries = fs.readdirSync(TEST_RESULTS_DIR, { withFileTypes: true });
         for (const entry of entries) {
           const fullPath = path.join(TEST_RESULTS_DIR, entry.name);
-          const stat = entry.isDirectory() ? '📁' : '📄';
+          const stat = entry.isDirectory() ? "📁" : "📄";
           console.log(`    ${stat} ${entry.name}`);
         }
       } catch (error) {
         console.log(`    ⚠️ Erreur lors de la lecture: ${error.message}`);
       }
     }
-    
+
     let results = parsePlaywrightResults(project);
     if (!results) {
       console.log(`  🔍 Recherche dans les artefacts...`);
@@ -494,7 +504,7 @@ async function main() {
         skipped: 0,
         duration: 0,
         errors: [],
-        noResults: true
+        noResults: true,
       });
       continue;
     }
@@ -505,7 +515,7 @@ async function main() {
       failed: 0,
       skipped: 0,
       duration: 0,
-      errors: []
+      errors: [],
     };
 
     // Compter les résultats
@@ -515,7 +525,7 @@ async function main() {
       summary.failed = results.stats.unexpected || results.stats.failed || 0;
       summary.skipped = results.stats.skipped || 0;
       summary.duration = results.stats.duration || 0;
-      
+
       // Si les stats ne sont pas disponibles, compter depuis les suites
       if (summary.passed === 0 && summary.failed === 0 && results.suites) {
         const allTests = parseAllTests(results.suites);
@@ -549,7 +559,7 @@ async function main() {
           if (suite.tests && Array.isArray(suite.tests)) {
             for (const test of suite.tests) {
               count++;
-              if (test.status === 'skipped') skipped++;
+              if (test.status === "skipped") skipped++;
             }
           }
           if (suite.suites && Array.isArray(suite.suites)) {
@@ -571,56 +581,57 @@ async function main() {
     }
 
     summaries.push(summary);
-    console.log(`  ✅ ${summary.passed} réussis, ${summary.failed} échoués, ${summary.errors.length} erreurs`);
+    console.log(
+      `  ✅ ${summary.passed} réussis, ${summary.failed} échoués, ${summary.errors.length} erreurs`,
+    );
   }
 
   // Générer le résumé Markdown
   const markdown = generateMarkdownSummary(summaries);
-  
+
   // Sauvegarder le résumé
-  const summaryPath = path.join(process.cwd(), 'regression-summary.md');
-  fs.writeFileSync(summaryPath, markdown, 'utf-8');
+  const summaryPath = path.join(process.cwd(), "regression-summary.md");
+  fs.writeFileSync(summaryPath, markdown, "utf-8");
   console.log(`\n✅ Résumé généré: ${summaryPath}`);
 
   // Afficher le résumé dans la console
-  console.log('\n' + '='.repeat(80));
+  console.log("\n" + "=".repeat(80));
   console.log(markdown);
-  console.log('='.repeat(80));
+  console.log("=".repeat(80));
 
   // Dans GitHub Actions, écrire dans GITHUB_STEP_SUMMARY pour l'afficher dans le workflow
   if (process.env.GITHUB_STEP_SUMMARY) {
     // Écrire le résumé complet (le titre sera celui du markdown)
     fs.writeFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
-    console.log('\n✅ Résumé ajouté à GitHub Actions Step Summary');
+    console.log("\n✅ Résumé ajouté à GitHub Actions Step Summary");
   }
 
   // Écrire aussi dans un fichier pour utilisation ultérieure
   if (process.env.GITHUB_OUTPUT) {
-    const escapedMarkdown = markdown.replace(/\n/g, '%0A').replace(/\r/g, '');
+    const escapedMarkdown = markdown.replace(/\n/g, "%0A").replace(/\r/g, "");
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `regression-summary<<EOF\n${markdown}\nEOF\n`);
-    console.log('✅ Résumé ajouté à GitHub Actions Output');
+    console.log("✅ Résumé ajouté à GitHub Actions Output");
   }
 
   // Code de sortie - échouer si des tests ont échoué ou si aucun résultat n'a été trouvé
-  const hasFailures = summaries.some(s => s && (s.failed > 0 || s.noResults));
-  const hasNoResults = summaries.every(s => !s || s.noResults);
-  
+  const hasFailures = summaries.some((s) => s && (s.failed > 0 || s.noResults));
+  const hasNoResults = summaries.every((s) => !s || s.noResults);
+
   if (hasNoResults) {
-    console.error('❌ Aucun résultat de test trouvé pour aucun navigateur');
+    console.error("❌ Aucun résultat de test trouvé pour aucun navigateur");
     process.exit(1);
   }
-  
+
   if (hasFailures) {
-    console.error('❌ Des tests ont échoué ou des résultats sont manquants');
+    console.error("❌ Des tests ont échoué ou des résultats sont manquants");
     process.exit(1);
   }
-  
-  console.log('✅ Tous les tests sont passés avec succès');
+
+  console.log("✅ Tous les tests sont passés avec succès");
   process.exit(0);
 }
 
-main().catch(error => {
-  console.error('❌ Erreur:', error);
+main().catch((error) => {
+  console.error("❌ Erreur:", error);
   process.exit(1);
 });
-

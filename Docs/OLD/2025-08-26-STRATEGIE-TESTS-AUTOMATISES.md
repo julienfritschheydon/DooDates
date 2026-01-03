@@ -1,11 +1,10 @@
 # DooDates - Stratégie de Tests Automatisés Complète
 
-
 ## 🎯 Objectif : Tests 100% Automatisés
- 
+
 > Mise à jour 2025-08-26 — Référence actuelle
-**Vision :** Aucun code ne passe en production sans validation automatique complète.
-**Principe :** Fail Fast, Fix Fast - Détection immédiate des régressions.
+> **Vision :** Aucun code ne passe en production sans validation automatique complète.
+> **Principe :** Fail Fast, Fix Fast - Détection immédiate des régressions.
 
 - Workflows actifs (références exactes dans `.github/workflows/`):
   - `pr-validation.yml`
@@ -21,7 +20,6 @@
 
 Les sections ci-dessous décrivant d'autres workflows/tests non listés ci-dessus sont à considérer comme « Planned » et pourront être activées ultérieurement.
 
-
 ---
 
 ## 🔄 Stratégie Multi-Niveaux
@@ -29,6 +27,7 @@ Les sections ci-dessous décrivant d'autres workflows/tests non listés ci-dessu
 ### 1. 💻 **Tests Locaux (Développement)**
 
 #### Hook Pre-Commit (Obligatoire)
+
 ```bash
 # .husky/pre-commit - S'exécute avant chaque commit
 #!/bin/sh
@@ -92,6 +91,7 @@ echo "✅ Pre-commit validé - Commit autorisé"
 ```
 
 #### Hook Pre-Push (Validation complète)
+
 ```bash
 # .husky/pre-push - S'exécute avant chaque push
 #!/bin/sh
@@ -132,6 +132,7 @@ echo "✅ Pre-push validé - Push autorisé"
 ### 2. 🌐 **Tests GitHub (CI/CD)**
 
 #### A. Pull Request (Validation Complète)
+
 ```yaml
 # .github/workflows/pr-validation.yml
 name: 🔍 PR Validation
@@ -151,15 +152,15 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run ${{ matrix.test-type }} tests
         run: npm run test:${{ matrix.test-type }}
-      
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v3
@@ -174,15 +175,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run AI Tests (Quick)
         run: npm run test:gemini:quick
         env:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      
+
       - name: Validate AI Performance
         run: |
           SCORE=$(node -e "
@@ -204,13 +205,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build production
         run: npm run build
-      
+
       - name: Deploy to Vercel Preview
         uses: amondnet/vercel-action@v25
         with:
@@ -218,7 +219,7 @@ jobs:
           vercel-org-id: ${{ secrets.ORG_ID }}
           vercel-project-id: ${{ secrets.PROJECT_ID }}
           scope: ${{ secrets.TEAM_ID }}
-      
+
       - name: Comment PR with preview link
         uses: actions/github-script@v6
         with:
@@ -232,6 +233,7 @@ jobs:
 ```
 
 #### B. Push sur Main (Déploiement Production)
+
 ```yaml
 # .github/workflows/production-deploy.yml
 name: 🚀 Production Deploy
@@ -247,27 +249,27 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       # Gate 1: Tests complets
       - name: "Gate 1: Tests Unitaires"
         run: npm run test:unit
-      
+
       - name: "Gate 1: Tests Intégration"
         run: npm run test:integration
-      
+
       - name: "Gate 1: Tests UX Régression"
         run: npm run test:ux-regression
-      
+
       # Gate 2: Performance IA
       - name: "Gate 2: Tests IA Complets"
         run: npm run test:gemini:production
         env:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
         timeout-minutes: 30
-      
+
       - name: "Gate 2: Validation Score IA"
         run: |
           SCORE=$(node -e "
@@ -281,14 +283,14 @@ jobs:
             exit 1
           fi
           echo "✅ Score IA validé pour production: $SCORE%"
-      
+
       # Gate 3: Build Production
       - name: "Gate 3: Build Production"
         run: npm run build
-      
+
       - name: "Gate 3: Bundle Analysis"
         run: npm run analyze
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -303,28 +305,28 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Install Playwright
         run: npx playwright install --with-deps
-      
+
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: production-build
           path: dist/
-      
+
       - name: Start preview server
         run: npm run preview &
-        
+
       - name: Wait for server
         run: npx wait-on http://localhost:4173
-      
+
       - name: Run E2E tests
         run: npm run test:e2e
-      
+
       - name: Upload E2E results
         if: failure()
         uses: actions/upload-artifact@v3
@@ -339,27 +341,27 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: production-build
           path: dist/
-      
+
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.ORG_ID }}
           vercel-project-id: ${{ secrets.PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: "--prod"
           scope: ${{ secrets.TEAM_ID }}
-      
+
       - name: Post-deploy smoke tests
         run: npm run test:smoke:production
         env:
           PRODUCTION_URL: https://doodates.app
-      
+
       - name: Notify success
         uses: actions/github-script@v6
         with:
@@ -375,17 +377,18 @@ jobs:
 ```
 
 #### C. Tests Programmés (Monitoring Continu)
+
 ```yaml
 # .github/workflows/scheduled-monitoring.yml
 name: 📊 Monitoring Continu
 on:
   schedule:
     # Tests IA complets: Lundi 9h UTC
-    - cron: '0 9 * * 1'
+    - cron: "0 9 * * 1"
     # Tests performance: Mercredi 14h UTC
-    - cron: '0 14 * * 3'
+    - cron: "0 14 * * 3"
     # Tests E2E production: Vendredi 16h UTC
-    - cron: '0 16 * * 5'
+    - cron: "0 16 * * 5"
   workflow_dispatch:
 
 jobs:
@@ -396,19 +399,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run Full AI Test Suite
         run: npm run test:gemini:monitoring
         env:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
         timeout-minutes: 60
-      
+
       - name: Generate Weekly Report
         run: npm run test:report:weekly
-      
+
       - name: Create Issue if Degradation
         if: failure()
         uses: actions/github-script@v6
@@ -446,16 +449,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run Lighthouse CI
         run: npm run test:lighthouse
-      
+
       - name: Bundle size analysis
         run: npm run analyze:bundle
-      
+
       - name: Performance regression check
         run: npm run test:performance:regression
 
@@ -466,18 +469,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Install Playwright
         run: npx playwright install --with-deps
-      
+
       - name: Run E2E against production
         run: npm run test:e2e:production
         env:
           BASE_URL: https://doodates.app
-      
+
       - name: Upload results
         uses: actions/upload-artifact@v3
         with:
@@ -497,40 +500,40 @@ jobs:
     "test:unit:fast": "vitest run --reporter=basic --run",
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
-    
+
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:ux-regression": "vitest run src/lib/__tests__/ux-regression.test.ts",
-    
+
     // ✅ Tests IA
     "test:gemini": "jest --testPathPattern=gemini --testTimeout=30000",
     "test:gemini:quick": "jest --testPathPattern=gemini --testNamePattern='Quick' --testTimeout=15000",
     "test:gemini:production": "jest --testPathPattern=gemini --testTimeout=60000",
     "test:gemini:monitoring": "jest --testPathPattern=gemini --testTimeout=120000 --verbose",
-    
+
     // ✅ Tests E2E
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:production": "playwright test --config=playwright.production.config.ts",
     "test:e2e:debug": "playwright test --debug",
-    
+
     // ✅ Tests Performance
     "test:lighthouse": "lighthouse-ci",
     "test:performance": "npm run test:lighthouse && npm run analyze:bundle",
     "test:performance:regression": "node scripts/performance-regression.js",
-    
+
     // ✅ Tests Smoke
     "test:smoke": "node scripts/smoke-tests.js",
     "test:smoke:production": "BASE_URL=https://doodates.app node scripts/smoke-tests.js",
-    
+
     // ✅ Suites Complètes
     "test:all": "npm run test:unit && npm run test:integration && npm run test:ux-regression",
     "test:ci": "npm run test:all && npm run test:gemini:quick",
     "test:full": "npm run test:all && npm run test:gemini && npm run test:e2e",
-    
+
     // ✅ Reporting
     "test:report": "node scripts/generate-test-report.js",
     "test:report:weekly": "node scripts/generate-weekly-report.js",
-    
+
     // ✅ Utilitaires
     "type-check": "tsc --noEmit",
     "lint:fix": "eslint --fix src/",
@@ -547,6 +550,7 @@ jobs:
 ## 📊 Métriques et Alertes
 
 ### Seuils de Qualité (Quality Gates)
+
 ```javascript
 // scripts/quality-gates.js
 const QUALITY_THRESHOLDS = {
@@ -554,27 +558,28 @@ const QUALITY_THRESHOLDS = {
   unitTests: { min: 95, target: 100 },
   integrationTests: { min: 90, target: 100 },
   uxRegression: { min: 100, target: 100 }, // Zéro régression tolérée
-  
+
   // IA Performance
-  aiPerformance: { 
+  aiPerformance: {
     development: { min: 70, target: 85 },
-    production: { min: 95, target: 98 }
+    production: { min: 95, target: 98 },
   },
-  
+
   // Performance Web
   lighthouse: {
     performance: { min: 90, target: 95 },
     accessibility: { min: 95, target: 100 },
-    seo: { min: 90, target: 95 }
+    seo: { min: 90, target: 95 },
   },
-  
+
   // Code Quality
   coverage: { min: 80, target: 90 },
-  bundleSize: { max: '500KB', target: '300KB' }
+  bundleSize: { max: "500KB", target: "300KB" },
 };
 ```
 
 ### Dashboard de Monitoring
+
 ```yaml
 # .github/workflows/dashboard-update.yml
 name: 📈 Dashboard Update
@@ -593,14 +598,14 @@ jobs:
           script: |
             const fs = require('fs');
             const report = require('./tests/reports/latest-report.json');
-            
+
             const badges = [
               `![Tests](https://img.shields.io/badge/Tests-${report.testsPass}%2F${report.testsTotal}-${report.testsPass === report.testsTotal ? 'green' : 'red'})`,
               `![IA Performance](https://img.shields.io/badge/IA-${report.aiScore}%25-${report.aiScore >= 95 ? 'green' : 'orange'})`,
               `![Coverage](https://img.shields.io/badge/Coverage-${report.coverage}%25-${report.coverage >= 80 ? 'green' : 'red'})`,
               `![Build](https://img.shields.io/badge/Build-${report.buildStatus}-${report.buildStatus === 'passing' ? 'green' : 'red'})`
             ];
-            
+
             // Mise à jour du README avec les badges
             let readme = fs.readFileSync('README.md', 'utf8');
             readme = readme.replace(/<!-- BADGES_START -->[\s\S]*<!-- BADGES_END -->/, 
@@ -613,6 +618,7 @@ jobs:
 ## 🚀 Prochaines Actions Immédiates
 
 ### 1. Configuration des Hooks Git
+
 ```bash
 # Installation husky pour les hooks
 npm install -D husky
@@ -622,6 +628,7 @@ npx husky add .husky/pre-push "npm run test:ci"
 ```
 
 ### 2. Configuration Playwright E2E
+
 ```bash
 # Installation Playwright
 npm install -D @playwright/test
@@ -629,48 +636,49 @@ npx playwright install
 ```
 
 ### 3. Tests E2E Critiques à Créer
+
 ```typescript
 // tests/e2e/critical-flows.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Flows Critiques DooDates', () => {
-  test('Flow complet: Création → Partage → Vote → Résultats', async ({ page }) => {
+test.describe("Flows Critiques DooDates", () => {
+  test("Flow complet: Création → Partage → Vote → Résultats", async ({ page }) => {
     // 1. Création de sondage
-    await page.goto('/');
+    await page.goto("/");
     await page.click('[data-testid="create-poll"]');
-    
+
     // 2. Configuration dates
     await page.click('[data-date="2025-07-01"]');
     await page.click('[data-date="2025-07-02"]');
-    
+
     // 3. Configuration horaires
     await page.click('[data-timeslot="09:00"]');
     await page.click('[data-timeslot="14:00"]');
-    
+
     // 4. Informations sondage
-    await page.fill('[data-testid="poll-title"]', 'Test E2E Automatique');
-    await page.fill('[data-testid="poll-emails"]', 'test@example.com');
-    
+    await page.fill('[data-testid="poll-title"]', "Test E2E Automatique");
+    await page.fill('[data-testid="poll-emails"]', "test@example.com");
+
     // 5. Création
     await page.click('[data-testid="create-poll-button"]');
-    
+
     // 6. Vérification redirection
     await expect(page).toHaveURL(/\/poll\/test-e2e-automatique/);
-    
+
     // 7. Test vote
     await page.click('[data-testid="vote-slot-2025-07-01-09:00"]');
     await page.click('[data-testid="submit-vote"]');
-    
+
     // 8. Vérification résultats
-    await expect(page.locator('[data-testid="vote-count"]')).toContainText('1');
+    await expect(page.locator('[data-testid="vote-count"]')).toContainText("1");
   });
-  
-  test('IA Gemini: Génération automatique de sondage', async ({ page }) => {
-    await page.goto('/');
+
+  test("IA Gemini: Génération automatique de sondage", async ({ page }) => {
+    await page.goto("/");
     await page.click('[data-testid="ai-assistant"]');
-    await page.fill('[data-testid="ai-prompt"]', 'Organise une réunion équipe lundi matin');
+    await page.fill('[data-testid="ai-prompt"]', "Organise une réunion équipe lundi matin");
     await page.click('[data-testid="ai-generate"]');
-    
+
     // Vérification génération IA
     await expect(page.locator('[data-testid="generated-title"]')).not.toBeEmpty();
     await expect(page.locator('[data-testid="generated-dates"]')).not.toBeEmpty();
@@ -683,18 +691,20 @@ test.describe('Flows Critiques DooDates', () => {
 ## 📊 Que Tester Maintenant ?
 
 ### 🎯 **Priorité 1 : Tests E2E (Flows Critiques)**
+
 ```typescript
 // tests/e2e/critical-flows.spec.ts
-test('Flow complet: Création → Partage → Vote → Résultats', async ({ page }) => {
+test("Flow complet: Création → Partage → Vote → Résultats", async ({ page }) => {
   // Test du parcours utilisateur complet
 });
 
-test('IA Gemini: Génération automatique de sondage', async ({ page }) => {
+test("IA Gemini: Génération automatique de sondage", async ({ page }) => {
   // Test de l'intégration IA en conditions réelles
 });
 ```
 
 ### 🎯 **Priorité 2 : Tests Performance**
+
 ```bash
 # Tests Lighthouse automatisés
 npm run test:lighthouse
@@ -707,6 +717,7 @@ npm run test:load
 ```
 
 ### 🎯 **Priorité 3 : Tests d'Accessibilité**
+
 ```typescript
 // tests/a11y/accessibility.spec.ts
 test('Navigation au clavier', async ({ page }) => {
@@ -723,23 +734,27 @@ test('Lecteurs d'écran', async ({ page }) => {
 ## 🚀 Automatisation GitHub/Local
 
 ### ✅ **Commits Locaux**
+
 - **Pre-commit :** Tests unitaires + UX régression (< 30s)
 - **Pre-push :** Suite complète (< 2min)
 - **Feedback immédiat** : Échec = commit/push bloqué
 
 ### ✅ **Pull Requests GitHub**
+
 - **Tests parallèles** : Unit, Integration, UX, IA
 - **Deploy preview** : Environnement de test automatique
 - **Quality gates** : PR bloquée si tests échouent
 
 ### ✅ **Production (main branch)**
+
 - **Quality gates stricts** : IA > 95%, tous tests passent
 - **Tests E2E** : Validation complète post-build
 - **Déploiement automatique** : Seulement si 100% validé
 
 ### ✅ **Monitoring Continu**
+
 - **Tests IA hebdomadaires** : Lundi 9h UTC
-- **Tests performance** : Mercredi 14h UTC  
+- **Tests performance** : Mercredi 14h UTC
 - **Tests E2E production** : Vendredi 16h UTC
 - **Alertes automatiques** : Issues créées si dégradation
 

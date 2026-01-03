@@ -1,6 +1,7 @@
 # 📋 Règles de Développement DooDates
 
 ## 🎯 Objectif
+
 Maintenir un code propre, maintenable et sans warnings ESLint pour garantir la qualité et la performance de l'application.
 
 ---
@@ -8,6 +9,7 @@ Maintenir un code propre, maintenable et sans warnings ESLint pour garantir la q
 ## 🔧 Règle #1 : ZÉRO TOLÉRANCE AUX `any`
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 const data: any = response.data;
@@ -16,6 +18,7 @@ const settings = (poll.settings as any)?.resultsVisibility;
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré : Interface spécifique
 interface ApiResponse {
@@ -37,6 +40,7 @@ const settings = (poll.settings as unknown as { resultsVisibility?: string })?.r
 ## 🔧 Règle #2 : TYPAGE EXPLICITE DES FONCTIONS
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 function process(data) { ... }
@@ -44,6 +48,7 @@ const handleClick = (e) => { ... }
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 interface UserData {
@@ -56,6 +61,7 @@ const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => { ... }
 ```
 
 ### 📋 **Checklist** :
+
 - [ ] Paramètres typés
 - [ ] Type de retour explicite
 - [ ] Types des callbacks/event handlers
@@ -65,6 +71,7 @@ const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => { ... }
 ## 🔧 Règle #3 : HOOKS REACT - DEPENDANCES COMPLÈTES
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 useCallback(() => {
@@ -77,15 +84,19 @@ useEffect(() => {
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 useCallback(() => {
   // Utilise 'poll'
 }, [poll, setClosureReason]);
 
-const calculateUpcomingDeletions = useCallback(async (settings) => {
-  // ...
-}, [retentionService]);
+const calculateUpcomingDeletions = useCallback(
+  async (settings) => {
+    // ...
+  },
+  [retentionService],
+);
 
 useEffect(() => {
   calculateUpcomingDeletions(savedSettings);
@@ -99,6 +110,7 @@ useEffect(() => {
 ## 🔧 Règle #4 : GESTION DES ERREURS
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 } catch (err: any) {
@@ -108,6 +120,7 @@ useEffect(() => {
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 } catch (error: unknown) {
@@ -118,6 +131,7 @@ useEffect(() => {
 ```
 
 ### 📋 **Checklist** :
+
 - [ ] `catch (error: unknown)`
 - [ ] Vérification `instanceof Error`
 - [ ] Logging avec contexte
@@ -128,6 +142,7 @@ useEffect(() => {
 ## 🔧 Règle #5 : IMPORTS ET TYPES
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 import type { Poll } from "@/lib/pollsCore"; // Si non utilisé
@@ -135,6 +150,7 @@ import { something } from "./utils"; // Si non utilisé
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 // Importer seulement ce qui est utilisé
@@ -152,6 +168,7 @@ import { useState, useEffect } from "react";
 ## 🔧 Règle #6 : DÉCLARATION DES VARIABLES
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 let data;
@@ -159,6 +176,7 @@ const settings = {};
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 let data: UserData | null = null;
@@ -169,6 +187,7 @@ const settings: PollSettings = {
 ```
 
 ### 📋 **Checklist** :
+
 - [ ] Toutes les variables ont un type
 - [ ] `null` et `undefined` explicitement typés
 - [ ] Objets avec interfaces ou types explicites
@@ -178,6 +197,7 @@ const settings: PollSettings = {
 ## 🔧 Règle #7 : COMPOSANTS REACT
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 export default function Component({ data, onClick }) {
@@ -186,6 +206,7 @@ export default function Component({ data, onClick }) {
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 interface ComponentProps {
@@ -199,6 +220,7 @@ export default function Component({ data, onClick }: ComponentProps) {
 ```
 
 ### 📋 **Checklist** :
+
 - [ ] Interface des props
 - [ ] Props typées individuellement
 - [ ] Props optionnelles avec `?`
@@ -208,6 +230,7 @@ export default function Component({ data, onClick }: ComponentProps) {
 ## 🔧 Règle #8 : TS-COMMENTS
 
 ### ❌ À ne JAMAIS faire :
+
 ```typescript
 // ❌ Interdit
 // @ts-nocheck
@@ -215,6 +238,7 @@ export default function Component({ data, onClick }: ComponentProps) {
 ```
 
 ### ✅ TOUJOURS faire :
+
 ```typescript
 // ✅ Préféré
 // @ts-expect-error - Justification spécifique
@@ -234,6 +258,7 @@ const result = someUntypedFunction() as LegacyResponse;
 ## 🔧 Règle #9 : VALIDATION AVANT COMMIT
 
 ### 📋 **Checklist pré-commit** :
+
 1. **Compiler** : `npm run type-check` ✅
 2. **Linting** : `npm run lint` ✅ (0 warnings)
 3. **Tests** : `npm run test:unit` ✅
@@ -246,12 +271,14 @@ const result = someUntypedFunction() as LegacyResponse;
 ## 🔧 Règle #10 : DOCUMENTATION
 
 ### ✅ TOUJOURS documenter :
+
 - [ ] Interfaces complexes
 - [ ] Fonctions avec logique métier
 - [ ] Types personnalisés
 - [ ] Raisons des `@ts-expect-error`
 
 ### 📝 **Exemple** :
+
 ```typescript
 /**
  * Calcule les suppressions à venir selon les paramètres de rétention
@@ -259,7 +286,7 @@ const result = someUntypedFunction() as LegacyResponse;
  * @returns Liste des suppressions planifiées avec dates
  * @throws ErrorFactory - Si le service de rétention est indisponible
  */
-async function calculateUpcomingDeletions(settings: RetentionSettings): Promise<DeletionWarning[]>
+async function calculateUpcomingDeletions(settings: RetentionSettings): Promise<DeletionWarning[]>;
 ```
 
 ---
@@ -282,12 +309,14 @@ async function calculateUpcomingDeletions(settings: RetentionSettings): Promise<
 ## 🚨 **SANCTIONS AUTOMATIQUES**
 
 ### ⚠️ **CI/CD bloquera si** :
+
 - Erreurs TypeScript
 - Warnings ESLint > 30
 - Tests en échec
 - Build échoué
 
 ### 💡 **Prévention** :
+
 - Configurer ESLint dans l'IDE
 - Activer les suggestions TypeScript
 - Utiliser les pre-commit hooks
@@ -305,6 +334,7 @@ async function calculateUpcomingDeletions(settings: RetentionSettings): Promise<
 ## 🔄 **Révision et Maintenance**
 
 Cette documentation doit être :
+
 - ✅ Revue trimestriellement
 - ✅ Mis à jour avec nouvelles règles
 - ✅ Partagée avec toute l'équipe

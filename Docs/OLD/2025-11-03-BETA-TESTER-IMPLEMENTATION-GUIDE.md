@@ -1,4 +1,5 @@
 # Guide d'Implémentation - Système Beta Testeurs
+
 **Date:** 3 novembre 2025  
 **Status:** Phase 1 - Setup initial
 
@@ -7,11 +8,13 @@
 ## ✅ CE QUI A ÉTÉ CRÉÉ
 
 ### 1. Documentation complète
+
 - ✅ `Docs/USER-DOCUMENTATION/18-QUOTAS-PRICING-FINAL.md` - Spec complète système quotas & pricing
 - ✅ `Docs/2. Planning.md` - Section "💰 NOUVEAU SYSTÈME QUOTAS & PRICING" ajoutée
 - ✅ Ce guide d'implémentation
 
 ### 2. Base de données (SQL)
+
 - ✅ `sql-scripts/create-beta-keys-and-quotas.sql` - Tables, fonctions, cron jobs
   - Table `beta_keys` (clés beta testeurs)
   - Table `user_quotas` (quotas utilisateurs)
@@ -20,6 +23,7 @@
   - RLS policies (sécurité)
 
 ### 3. Service TypeScript
+
 - ✅ `src/services/BetaKeyService.ts` - Service complet gestion clés beta
   - Génération clés
   - Redemption (activation)
@@ -28,6 +32,7 @@
   - Statistiques
 
 ### 4. Page Pricing (UI)
+
 - ✅ `src/pages/Pricing.tsx` - Page pricing complète avec:
   - 3 tiers (Gratuit, Premium, Pro)
   - Toggle Monthly/Annual
@@ -45,6 +50,7 @@
 ### Phase 1: Setup Base de données (30 min)
 
 **1. Exécuter migration SQL**
+
 ```bash
 # Dans Supabase Dashboard → SQL Editor
 # Copier/coller le contenu de: sql-scripts/create-beta-keys-and-quotas.sql
@@ -52,15 +58,17 @@
 ```
 
 **2. Vérifier tables créées**
+
 ```sql
 -- Dans Supabase SQL Editor
-SELECT tablename FROM pg_tables 
+SELECT tablename FROM pg_tables
 WHERE tablename IN ('beta_keys', 'user_quotas');
 
 -- Devrait retourner 2 lignes
 ```
 
 **3. Tester génération de 5 clés test**
+
 ```sql
 SELECT * FROM generate_beta_key(5, 'Test initial', 3);
 
@@ -68,9 +76,10 @@ SELECT * FROM generate_beta_key(5, 'Test initial', 3);
 ```
 
 **4. Vérifier clés générées**
+
 ```sql
-SELECT code, status, expires_at 
-FROM beta_keys 
+SELECT code, status, expires_at
+FROM beta_keys
 WHERE notes = 'Test initial';
 ```
 
@@ -103,9 +112,9 @@ export function BetaKeyRedemption() {
     }
 
     setLoading(true);
-    
+
     const result = await BetaKeyService.redeemKey(user.id, code);
-    
+
     if (result.success) {
       toast.success('🎉 Clé Beta activée ! Vous avez maintenant 1000 crédits/mois.');
       // Refresh page ou redirect
@@ -113,7 +122,7 @@ export function BetaKeyRedemption() {
     } else {
       toast.error(result.error || 'Erreur lors de l\'activation');
     }
-    
+
     setLoading(false);
   };
 
@@ -135,14 +144,14 @@ export function BetaKeyRedemption() {
               maxLength={19}
               className="font-mono"
             />
-            <Button 
-              onClick={handleRedeem} 
+            <Button
+              onClick={handleRedeem}
               disabled={loading || code.length < 19}
             >
               {loading ? 'Activation...' : 'Activer'}
             </Button>
           </div>
-          
+
           <p className="text-sm text-gray-600">
             Entrez le code que vous avez reçu par email. Format: BETA-XXXX-XXXX-XXXX
           </p>
@@ -156,6 +165,7 @@ export function BetaKeyRedemption() {
 **Intégration dans Settings:**
 
 Ajouter dans `src/pages/Settings.tsx` (ou équivalent):
+
 ```typescript
 import { BetaKeyRedemption } from '@/components/settings/BetaKeyRedemption';
 
@@ -180,14 +190,14 @@ export function TopBar() {
   return (
     <header>
       {/* ... autres éléments ... */}
-      
+
       {/* Badge Beta Tester */}
       {tier === 'beta' && (
         <div className="flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
           🎁 Beta Tester
         </div>
       )}
-      
+
       {/* Indicateur crédits */}
       {user && (
         <div className="flex items-center gap-2 text-sm">
@@ -242,7 +252,7 @@ export function AdminBetaKeysPage() {
     try {
       const newKeys = await BetaKeyService.generateKeys(count, notes);
       toast.success(`${count} clés générées !`);
-      
+
       // Télécharger CSV automatiquement
       await loadKeys();
       BetaKeyService.downloadCSV(keys, `beta-keys-${Date.now()}.csv`);
@@ -348,6 +358,7 @@ function StatusBadge({ status }: { status: string }) {
 ```
 
 **Ajouter route:**
+
 ```typescript
 // Dans src/App.tsx ou équivalent
 import { AdminBetaKeysPage } from '@/pages/admin/BetaKeys';
@@ -359,18 +370,17 @@ import { AdminBetaKeysPage } from '@/pages/admin/BetaKeys';
 
 #### Ajouter l'indicateur de quota dans la sidebar (2 min)
 
-
 ### Phase 3: Hook useCredits (1h)
 
 **Fichier:** `src/hooks/useCredits.ts`
 
 ```typescript
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 interface UserQuota {
-  tier: 'free' | 'premium' | 'pro' | 'beta';
+  tier: "free" | "premium" | "pro" | "beta";
   credits_total: number;
   credits_used: number;
   credits_remaining: number;
@@ -397,15 +407,15 @@ export function useCredits() {
 
     try {
       const { data, error } = await supabase
-        .from('user_quotas')
-        .select('*')
-        .eq('user_id', user.id)
+        .from("user_quotas")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
 
       if (error) throw error;
       setQuota(data);
     } catch (error) {
-      console.error('Failed to load quota:', error);
+      console.error("Failed to load quota:", error);
     } finally {
       setLoading(false);
     }
@@ -415,7 +425,7 @@ export function useCredits() {
     if (!user) return false;
 
     try {
-      const { data, error } = await supabase.rpc('consume_credits', {
+      const { data, error } = await supabase.rpc("consume_credits", {
         p_user_id: user.id,
         p_amount: amount,
       });
@@ -428,7 +438,7 @@ export function useCredits() {
       await loadQuota();
       return true;
     } catch (error) {
-      console.error('Failed to consume credits:', error);
+      console.error("Failed to consume credits:", error);
       return false;
     }
   };
@@ -436,7 +446,7 @@ export function useCredits() {
   return {
     quota,
     loading,
-    tier: quota?.tier || 'free',
+    tier: quota?.tier || "free",
     credits: {
       total: quota?.credits_total || 0,
       used: quota?.credits_used || 0,
@@ -453,6 +463,7 @@ export function useCredits() {
 ## 🧪 TESTS (30 min)
 
 ### 1. Test génération clés (SQL)
+
 ```sql
 -- Générer 5 clés test
 SELECT * FROM generate_beta_key(5, 'Test manuel', 3);
@@ -462,6 +473,7 @@ SELECT code, status, expires_at FROM beta_keys WHERE notes = 'Test manuel';
 ```
 
 ### 2. Test redemption (SQL)
+
 ```sql
 -- Remplacer USER_ID et CODE
 SELECT * FROM redeem_beta_key(
@@ -474,6 +486,7 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 ```
 
 ### 3. Test UI (Manuel)
+
 - [ ] Aller sur `/settings`
 - [ ] Voir section "Clé Beta"
 - [ ] Entrer une clé test
@@ -482,6 +495,7 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 - [ ] Vérifier crédits (1000/1000)
 
 ### 4. Test Admin (Manuel)
+
 - [ ] Aller sur `/admin/beta-keys`
 - [ ] Générer 10 clés
 - [ ] Télécharger CSV
@@ -492,6 +506,7 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 ## 📋 CHECKLIST AVANT DÉPLOIEMENT
 
 ### Base de données
+
 - [ ] Migration SQL exécutée en production
 - [ ] Tables `beta_keys` et `user_quotas` créées
 - [ ] Fonctions PostgreSQL testées
@@ -499,6 +514,7 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 - [ ] RLS policies activées
 
 ### Code
+
 - [ ] Service `BetaKeyService` testé
 - [ ] Composant `BetaKeyRedemption` intégré dans Settings
 - [ ] Badge Beta Tester affiché dans TopBar
@@ -506,12 +522,14 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 - [ ] Hook `useCredits` fonctionnel
 
 ### Sécurité
+
 - [ ] RLS policies empêchent accès non autorisé
 - [ ] Admin seul peut générer clés
 - [ ] Users peuvent activer clés uniquement pour eux-mêmes
 - [ ] Validation format clé côté client et serveur
 
 ### Tests
+
 - [ ] Génération 20 clés test OK
 - [ ] Redemption clé valide OK
 - [ ] Erreur clé invalide OK
@@ -524,13 +542,15 @@ SELECT tier, credits_total FROM user_quotas WHERE user_id = 'USER_ID_ICI'::uuid;
 ## 🎁 DISTRIBUTION CLÉS BETA TESTEURS
 
 ### 1. Générer 20 clés production
+
 ```typescript
 // Dans console admin
-const keys = await BetaKeyService.generateKeys(20, 'Batch Beta Nov 2025');
-BetaKeyService.downloadCSV(keys, 'beta-keys-prod-nov2025.csv');
+const keys = await BetaKeyService.generateKeys(20, "Batch Beta Nov 2025");
+BetaKeyService.downloadCSV(keys, "beta-keys-prod-nov2025.csv");
 ```
 
 ### 2. Email template
+
 ```
 Sujet: 🎉 Bienvenue dans la bêta DooDates !
 
@@ -558,6 +578,7 @@ Julien
 ```
 
 ### 3. Tracker engagement
+
 - [ ] Créer Google Sheet avec liste testeurs
 - [ ] Colonnes: Nom, Email, Clé, Date activation, Sondages créés, Bugs reportés
 - [ ] Update hebdomadaire
@@ -567,15 +588,19 @@ Julien
 ## 🐛 TROUBLESHOOTING
 
 ### "Function generate_beta_key does not exist"
+
 → Réexécuter migration SQL complète
 
 ### "RLS policy violation"
+
 → Vérifier que l'utilisateur est admin (raw_user_meta_data.role = 'admin')
 
 ### "Clé déjà utilisée" alors qu'elle est active
+
 → Vérifier status dans DB: `SELECT * FROM beta_keys WHERE code = 'XXX';`
 
 ### Badge Beta ne s'affiche pas
+
 → Vérifier tier dans DB: `SELECT tier FROM user_quotas WHERE user_id = 'XXX';`
 
 ---
@@ -584,4 +609,3 @@ Julien
 
 Commencez par Phase 1 (SQL), puis Phase 2 (UI), puis Phase 3 (Hook).
 Total estimé: **4-5h** pour système complet opérationnel.
-

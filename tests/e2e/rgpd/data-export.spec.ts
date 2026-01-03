@@ -1,14 +1,14 @@
 /**
  * Tests E2E - Droit d'accès RGPD (Article 15)
- * 
+ *
  * Tests pour valider que les utilisateurs peuvent accéder à toutes leurs données
  * et les exporter dans un format lisible et complet.
- * 
+ *
  * Référence: Docs/2. Planning - Decembre.md lignes 42-46
  */
 
-import { test, expect } from '@playwright/test';
-import { authenticateUserInPage, getSessionFromPage } from '../helpers/auth-helpers';
+import { test, expect } from "@playwright/test";
+import { authenticateUserInPage, getSessionFromPage } from "../helpers/auth-helpers";
 import {
   navigateToDataControl,
   triggerDataExport,
@@ -18,21 +18,25 @@ import {
   createTestUserData,
   cleanupTestUserData,
   waitForDownload,
-} from '../helpers/rgpd-helpers';
-import { generateTestEmail, createTestUser, signInTestUser } from '../helpers/supabase-test-helpers';
+} from "../helpers/rgpd-helpers";
+import {
+  generateTestEmail,
+  createTestUser,
+  signInTestUser,
+} from "../helpers/supabase-test-helpers";
 
 // Réduire le parallélisme pour éviter le rate limiting Supabase
-test.describe.configure({ mode: 'serial' });
+test.describe.configure({ mode: "serial" });
 
-test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
+test.describe("🔒 RGPD - Droit d'accès (Article 15)", () => {
   let testEmail: string;
   let testPassword: string;
   let userId: string | null = null;
 
   test.beforeEach(async ({ page }) => {
     // Generate unique test credentials
-    testEmail = generateTestEmail('gdpr-access');
-    testPassword = 'TestPassword123!';
+    testEmail = generateTestEmail("gdpr-access");
+    testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests
     await page.waitForTimeout(1000);
   });
@@ -44,13 +48,15 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     }
   });
 
-  test('RGPD-ACCESS-01: Utilisateur peut accéder à la page de contrôle des données', async ({ page }) => {
+  test("RGPD-ACCESS-01: Utilisateur peut accéder à la page de contrôle des données", async ({
+    page,
+  }) => {
     // Create and authenticate test user
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -60,17 +66,20 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     await navigateToDataControl(page);
 
     // Verify page is accessible
-    const pageTitle = await page.locator('[data-testid="data-control-title"], h1, h2').first().textContent({ timeout: 15000 });
+    const pageTitle = await page
+      .locator('[data-testid="data-control-title"], h1, h2')
+      .first()
+      .textContent({ timeout: 15000 });
     expect(pageTitle).toMatch(/données|data|contrôle|control/i);
   });
 
-  test('RGPD-ACCESS-02: Export JSON contient toutes les données utilisateur', async ({ page }) => {
+  test("RGPD-ACCESS-02: Export JSON contient toutes les données utilisateur", async ({ page }) => {
     // Create and authenticate test user
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -94,7 +103,7 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     await page.waitForTimeout(3000);
 
     // Verify export was triggered (check for success message or download)
-    const successMessage = page.locator('text=/export.*terminé|export.*succès|export.*complete/i');
+    const successMessage = page.locator("text=/export.*terminé|export.*succès|export.*complete/i");
     const hasSuccessMessage = await successMessage.isVisible({ timeout: 5000 }).catch(() => false);
 
     // Note: In a real implementation, the export would download a file or show data
@@ -102,13 +111,13 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     expect(hasSuccessMessage || true).toBe(true); // Allow test to pass if UI responds
   });
 
-  test('RGPD-ACCESS-03: Format export est lisible et complet', async ({ page }) => {
+  test("RGPD-ACCESS-03: Format export est lisible et complet", async ({ page }) => {
     // Create and authenticate test user
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -125,13 +134,13 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     verifyExportFormat(userData);
   });
 
-  test('RGPD-ACCESS-04: Export inclut tous les types de données', async ({ page }) => {
+  test("RGPD-ACCESS-04: Export inclut tous les types de données", async ({ page }) => {
     // Create and authenticate test user
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -144,20 +153,20 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     const userData = await getUserDataForExport(userId);
 
     // Verify all data types are present (may be empty arrays, but structure should exist)
-    expect(userData).toHaveProperty('profile');
-    expect(userData).toHaveProperty('conversations');
+    expect(userData).toHaveProperty("profile");
+    expect(userData).toHaveProperty("conversations");
     expect(Array.isArray(userData.conversations)).toBe(true);
-    expect(userData).toHaveProperty('votes');
+    expect(userData).toHaveProperty("votes");
     expect(Array.isArray(userData.votes)).toBe(true);
   });
 
-  test('RGPD-ACCESS-05: Export fonctionne même avec compte vide', async ({ page }) => {
+  test("RGPD-ACCESS-05: Export fonctionne même avec compte vide", async ({ page }) => {
     // Create and authenticate test user (no data created)
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -175,13 +184,13 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     expect(userData.votes).toEqual([]);
   });
 
-  test('RGPD-ACCESS-06: Export inclut métadonnées (dates, timestamps)', async ({ page }) => {
+  test("RGPD-ACCESS-06: Export inclut métadonnées (dates, timestamps)", async ({ page }) => {
     // Create and authenticate test user
     const { data: signUpData } = await createTestUser(testEmail, testPassword);
     userId = signUpData?.user?.id || null;
-    
+
     if (!userId) {
-      throw new Error('Failed to create test user');
+      throw new Error("Failed to create test user");
     }
 
     await signInTestUser(testEmail, testPassword);
@@ -196,19 +205,18 @@ test.describe('🔒 RGPD - Droit d\'accès (Article 15)', () => {
     // Verify conversations have timestamps
     if (userData.conversations.length > 0) {
       const conversation = userData.conversations[0];
-      expect(conversation).toHaveProperty('created_at');
-      expect(conversation).toHaveProperty('updated_at');
-      
+      expect(conversation).toHaveProperty("created_at");
+      expect(conversation).toHaveProperty("updated_at");
+
       // Verify dates are valid
-      expect(new Date(conversation.created_at).toString()).not.toBe('Invalid Date');
+      expect(new Date(conversation.created_at).toString()).not.toBe("Invalid Date");
     }
 
     // Verify votes have timestamps
     if (userData.votes.length > 0) {
       const vote = userData.votes[0];
-      expect(vote).toHaveProperty('created_at');
-      expect(new Date(vote.created_at).toString()).not.toBe('Invalid Date');
+      expect(vote).toHaveProperty("created_at");
+      expect(new Date(vote.created_at).toString()).not.toBe("Invalid Date");
     }
   });
 });
-

@@ -9,19 +9,24 @@
  * - Rapport intégré au monitoring existant
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // 🔥 NOUVEAU: Import du service prédictif Gemini
-import { geminiPredictor, analyzeCommitRisk, analyzeFailureTrends, generateProactiveRecommendations } from './gemini-predictive-analyzer.js';
+import {
+  geminiPredictor,
+  analyzeCommitRisk,
+  analyzeFailureTrends,
+  generateProactiveRecommendations,
+} from "./gemini-predictive-analyzer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const REPORT_DIR = path.join(process.cwd(), 'Docs', 'monitoring');
-const KNOWLEDGE_FILE = path.join(process.cwd(), 'data', 'workflow-knowledge.json');
+const REPORT_DIR = path.join(process.cwd(), "Docs", "monitoring");
+const KNOWLEDGE_FILE = path.join(process.cwd(), "data", "workflow-knowledge.json");
 
 /**
  * Charge la base de connaissances des erreurs connues
@@ -29,11 +34,11 @@ const KNOWLEDGE_FILE = path.join(process.cwd(), 'data', 'workflow-knowledge.json
 function loadKnowledgeBase() {
   try {
     if (fs.existsSync(KNOWLEDGE_FILE)) {
-      const data = fs.readFileSync(KNOWLEDGE_FILE, 'utf8');
+      const data = fs.readFileSync(KNOWLEDGE_FILE, "utf8");
       return JSON.parse(data);
     }
   } catch (error) {
-    console.warn('⚠️ Impossible de charger la base de connaissances:', error.message);
+    console.warn("⚠️ Impossible de charger la base de connaissances:", error.message);
   }
 
   // Base de connaissances par défaut
@@ -42,43 +47,43 @@ function loadKnowledgeBase() {
       "Cannot find package '@playwright/test'": {
         solution: "Utiliser `npm install` au lieu de `npm ci` dans les workflows",
         priority: "high",
-        category: "dependencies"
+        category: "dependencies",
       },
       "Cannot read properties of undefined": {
         solution: "Ajouter vérification null/undefined avant accès aux propriétés",
         priority: "medium",
-        category: "runtime"
+        category: "runtime",
       },
       "Module not found": {
         solution: "Vérifier les imports et l'existence des fichiers",
         priority: "high",
-        category: "build"
+        category: "build",
       },
-      "Timeout": {
+      Timeout: {
         solution: "Augmenter le timeout ou optimiser les opérations asynchrones",
         priority: "medium",
-        category: "performance"
+        category: "performance",
       },
-      "Supabase": {
+      Supabase: {
         solution: "Vérifier la configuration Supabase et les variables d'environnement",
         priority: "high",
-        category: "database"
-      }
+        category: "database",
+      },
     },
     workflow_patterns: {
       "production-smoke": {
         critical: true,
-        description: "Tests de production - bloque le déploiement"
+        description: "Tests de production - bloque le déploiement",
       },
       "tests-e2e": {
         critical: true,
-        description: "Tests end-to-end - qualité utilisateur"
+        description: "Tests end-to-end - qualité utilisateur",
       },
       "tests-unit": {
         critical: false,
-        description: "Tests unitaires - logique métier"
-      }
-    }
+        description: "Tests unitaires - logique métier",
+      },
+    },
   };
 }
 
@@ -87,26 +92,32 @@ function loadKnowledgeBase() {
  */
 function analyzeFailure(failure, knowledgeBase) {
   const analysis = {
-    summary: '',
-    rootCause: '',
+    summary: "",
+    rootCause: "",
     solutions: [],
-    priority: 'medium',
-    category: 'unknown'
+    priority: "medium",
+    category: "unknown",
   };
 
   // Déterminer la catégorie du workflow
   const workflowName = failure.name.toLowerCase();
-  const workflowInfo = knowledgeBase.workflow_patterns[workflowName] ||
-                      Object.values(knowledgeBase.workflow_patterns).find(w =>
-                        workflowName.includes(Object.keys(knowledgeBase.workflow_patterns).find(k => k === workflowName.split('-')[0]) || ''));
+  const workflowInfo =
+    knowledgeBase.workflow_patterns[workflowName] ||
+    Object.values(knowledgeBase.workflow_patterns).find((w) =>
+      workflowName.includes(
+        Object.keys(knowledgeBase.workflow_patterns).find(
+          (k) => k === workflowName.split("-")[0],
+        ) || "",
+      ),
+    );
 
   if (workflowInfo?.critical) {
-    analysis.priority = 'high';
+    analysis.priority = "high";
   }
 
   // Analyser les erreurs dans les logs
-  const errorText = failure.error || '';
-  const logsText = failure.logs || '';
+  const errorText = failure.error || "";
+  const logsText = failure.logs || "";
 
   // Chercher des patterns d'erreur connus
   for (const [pattern, info] of Object.entries(knowledgeBase.error_patterns)) {
@@ -121,21 +132,21 @@ function analyzeFailure(failure, knowledgeBase) {
 
   // Si aucun pattern reconnu, analyse générique
   if (!analysis.rootCause) {
-    analysis.rootCause = 'Erreur non cataloguée - nécessite analyse manuelle';
+    analysis.rootCause = "Erreur non cataloguée - nécessite analyse manuelle";
 
     // Suggestions génériques selon le type d'erreur
-    if (errorText.includes('npm') || errorText.includes('package')) {
-      analysis.solutions.push('Vérifier la configuration npm et les dépendances');
-      analysis.category = 'dependencies';
-    } else if (errorText.includes('test') || errorText.includes('spec')) {
-      analysis.solutions.push('Vérifier les tests et leur configuration');
-      analysis.category = 'testing';
-    } else if (errorText.includes('build') || errorText.includes('TypeScript')) {
-      analysis.solutions.push('Vérifier la compilation et les types TypeScript');
-      analysis.category = 'build';
+    if (errorText.includes("npm") || errorText.includes("package")) {
+      analysis.solutions.push("Vérifier la configuration npm et les dépendances");
+      analysis.category = "dependencies";
+    } else if (errorText.includes("test") || errorText.includes("spec")) {
+      analysis.solutions.push("Vérifier les tests et leur configuration");
+      analysis.category = "testing";
+    } else if (errorText.includes("build") || errorText.includes("TypeScript")) {
+      analysis.solutions.push("Vérifier la compilation et les types TypeScript");
+      analysis.category = "build";
     } else {
-      analysis.solutions.push('Consulter les logs détaillés du workflow');
-      analysis.category = 'unknown';
+      analysis.solutions.push("Consulter les logs détaillés du workflow");
+      analysis.category = "unknown";
     }
   }
 
@@ -162,16 +173,18 @@ async function generatePredictiveAnalysis(failures, context = {}) {
   try {
     let predictiveReport = `## 🔮 Analyse Prédictive avec Gemini AI
 
-*Généré par Google Gemini ${geminiPredictor.model || '1.5-flash'} - ${new Date().toISOString()}*
+*Généré par Google Gemini ${geminiPredictor.model || "1.5-flash"} - ${new Date().toISOString()}*
 
 `;
 
     // Analyse des tendances d'échec
-    const failureHistory = context.failureHistory || failures.map(f => ({
-      timestamp: new Date().toISOString(),
-      workflow: f.name,
-      error: f.error
-    }));
+    const failureHistory =
+      context.failureHistory ||
+      failures.map((f) => ({
+        timestamp: new Date().toISOString(),
+        workflow: f.name,
+        error: f.error,
+      }));
 
     const trendAnalysis = await analyzeFailureTrends(failureHistory);
     if (trendAnalysis.available && !trendAnalysis.error) {
@@ -180,16 +193,16 @@ async function generatePredictiveAnalysis(failures, context = {}) {
 **Score de risque global :** ${trendAnalysis.riskScore}/100
 
 **Tendances identifiées :**
-${trendAnalysis.trends.map(trend => `- ${trend}`).join('\n')}
+${trendAnalysis.trends.map((trend) => `- ${trend}`).join("\n")}
 
 **Risques émergents :**
-${trendAnalysis.emergingRisks.map(risk => `- ⚠️ ${risk}`).join('\n')}
+${trendAnalysis.emergingRisks.map((risk) => `- ⚠️ ${risk}`).join("\n")}
 
 **Prévisions :**
-${trendAnalysis.predictions.map(pred => `- 🔮 ${pred}`).join('\n')}
+${trendAnalysis.predictions.map((pred) => `- 🔮 ${pred}`).join("\n")}
 
 **Actions préventives recommandées :**
-${trendAnalysis.preventiveActions.map(action => `- 🛡️ ${action}`).join('\n')}
+${trendAnalysis.preventiveActions.map((action) => `- 🛡️ ${action}`).join("\n")}
 
 `;
     }
@@ -204,20 +217,21 @@ ${trendAnalysis.preventiveActions.map(action => `- 🛡️ ${action}`).join('\n'
 **Confiance de l'analyse :** ${riskAnalysis.confidence}%
 
 **Raisons du risque :**
-${riskAnalysis.reasons.map(reason => `- ${reason}`).join('\n')}
+${riskAnalysis.reasons.map((reason) => `- ${reason}`).join("\n")}
 
 **Workflows à risque élevé :**
-${riskAnalysis.riskyWorkflows.map(wf => `- 🚨 ${wf}`).join('\n')}
+${riskAnalysis.riskyWorkflows.map((wf) => `- 🚨 ${wf}`).join("\n")}
 
 **Recommandations immédiates :**
-${riskAnalysis.recommendations.map(rec => `- 💡 ${rec}`).join('\n')}
+${riskAnalysis.recommendations.map((rec) => `- 💡 ${rec}`).join("\n")}
 
 **Actions préventives :**
-${riskAnalysis.preventiveActions.map(action => `- 🛡️ ${action}`).join('\n')}
+${riskAnalysis.preventiveActions.map((action) => `- 🛡️ ${action}`).join("\n")}
 
-${riskAnalysis.estimatedTimeToFailure !== 'unknown'
-  ? `**Temps estimé avant échec :** ${riskAnalysis.estimatedTimeToFailure}`
-  : '**Temps estimé :** Non déterminable'
+${
+  riskAnalysis.estimatedTimeToFailure !== "unknown"
+    ? `**Temps estimé avant échec :** ${riskAnalysis.estimatedTimeToFailure}`
+    : "**Temps estimé :** Non déterminable"
 }
 
 `;
@@ -226,20 +240,20 @@ ${riskAnalysis.estimatedTimeToFailure !== 'unknown'
 
     // Recommandations proactives
     const proactiveRecs = await generateProactiveRecommendations({
-      lastSuccess: context.lastSuccess || 'unknown',
-      failureRate: context.failureRate || 'unknown',
-      criticalWorkflows: context.criticalWorkflows || ['production-smoke', 'tests-e2e'],
-      technologies: context.technologies || ['React', 'TypeScript', 'Playwright', 'Supabase']
+      lastSuccess: context.lastSuccess || "unknown",
+      failureRate: context.failureRate || "unknown",
+      criticalWorkflows: context.criticalWorkflows || ["production-smoke", "tests-e2e"],
+      technologies: context.technologies || ["React", "TypeScript", "Playwright", "Supabase"],
     });
 
     if (proactiveRecs.available && !proactiveRecs.error) {
       predictiveReport += `### 🚀 Recommandations Proactives
 
 **Actions rapides (impact immédiat) :**
-${proactiveRecs.quickWins.map(win => `- ⚡ ${win}`).join('\n')}
+${proactiveRecs.quickWins.map((win) => `- ⚡ ${win}`).join("\n")}
 
 **Améliorations à long terme :**
-${proactiveRecs.longTerm.map(lt => `- 🏗️ ${lt}`).join('\n')}
+${proactiveRecs.longTerm.map((lt) => `- 🏗️ ${lt}`).join("\n")}
 
 **Recommandations détaillées :**
 
@@ -257,7 +271,7 @@ ${proactiveRecs.longTerm.map(lt => `- 🏗️ ${lt}`).join('\n')}
 
     return predictiveReport;
   } catch (error) {
-    console.error('❌ Erreur génération analyse prédictive:', error.message);
+    console.error("❌ Erreur génération analyse prédictive:", error.message);
     return `## 🔮 Analyse Prédictive (Erreur)
 
 ❌ **Erreur lors de l'analyse prédictive**
@@ -275,40 +289,40 @@ ${proactiveRecs.longTerm.map(lt => `- 🏗️ ${lt}`).join('\n')}
  */
 function getRiskBadge(level) {
   const badges = {
-    low: '🟢 FAIBLE',
-    medium: '🟡 MOYEN',
-    high: '🔴 ÉLEVÉ',
-    critical: '🚨 CRITIQUE',
-    unknown: '❓ INCONNU'
+    low: "🟢 FAIBLE",
+    medium: "🟡 MOYEN",
+    high: "🔴 ÉLEVÉ",
+    critical: "🚨 CRITIQUE",
+    unknown: "❓ INCONNU",
   };
   return badges[level] || badges.unknown;
 }
 
 function getPriorityBadge(priority) {
   const badges = {
-    high: '🔴 Haute',
-    medium: '🟡 Moyenne',
-    low: '🟢 Basse'
+    high: "🔴 Haute",
+    medium: "🟡 Moyenne",
+    low: "🟢 Basse",
   };
-  return badges[priority] || '❓ Inconnue';
+  return badges[priority] || "❓ Inconnue";
 }
 
 function getImpactBadge(impact) {
   const badges = {
-    high: '💪 Élevé',
-    medium: '🤝 Moyen',
-    low: '👆 Faible'
+    high: "💪 Élevé",
+    medium: "🤝 Moyen",
+    low: "👆 Faible",
   };
-  return badges[impact] || '❓ Inconnu';
+  return badges[impact] || "❓ Inconnu";
 }
 
 function getEffortBadge(effort) {
   const badges = {
-    low: '🚀 Faible',
-    medium: '⚖️ Moyen',
-    high: '⏳ Élevé'
+    low: "🚀 Faible",
+    medium: "⚖️ Moyen",
+    high: "⏳ Élevé",
   };
-  return badges[effort] || '❓ Inconnu';
+  return badges[effort] || "❓ Inconnu";
 }
 
 /**
@@ -316,31 +330,33 @@ function getEffortBadge(effort) {
  */
 export async function analyzeWorkflowFailures(failures, context = {}) {
   if (!failures || failures.length === 0) {
-    return '✅ Aucun nouvel échec détecté - tout fonctionne correctement !';
+    return "✅ Aucun nouvel échec détecté - tout fonctionne correctement !";
   }
 
   const knowledgeBase = loadKnowledgeBase();
-  const analyses = failures.map(failure => analyzeFailure(failure, knowledgeBase));
+  const analyses = failures.map((failure) => analyzeFailure(failure, knowledgeBase));
 
   // 🔥 NOUVEAU: Analyse prédictive avec Gemini
-  console.log('🔮 Génération de l\'analyse prédictive avec Gemini...');
+  console.log("🔮 Génération de l'analyse prédictive avec Gemini...");
   const predictiveAnalysis = await generatePredictiveAnalysis(failures, context);
 
   // Statistiques globales
-  const criticalCount = analyses.filter(a => a.priority === 'high').length;
+  const criticalCount = analyses.filter((a) => a.priority === "high").length;
   const categories = {};
-  analyses.forEach(a => {
+  analyses.forEach((a) => {
     categories[a.category] = (categories[a.category] || 0) + 1;
   });
 
   // Générer le rapport
-  let report = '';
+  let report = "";
 
   // En-tête avec statistiques
   report += `## 📊 Analyse des ${failures.length} échec(s) détecté(s)\n\n`;
   report += `**Statistiques :**\n`;
   report += `- 🔴 Critiques : ${criticalCount}\n`;
-  report += `- 📂 Catégories : ${Object.entries(categories).map(([cat, count]) => `${cat} (${count})`).join(', ')}\n\n`;
+  report += `- 📂 Catégories : ${Object.entries(categories)
+    .map(([cat, count]) => `${cat} (${count})`)
+    .join(", ")}\n\n`;
 
   // Analyse détaillée de chaque échec
   failures.forEach((failure, index) => {
@@ -355,11 +371,11 @@ export async function analyzeWorkflowFailures(failures, context = {}) {
       analysis.solutions.forEach((solution, i) => {
         report += `${i + 1}. ${solution}\n`;
       });
-      report += '\n';
+      report += "\n";
     }
 
     // Actions selon priorité
-    if (analysis.priority === 'high') {
+    if (analysis.priority === "high") {
       report += `**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement\n\n`;
     } else {
       report += `**ℹ️ Action recommandée :** Résoudre prochainement\n\n`;
@@ -373,7 +389,7 @@ export async function analyzeWorkflowFailures(failures, context = {}) {
     report += `## 🚨 Actions prioritaires\n\n`;
     report += `**${criticalCount} échec(s) critique(s) détecté(s) :**\n\n`;
 
-    const criticalFailures = failures.filter((_, i) => analyses[i].priority === 'high');
+    const criticalFailures = failures.filter((_, i) => analyses[i].priority === "high");
     criticalFailures.forEach((failure, i) => {
       const analysis = analyses[failures.indexOf(failure)];
       report += `${i + 1}. **${failure.name}** - ${analysis.solutions[0]}\n`;
@@ -413,22 +429,22 @@ export async function analyzeWorkflowFailures(failures, context = {}) {
 // Fonction principale pour usage en ligne de commande
 if (import.meta.url === `file://${process.argv[1]}`) {
   // Mode CLI - pour test manuel
-  console.log('🤖 Auto Workflow Analyzer - Mode test\n');
+  console.log("🤖 Auto Workflow Analyzer - Mode test\n");
 
   // Simuler des échecs pour test
   const mockFailures = [
     {
-      id: 'test-1',
-      name: 'production-smoke',
-      conclusion: 'failure',
-      error: "Cannot find package '@playwright/test'"
+      id: "test-1",
+      name: "production-smoke",
+      conclusion: "failure",
+      error: "Cannot find package '@playwright/test'",
     },
     {
-      id: 'test-2',
-      name: 'tests-unit',
-      conclusion: 'failure',
-      error: 'Cannot read properties of undefined (reading \'id\')'
-    }
+      id: "test-2",
+      name: "tests-unit",
+      conclusion: "failure",
+      error: "Cannot read properties of undefined (reading 'id')",
+    },
   ];
 
   const analysis = analyzeWorkflowFailures(mockFailures);

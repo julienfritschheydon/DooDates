@@ -8,7 +8,10 @@ import { mockSupabaseAuth } from "./utils";
 // Tests API + UI pour le système d'authentification (Supabase)
 
 test.describe("Auth (Supabase API + UI)", () => {
-  test.skip(({ browserName }) => browserName !== "chromium", "Optimisé pour Chromium (workspace IA)");
+  test.skip(
+    ({ browserName }) => browserName !== "chromium",
+    "Optimisé pour Chromium (workspace IA)",
+  );
 
   test("API auth Supabase répond et respecte le contrat minimal", async ({ request }) => {
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -21,8 +24,8 @@ test.describe("Auth (Supabase API + UI)", () => {
     // 1. Test de connexion à l'API Supabase (session)
     const sessionResponse = await request.get(`${supabaseUrl}/auth/v1/user`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey || ''}`,
-        apikey: supabaseAnonKey || '',
+        Authorization: `Bearer ${supabaseAnonKey || ""}`,
+        apikey: supabaseAnonKey || "",
       },
     });
 
@@ -33,8 +36,8 @@ test.describe("Auth (Supabase API + UI)", () => {
     // 2. Test d'inscription (signup)
     const signupResponse = await request.post(`${supabaseUrl}/auth/v1/signup`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey || ''}`,
-        apikey: supabaseAnonKey || '',
+        Authorization: `Bearer ${supabaseAnonKey || ""}`,
+        apikey: supabaseAnonKey || "",
         "Content-Type": "application/json",
       },
       data: {
@@ -48,7 +51,7 @@ test.describe("Auth (Supabase API + UI)", () => {
     expect(signupResponse.status()).toBeLessThan(500);
 
     const signupJson = await signupResponse.json();
-    
+
     // Accepter soit un succès avec email, soit une erreur 422 (user déjà existant)
     if (signupResponse.status() === 422 && signupJson.error_code === "user_already_exists") {
       // L'utilisateur existe déjà - c'est acceptable pour le test
@@ -61,8 +64,8 @@ test.describe("Auth (Supabase API + UI)", () => {
     // 3. Test de login (signin)
     const loginResponse = await request.post(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey || ''}`,
-        apikey: supabaseAnonKey || '',
+        Authorization: `Bearer ${supabaseAnonKey || ""}`,
+        apikey: supabaseAnonKey || "",
         "Content-Type": "application/json",
       },
       data: {
@@ -80,7 +83,10 @@ test.describe("Auth (Supabase API + UI)", () => {
     expect(loginJson.user).toHaveProperty("id");
   });
 
-  test("UI permet de se connecter, se déconnecter, et persiste le token", async ({ page, browserName }) => {
+  test("UI permet de se connecter, se déconnecter, et persiste le token", async ({
+    page,
+    browserName,
+  }) => {
     const timeouts = getTimeouts(browserName);
 
     await setupGeminiMock(page);
@@ -90,7 +96,7 @@ test.describe("Auth (Supabase API + UI)", () => {
 
     // 1. Simuler une connexion (mock auth)
     await mockSupabaseAuth(page, { userId: "test-user-123", email: "test@example.com" });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -110,7 +116,7 @@ test.describe("Auth (Supabase API + UI)", () => {
       const projectId = supabaseUrl.split("//")[1]?.split(".")[0] || "test";
       localStorage.removeItem(`sb-${projectId}-auth-token`);
     });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

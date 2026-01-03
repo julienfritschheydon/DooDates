@@ -2,7 +2,7 @@
  * Global setup for E2E tests
  * Mocks external APIs to prevent costs and ensure test reliability
  */
-import { Page, Route, BrowserContext } from '@playwright/test';
+import { Page, Route, BrowserContext } from "@playwright/test";
 
 /**
  * Generate intelligent mock response based on user prompt
@@ -10,25 +10,26 @@ import { Page, Route, BrowserContext } from '@playwright/test';
 function generateMockPollResponse(prompt: string): any {
   const lowerPrompt = prompt.toLowerCase();
 
-  console.log('🤖 generateMockPollResponse - Prompt:', lowerPrompt.substring(0, 100) + '...');
+  console.log("🤖 generateMockPollResponse - Prompt:", lowerPrompt.substring(0, 100) + "...");
 
   // Detect if it's a form poll or date poll request
-  const isFormPoll = lowerPrompt.includes('questionnaire') ||
-    lowerPrompt.includes('formulaire') ||
-    lowerPrompt.includes('form') ||
-    lowerPrompt.includes('question');
+  const isFormPoll =
+    lowerPrompt.includes("questionnaire") ||
+    lowerPrompt.includes("formulaire") ||
+    lowerPrompt.includes("form") ||
+    lowerPrompt.includes("question");
 
-  console.log('🤖 generateMockPollResponse - isFormPoll:', isFormPoll);
+  console.log("🤖 generateMockPollResponse - isFormPoll:", isFormPoll);
 
   if (isFormPoll) {
     // 🎯 Détection de mots-clés spéciaux pour les tests E2E
     let numQuestions = 3; // Par défaut
     let simpleTextOnly = false; // Pour générer uniquement des questions texte simples
 
-    if (lowerPrompt.includes('e2e-test-1-question') || lowerPrompt.includes('1 seule question')) {
+    if (lowerPrompt.includes("e2e-test-1-question") || lowerPrompt.includes("1 seule question")) {
       numQuestions = 1;
       simpleTextOnly = true; // Test simple : 1 question texte uniquement
-    } else if (lowerPrompt.includes('e2e-test-2-questions')) {
+    } else if (lowerPrompt.includes("e2e-test-2-questions")) {
       numQuestions = 2;
     } else {
       // Sinon, extraire le nombre du prompt
@@ -43,49 +44,53 @@ function generateMockPollResponse(prompt: string): any {
         // Pour les tests E2E : questions texte simples uniquement
         questions.push({
           title: `Question ${i} générée par mock`,
-          type: 'text',
+          type: "text",
           required: true,
-          placeholder: 'Votre réponse...',
-          maxLength: 500
+          placeholder: "Votre réponse...",
+          maxLength: 500,
         });
       } else {
         // Mode normal : variété de types de questions
         questions.push({
           title: `Question ${i} générée par mock`,
-          type: i === 1 ? 'single' : i === 2 ? 'multiple' : 'text',
+          type: i === 1 ? "single" : i === 2 ? "multiple" : "text",
           required: true,
-          ...(i === 1 && { options: ['Option A', 'Option B', 'Option C'] }),
-          ...(i === 2 && { options: ['Choix 1', 'Choix 2', 'Choix 3'], maxChoices: 2 }),
-          ...(i === 3 && { placeholder: 'Votre réponse...', maxLength: 500 })
+          ...(i === 1 && { options: ["Option A", "Option B", "Option C"] }),
+          ...(i === 2 && { options: ["Choix 1", "Choix 2", "Choix 3"], maxChoices: 2 }),
+          ...(i === 3 && { placeholder: "Votre réponse...", maxLength: 500 }),
         });
       }
     }
 
     const pollData = {
-      type: 'form',
-      title: 'Questionnaire Mock E2E',
-      slug: 'questionnaire-mock-e2e',
-      description: 'Questionnaire généré automatiquement pour les tests',
-      questions
+      type: "form",
+      title: "Questionnaire Mock E2E",
+      slug: "questionnaire-mock-e2e",
+      description: "Questionnaire généré automatiquement pour les tests",
+      questions,
     };
 
-    console.log('🤖 generateMockPollResponse - pollData généré:', JSON.stringify(pollData));
+    console.log("🤖 generateMockPollResponse - pollData généré:", JSON.stringify(pollData));
 
     return {
-      candidates: [{
-        content: {
-          parts: [{ text: JSON.stringify(pollData) }]
+      candidates: [
+        {
+          content: {
+            parts: [{ text: JSON.stringify(pollData) }],
+          },
+          finishReason: "STOP",
         },
-        finishReason: 'STOP'
-      }]
+      ],
     };
   } else {
     // Date poll mock
     // Extraire le titre depuis le prompt si présent
-    let title = 'Sondage de dates Mock E2E';
+    let title = "Sondage de dates Mock E2E";
 
     // Chercher d'abord un titre après "créer un sondage", "créer le sondage", "titre", etc.
-    const titleAfterKeyword = prompt.match(/(?:créer un sondage|créer le sondage|titre|title)\s+[«"]([^»"]+)[»"]|(?:créer un sondage|créer le sondage|titre|title)\s+"([^"]+)"/i);
+    const titleAfterKeyword = prompt.match(
+      /(?:créer un sondage|créer le sondage|titre|title)\s+[«"]([^»"]+)[»"]|(?:créer un sondage|créer le sondage|titre|title)\s+"([^"]+)"/i,
+    );
     if (titleAfterKeyword) {
       title = titleAfterKeyword[1] || titleAfterKeyword[2];
     } else {
@@ -99,7 +104,7 @@ function generateMockPollResponse(prompt: string): any {
     // Extraire les dates depuis le prompt si présentes (format YYYY-MM-DD)
     let dates: string[] = [];
     const dateMatches = prompt.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g);
-    const extractedDates = Array.from(dateMatches).map(m => m[1]);
+    const extractedDates = Array.from(dateMatches).map((m) => m[1]);
 
     if (extractedDates.length > 0) {
       dates = extractedDates;
@@ -109,13 +114,16 @@ function generateMockPollResponse(prompt: string): any {
       for (let i = 1; i <= 3; i++) {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
-        dates.push(d.toISOString().split('T')[0]);
+        dates.push(d.toISOString().split("T")[0]);
       }
     }
 
     // Générer des créneaux horaires par défaut pour chaque date
-    const timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> = {};
-    dates.forEach(date => {
+    const timeSlotsByDate: Record<
+      string,
+      Array<{ hour: number; minute: number; enabled: boolean }>
+    > = {};
+    dates.forEach((date) => {
       timeSlotsByDate[date] = [
         { hour: 9, minute: 0, enabled: true },
         { hour: 10, minute: 0, enabled: true },
@@ -125,20 +133,22 @@ function generateMockPollResponse(prompt: string): any {
     });
 
     const pollData = {
-      type: 'date',
+      type: "date",
       title: title,
-      description: 'Sondage généré automatiquement pour les tests',
+      description: "Sondage généré automatiquement pour les tests",
       dates: dates,
-      timeSlotsByDate: timeSlotsByDate
+      timeSlotsByDate: timeSlotsByDate,
     };
 
     return {
-      candidates: [{
-        content: {
-          parts: [{ text: JSON.stringify(pollData) }]
+      candidates: [
+        {
+          content: {
+            parts: [{ text: JSON.stringify(pollData) }],
+          },
+          finishReason: "STOP",
         },
-        finishReason: 'STOP'
-      }]
+      ],
     };
   }
 }
@@ -146,14 +156,14 @@ function generateMockPollResponse(prompt: string): any {
 /**
  * Generate mock response for Supabase Edge Function
  * Simulates the response from hyper-task Edge Function
- * 
+ *
  * The real Edge Function returns: { success: true, data: responseText }
  * where responseText is the raw JSON string from Gemini
  */
 function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
   // Use userInput directly (it's already the user's message)
   // The prompt is the full system prompt, we don't need to extract from it
-  const userPrompt = userInput || (prompt ? prompt.split('\n').pop() : '') || '';
+  const userPrompt = userInput || (prompt ? prompt.split("\n").pop() : "") || "";
 
   // console.log('🔧 Edge Function mock - Generating response for:', userPrompt.substring(0, 100));
 
@@ -172,7 +182,7 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
     const parsed = JSON.parse(pollDataText);
     // console.log('🔧 Edge Function mock - JSON is valid, type:', parsed.type, 'questions:', parsed.questions?.length);
   } catch (e) {
-    console.error('❌ Edge Function mock - Invalid JSON generated!', e);
+    console.error("❌ Edge Function mock - Invalid JSON generated!", e);
     throw e;
   }
 
@@ -181,7 +191,7 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
   // where responseText is the raw text from Gemini (a JSON string)
   return {
     success: true,
-    data: pollDataText // The Edge Function returns the raw text from Gemini (JSON string)
+    data: pollDataText, // The Edge Function returns the raw text from Gemini (JSON string)
     // Note: creditsRemaining is only returned on errors, not on success
   };
 }
@@ -201,22 +211,22 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     // console.log('🔧 Edge Function mock - Intercepted request:', method, url);
 
     // Handle OPTIONS preflight requests for CORS
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
       // console.log('🔧 Edge Function mock - Handling OPTIONS preflight');
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
     // Handle POST requests
-    if (method !== 'POST') {
+    if (method !== "POST") {
       // console.log('🔧 Edge Function mock - Non-POST request, continuing');
       await route.continue();
       return;
@@ -224,7 +234,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
 
     try {
       const postData = request.postDataJSON();
-      const userInput = postData?.userInput || '';
+      const userInput = postData?.userInput || "";
       const prompt = postData?.prompt;
 
       // console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
@@ -235,60 +245,60 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: JSON.stringify(mockResponse)
+        body: JSON.stringify(mockResponse),
       });
     } catch (error) {
-      console.error('❌ Edge Function mock error:', error);
+      console.error("❌ Edge Function mock error:", error);
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
           success: false,
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de l\'Edge Function'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de l'Edge Function",
+        }),
       });
     }
   });
 
   // Also intercept with glob pattern as fallback
-  await page.route('**/functions/v1/hyper-task', async (route: Route) => {
+  await page.route("**/functions/v1/hyper-task", async (route: Route) => {
     const request = route.request();
     const method = request.method();
     const url = request.url();
 
     // console.log('🔧 Edge Function mock (alt pattern) - Intercepted request:', method, url);
 
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (method !== 'POST') {
+    if (method !== "POST") {
       await route.continue();
       return;
     }
 
     try {
       const postData = request.postDataJSON();
-      const userInput = postData?.userInput || '';
+      const userInput = postData?.userInput || "";
       const prompt = postData?.prompt;
 
       // console.log('🔧 Edge Function mock (alt pattern) - User input:', userInput.substring(0, 100) + '...');
@@ -297,27 +307,27 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: JSON.stringify(mockResponse)
+        body: JSON.stringify(mockResponse),
       });
     } catch (error) {
-      console.error('❌ Edge Function mock (alt pattern) error:', error);
+      console.error("❌ Edge Function mock (alt pattern) error:", error);
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
           success: false,
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de l\'Edge Function'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de l'Edge Function",
+        }),
       });
     }
   });
@@ -328,12 +338,12 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
  */
 export async function setupGeminiMock(page: Page) {
   // Intercepter toutes les requêtes Gemini (incluant les tests de connexion)
-  await page.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
+  await page.route("**/generativelanguage.googleapis.com/**", async (route: Route) => {
     const request = route.request();
     const postData = request.postDataJSON();
 
     // Extract user prompt from request
-    let userPrompt = '';
+    let userPrompt = "";
     if (postData?.contents) {
       const lastContent = postData.contents[postData.contents.length - 1];
       if (lastContent?.parts?.[0]?.text) {
@@ -341,22 +351,27 @@ export async function setupGeminiMock(page: Page) {
       }
     }
 
-    console.log('🤖 Gemini API mock - Prompt reçu:', userPrompt.substring(0, 100) + '...');
+    console.log("🤖 Gemini API mock - Prompt reçu:", userPrompt.substring(0, 100) + "...");
 
     // Si c'est un test de connexion (prompt court comme "Test de connexion"), retourner une réponse simple
-    if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
-      console.log('🤖 Gemini API mock - Test de connexion détecté');
+    if (
+      userPrompt.toLowerCase().includes("test de connexion") ||
+      userPrompt.toLowerCase().includes("ok")
+    ) {
+      console.log("🤖 Gemini API mock - Test de connexion détecté");
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
-          candidates: [{
-            content: {
-              parts: [{ text: 'OK' }]
+          candidates: [
+            {
+              content: {
+                parts: [{ text: "OK" }],
+              },
+              finishReason: "STOP",
             },
-            finishReason: 'STOP'
-          }]
-        })
+          ],
+        }),
       });
       return;
     }
@@ -366,121 +381,151 @@ export async function setupGeminiMock(page: Page) {
     // Détecter les demandes de parsing de disponibilités
     const lowerPrompt = userPrompt.toLowerCase();
     const isAvailabilityParsing =
-      (lowerPrompt.includes('disponibilités') ||
-        lowerPrompt.includes('disponible') ||
-        lowerPrompt.includes('mardi') || lowerPrompt.includes('jeudi') ||
-        lowerPrompt.includes('lundi') || lowerPrompt.includes('mercredi') ||
-        lowerPrompt.includes('vendredi') || lowerPrompt.includes('samedi') ||
-        lowerPrompt.includes('dimanche') ||
-        lowerPrompt.includes('après-midi') || lowerPrompt.includes('matin') ||
-        lowerPrompt.includes('semaine prochaine')) &&
-      (lowerPrompt.includes('analyse') || lowerPrompt.includes('extrait') ||
-        lowerPrompt.includes('parse') || lowerPrompt.includes('assistant spécialisé'));
+      (lowerPrompt.includes("disponibilités") ||
+        lowerPrompt.includes("disponible") ||
+        lowerPrompt.includes("mardi") ||
+        lowerPrompt.includes("jeudi") ||
+        lowerPrompt.includes("lundi") ||
+        lowerPrompt.includes("mercredi") ||
+        lowerPrompt.includes("vendredi") ||
+        lowerPrompt.includes("samedi") ||
+        lowerPrompt.includes("dimanche") ||
+        lowerPrompt.includes("après-midi") ||
+        lowerPrompt.includes("matin") ||
+        lowerPrompt.includes("semaine prochaine")) &&
+      (lowerPrompt.includes("analyse") ||
+        lowerPrompt.includes("extrait") ||
+        lowerPrompt.includes("parse") ||
+        lowerPrompt.includes("assistant spécialisé"));
 
     if (isAvailabilityParsing) {
-      console.log('🤖 Gemini API mock - Parsing disponibilités détecté');
+      console.log("🤖 Gemini API mock - Parsing disponibilités détecté");
       // Détecter les jours mentionnés dans le prompt pour générer une réponse adaptée
-      const hasTuesday = lowerPrompt.includes('mardi') || lowerPrompt.includes('tuesday');
-      const hasThursday = lowerPrompt.includes('jeudi') || lowerPrompt.includes('thursday');
-      const hasMonday = lowerPrompt.includes('lundi') || lowerPrompt.includes('monday');
-      const hasWednesday = lowerPrompt.includes('mercredi') || lowerPrompt.includes('wednesday');
-      const isAfternoon = lowerPrompt.includes('après-midi') || lowerPrompt.includes('afternoon');
-      const isMorning = lowerPrompt.includes('matin') || lowerPrompt.includes('morning');
+      const hasTuesday = lowerPrompt.includes("mardi") || lowerPrompt.includes("tuesday");
+      const hasThursday = lowerPrompt.includes("jeudi") || lowerPrompt.includes("thursday");
+      const hasMonday = lowerPrompt.includes("lundi") || lowerPrompt.includes("monday");
+      const hasWednesday = lowerPrompt.includes("mercredi") || lowerPrompt.includes("wednesday");
+      const isAfternoon = lowerPrompt.includes("après-midi") || lowerPrompt.includes("afternoon");
+      const isMorning = lowerPrompt.includes("matin") || lowerPrompt.includes("morning");
 
       const availabilities: any[] = [];
 
       if (hasTuesday) {
         availabilities.push({
-          day: 'tuesday',
-          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          day: "tuesday",
+          timeRange: {
+            start: isMorning ? "09:00" : isAfternoon ? "14:00" : "09:00",
+            end: isMorning ? "12:00" : isAfternoon ? "18:00" : "17:00",
+          },
           confidence: 0.9,
-          originalText: 'mardi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+          originalText: "mardi " + (isAfternoon ? "après-midi" : isMorning ? "matin" : ""),
         });
       }
       if (hasThursday) {
         availabilities.push({
-          day: 'thursday',
-          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          day: "thursday",
+          timeRange: {
+            start: isMorning ? "09:00" : isAfternoon ? "14:00" : "09:00",
+            end: isMorning ? "12:00" : isAfternoon ? "18:00" : "17:00",
+          },
           confidence: 0.9,
-          originalText: 'jeudi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+          originalText: "jeudi " + (isAfternoon ? "après-midi" : isMorning ? "matin" : ""),
         });
       }
       if (hasMonday && availabilities.length === 0) {
         availabilities.push({
-          day: 'monday',
-          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          day: "monday",
+          timeRange: {
+            start: isMorning ? "09:00" : isAfternoon ? "14:00" : "09:00",
+            end: isMorning ? "12:00" : isAfternoon ? "18:00" : "17:00",
+          },
           confidence: 0.9,
-          originalText: 'lundi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+          originalText: "lundi " + (isAfternoon ? "après-midi" : isMorning ? "matin" : ""),
         });
       }
       if (hasWednesday && availabilities.length === 0) {
         availabilities.push({
-          day: 'wednesday',
-          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          day: "wednesday",
+          timeRange: {
+            start: isMorning ? "09:00" : isAfternoon ? "14:00" : "09:00",
+            end: isMorning ? "12:00" : isAfternoon ? "18:00" : "17:00",
+          },
           confidence: 0.9,
-          originalText: 'mercredi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+          originalText: "mercredi " + (isAfternoon ? "après-midi" : isMorning ? "matin" : ""),
         });
       }
 
       // Si aucun jour spécifique détecté, retourner une réponse par défaut
       if (availabilities.length === 0) {
         availabilities.push({
-          day: 'tuesday',
-          timeRange: { start: '14:00', end: '18:00' },
+          day: "tuesday",
+          timeRange: { start: "14:00", end: "18:00" },
           confidence: 0.9,
-          originalText: 'mardi après-midi'
+          originalText: "mardi après-midi",
         });
       }
 
       const mockAvailabilityResponse = {
         availabilities,
-        confidence: 0.9
+        confidence: 0.9,
       };
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
-          candidates: [{
-            content: {
-              parts: [{ text: JSON.stringify(mockAvailabilityResponse) }]
+          candidates: [
+            {
+              content: {
+                parts: [{ text: JSON.stringify(mockAvailabilityResponse) }],
+              },
+              finishReason: "STOP",
             },
-            finishReason: 'STOP'
-          }]
-        })
+          ],
+        }),
       });
       return;
     }
 
     // Détecter les demandes de modification de poll (ajout/suppression de questions)
     const isModificationRequest =
-      lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter') ||
-      lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer') ||
-      lowerPrompt.includes('modifie') || lowerPrompt.includes('modifier') ||
-      lowerPrompt.includes('change') || lowerPrompt.includes('changer') ||
-      lowerPrompt.includes('renomme') || lowerPrompt.includes('renommer');
+      lowerPrompt.includes("ajoute") ||
+      lowerPrompt.includes("ajouter") ||
+      lowerPrompt.includes("supprime") ||
+      lowerPrompt.includes("supprimer") ||
+      lowerPrompt.includes("modifie") ||
+      lowerPrompt.includes("modifier") ||
+      lowerPrompt.includes("change") ||
+      lowerPrompt.includes("changer") ||
+      lowerPrompt.includes("renomme") ||
+      lowerPrompt.includes("renommer");
 
     // Si c'est une demande de modification (détection d'intention)
-    if (isModificationRequest && (lowerPrompt.includes('intention') || lowerPrompt.includes('détecte') || lowerPrompt.includes('assistant qui détecte'))) {
+    if (
+      isModificationRequest &&
+      (lowerPrompt.includes("intention") ||
+        lowerPrompt.includes("détecte") ||
+        lowerPrompt.includes("assistant qui détecte"))
+    ) {
       // console.log('🤖 Gemini API mock - Détection intention (modification)');
       let action: string | null = null;
       let payload: any = {};
 
-      if (lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter')) {
-        action = 'ADD_QUESTION';
+      if (lowerPrompt.includes("ajoute") || lowerPrompt.includes("ajouter")) {
+        action = "ADD_QUESTION";
         // Extraire le sujet de la question
         const ageMatch = lowerPrompt.match(/âge|age/i);
         const subjectMatch = lowerPrompt.match(/sur\s+(.+?)(?:$|\.|,|\s+question)/i);
-        const subject = subjectMatch ? subjectMatch[1] : (ageMatch ? 'l\'âge' : 'le sujet');
+        const subject = subjectMatch ? subjectMatch[1] : ageMatch ? "l'âge" : "le sujet";
         payload = {
           title: `Quel est votre ${subject} ?`,
-          type: 'text'
+          type: "text",
         };
-      } else if (lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer')) {
-        action = 'REMOVE_QUESTION';
+      } else if (lowerPrompt.includes("supprime") || lowerPrompt.includes("supprimer")) {
+        action = "REMOVE_QUESTION";
         const numMatch = lowerPrompt.match(/question\s+(\d+)/i);
         payload = {
-          questionIndex: numMatch ? parseInt(numMatch[1]) : 2
+          questionIndex: numMatch ? parseInt(numMatch[1]) : 2,
         };
       }
 
@@ -489,34 +534,42 @@ export async function setupGeminiMock(page: Page) {
         action: action,
         payload: payload,
         confidence: 0.9,
-        explanation: `Action détectée: ${action}`
+        explanation: `Action détectée: ${action}`,
       };
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
-          candidates: [{
-            content: {
-              parts: [{ text: JSON.stringify(intentResponse) }]
+          candidates: [
+            {
+              content: {
+                parts: [{ text: JSON.stringify(intentResponse) }],
+              },
+              finishReason: "STOP",
             },
-            finishReason: 'STOP'
-          }]
-        })
+          ],
+        }),
       });
       return;
     }
 
     // console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
 
-    console.log('🤖 Gemini API mock - Génération réponse pour prompt:', userPrompt.substring(0, 100) + '...');
+    console.log(
+      "🤖 Gemini API mock - Génération réponse pour prompt:",
+      userPrompt.substring(0, 100) + "...",
+    );
     const mockResponse = generateMockPollResponse(userPrompt);
-    console.log('🤖 Gemini API mock - Réponse générée:', JSON.stringify(mockResponse).substring(0, 200) + '...');
+    console.log(
+      "🤖 Gemini API mock - Réponse générée:",
+      JSON.stringify(mockResponse).substring(0, 200) + "...",
+    );
 
     await route.fulfill({
       status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockResponse)
+      contentType: "application/json",
+      body: JSON.stringify(mockResponse),
     });
   });
 }
@@ -530,20 +583,20 @@ export async function setupBetaKeyMocks(page: Page) {
     const request = route.request();
     const method = request.method();
 
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (method !== 'POST') {
+    if (method !== "POST") {
       await route.continue();
       return;
     }
@@ -558,7 +611,7 @@ export async function setupBetaKeyMocks(page: Page) {
       for (let i = 0; i < count; i++) {
         // Generate 12 alphanumeric characters (4 groups of 4)
         const generateSegment = () => {
-          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, '0');
+          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, "0");
         };
         const segment1 = generateSegment();
         const segment2 = generateSegment();
@@ -569,32 +622,32 @@ export async function setupBetaKeyMocks(page: Page) {
 
         keys.push({
           code: `BETA-${segment1}-${segment2}-${segment3}`,
-          expires_at: expiresAt.toISOString()
+          expires_at: expiresAt.toISOString(),
         });
       }
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: JSON.stringify(keys)
+        body: JSON.stringify(keys),
       });
     } catch (error) {
-      console.error('❌ Beta Key generate mock error:', error);
+      console.error("❌ Beta Key generate mock error:", error);
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de generate_beta_key'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de generate_beta_key",
+        }),
       });
     }
   });
@@ -604,64 +657,64 @@ export async function setupBetaKeyMocks(page: Page) {
     const request = route.request();
     const method = request.method();
 
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (method !== 'POST') {
+    if (method !== "POST") {
       await route.continue();
       return;
     }
 
     try {
       const postData = request.postDataJSON();
-      const code = (postData?.p_code || '').trim().toUpperCase();
+      const code = (postData?.p_code || "").trim().toUpperCase();
       const userId = postData?.p_user_id;
 
       // Check for invalid/used key patterns (for testing error scenarios)
-      if (code.includes('INVALID') || code.includes('ERROR')) {
+      if (code.includes("INVALID") || code.includes("ERROR")) {
         await route.fulfill({
           status: 400,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Clé bêta invalide ou déjà utilisée'
+          body: "Clé bêta invalide ou déjà utilisée",
         });
         return;
       }
 
-      if (code.includes('USED') || code.includes('CONFLICT')) {
+      if (code.includes("USED") || code.includes("CONFLICT")) {
         await route.fulfill({
           status: 409,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Clé déjà utilisée'
+          body: "Clé déjà utilisée",
         });
         return;
       }
 
       // Check authorization header for 401 scenarios
-      const authHeader = request.headers()['authorization'];
-      if (!authHeader || authHeader.includes('expired') || authHeader === 'Bearer expired-token') {
+      const authHeader = request.headers()["authorization"];
+      if (!authHeader || authHeader.includes("expired") || authHeader === "Bearer expired-token") {
         await route.fulfill({
           status: 401,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Unauthorized'
+          body: "Unauthorized",
         });
         return;
       }
@@ -672,32 +725,32 @@ export async function setupBetaKeyMocks(page: Page) {
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
         body: JSON.stringify({
           success: true,
-          tier: 'beta',
+          tier: "beta",
           credits: 1000,
-          expires_at: expiresAt.toISOString()
-        })
+          expires_at: expiresAt.toISOString(),
+        }),
       });
     } catch (error) {
-      console.error('❌ Beta Key redeem mock error:', error);
+      console.error("❌ Beta Key redeem mock error:", error);
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
           success: false,
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de redeem_beta_key'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de redeem_beta_key",
+        }),
       });
     }
   });
@@ -707,33 +760,33 @@ export async function setupBetaKeyMocks(page: Page) {
     const request = route.request();
     const method = request.method();
 
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, GET, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (method === 'POST') {
+    if (method === "POST") {
       try {
         const postData = request.postDataJSON();
         // Return the created poll
         await route.fulfill({
           status: 201,
-          contentType: 'application/json',
+          contentType: "application/json",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: JSON.stringify(postData)
+          body: JSON.stringify(postData),
         });
       } catch (error) {
-        console.error('❌ Poll save mock error:', error);
+        console.error("❌ Poll save mock error:", error);
         await route.fulfill({ status: 500 });
       }
       return;
@@ -743,7 +796,7 @@ export async function setupBetaKeyMocks(page: Page) {
   });
 }
 
-import { E2E_CONFIG } from './e2e-utils';
+import { E2E_CONFIG } from "./e2e-utils";
 
 /**
  * Setup all mocks (Gemini API + Supabase Edge Function + Beta Key RPC) and E2E configuration
@@ -759,11 +812,11 @@ export async function setupAllMocks(page: Page) {
   await setupBetaKeyMocks(page);
 
   // Attendre que la page soit chargée avant d'accéder au localStorage
-  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState("domcontentloaded");
 
   // Désactiver les vérifications de quota via l'URL si on est déjà sur une page
-  if (page.url() && !page.url().startsWith('about:blank')) {
-    await page.goto(page.url() + (page.url().includes('?') ? '&' : '?') + 'e2e-test=true');
+  if (page.url() && !page.url().startsWith("about:blank")) {
+    await page.goto(page.url() + (page.url().includes("?") ? "&" : "?") + "e2e-test=true");
   }
 }
 
@@ -788,11 +841,11 @@ export async function setupAllMocksWithoutNavigation(page: Page) {
  */
 export async function setupAllMocksContext(context: BrowserContext) {
   // Mock Gemini API
-  await context.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
+  await context.route("**/generativelanguage.googleapis.com/**", async (route: Route) => {
     const request = route.request();
     const postData = request.postDataJSON();
 
-    let userPrompt = '';
+    let userPrompt = "";
     if (postData?.contents) {
       const lastContent = postData.contents[postData.contents.length - 1];
       if (lastContent?.parts?.[0]?.text) {
@@ -804,8 +857,8 @@ export async function setupAllMocksContext(context: BrowserContext) {
 
     await route.fulfill({
       status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockResponse)
+      contentType: "application/json",
+      body: JSON.stringify(mockResponse),
     });
   });
 
@@ -813,20 +866,20 @@ export async function setupAllMocksContext(context: BrowserContext) {
   await context.route(/.*\/rest\/v1\/rpc\/generate_beta_key.*/, async (route: Route) => {
     const request = route.request();
 
-    if (request.method() === 'OPTIONS') {
+    if (request.method() === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (request.method() !== 'POST') {
+    if (request.method() !== "POST") {
       await route.continue();
       return;
     }
@@ -840,7 +893,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
       for (let i = 0; i < count; i++) {
         // Generate 12 alphanumeric characters (4 groups of 4)
         const generateSegment = () => {
-          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, '0');
+          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, "0");
         };
         const segment1 = generateSegment();
         const segment2 = generateSegment();
@@ -851,31 +904,31 @@ export async function setupAllMocksContext(context: BrowserContext) {
 
         keys.push({
           code: `BETA-${segment1}-${segment2}-${segment3}`,
-          expires_at: expiresAt.toISOString()
+          expires_at: expiresAt.toISOString(),
         });
       }
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: JSON.stringify(keys)
+        body: JSON.stringify(keys),
       });
     } catch (error) {
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de generate_beta_key'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de generate_beta_key",
+        }),
       });
     }
   });
@@ -883,61 +936,61 @@ export async function setupAllMocksContext(context: BrowserContext) {
   await context.route(/.*\/rest\/v1\/rpc\/redeem_beta_key.*/, async (route: Route) => {
     const request = route.request();
 
-    if (request.method() === 'OPTIONS') {
+    if (request.method() === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (request.method() !== 'POST') {
+    if (request.method() !== "POST") {
       await route.continue();
       return;
     }
 
     try {
       const postData = request.postDataJSON();
-      const code = (postData?.p_code || '').trim().toUpperCase();
+      const code = (postData?.p_code || "").trim().toUpperCase();
 
-      if (code.includes('INVALID') || code.includes('ERROR')) {
+      if (code.includes("INVALID") || code.includes("ERROR")) {
         await route.fulfill({
           status: 400,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Clé bêta invalide ou déjà utilisée'
+          body: "Clé bêta invalide ou déjà utilisée",
         });
         return;
       }
 
-      if (code.includes('USED') || code.includes('CONFLICT')) {
+      if (code.includes("USED") || code.includes("CONFLICT")) {
         await route.fulfill({
           status: 409,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Clé déjà utilisée'
+          body: "Clé déjà utilisée",
         });
         return;
       }
 
-      const authHeader = request.headers()['authorization'];
-      if (!authHeader || authHeader.includes('expired')) {
+      const authHeader = request.headers()["authorization"];
+      if (!authHeader || authHeader.includes("expired")) {
         await route.fulfill({
           status: 401,
-          contentType: 'text/plain',
+          contentType: "text/plain",
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Origin": "*",
           },
-          body: 'Unauthorized'
+          body: "Unauthorized",
         });
         return;
       }
@@ -947,86 +1000,86 @@ export async function setupAllMocksContext(context: BrowserContext) {
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, Prefer",
         },
         body: JSON.stringify({
           success: true,
-          tier: 'beta',
+          tier: "beta",
           credits: 1000,
-          expires_at: expiresAt.toISOString()
-        })
+          expires_at: expiresAt.toISOString(),
+        }),
       });
     } catch (error) {
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
           success: false,
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de redeem_beta_key'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de redeem_beta_key",
+        }),
       });
     }
   });
 
   // Mock Supabase Edge Function
-  await context.route('**/functions/v1/hyper-task**', async (route: Route) => {
+  await context.route("**/functions/v1/hyper-task**", async (route: Route) => {
     const request = route.request();
 
-    if (request.method() === 'OPTIONS') {
+    if (request.method() === "OPTIONS") {
       await route.fulfill({
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: ''
+        body: "",
       });
       return;
     }
 
-    if (request.method() !== 'POST') {
+    if (request.method() !== "POST") {
       await route.continue();
       return;
     }
 
     try {
       const postData = request.postDataJSON();
-      const userInput = postData?.userInput || '';
+      const userInput = postData?.userInput || "";
       const prompt = postData?.prompt;
 
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
 
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-        body: JSON.stringify(mockResponse)
+        body: JSON.stringify(mockResponse),
       });
     } catch (error) {
       await route.fulfill({
         status: 500,
-        contentType: 'application/json',
+        contentType: "application/json",
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
           success: false,
-          error: 'MOCK_ERROR',
-          message: 'Erreur dans le mock de l\'Edge Function'
-        })
+          error: "MOCK_ERROR",
+          message: "Erreur dans le mock de l'Edge Function",
+        }),
       });
     }
   });

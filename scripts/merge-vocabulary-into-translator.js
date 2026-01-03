@@ -1,25 +1,28 @@
 /**
  * Script pour fusionner le vocabulaire généré dans temporalTranslator.ts
- * 
+ *
  * Usage: node scripts/merge-vocabulary-into-translator.js
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { readFileSync, writeFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Lire le vocabulaire généré
-const vocabFile = join(__dirname, '../Docs/TEST/2025-11-21-gemini-parsing-improvements/gemini-vocabulary.json');
-const translatorFile = join(__dirname, '../src/lib/temporalTranslator.ts');
+const vocabFile = join(
+  __dirname,
+  "../Docs/TEST/2025-11-21-gemini-parsing-improvements/gemini-vocabulary.json",
+);
+const translatorFile = join(__dirname, "../src/lib/temporalTranslator.ts");
 
 try {
-  const vocabData = JSON.parse(readFileSync(vocabFile, 'utf-8'));
-  const translatorContent = readFileSync(translatorFile, 'utf-8');
+  const vocabData = JSON.parse(readFileSync(vocabFile, "utf-8"));
+  const translatorContent = readFileSync(translatorFile, "utf-8");
 
-  console.log('📚 Fusion du vocabulaire dans temporalTranslator.ts...\n');
+  console.log("📚 Fusion du vocabulaire dans temporalTranslator.ts...\n");
 
   // Extraire les nouvelles traductions
   const newTranslations = {
@@ -32,10 +35,10 @@ try {
 
   // Traiter les verbes
   if (vocabData.verbs) {
-    vocabData.verbs.forEach(item => {
+    vocabData.verbs.forEach((item) => {
       newTranslations.verbs[item.fr] = item.en;
       if (item.variants) {
-        item.variants.forEach(variant => {
+        item.variants.forEach((variant) => {
           newTranslations.verbs[variant] = item.en;
         });
       }
@@ -44,10 +47,10 @@ try {
 
   // Traiter les noms
   if (vocabData.nouns) {
-    vocabData.nouns.forEach(item => {
+    vocabData.nouns.forEach((item) => {
       newTranslations.nouns[item.fr] = item.en;
       if (item.variants) {
-        item.variants.forEach(variant => {
+        item.variants.forEach((variant) => {
           newTranslations.nouns[variant] = item.en;
         });
       }
@@ -56,10 +59,10 @@ try {
 
   // Traiter les expressions temporelles
   if (vocabData.temporal) {
-    vocabData.temporal.forEach(item => {
+    vocabData.temporal.forEach((item) => {
       newTranslations.temporal[item.fr] = item.en;
       if (item.variants) {
-        item.variants.forEach(variant => {
+        item.variants.forEach((variant) => {
           newTranslations.temporal[variant] = item.en;
         });
       }
@@ -90,10 +93,13 @@ Note: Vérifier les doublons avec les traductions existantes avant d'ajouter.
     `,
   };
 
-  const reportFile = join(__dirname, '../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-merge-report.json');
-  writeFileSync(reportFile, JSON.stringify(report, null, 2), 'utf-8');
+  const reportFile = join(
+    __dirname,
+    "../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-merge-report.json",
+  );
+  writeFileSync(reportFile, JSON.stringify(report, null, 2), "utf-8");
 
-  console.log('✅ Rapport de fusion généré !');
+  console.log("✅ Rapport de fusion généré !");
   console.log(`📊 Statistiques :`);
   console.log(`   - Verbes : ${report.stats.verbs}`);
   console.log(`   - Noms : ${report.stats.nouns}`);
@@ -102,12 +108,10 @@ Note: Vérifier les doublons avec les traductions existantes avant d'ajouter.
   console.log(`   - Expressions : ${report.stats.expressions}`);
   console.log(`\n📝 Rapport : ${reportFile}`);
   console.log(`\n💡 Consultez le rapport pour les instructions d'intégration.`);
-
 } catch (error) {
-  if (error.code === 'ENOENT') {
-    console.log('⚠️  Fichier vocabulaire non trouvé. Exécutez d\'abord ask-gemini-vocabulary.js');
+  if (error.code === "ENOENT") {
+    console.log("⚠️  Fichier vocabulaire non trouvé. Exécutez d'abord ask-gemini-vocabulary.js");
   } else {
-    console.error('❌ Erreur :', error.message);
+    console.error("❌ Erreur :", error.message);
   }
 }
-

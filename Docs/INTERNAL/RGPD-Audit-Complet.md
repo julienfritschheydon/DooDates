@@ -8,20 +8,20 @@
 
 ## Résumé Exécutif
 
-   DooDates est maintenant **conforme au RGPD** avec des mécanismes automatisés pour :
+DooDates est maintenant **conforme au RGPD** avec des mécanismes automatisés pour :
 
-   - ✅ **Transparence totale** sur l'utilisation des données IA
-   - ✅ **Consentement explicite** pour l'amélioration du produit via données anonymisées
-   - ✅ **Opt-out simple** dans les paramètres utilisateur
-   - ✅ **Documentation complète** du rôle du fournisseur IA
-   - ✅ **Anonymisation fonctionnelle** pour les Form Polls
-   - ✅ **Durées de conservation définies** et documentées
+- ✅ **Transparence totale** sur l'utilisation des données IA
+- ✅ **Consentement explicite** pour l'amélioration du produit via données anonymisées
+- ✅ **Opt-out simple** dans les paramètres utilisateur
+- ✅ **Documentation complète** du rôle du fournisseur IA
+- ✅ **Anonymisation fonctionnelle** pour les Form Polls
+- ✅ **Durées de conservation définies** et documentées
 
-   ---
+---
 
 ## Actions Réalisées
 
-   ### 1. Documentation Fournisseur IA ✅
+### 1. Documentation Fournisseur IA ✅
 
       **Fichier créé :** `Docs/LEGAL/Politique-Confidentialite-IA.md`
 
@@ -33,7 +33,7 @@
       - **Droits utilisateurs** : Accès, modification, suppression, portabilité
       - **Contact DPO** : privacy@doodates.com
 
-   ### 2. Interface Chat IA Améliorée ✅
+### 2. Interface Chat IA Améliorée ✅
 
       **Fichier modifié :** `src/components/GeminiChatInterface.tsx`
 
@@ -44,7 +44,7 @@
       - Mention de la durée de conservation et des transferts hors UE
       - Contact explicite pour exercer les droits RGPD
 
-   ### 3. Opt-out Amélioration Produit ✅
+### 3. Opt-out Amélioration Produit ✅
 
       **Fichier créé :** `src/pages/Settings.tsx` (page complète)
 
@@ -68,7 +68,7 @@
       }
       ```
 
-   ### 4. Anonymisation Form Polls ✅
+### 4. Anonymisation Form Polls ✅
 
       **Fonctionnalités existantes validées :**
       - **Bouton "Anonymiser les réponses"** dans l'interface créateur
@@ -80,7 +80,7 @@
 
 ## Mécanismes Automatisés
 
-   ### 1. Gestion du Consentement
+### 1. Gestion du Consentement
 
       ```typescript
       // Détection automatique du consentement
@@ -94,7 +94,7 @@
       }
       ```
 
-   ### 2. Anonymisation des Données
+### 2. Anonymisation des Données
 
       ```typescript
       // Processus d'anonymisation automatique
@@ -109,32 +109,35 @@
       }
       ```
 
-   ### 3. Durées de Conservation
+### 3. Durées de Conservation
 
 ### 🎯 **Approche User-Controlled (Contrôlée par l'utilisateur)**
 
 Chez DooDates, **l'utilisateur contrôle la durée de conservation** de ses données personnelles, en conformité totale avec le RGPD.
 
-| Type de données | Conservation par défaut | Options utilisateur | Conservation maximum |
-|----------------|------------------------|-------------------|---------------------|
-| **Conversations IA** | 30 jours (privacy-first) | 30j / 12 mois / Indéfini | Selon choix utilisateur |
-| **Sondages/Formulaires** | 12 mois après clôture | 12 mois / 6 ans / Indéfini | Selon choix utilisateur |
-| **Logs techniques** | 30 jours | Fixe | 30 jours |
-| **Comptes inactifs** | 6 mois inactivité | Fixe | 6 mois |
+| Type de données          | Conservation par défaut  | Options utilisateur        | Conservation maximum    |
+| ------------------------ | ------------------------ | -------------------------- | ----------------------- |
+| **Conversations IA**     | 30 jours (privacy-first) | 30j / 12 mois / Indéfini   | Selon choix utilisateur |
+| **Sondages/Formulaires** | 12 mois après clôture    | 12 mois / 6 ans / Indéfini | Selon choix utilisateur |
+| **Logs techniques**      | 30 jours                 | Fixe                       | 30 jours                |
+| **Comptes inactifs**     | 6 mois inactivité        | Fixe                       | 6 mois                  |
 
 ### 🔧 **Mécanismes de contrôle**
 
 **1. Paramètres utilisateur (/settings)**
+
 - Sélection individuelle par type de données
 - Modification à tout moment
 - Consentement explicite pour conservation longue
 
 **2. Suppression automatique**
+
 - Activée par défaut selon préférences utilisateur
 - Peut être désactivée (conservation manuelle)
 - Notifications avant suppression
 
 **3. Droits RGPD étendus**
+
 - **Droit à l'oubli :** Suppression immédiate sur demande
 - **Droit de conservation :** Garder ses données 6+ ans si souhaité
 - **Droit de portabilité :** Export JSON avant suppression
@@ -146,9 +149,9 @@ Chez DooDates, **l'utilisateur contrôle la durée de conservation** de ses donn
 - **Transparence absolue :** Documentation complète
 - **Flexibilité :** Adapté aux besoins personnels/professionnels
 
-   ### État de Conformité
+  ### État de Conformité
 
-   ### Principes RGPD Respectés
+  ### Principes RGPD Respectés
 
       1. **Licéité, loyauté, transparence**
          - Documentation complète du traitement des données IA
@@ -183,7 +186,7 @@ Chez DooDates, **l'utilisateur contrôle la durée de conservation** de ses donn
          - Contact DPO dédié
          - Traçabilité des traitements
 
-   ### Droits des Utilisateurs
+  ### Droits des Utilisateurs
 
       | Droit | Mécanisme | Automatisé |
       |-------|-----------|------------|
@@ -195,57 +198,61 @@ Chez DooDates, **l'utilisateur contrôle la durée de conservation** de ses donn
 
 ## Actions d'Automatisation Restantes
 
-   ### Automatisations Manquantes (Janvier 2026)
+### Automatisations Manquantes (Janvier 2026)
 
-   **1. Export complet par email**
-   - **Action :** Automatiser le traitement des demandes email à privacy@doodates.com
-   - **Produits :** Tous (Sondages dates, Formulaires, Quizz, Chat IA)
-   - **Fichier cible :** `supabase/functions/email-export-handler/`
-   - **Fonctionnalité :** Parser email → générer JSON → envoyer automatiquement
+**1. Export complet par email**
 
-   **2. Suppression complète par email**
-   - **Action :** Automatiser suppression complète sur demande email
-   - **Produits :** Tous (suppression cascade)
-   - **Fichier cible :** `supabase/functions/email-deletion-handler/`
-   - **Fonctionnalité :** Parser email → supprimer compte → confirmation automatique
+- **Action :** Automatiser le traitement des demandes email à privacy@doodates.com
+- **Produits :** Tous (Sondages dates, Formulaires, Quizz, Chat IA)
+- **Fichier cible :** `supabase/functions/email-export-handler/`
+- **Fonctionnalité :** Parser email → générer JSON → envoyer automatiquement
 
-   **3. Scripts de purge automatique**
-   - **Action :** Implémenter scripts de purge mensuelle
-   - **Produits :** Tous (maintenance système)
-   - **Fichier cible :** `supabase/functions/monthly-purge/`
-   - **Fonctionnalité :** Purge conversations > 12 mois, comptes inactifs > 24 mois
+**2. Suppression complète par email**
 
-   **4. Monitoring RGPD**
-   - **Action :** Dashboard alertes et rapports automatiques
-   - **Produits :** Système
-   - **Fichier cible :** `src/components/admin/GDPRMonitoring.tsx`
-   - **Fonctionnalité :** Alertes dépassement durées, rapports mensuels
+- **Action :** Automatiser suppression complète sur demande email
+- **Produits :** Tous (suppression cascade)
+- **Fichier cible :** `supabase/functions/email-deletion-handler/`
+- **Fonctionnalité :** Parser email → supprimer compte → confirmation automatique
 
-   ### 📅 Planning Implémentation
+**3. Scripts de purge automatique**
 
-   **Semaine 1-2 :** Export email + Suppression email
-   **Semaine 3 :** Scripts purge automatique  
-   **Semaine 4 :** Dashboard monitoring
+- **Action :** Implémenter scripts de purge mensuelle
+- **Produits :** Tous (maintenance système)
+- **Fichier cible :** `supabase/functions/monthly-purge/`
+- **Fonctionnalité :** Purge conversations > 12 mois, comptes inactifs > 24 mois
 
-   ---
+**4. Monitoring RGPD**
+
+- **Action :** Dashboard alertes et rapports automatiques
+- **Produits :** Système
+- **Fichier cible :** `src/components/admin/GDPRMonitoring.tsx`
+- **Fonctionnalité :** Alertes dépassement durées, rapports mensuels
+
+### 📅 Planning Implémentation
+
+**Semaine 1-2 :** Export email + Suppression email
+**Semaine 3 :** Scripts purge automatique  
+ **Semaine 4 :** Dashboard monitoring
+
+---
 
 ## Documentation Créée
 
-   1. **`Politique-Confidentialite-IA.md`** - Documentation complète fournisseur IA
-   2. **Interface chat** - Informations RGPD intégrées
-   3. **Page Settings** - Gestion des préférences et opt-out ✅
-   4. **`RGPD-Cartographie-Donnees.md`** - Cartographie existante mise à jour
+1.  **`Politique-Confidentialite-IA.md`** - Documentation complète fournisseur IA
+2.  **Interface chat** - Informations RGPD intégrées
+3.  **Page Settings** - Gestion des préférences et opt-out ✅
+4.  **`RGPD-Cartographie-Donnees.md`** - Cartographie existante mise à jour
 
-   ---
+---
 
 ## Conclusion
 
-   **DooDates est conforme au RGPD** avec automatisation partielle :
+**DooDates est conforme au RGPD** avec automatisation partielle :
 
-   - **Transparence totale** sur l'utilisation du fournisseur IA ✅
-   - **Consentement explicite** et opt-out fonctionnel ✅
-   - **Documentation complète** accessible à tous ✅
-   - **Mécanismes automatisés** pour l'exercice des droits ⚠️ Partiel
-   - **Anonymisation efficace** des données personnelles ✅
+- **Transparence totale** sur l'utilisation du fournisseur IA ✅
+- **Consentement explicite** et opt-out fonctionnel ✅
+- **Documentation complète** accessible à tous ✅
+- **Mécanismes automatisés** pour l'exercice des droits ⚠️ Partiel
+- **Anonymisation efficace** des données personnelles ✅
 
-   **Actions restantes :** Automatiser traitement emails et scripts de purge pour conformité 100% automatique.
+**Actions restantes :** Automatiser traitement emails et scripts de purge pour conformité 100% automatique.

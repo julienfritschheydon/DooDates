@@ -37,20 +37,21 @@ Pour plus de fonctionnalités avancées (conversations IA illimitées, intégrat
 
 ### Quelle est la différence avec Doodle, SurveyMonkey ou Google Forms ?
 
-| Feature | DooDates | Concurrents |
-|---------|----------|-------------|
+| Feature                  | DooDates                          | Concurrents               |
+| ------------------------ | --------------------------------- | ------------------------- |
 | **IA conversationnelle** | ✅ Créer en parlant naturellement | ❌ Formulaires classiques |
-| **Analytics IA** | ✅ Insights automatiques | ⚠️ Basique ou payant |
-| **Export gratuit** | ✅ 4 formats illimités | ⚠️ Limité ou payant |
-| **Réponses illimitées** | ✅ Toujours | ⚠️ Limité (25-100) |
-| **Interface moderne** | ✅ Mobile-first 2025 | ⚠️ Datée (2010s) |
-| **Simulation réponses** | ✅ IA génère des tests | ❌ Non disponible |
+| **Analytics IA**         | ✅ Insights automatiques          | ⚠️ Basique ou payant      |
+| **Export gratuit**       | ✅ 4 formats illimités            | ⚠️ Limité ou payant       |
+| **Réponses illimitées**  | ✅ Toujours                       | ⚠️ Limité (25-100)        |
+| **Interface moderne**    | ✅ Mobile-first 2025              | ⚠️ Datée (2010s)          |
+| **Simulation réponses**  | ✅ IA génère des tests            | ❌ Non disponible         |
 
 ---
 
 ### Sur quels appareils DooDates fonctionne-t-il ?
 
 DooDates fonctionne sur :
+
 - 💻 **Ordinateurs** : Windows, Mac, Linux (tous navigateurs modernes)
 - 📱 **Smartphones** : iOS, Android (Safari, Chrome, Firefox)
 - 🖥️ **Tablettes** : iPad, Android
@@ -66,11 +67,13 @@ DooDates fonctionne sur :
 **Non, c'est optionnel !**
 
 **Mode invité :**
+
 - ✅ Créer des sondages immédiatement
 - ⚠️ Données stockées localement (appareil uniquement)
 - ⚠️ 5 conversations IA maximum
 
 **Avec compte (recommandé) :**
+
 - ✅ Synchronisation multi-appareils
 - ✅ 50 conversations IA/mois
 - ✅ Historique complet
@@ -91,9 +94,10 @@ DooDates fonctionne sur :
 
 ### Puis-je utiliser DooDates sans compte Google ?
 
-Actuellement, l'authentification se fait uniquement via Google. 
+Actuellement, l'authentification se fait uniquement via Google.
 
 **Alternatives en développement :**
+
 - Email/mot de passe classique (Q1 2026)
 - Microsoft/LinkedIn (Q2 2026)
 - Apple Sign-In (Q2 2026)
@@ -105,6 +109,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ### Que se passe-t-il si je supprime mon compte ?
 
 **Suppression de compte :**
+
 1. Vos sondages sont **supprimés définitivement** après 30 jours
 2. Les liens de partage deviennent **inactifs**
 3. Les réponses déjà collectées sont **effacées**
@@ -121,6 +126,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ### Combien de sondages puis-je créer ?
 
 **Illimité !** Quel que soit votre plan :
+
 - 🆓 **Gratuit** : Sondages illimités
 - 💼 **Pro** : Sondages illimités
 - 🚀 **Premium** : Sondages illimités
@@ -134,6 +140,7 @@ En attendant, utilisez le **mode invité** sans compte.
 **Limite technique :** 100 questions par formulaire
 
 **Recommandation :**
+
 - ✅ **Court** (3-7 questions) : Taux de complétion ~85%
 - ⚠️ **Moyen** (8-15 questions) : Taux ~65%
 - ❌ **Long** (15+) : Taux ~40%
@@ -147,18 +154,22 @@ En attendant, utilisez le **mode invité** sans compte.
 **Oui, mais avec précautions :**
 
 **Sans votes/réponses :**
+
 - ✅ Modification totale autorisée
 
 **Avec < 5 réponses :**
+
 - ✅ Modification possible
 - ⚠️ Avertissement affiché
 
 **Avec 5-20 réponses :**
+
 - ⚠️ Ajout de questions OK
 - ⚠️ Modification du texte OK
 - ❌ Suppression déconseillée (données perdues)
 
 **Avec 20+ réponses :**
+
 - ✅ Ajout de nouvelles questions
 - ❌ Suppression bloquée (intégrité des données)
 
@@ -169,6 +180,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ### Comment créer un sondage anonyme ?
 
 **Pour un sondage de dates :**
+
 ```
 1. Créez votre sondage
 2. Paramètres → "Votes anonymes" → Activé
@@ -176,6 +188,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ```
 
 **Pour un formulaire :**
+
 ```
 1. Ne demandez pas d'informations personnelles (nom, email)
 2. Paramètres → "Collecte anonyme" → Activé
@@ -196,6 +209,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ```
 
 **Cas d'usage :**
+
 - Enquête mensuelle récurrente
 - A/B testing (2 versions d'un questionnaire)
 - Template réutilisable
@@ -209,13 +223,16 @@ En attendant, utilisez le **mode invité** sans compte.
 **Cela dépend des paramètres du créateur :**
 
 **Mode par défaut :** 1 vote par appareil (cookie)
+
 - ❌ Impossible de revoter depuis le même navigateur
 - ✅ Possible depuis un autre appareil/navigateur
 
 **Mode "Compte requis" :** 1 vote par utilisateur
+
 - ❌ Impossible de revoter même avec un autre appareil
 
 **Mode "Votes illimités" :** Oui
+
 - ✅ Vote possible plusieurs fois (rare, cas spécifiques)
 
 ---
@@ -223,9 +240,11 @@ En attendant, utilisez le **mode invité** sans compte.
 ### Puis-je modifier mon vote après l'avoir soumis ?
 
 **Sondages de dates :**
+
 - ✅ **Oui**, retournez sur le lien → Modifiez vos disponibilités
 
 **Formulaires :**
+
 - ❌ **Non** par défaut (soumission unique)
 - ✅ Possible si le créateur a activé "Modification autorisée"
 
@@ -234,6 +253,7 @@ En attendant, utilisez le **mode invité** sans compte.
 ### Dois-je donner mon email pour voter ?
 
 **Non, sauf si :**
+
 - Le créateur a rendu un champ "Email" obligatoire
 - Vous souhaitez recevoir une copie de vos réponses
 
@@ -248,6 +268,7 @@ En attendant, utilisez le **mode invité** sans compte.
 Certaines questions s'affichent uniquement selon vos réponses précédentes.
 
 **Exemple :**
+
 ```
 Q1 : Êtes-vous satisfait ? → Non
 
@@ -263,12 +284,12 @@ C'est normal et permet des formulaires plus courts et pertinents.
 
 ### Combien de conversations IA puis-je utiliser ?
 
-| Plan | Quota |
-|------|-------|
-| **🆓 Invité** | 20 conversations (à vie) |
+| Plan           | Quota                                     |
+| -------------- | ----------------------------------------- |
+| **🆓 Invité**  | 20 conversations (à vie)                  |
 | **👤 Gratuit** | 1000 conversations (pas de reset mensuel) |
-| **💼 Pro** | Illimité |
-| **🚀 Premium** | Illimité |
+| **💼 Pro**     | Illimité                                  |
+| **🚀 Premium** | Illimité                                  |
 
 **1 conversation = 1 interaction IA** (insight, quick query, question libre)
 
@@ -277,11 +298,13 @@ C'est normal et permet des formulaires plus courts et pertinents.
 ### Qu'est-ce qui consomme une conversation IA ?
 
 **Actions consommant 1 crédit :**
+
 - 🔍 Génération d'insights automatiques (3 crédits à l'ouverture)
 - ❓ Clic sur une Quick Query (1 crédit)
 - 💬 Question libre posée (1 crédit)
 
 **Actions gratuites (0 crédit) :**
+
 - Consultation des graphiques standards
 - Export des résultats
 - Partage des liens
@@ -292,12 +315,12 @@ C'est normal et permet des formulaires plus courts et pertinents.
 
 **Fiabilité selon le nombre de réponses :**
 
-| Réponses | Fiabilité | Marge d'erreur |
-|----------|-----------|----------------|
-| < 10 | ⚠️ Faible | ±30% |
-| 10-30 | ⚫ Moyenne | ±15% |
-| 30-100 | ✅ Bonne | ±10% |
-| 100+ | ✅✅ Excellente | ±5% |
+| Réponses | Fiabilité       | Marge d'erreur |
+| -------- | --------------- | -------------- |
+| < 10     | ⚠️ Faible       | ±30%           |
+| 10-30    | ⚫ Moyenne      | ±15%           |
+| 30-100   | ✅ Bonne        | ±10%           |
+| 100+     | ✅✅ Excellente | ±5%            |
 
 **Conseil :** Attendez au moins 30 réponses avant de vous fier aux insights.
 
@@ -306,6 +329,7 @@ C'est normal et permet des formulaires plus courts et pertinents.
 ### L'IA a-t-elle accès à tous mes sondages ?
 
 **Non !** L'IA analyse uniquement :
+
 - ✅ Le sondage que vous consultez
 - ✅ Ses réponses et métadonnées
 - ❌ PAS vos autres sondages
@@ -338,12 +362,12 @@ C'est normal et permet des formulaires plus courts et pertinents.
 
 **Oui !** 4 formats disponibles gratuitement :
 
-| Format | Usage |
-|--------|-------|
-| **CSV** | Excel, analyse de données |
-| **PDF** | Rapport imprimable |
-| **JSON** | Intégration technique |
-| **Markdown** | Documentation |
+| Format       | Usage                     |
+| ------------ | ------------------------- |
+| **CSV**      | Excel, analyse de données |
+| **PDF**      | Rapport imprimable        |
+| **JSON**     | Intégration technique     |
+| **Markdown** | Documentation             |
 
 **Pas de limite** : Export illimité même en version gratuite.
 
@@ -352,6 +376,7 @@ C'est normal et permet des formulaires plus courts et pertinents.
 ### Les résultats sont-ils en temps réel ?
 
 **Oui !** Les résultats se mettent à jour automatiquement :
+
 - ✅ Nouveaux votes affichés instantanément
 - ✅ Graphiques actualisés en direct
 - ✅ Pas besoin de rafraîchir la page
@@ -365,6 +390,7 @@ C'est normal et permet des formulaires plus courts et pertinents.
 ### Combien de réponses puis-je recevoir ?
 
 **Illimité !** Quel que soit votre plan :
+
 - 🆓 **Gratuit** : Réponses illimitées
 - 💼 **Pro** : Réponses illimitées
 - 🚀 **Premium** : Réponses illimitées
@@ -390,12 +416,12 @@ Paramètres → Deadline de vote → Activée
 
 **Durée de conservation :**
 
-| Type | Durée |
-|------|-------|
-| **Sondages actifs** | Indéfinie |
-| **Sondages clôturés** | 2 ans d'inactivité |
-| **Sondages archivés** | 5 ans |
-| **Compte supprimé** | 30 jours (puis suppression définitive) |
+| Type                  | Durée                                  |
+| --------------------- | -------------------------------------- |
+| **Sondages actifs**   | Indéfinie                              |
+| **Sondages clôturés** | 2 ans d'inactivité                     |
+| **Sondages archivés** | 5 ans                                  |
+| **Compte supprimé**   | 30 jours (puis suppression définitive) |
 
 **Conseil :** Exportez vos données importantes régulièrement.
 
@@ -406,6 +432,7 @@ Paramètres → Deadline de vote → Activée
 ### Mes données sont-elles sécurisées ?
 
 **Oui, DooDates utilise :**
+
 - 🔒 **Chiffrement HTTPS** (TLS 1.3) pour toutes les connexions
 - 🔐 **Chiffrement au repos** (AES-256) pour les données stockées
 - 🛡️ **Infrastructure sécurisée** (Vercel + Supabase)
@@ -421,6 +448,7 @@ Paramètres → Deadline de vote → Activée
 **Oui à 100% !**
 
 **Droits garantis :**
+
 - ✅ **Droit d'accès** : Export complet de vos données
 - ✅ **Droit de rectification** : Modification de vos infos
 - ✅ **Droit à l'effacement** : Suppression de compte
@@ -434,6 +462,7 @@ Paramètres → Deadline de vote → Activée
 ### L'IA utilise-t-elle mes données pour s'entraîner ?
 
 **Non !** Vos données :
+
 - ✅ Sont analysées en temps réel pour VOS insights uniquement
 - ❌ Ne sont PAS stockées après l'analyse
 - ❌ Ne servent PAS à entraîner les modèles IA
@@ -453,6 +482,7 @@ Résultats → Paramètres → "Anonymiser les noms"
 ```
 
 **Anonymisation complète :**
+
 ```
 Exporter en CSV → Supprimer colonne "Nom" dans Excel
 ```
@@ -465,23 +495,24 @@ Exporter en CSV → Supprimer colonne "Nom" dans Excel
 
 ### Quelles sont les différences entre les plans ?
 
-| Feature | Gratuit | Pro (10€) | Premium (100€) |
-|---------|---------|-----------|----------------|
-| **Sondages** | ✅ Illimité | ✅ Illimité | ✅ Illimité |
-| **Réponses** | ✅ Illimité | ✅ Illimité | ✅ Illimité |
-| **Export** | ✅ 4 formats | ✅ 4 formats | ✅ Tous formats |
-| **Conversations IA** | 50/mois | ✅ Illimité | ✅ Illimité |
-| **Analytics IA avancés** | ❌ | ✅ | ✅ |
-| **Simulation réponses** | ❌ | ✅ | ✅ |
-| **Intégrations** | ❌ | ⚠️ Basiques | ✅ Complètes |
-| **White-label** | ❌ | ❌ | ✅ |
-| **Support prioritaire** | Email (48h) | Email (8h) | Chat (2h) |
+| Feature                  | Gratuit      | Pro (10€)    | Premium (100€)  |
+| ------------------------ | ------------ | ------------ | --------------- |
+| **Sondages**             | ✅ Illimité  | ✅ Illimité  | ✅ Illimité     |
+| **Réponses**             | ✅ Illimité  | ✅ Illimité  | ✅ Illimité     |
+| **Export**               | ✅ 4 formats | ✅ 4 formats | ✅ Tous formats |
+| **Conversations IA**     | 50/mois      | ✅ Illimité  | ✅ Illimité     |
+| **Analytics IA avancés** | ❌           | ✅           | ✅              |
+| **Simulation réponses**  | ❌           | ✅           | ✅              |
+| **Intégrations**         | ❌           | ⚠️ Basiques  | ✅ Complètes    |
+| **White-label**          | ❌           | ❌           | ✅              |
+| **Support prioritaire**  | Email (48h)  | Email (8h)   | Chat (2h)       |
 
 ---
 
 ### Puis-je passer de Gratuit à Pro en cours de mois ?
 
 **Oui !** Le changement est **immédiat** :
+
 ```
 
 ---
@@ -502,8 +533,10 @@ Exporter en CSV → Supprimer colonne "Nom" dans Excel
 **Oui, à tout moment !**
 
 ```
+
 Compte → Abonnement → "Annuler"
 → Effet immédiat, pas de préavis requis
+
 ```
 
 **Après annulation :**
@@ -542,10 +575,12 @@ Compte → Abonnement → "Annuler"
 **Signaler un bug :**
 
 ```
+
 1. Cliquez sur l'icône 🐛 en bas de page
 2. Décrivez le problème
 3. (Optionnel) Ajoutez une capture d'écran
 4. Envoyez !
+
 ```
 
 **Informations utiles :**
@@ -595,7 +630,7 @@ Compte → Abonnement → "Annuler"
 
 ---
 
-**Cette FAQ n'a pas répondu à votre question ?**  
+**Cette FAQ n'a pas répondu à votre question ?**
 Contactez-nous : support@doodates.com
 
 ---
@@ -606,3 +641,4 @@ Contactez-nous : support@doodates.com
 
 **© DooDates - Documentation officielle**
 
+```

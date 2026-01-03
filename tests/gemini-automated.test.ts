@@ -3,7 +3,7 @@
  * Validation de l'IA conversationnelle avec métriques de qualité
  */
 
-import { GeminiService } from '../src/lib/gemini';
+import { GeminiService } from "../src/lib/gemini";
 
 interface TestCase {
   id: number;
@@ -32,12 +32,23 @@ interface TestResult {
   scoreBreakdown?: {
     type: { passed: boolean; expected: string; actual: string };
     dayConstraints: { passed: boolean; score: number; expected?: string[]; actual?: string[] };
-    timeConstraints: { passed: boolean; score: number; expected?: { start?: string; end?: string }; actual?: any };
-    requiredWords: { passed: boolean; score: number; expected?: string[]; found?: string[]; missing?: string[] };
+    timeConstraints: {
+      passed: boolean;
+      score: number;
+      expected?: { start?: string; end?: string };
+      actual?: any;
+    };
+    requiredWords: {
+      passed: boolean;
+      score: number;
+      expected?: string[];
+      found?: string[];
+      missing?: string[];
+    };
   };
 }
 
-describe('Tests Automatisés Gemini', () => {
+describe("Tests Automatisés Gemini", () => {
   let geminiService: GeminiService;
   const testResults: TestResult[] = [];
 
@@ -46,48 +57,48 @@ describe('Tests Automatisés Gemini', () => {
     // 🔥 TESTS BUG #1: Parsing dates avec mois explicite (Tests du jour - 20/11/2025)
     {
       id: 1,
-      category: 'Bug #1 - Mois Explicite',
-      input: 'Crée un sondage pour un week-end jeux. Ajoute tous les samedis de mars 2026',
-      expectedType: 'date',
-      expectedDayConstraints: ['samedi'],
-      requiredWords: ['week-end', 'jeux'],
-      weight: 4
+      category: "Bug #1 - Mois Explicite",
+      input: "Crée un sondage pour un week-end jeux. Ajoute tous les samedis de mars 2026",
+      expectedType: "date",
+      expectedDayConstraints: ["samedi"],
+      requiredWords: ["week-end", "jeux"],
+      weight: 4,
     },
     {
       id: 2,
-      category: 'Bug #1 - Mois Explicite',
-      input: 'Organise une réunion le 7 mars 2026',
-      expectedType: 'date',
+      category: "Bug #1 - Mois Explicite",
+      input: "Organise une réunion le 7 mars 2026",
+      expectedType: "date",
       expectedDayConstraints: [],
-      requiredWords: ['réunion'],
-      weight: 4
+      requiredWords: ["réunion"],
+      weight: 4,
     },
     {
       id: 3,
-      category: 'Bug #1 - Mois Explicite',
-      input: 'Planifie un événement tous les samedis de mai 2026',
-      expectedType: 'date',
-      expectedDayConstraints: ['samedi'],
-      requiredWords: ['événement'],
-      weight: 4
+      category: "Bug #1 - Mois Explicite",
+      input: "Planifie un événement tous les samedis de mai 2026",
+      expectedType: "date",
+      expectedDayConstraints: ["samedi"],
+      requiredWords: ["événement"],
+      weight: 4,
     },
     {
       id: 4,
-      category: 'Bug #1 - Mois Explicite',
-      input: 'Crée un sondage pour les dimanches de décembre 2025',
-      expectedType: 'date',
-      expectedDayConstraints: ['dimanche'],
+      category: "Bug #1 - Mois Explicite",
+      input: "Crée un sondage pour les dimanches de décembre 2025",
+      expectedType: "date",
+      expectedDayConstraints: ["dimanche"],
       requiredWords: [],
-      weight: 4
+      weight: 4,
     },
     {
       id: 5,
-      category: 'Bug #1 - Référence Correcte',
-      input: 'Ajoute le 15 janvier 2026',
-      expectedType: 'date',
+      category: "Bug #1 - Référence Correcte",
+      input: "Ajoute le 15 janvier 2026",
+      expectedType: "date",
       expectedDayConstraints: [],
       requiredWords: [],
-      weight: 4
+      weight: 4,
     },
 
     /* TESTS ORIGINAUX COMMENTÉS - À réactiver après validation des corrections
@@ -359,31 +370,33 @@ describe('Tests Automatisés Gemini', () => {
 
   beforeAll(async () => {
     geminiService = GeminiService.getInstance();
-    console.log('🚀 Initialisation des tests automatisés Gemini');
-    
+    console.log("🚀 Initialisation des tests automatisés Gemini");
+
     // Vérifier la configuration
     const geminiApiKey = process.env.VITE_GEMINI_API_KEY;
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-    const useDirectGemini = process.env.VITE_USE_DIRECT_GEMINI === 'true';
-    
-    console.log('📋 Configuration détectée:');
-    console.log(`  - VITE_GEMINI_API_KEY: ${geminiApiKey ? '✅ Présente' : '❌ Manquante'}`);
-    console.log(`  - VITE_SUPABASE_URL: ${supabaseUrl ? '✅ Présente' : '❌ Manquante'}`);
-    console.log(`  - VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey ? '✅ Présente' : '❌ Manquante'}`);
-    console.log(`  - Mode: ${useDirectGemini ? 'DIRECT API' : 'EDGE FUNCTION'}`);
-    
+    const useDirectGemini = process.env.VITE_USE_DIRECT_GEMINI === "true";
+
+    console.log("📋 Configuration détectée:");
+    console.log(`  - VITE_GEMINI_API_KEY: ${geminiApiKey ? "✅ Présente" : "❌ Manquante"}`);
+    console.log(`  - VITE_SUPABASE_URL: ${supabaseUrl ? "✅ Présente" : "❌ Manquante"}`);
+    console.log(`  - VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey ? "✅ Présente" : "❌ Manquante"}`);
+    console.log(`  - Mode: ${useDirectGemini ? "DIRECT API" : "EDGE FUNCTION"}`);
+
     // En mode Edge Function, vérifier que Supabase est configuré
     if (!useDirectGemini && (!supabaseUrl || !supabaseAnonKey)) {
-      throw new Error('❌ CONFIGURATION MANQUANTE: VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY sont requis en mode Edge Function');
+      throw new Error(
+        "❌ CONFIGURATION MANQUANTE: VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY sont requis en mode Edge Function",
+      );
     }
-    
+
     // En mode Direct, vérifier que la clé Gemini est présente
     if (useDirectGemini && !geminiApiKey) {
-      throw new Error('❌ CONFIGURATION MANQUANTE: VITE_GEMINI_API_KEY est requise en mode Direct');
+      throw new Error("❌ CONFIGURATION MANQUANTE: VITE_GEMINI_API_KEY est requise en mode Direct");
     }
-    
-    console.log('✅ Configuration validée');
+
+    console.log("✅ Configuration validée");
   }, 10000);
 
   afterAll(async () => {
@@ -396,7 +409,7 @@ describe('Tests Automatisés Gemini', () => {
     test(`Test ${testCase.id}: ${testCase.category} - ${testCase.input.substring(0, 50)}...`, async () => {
       const result = await runSingleTest(testCase);
       testResults.push(result);
-      
+
       expect(result.passed).toBe(true);
       expect(result.score).toBeGreaterThanOrEqual(2.8); // 70% minimum par test
     }, 45000); // 45s pour Form Polls (plus complexes)
@@ -405,13 +418,13 @@ describe('Tests Automatisés Gemini', () => {
   async function runSingleTest(testCase: TestCase): Promise<TestResult> {
     try {
       const response = await geminiService.generatePollFromText(testCase.input);
-      
+
       if (!response.success || !response.data) {
         return {
           testId: testCase.id,
           passed: false,
           score: 0,
-          details: `Échec génération: ${response.message}`
+          details: `Échec génération: ${response.message}`,
         };
       }
 
@@ -419,55 +432,72 @@ describe('Tests Automatisés Gemini', () => {
       const passed = totalScore >= 2.8; // 70% du score max (4 points)
 
       // Construire les détails pour les échecs
-      let details = `Score: ${totalScore.toFixed(1)}/4 - ${passed ? 'RÉUSSI' : 'ÉCHEC'}`;
+      let details = `Score: ${totalScore.toFixed(1)}/4 - ${passed ? "RÉUSSI" : "ÉCHEC"}`;
       if (!passed && breakdown) {
         const failures: string[] = [];
-        if (!breakdown.type.passed) failures.push(`Type: attendu "${breakdown.type.expected}" mais obtenu "${breakdown.type.actual}"`);
-        
+        if (!breakdown.type.passed)
+          failures.push(
+            `Type: attendu "${breakdown.type.expected}" mais obtenu "${breakdown.type.actual}"`,
+          );
+
         // Détails spécifiques Date Polls
-        if (testCase.expectedType !== 'form') {
+        if (testCase.expectedType !== "form") {
           if (!breakdown.dayConstraints.passed && testCase.expectedDayConstraints) {
-            failures.push(`Jours: ${breakdown.dayConstraints.score.toFixed(1)}/1 (attendu: ${testCase.expectedDayConstraints.join(', ')})`);
+            failures.push(
+              `Jours: ${breakdown.dayConstraints.score.toFixed(1)}/1 (attendu: ${testCase.expectedDayConstraints.join(", ")})`,
+            );
           }
           if (!breakdown.timeConstraints.passed && testCase.expectedTimeConstraints) {
             failures.push(`Horaires: ${breakdown.timeConstraints.score.toFixed(1)}/1`);
           }
         }
-        
+
         // Détails spécifiques Form Polls
-        if (testCase.expectedType === 'form' && response.data && response.data.type === 'form') {
+        if (testCase.expectedType === "form" && response.data && response.data.type === "form") {
           const formData = response.data as { questions?: any[] };
           const questionsCount = formData.questions?.length || 0;
           if (testCase.minQuestions && questionsCount < testCase.minQuestions) {
-            failures.push(`Questions: ${questionsCount} (minimum attendu: ${testCase.minQuestions})`);
+            failures.push(
+              `Questions: ${questionsCount} (minimum attendu: ${testCase.minQuestions})`,
+            );
           }
           if (testCase.maxQuestions && questionsCount > testCase.maxQuestions) {
-            failures.push(`Questions: ${questionsCount} (maximum attendu: ${testCase.maxQuestions})`);
+            failures.push(
+              `Questions: ${questionsCount} (maximum attendu: ${testCase.maxQuestions})`,
+            );
           }
           if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
             const actualTypes = formData.questions?.map((q: any) => q.type).filter(Boolean) || [];
             const uniqueActualTypes = [...new Set(actualTypes)];
-            const missingTypes = testCase.expectedQuestionTypes.filter(t => !uniqueActualTypes.includes(t));
+            const missingTypes = testCase.expectedQuestionTypes.filter(
+              (t) => !uniqueActualTypes.includes(t),
+            );
             if (missingTypes.length > 0) {
-              failures.push(`Types de questions manquants: ${missingTypes.join(', ')} (obtenus: ${uniqueActualTypes.join(', ') || 'aucun'})`);
+              failures.push(
+                `Types de questions manquants: ${missingTypes.join(", ")} (obtenus: ${uniqueActualTypes.join(", ") || "aucun"})`,
+              );
             }
           }
           if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
-            const questionsWithValidation = formData.questions?.filter((q: any) => 
-              q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
-            ) || [];
+            const questionsWithValidation =
+              formData.questions?.filter(
+                (q: any) =>
+                  q.validationType && testCase.expectedValidationTypes?.includes(q.validationType),
+              ) || [];
             if (questionsWithValidation.length === 0) {
-              failures.push(`Validations attendues manquantes: ${testCase.expectedValidationTypes.join(', ')}`);
+              failures.push(
+                `Validations attendues manquantes: ${testCase.expectedValidationTypes.join(", ")}`,
+              );
             }
           }
         }
-        
+
         if (!breakdown.requiredWords.passed && testCase.requiredWords) {
           const missing = breakdown.requiredWords.missing || [];
-          if (missing.length > 0) failures.push(`Mots-clés manquants: ${missing.join(', ')}`);
+          if (missing.length > 0) failures.push(`Mots-clés manquants: ${missing.join(", ")}`);
         }
         if (failures.length > 0) {
-          details += `\n  - ${failures.join('\n  - ')}`;
+          details += `\n  - ${failures.join("\n  - ")}`;
         }
       }
 
@@ -477,20 +507,22 @@ describe('Tests Automatisés Gemini', () => {
         score: totalScore,
         details,
         response: response.data,
-        scoreBreakdown: breakdown
+        scoreBreakdown: breakdown,
       };
-
     } catch (error) {
       return {
         testId: testCase.id,
         passed: false,
         score: 0,
-        details: `Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+        details: `Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
       };
     }
   }
 
-  function calculateTestScore(testCase: TestCase, response: any): { totalScore: number; breakdown: NonNullable<TestResult['scoreBreakdown']> } {
+  function calculateTestScore(
+    testCase: TestCase,
+    response: any,
+  ): { totalScore: number; breakdown: NonNullable<TestResult["scoreBreakdown"]> } {
     let score = 0;
     const maxScore = testCase.weight;
 
@@ -501,10 +533,16 @@ describe('Tests Automatisés Gemini', () => {
     }
 
     // Logique différente selon le type de poll
-    if (testCase.expectedType === 'form') {
+    if (testCase.expectedType === "form") {
       // VALIDATION FORM POLLS
-      let dayConstraints: NonNullable<TestResult['scoreBreakdown']>['dayConstraints'] = { passed: true, score: 1 };
-      let timeConstraints: NonNullable<TestResult['scoreBreakdown']>['timeConstraints'] = { passed: true, score: 1 };
+      let dayConstraints: NonNullable<TestResult["scoreBreakdown"]>["dayConstraints"] = {
+        passed: true,
+        score: 1,
+      };
+      let timeConstraints: NonNullable<TestResult["scoreBreakdown"]>["timeConstraints"] = {
+        passed: true,
+        score: 1,
+      };
 
       // 2. Validation nombre de questions (1 point)
       const questionsCount = response.questions?.length || 0;
@@ -512,7 +550,7 @@ describe('Tests Automatisés Gemini', () => {
       if (testCase.minQuestions || testCase.maxQuestions) {
         const minOk = testCase.minQuestions ? questionsCount >= testCase.minQuestions : true;
         const maxOk = testCase.maxQuestions ? questionsCount <= testCase.maxQuestions : true;
-        questionsScore = (minOk && maxOk) ? 1 : (minOk ? 0.5 : 0);
+        questionsScore = minOk && maxOk ? 1 : minOk ? 0.5 : 0;
       }
       score += questionsScore;
 
@@ -521,8 +559,8 @@ describe('Tests Automatisés Gemini', () => {
       if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
         const actualTypes = response.questions?.map((q: any) => q.type).filter(Boolean) || [];
         const uniqueActualTypes = [...new Set(actualTypes)];
-        const foundTypes = testCase.expectedQuestionTypes.filter(expectedType => 
-          uniqueActualTypes.includes(expectedType)
+        const foundTypes = testCase.expectedQuestionTypes.filter((expectedType) =>
+          uniqueActualTypes.includes(expectedType),
         );
         questionTypesScore = foundTypes.length / testCase.expectedQuestionTypes.length;
       }
@@ -531,27 +569,29 @@ describe('Tests Automatisés Gemini', () => {
       // 4. Validation validationTypes (email, phone, etc.) - 0.5 point
       let validationScore = 0.5;
       if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
-        const questionsWithValidation = response.questions?.filter((q: any) => 
-          q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
-        ) || [];
+        const questionsWithValidation =
+          response.questions?.filter(
+            (q: any) =>
+              q.validationType && testCase.expectedValidationTypes?.includes(q.validationType),
+          ) || [];
         validationScore = questionsWithValidation.length > 0 ? 0.5 : 0;
       }
       score += validationScore;
 
       // 5. Validation mots-clés dans le titre (0.5 point)
       let contentScore = 0.5;
-      let requiredWords: NonNullable<TestResult['scoreBreakdown']>['requiredWords'];
+      let requiredWords: NonNullable<TestResult["scoreBreakdown"]>["requiredWords"];
       if (testCase.requiredWords && testCase.requiredWords.length > 0) {
-        const title = (response.title || '').toLowerCase();
-        const found = testCase.requiredWords.filter(w => title.includes(w.toLowerCase()));
-        const missing = testCase.requiredWords.filter(w => !title.includes(w.toLowerCase()));
-        contentScore = found.length / testCase.requiredWords.length * 0.5;
+        const title = (response.title || "").toLowerCase();
+        const found = testCase.requiredWords.filter((w) => title.includes(w.toLowerCase()));
+        const missing = testCase.requiredWords.filter((w) => !title.includes(w.toLowerCase()));
+        contentScore = (found.length / testCase.requiredWords.length) * 0.5;
         requiredWords = {
           passed: contentScore >= 0.4,
           score: contentScore * 2, // Normaliser sur 1 pour l'affichage
           expected: testCase.requiredWords,
           found: found,
-          missing: missing
+          missing: missing,
         };
       } else {
         requiredWords = { passed: true, score: 1 };
@@ -565,30 +605,39 @@ describe('Tests Automatisés Gemini', () => {
           type: {
             passed: typePassed,
             expected: testCase.expectedType,
-            actual: response.type || 'N/A'
+            actual: response.type || "N/A",
           },
           dayConstraints,
           timeConstraints,
-          requiredWords
-        }
+          requiredWords,
+        },
       };
     } else {
       // VALIDATION DATE POLLS (logique existante)
       // 2. Validation des contraintes de jours (1 point)
       let dayScore = 1;
-      let dayConstraints: NonNullable<TestResult['scoreBreakdown']>['dayConstraints'];
+      let dayConstraints: NonNullable<TestResult["scoreBreakdown"]>["dayConstraints"];
       if (testCase.expectedDayConstraints) {
         dayScore = validateDayConstraints(testCase, response);
-        const actualDays = response.dates?.map((d: string) => {
-          const date = new Date(d);
-          const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-          return dayNames[date.getDay()];
-        }) || [];
+        const actualDays =
+          response.dates?.map((d: string) => {
+            const date = new Date(d);
+            const dayNames = [
+              "dimanche",
+              "lundi",
+              "mardi",
+              "mercredi",
+              "jeudi",
+              "vendredi",
+              "samedi",
+            ];
+            return dayNames[date.getDay()];
+          }) || [];
         dayConstraints = {
           passed: dayScore >= 0.8,
           score: dayScore,
           expected: testCase.expectedDayConstraints,
-          actual: actualDays
+          actual: actualDays,
         };
         score += dayScore;
       } else {
@@ -598,14 +647,14 @@ describe('Tests Automatisés Gemini', () => {
 
       // 3. Validation des contraintes horaires (1 point)
       let timeScore = 1;
-      let timeConstraints: NonNullable<TestResult['scoreBreakdown']>['timeConstraints'];
+      let timeConstraints: NonNullable<TestResult["scoreBreakdown"]>["timeConstraints"];
       if (testCase.expectedTimeConstraints) {
         timeScore = validateTimeConstraints(testCase, response);
         timeConstraints = {
           passed: timeScore >= 0.8,
           score: timeScore,
           expected: testCase.expectedTimeConstraints,
-          actual: response.timeSlots
+          actual: response.timeSlots,
         };
         score += timeScore;
       } else {
@@ -615,18 +664,18 @@ describe('Tests Automatisés Gemini', () => {
 
       // 4. Validation du contenu du titre (1 point)
       let contentScore = 1;
-      let requiredWords: NonNullable<TestResult['scoreBreakdown']>['requiredWords'];
+      let requiredWords: NonNullable<TestResult["scoreBreakdown"]>["requiredWords"];
       if (testCase.requiredWords) {
         contentScore = validateRequiredWords(testCase, response);
-        const title = (response.title || '').toLowerCase();
-        const found = testCase.requiredWords.filter(w => title.includes(w.toLowerCase()));
-        const missing = testCase.requiredWords.filter(w => !title.includes(w.toLowerCase()));
+        const title = (response.title || "").toLowerCase();
+        const found = testCase.requiredWords.filter((w) => title.includes(w.toLowerCase()));
+        const missing = testCase.requiredWords.filter((w) => !title.includes(w.toLowerCase()));
         requiredWords = {
           passed: contentScore >= 0.8,
           score: contentScore,
           expected: testCase.requiredWords,
           found: found,
-          missing: missing
+          missing: missing,
         };
         score += contentScore;
       } else {
@@ -639,12 +688,12 @@ describe('Tests Automatisés Gemini', () => {
           type: {
             passed: typePassed,
             expected: testCase.expectedType,
-            actual: response.type || 'N/A'
+            actual: response.type || "N/A",
           },
           dayConstraints,
           timeConstraints,
-          requiredWords
-        }
+          requiredWords,
+        },
       };
     }
   }
@@ -652,7 +701,7 @@ describe('Tests Automatisés Gemini', () => {
   function validateDayConstraints(testCase: TestCase, response: any): number {
     if (!testCase.expectedDayConstraints || !response.dates) return 0;
 
-    const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
     let validDays = 0;
     const totalDays = response.dates.length;
 
@@ -661,13 +710,15 @@ describe('Tests Automatisés Gemini', () => {
       const dayOfWeek = date.getDay();
       const dayName = dayNames[dayOfWeek];
 
-      if (testCase.expectedDayConstraints.includes(dayName) || 
-          testCase.expectedDayConstraints.includes('semaine') && dayOfWeek >= 1 && dayOfWeek <= 5) {
+      if (
+        testCase.expectedDayConstraints.includes(dayName) ||
+        (testCase.expectedDayConstraints.includes("semaine") && dayOfWeek >= 1 && dayOfWeek <= 5)
+      ) {
         validDays++;
       }
     }
 
-    return totalDays > 0 ? (validDays / totalDays) : 0;
+    return totalDays > 0 ? validDays / totalDays : 0;
   }
 
   function validateTimeConstraints(testCase: TestCase, response: any): number {
@@ -677,20 +728,22 @@ describe('Tests Automatisés Gemini', () => {
     const totalSlots = response.timeSlots.length;
 
     for (const slot of response.timeSlots) {
-      const startHour = parseInt(slot.start.split(':')[0]);
-      const endHour = parseInt(slot.end.split(':')[0]);
+      const startHour = parseInt(slot.start.split(":")[0]);
+      const endHour = parseInt(slot.end.split(":")[0]);
 
-      const expectedStart = testCase.expectedTimeConstraints.start ? 
-        parseInt(testCase.expectedTimeConstraints.start.split(':')[0]) : 0;
-      const expectedEnd = testCase.expectedTimeConstraints.end ? 
-        parseInt(testCase.expectedTimeConstraints.end.split(':')[0]) : 24;
+      const expectedStart = testCase.expectedTimeConstraints.start
+        ? parseInt(testCase.expectedTimeConstraints.start.split(":")[0])
+        : 0;
+      const expectedEnd = testCase.expectedTimeConstraints.end
+        ? parseInt(testCase.expectedTimeConstraints.end.split(":")[0])
+        : 24;
 
       if (startHour >= expectedStart && endHour <= expectedEnd) {
         validSlots++;
       }
     }
 
-    return totalSlots > 0 ? (validSlots / totalSlots) : 0;
+    return totalSlots > 0 ? validSlots / totalSlots : 0;
   }
 
   function validateRequiredWords(testCase: TestCase, response: any): number {
@@ -712,34 +765,41 @@ describe('Tests Automatisés Gemini', () => {
     const totalScore = testResults.reduce((sum, result) => sum + result.score, 0);
     const maxPossibleScore = testCases.reduce((sum, testCase) => sum + testCase.weight, 0);
     const percentage = Math.round((totalScore / maxPossibleScore) * 100);
-    
-    const passedTests = testResults.filter(r => r.passed).length;
+
+    const passedTests = testResults.filter((r) => r.passed).length;
     const totalTests = testResults.length;
 
-    console.log('\n📊 RAPPORT FINAL DES TESTS AUTOMATISÉS GEMINI');
-    console.log('='.repeat(60));
+    console.log("\n📊 RAPPORT FINAL DES TESTS AUTOMATISÉS GEMINI");
+    console.log("=".repeat(60));
     console.log(`Score final: ${totalScore}/${maxPossibleScore} (${percentage}%)`);
     console.log(`Tests réussis: ${passedTests}/${totalTests}`);
     const minScore = Math.round(maxPossibleScore * 0.7);
-    console.log(`Objectif minimum: ${minScore}/${maxPossibleScore} (70%) - ${percentage >= 70 ? '✅ ATTEINT' : '❌ NON ATTEINT'}`);
+    console.log(
+      `Objectif minimum: ${minScore}/${maxPossibleScore} (70%) - ${percentage >= 70 ? "✅ ATTEINT" : "❌ NON ATTEINT"}`,
+    );
 
     // Générer le rapport Markdown
-    const reportPath = 'tests/reports/gemini-test-report.md';
+    const reportPath = "tests/reports/gemini-test-report.md";
     await generateMarkdownReport(reportPath, testResults, totalScore, maxPossibleScore);
   }
 
-  async function generateMarkdownReport(path: string, results: TestResult[], totalScore: number, maxScore: number): Promise<void> {
-    const fs = await import('fs');
+  async function generateMarkdownReport(
+    path: string,
+    results: TestResult[],
+    totalScore: number,
+    maxScore: number,
+  ): Promise<void> {
+    const fs = await import("fs");
     const fsp = fs.promises;
-    
+
     const percentage = Math.round((totalScore / maxScore) * 100);
     const timestamp = new Date().toISOString();
-    
+
     let reportContent = `# Rapport Tests Automatisés Gemini\n\n`;
     reportContent += `**Date:** ${timestamp}\n`;
     reportContent += `**Score Final:** ${totalScore}/${maxScore} (${percentage}%)\n`;
-    reportContent += `**Tests réussis:** ${results.filter(r => r.passed).length}/${results.length}\n\n`;
-    
+    reportContent += `**Tests réussis:** ${results.filter((r) => r.passed).length}/${results.length}\n\n`;
+
     reportContent += `## 🎯 Évaluation Qualité\n\n`;
     if (percentage >= 90) {
       reportContent += `✅ **EXCELLENT** (${percentage}%) - Prêt pour production\n\n`;
@@ -750,107 +810,118 @@ describe('Tests Automatisés Gemini', () => {
     } else {
       reportContent += `🔴 **INSUFFISANT** (${percentage}%) - Révision du prompt requise\n\n`;
     }
-    
+
     reportContent += `## 📋 Détail des Tests\n\n`;
     reportContent += `| Test | Catégorie | Score | Status | Détails |\n`;
     reportContent += `|------|-----------|--------|--------|---------|\n`;
-    
+
     for (const result of results) {
-      const testCase = testCases.find(t => t.id === result.testId);
-      const status = result.passed ? '✅' : '❌';
-      reportContent += `| ${result.testId} | ${testCase?.category || 'N/A'} | ${result.score.toFixed(1)}/4 | ${status} | ${result.details.split('\n')[0]} |\n`;
+      const testCase = testCases.find((t) => t.id === result.testId);
+      const status = result.passed ? "✅" : "❌";
+      reportContent += `| ${result.testId} | ${testCase?.category || "N/A"} | ${result.score.toFixed(1)}/4 | ${status} | ${result.details.split("\n")[0]} |\n`;
     }
-    
+
     // Section détaillée pour les tests en échec
-    const failedTests = results.filter(r => !r.passed);
+    const failedTests = results.filter((r) => !r.passed);
     if (failedTests.length > 0) {
       reportContent += `\n## 🔍 Analyse des Échecs\n\n`;
       for (const result of failedTests) {
-        const testCase = testCases.find(t => t.id === result.testId);
+        const testCase = testCases.find((t) => t.id === result.testId);
         reportContent += `### Test ${result.testId}: ${testCase?.category} - ${testCase?.input}\n\n`;
         reportContent += `**Score:** ${result.score.toFixed(1)}/4\n\n`;
-        
+
         if (result.scoreBreakdown) {
           const b = result.scoreBreakdown;
           reportContent += `**Détails des critères:**\n\n`;
-          
+
           // Type
-          reportContent += `- **Type:** ${b.type.passed ? '✅' : '❌'} `;
+          reportContent += `- **Type:** ${b.type.passed ? "✅" : "❌"} `;
           reportContent += `Attendu: \`${b.type.expected}\`, Obtenu: \`${b.type.actual}\`\n`;
-          
+
           // Contraintes de jours
           if (testCase?.expectedDayConstraints) {
-            reportContent += `- **Jours:** ${b.dayConstraints.passed ? '✅' : '❌'} `;
+            reportContent += `- **Jours:** ${b.dayConstraints.passed ? "✅" : "❌"} `;
             reportContent += `Score: ${b.dayConstraints.score.toFixed(1)}/1\n`;
-            reportContent += `  - Attendu: ${b.dayConstraints.expected?.join(', ')}\n`;
-            reportContent += `  - Obtenu: ${b.dayConstraints.actual?.join(', ') || 'Aucune date'}\n`;
+            reportContent += `  - Attendu: ${b.dayConstraints.expected?.join(", ")}\n`;
+            reportContent += `  - Obtenu: ${b.dayConstraints.actual?.join(", ") || "Aucune date"}\n`;
           }
-          
+
           // Contraintes horaires
           if (testCase?.expectedTimeConstraints) {
-            reportContent += `- **Horaires:** ${b.timeConstraints.passed ? '✅' : '❌'} `;
+            reportContent += `- **Horaires:** ${b.timeConstraints.passed ? "✅" : "❌"} `;
             reportContent += `Score: ${b.timeConstraints.score.toFixed(1)}/1\n`;
           }
-          
+
           // Form Polls spécifiques
-          if (testCase?.expectedType === 'form' && result.response && result.response.type === 'form') {
+          if (
+            testCase?.expectedType === "form" &&
+            result.response &&
+            result.response.type === "form"
+          ) {
             const formData = result.response as { questions?: any[] };
             const questionsCount = formData.questions?.length || 0;
             reportContent += `- **Nombre de questions:** ${questionsCount}`;
             if (testCase.minQuestions || testCase.maxQuestions) {
-              reportContent += ` (attendu: ${testCase.minQuestions || '?'}-${testCase.maxQuestions || '?'})`;
+              reportContent += ` (attendu: ${testCase.minQuestions || "?"}-${testCase.maxQuestions || "?"})`;
             }
             reportContent += `\n`;
-            
+
             if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
               const actualTypes = formData.questions?.map((q: any) => q.type).filter(Boolean) || [];
               const uniqueActualTypes = [...new Set(actualTypes)];
-              const foundTypes = testCase.expectedQuestionTypes.filter(t => uniqueActualTypes.includes(t));
-              const missingTypes = testCase.expectedQuestionTypes.filter(t => !uniqueActualTypes.includes(t));
+              const foundTypes = testCase.expectedQuestionTypes.filter((t) =>
+                uniqueActualTypes.includes(t),
+              );
+              const missingTypes = testCase.expectedQuestionTypes.filter(
+                (t) => !uniqueActualTypes.includes(t),
+              );
               reportContent += `- **Types de questions:** `;
               if (foundTypes.length > 0) {
-                reportContent += `✅ Trouvés: ${foundTypes.join(', ')}`;
+                reportContent += `✅ Trouvés: ${foundTypes.join(", ")}`;
               }
               if (missingTypes.length > 0) {
-                reportContent += ` ❌ Manquants: ${missingTypes.join(', ')}`;
+                reportContent += ` ❌ Manquants: ${missingTypes.join(", ")}`;
               }
-              reportContent += ` (obtenus: ${uniqueActualTypes.join(', ') || 'aucun'})\n`;
+              reportContent += ` (obtenus: ${uniqueActualTypes.join(", ") || "aucun"})\n`;
             }
-            
+
             if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
-              const questionsWithValidation = formData.questions?.filter((q: any) => 
-                q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
-              ) || [];
-              reportContent += `- **Validations:** ${questionsWithValidation.length > 0 ? '✅' : '❌'} `;
+              const questionsWithValidation =
+                formData.questions?.filter(
+                  (q: any) =>
+                    q.validationType &&
+                    testCase.expectedValidationTypes?.includes(q.validationType),
+                ) || [];
+              reportContent += `- **Validations:** ${questionsWithValidation.length > 0 ? "✅" : "❌"} `;
               if (questionsWithValidation.length === 0) {
-                reportContent += `Attendues: ${testCase.expectedValidationTypes.join(', ')} mais aucune trouvée\n`;
+                reportContent += `Attendues: ${testCase.expectedValidationTypes.join(", ")} mais aucune trouvée\n`;
               } else {
-                reportContent += `Trouvées: ${questionsWithValidation.map((q: any) => q.validationType).join(', ')}\n`;
+                reportContent += `Trouvées: ${questionsWithValidation.map((q: any) => q.validationType).join(", ")}\n`;
               }
             }
           }
-          
+
           // Mots-clés
           if (testCase?.requiredWords) {
-            reportContent += `- **Mots-clés:** ${b.requiredWords.passed ? '✅' : '❌'} `;
+            reportContent += `- **Mots-clés:** ${b.requiredWords.passed ? "✅" : "❌"} `;
             reportContent += `Score: ${b.requiredWords.score.toFixed(1)}/1\n`;
             if (b.requiredWords.found && b.requiredWords.found.length > 0) {
-              reportContent += `  - Trouvés: ${b.requiredWords.found.join(', ')}\n`;
+              reportContent += `  - Trouvés: ${b.requiredWords.found.join(", ")}\n`;
             }
             if (b.requiredWords.missing && b.requiredWords.missing.length > 0) {
-              reportContent += `  - ❌ Manquants: ${b.requiredWords.missing.join(', ')}\n`;
+              reportContent += `  - ❌ Manquants: ${b.requiredWords.missing.join(", ")}\n`;
             }
           }
         }
-        
+
         if (result.response) {
           reportContent += `\n**Réponse API:**\n\`\`\`json\n${JSON.stringify(result.response, null, 2)}\n\`\`\`\n\n`;
         }
-        
+
         reportContent += `---\n\n`;
       }
     }
-    
+
     reportContent += `\n## 📈 Recommandations\n\n`;
     if (percentage < 70) {
       reportContent += `- Réviser les prompts Gemini pour améliorer la précision\n`;
@@ -861,15 +932,15 @@ describe('Tests Automatisés Gemini', () => {
       reportContent += `- Améliorer la détection des mots-clés\n`;
     }
     reportContent += `- Continuer le monitoring automatisé\n`;
-    
+
     // Créer le dossier reports s'il n'existe pas
     try {
-      await fsp.mkdir('tests/reports', { recursive: true });
+      await fsp.mkdir("tests/reports", { recursive: true });
     } catch (error) {
       // Le dossier existe déjà
     }
-    
-    await fsp.writeFile(path, reportContent, 'utf8');
+
+    await fsp.writeFile(path, reportContent, "utf8");
     console.log(`📄 Rapport généré: ${path}`);
   }
-}); 
+});

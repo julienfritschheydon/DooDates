@@ -24,6 +24,7 @@
 ### Pourquoi "Bonvot" ?
 
 **Analyse stratégique complète (voir brief de création):**
+
 - **Néologisme réussi:** Combine "Bon" (positif français) + "Vot" (évocation "Vote")
 - **Double sens pertinent:** Association "Bon Vote" = fonction produit (sondages/formulaires)
 - **Prononciation:** Excellente - court, simple, international
@@ -54,12 +55,14 @@
 ### Phase 0: Préparation (2h)
 
 #### Backup & Sécurité
+
 - [ ] Créer branche dédiée: `feature/rebrand-bonvot`
 - [ ] Backup complet du projet (ZIP + Git tag `v0-doodates-final`)
 - [ ] Créer backup Supabase (export SQL complet)
 - [ ] Documenter état actuel (screenshot dashboard, liste features)
 
 #### Assets Visuels
+
 - [ ] Créer logo Bonvot: `logo-bonvot.svg`
 - [ ] Générer favicon Bonvot (plusieurs tailles)
 - [ ] Préparer assets PWA (192x192, 512x512)
@@ -72,10 +75,11 @@
 **Priorité:** CRITIQUE - Ces fichiers définissent l'identité publique
 
 #### 1.1 `package.json`
+
 ```json
 {
-  "name": "bonvot",  // au lieu de "vite_react_shadcn_ts"
-  "description": "Bonvot - Modern AI scheduling and surveys",
+  "name": "bonvot", // au lieu de "vite_react_shadcn_ts"
+  "description": "Bonvot - Modern AI scheduling and surveys"
   // ... reste du fichier
 }
 ```
@@ -83,26 +87,36 @@
 #### 1.2 `index.html` (20+ occurrences)
 
 **Ligne 6:** Titre
+
 ```html
 <title>Bonvot - Assistant IA pour Planification Collaborative</title>
 ```
 
 **Lignes 7-8:** Meta description & author
+
 ```html
-<meta name="description" content="Bonvot - Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire pour planifier vos rendez-vous collaboratifs." />
+<meta
+  name="description"
+  content="Bonvot - Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire pour planifier vos rendez-vous collaboratifs."
+/>
 <meta name="author" content="Bonvot" />
 ```
 
 **Lignes 15-16:** Favicon
+
 ```html
 <link rel="icon" type="image/svg+xml" href="/Bonvot/logo-bonvot.svg" />
 <link rel="apple-touch-icon" href="/Bonvot/logo-bonvot.svg" />
 ```
 
 **Lignes 18-26:** Open Graph & Twitter
+
 ```html
 <meta property="og:title" content="Bonvot - Assistant IA Planification" />
-<meta property="og:description" content="Modern AI scheduling, no subscriptions. Planifiez vos rendez-vous avec l'IA conversationnelle." />
+<meta
+  property="og:description"
+  content="Modern AI scheduling, no subscriptions. Planifiez vos rendez-vous avec l'IA conversationnelle."
+/>
 <meta property="og:image" content="https://julienfritschheydon.github.io/Bonvot/logo-bonvot.svg" />
 <meta property="og:url" content="https://julienfritschheydon.github.io/Bonvot/" />
 
@@ -111,14 +125,15 @@
 ```
 
 **Lignes 33, 40-41, 43, 49, 54, 60, 65, 72, 76, 84, 87, 114:** PWA Manifest
+
 ```javascript
 // Remplacer toutes les occurrences de "DooDates" par "Bonvot" dans le manifest dynamique
-const baseUrl = path.includes('/Bonvot') ? '/Bonvot/' : '/';
+const baseUrl = path.includes("/Bonvot") ? "/Bonvot/" : "/";
 
 const manifest = {
-  "name": "Bonvot - Assistant IA Planification",
-  "short_name": "Bonvot",
-  "description": "Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire...",
+  name: "Bonvot - Assistant IA Planification",
+  short_name: "Bonvot",
+  description: "Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire...",
   // ... (voir ligne 54, 60, 65, 72, 76, 84, 87)
 };
 ```
@@ -130,16 +145,19 @@ const manifest = {
 #### 1.3 `README.md`
 
 **Ligne 1:** Titre principal
+
 ```markdown
 # Bonvot 🗓️
 ```
 
 **Ligne 10:** Overview
+
 ```markdown
 Bonvot revolutionizes event scheduling through:
 ```
 
 **Ligne 18:** Différenciation
+
 ```markdown
 Bonvot se distingue par son **interface conversationnelle IA**...
 ```
@@ -149,16 +167,18 @@ Bonvot se distingue par son **interface conversationnelle IA**...
 #### 1.4 `vite.config.ts`
 
 **Base URL GitHub Pages:**
+
 ```typescript
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/Bonvot/' : '/',
+  base: process.env.NODE_ENV === "production" ? "/Bonvot/" : "/",
   // ... reste du fichier
-})
+});
 ```
 
 #### 1.5 Repository GitHub
 
 **Actions à faire sur github.com:**
+
 1. Aller dans Settings → Repository name
 2. Renommer: `DooDates` → `Bonvot`
 3. URL devient: `https://github.com/julienfritschheydon/Bonvot`
@@ -182,38 +202,38 @@ export default defineConfig({
  * Exécuté une seule fois au chargement de l'app
  */
 
-const MIGRATION_KEY = 'bonvot_migration_completed';
-const OLD_PREFIX = 'doodates';
-const NEW_PREFIX = 'bonvot';
+const MIGRATION_KEY = "bonvot_migration_completed";
+const OLD_PREFIX = "doodates";
+const NEW_PREFIX = "bonvot";
 
 const KEYS_TO_MIGRATE = [
-  'conversations',
-  'messages',
-  'tags',
-  'folders',
-  'ai_quota',
-  'quota_consumed',
-  'quota_journal',
-  '-error-logs',  // Notez le tiret au lieu du underscore
+  "conversations",
+  "messages",
+  "tags",
+  "folders",
+  "ai_quota",
+  "quota_consumed",
+  "quota_journal",
+  "-error-logs", // Notez le tiret au lieu du underscore
 ];
 
 export function migrateDooDatesToBonvot(): void {
   // Vérifier si migration déjà effectuée
   if (localStorage.getItem(MIGRATION_KEY)) {
-    console.log('✅ Migration DooDates → Bonvot déjà effectuée');
+    console.log("✅ Migration DooDates → Bonvot déjà effectuée");
     return;
   }
 
-  console.log('🔄 Début migration DooDates → Bonvot...');
+  console.log("🔄 Début migration DooDates → Bonvot...");
   let migratedCount = 0;
 
   try {
-    KEYS_TO_MIGRATE.forEach(keySuffix => {
+    KEYS_TO_MIGRATE.forEach((keySuffix) => {
       const oldKey = `${OLD_PREFIX}_${keySuffix}`;
       const newKey = `${NEW_PREFIX}_${keySuffix}`;
-      
+
       const data = localStorage.getItem(oldKey);
-      
+
       if (data) {
         // Copier vers nouvelle clé
         localStorage.setItem(newKey, data);
@@ -224,12 +244,11 @@ export function migrateDooDatesToBonvot(): void {
 
     // Marquer migration comme complétée
     localStorage.setItem(MIGRATION_KEY, new Date().toISOString());
-    
+
     console.log(`✅ Migration terminée: ${migratedCount} clés migrées`);
     console.log('ℹ️  Les anciennes clés "doodates_*" sont conservées pour rollback');
-    
   } catch (error) {
-    console.error('❌ Erreur lors de la migration:', error);
+    console.error("❌ Erreur lors de la migration:", error);
     // Ne pas bloquer l'app en cas d'erreur
   }
 }
@@ -238,11 +257,11 @@ export function migrateDooDatesToBonvot(): void {
  * Fonction de nettoyage (à exécuter manuellement après 30 jours)
  */
 export function cleanupOldDooDatesKeys(): void {
-  KEYS_TO_MIGRATE.forEach(keySuffix => {
+  KEYS_TO_MIGRATE.forEach((keySuffix) => {
     const oldKey = `${OLD_PREFIX}_${keySuffix}`;
     localStorage.removeItem(oldKey);
   });
-  console.log('🗑️ Anciennes clés DooDates supprimées');
+  console.log("🗑️ Anciennes clés DooDates supprimées");
 }
 ```
 
@@ -268,18 +287,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 **Fichiers à modifier avec nouvelles clés:**
 
 **`src/lib/logger.ts`** (lignes 211, 219, 228, 241)
+
 ```typescript
-const STORAGE_KEY = 'bonvot-error-logs';  // au lieu de 'doodates-error-logs'
+const STORAGE_KEY = "bonvot-error-logs"; // au lieu de 'doodates-error-logs'
 ```
 
 **`tests/e2e/dashboard-complete.spec.ts`** (lignes 43, 52, 95, 543)
+
 ```typescript
-localStorage.setItem('bonvot_tags', JSON.stringify(tags));
-localStorage.setItem('bonvot_folders', JSON.stringify(folders));
-localStorage.setItem('bonvot_conversations', JSON.stringify(conversations));
+localStorage.setItem("bonvot_tags", JSON.stringify(tags));
+localStorage.setItem("bonvot_folders", JSON.stringify(folders));
+localStorage.setItem("bonvot_conversations", JSON.stringify(conversations));
 ```
 
 **Rechercher et remplacer dans tout le codebase:**
+
 - `doodates_conversations` → `bonvot_conversations`
 - `doodates_messages` → `bonvot_messages`
 - `doodates_tags` → `bonvot_tags`
@@ -292,11 +314,13 @@ localStorage.setItem('bonvot_conversations', JSON.stringify(conversations));
 #### 2.4 Stratégie de Transition (30 jours)
 
 **Jours 1-30:** Période de grace
+
 - Anciennes clés `doodates_*` conservées en localStorage
 - Nouvelles clés `bonvot_*` utilisées par l'app
 - Permet rollback manuel si besoin
 
 **Après 30 jours:** Nettoyage (optionnel)
+
 - Exécuter `cleanupOldDooDatesKeys()` dans console développeur
 - Ou laisser les anciennes clés (impact négligeable <50KB)
 
@@ -307,6 +331,7 @@ localStorage.setItem('bonvot_conversations', JSON.stringify(conversations));
 #### 3.1 `src/lib/error-handling.ts` (19 occurrences)
 
 **Ligne 37:** Classe principale
+
 ```typescript
 export class BonvotError extends Error {
   // ... reste de la classe
@@ -314,16 +339,19 @@ export class BonvotError extends Error {
 ```
 
 **Ligne 52:** Nom de la classe
+
 ```typescript
 this.name = "BonvotError";
 ```
 
 **Ligne 64:** Signature fonction
+
 ```typescript
 export function logError(error: Error | BonvotError, context: ErrorContext = {}): void {
 ```
 
 **Ligne 71, 80:** Vérifications d'instance
+
 ```typescript
 ...(error instanceof BonvotError && {
   // ...
@@ -333,6 +361,7 @@ console.error("🚨 Bonvot Error:", errorInfo);
 ```
 
 **Lignes 97-157:** Toutes les signatures de retour
+
 ```typescript
 ): BonvotError {
   let processedError: BonvotError;
@@ -351,16 +380,19 @@ console.error("🚨 Bonvot Error:", errorInfo);
 #### 3.2 `src/types/conversation.d.ts` (10 occurrences)
 
 **Ligne 147:** Import
+
 ```typescript
 import { BonvotError, ErrorSeverity, ErrorCategory, ErrorContext } from "../lib/error-handling";
 ```
 
 **Ligne 148:** Classe héritée
+
 ```typescript
 export declare class ConversationError extends BonvotError {
 ```
 
 **Lignes 169-175:** Signatures de retour
+
 ```typescript
 quotaExceeded: (maxConversations: number) => BonvotError;
 notFound: (conversationId: string) => BonvotError;
@@ -374,6 +406,7 @@ corruptedData: (details: string) => BonvotError;
 #### 3.3 Autres fichiers TypeScript
 
 **Rechercher dans tous les `.ts` et `.tsx`:**
+
 ```bash
 # Commande pour trouver toutes les occurrences
 grep -r "DooDatesError" src/
@@ -388,21 +421,25 @@ grep -r "DooDatesError" src/
 #### 4.1 `src/lib/gemini.ts` (4 occurrences)
 
 **Ligne 811:** Prompt Temporal Parsing
+
 ```typescript
 return `Tu es l'IA Bonvot, expert en planification temporelle avec techniques Counterfactual-Consistency.
 ```
 
 **Ligne 1031:** Prompt Poll Creation
+
 ```typescript
 return `Tu es l'assistant IA de Bonvot, une application de création de sondages pour planifier des rendez-vous.
 ```
 
 **Ligne 1063:** Prompt Form Conversion
+
 ```typescript
 return `Tu es l'IA Bonvot, expert en conversion de questionnaires.
 ```
 
 **Ligne 1138:** Prompt Questionnaire Creation
+
 ```typescript
 return `Tu es l'IA Bonvot, expert en création de questionnaires et formulaires.
 ```
@@ -414,15 +451,17 @@ return `Tu es l'IA Bonvot, expert en création de questionnaires et formulaires.
 #### 5.1 Tests d'Intégration
 
 **`tests/integration/real-supabase.test.ts`** (lignes 18-19)
+
 ```typescript
-const BASE_URL = process.env.BASE_URL || 'https://julienfritschheydon.github.io/Bonvot';
-const TEST_EMAIL = 'test-integration@bonvot.com';
+const BASE_URL = process.env.BASE_URL || "https://julienfritschheydon.github.io/Bonvot";
+const TEST_EMAIL = "test-integration@bonvot.com";
 ```
 
 **`tests/integration/real-supabase-simplified.test.ts`** (lignes 18-19)
+
 ```typescript
-const BASE_URL = process.env.BASE_URL || 'https://julienfritschheydon.github.io/Bonvot';
-const TEST_EMAIL = 'test-integration@bonvot.com';
+const BASE_URL = process.env.BASE_URL || "https://julienfritschheydon.github.io/Bonvot";
+const TEST_EMAIL = "test-integration@bonvot.com";
 ```
 
 #### 5.2 Compte de Test Supabase
@@ -439,6 +478,7 @@ const TEST_EMAIL = 'test-integration@bonvot.com';
 #### 5.3 Scripts de Validation
 
 **`scripts/verify-integration-test-setup.ps1`** (ligne 148, 159)
+
 ```powershell
 Write-Host "   Email attendu: test-integration@bonvot.com" -ForegroundColor Gray
 # ...
@@ -446,6 +486,7 @@ Write-Host "   1. Aller sur: https://github.com/julienfritschheydon/Bonvot/setti
 ```
 
 **`scripts/verify-integration-test-setup.sh`** (lignes similaires)
+
 ```bash
 echo "   Email attendu: test-integration@bonvot.com"
 # ...
@@ -455,6 +496,7 @@ echo "   1. Aller sur: https://github.com/julienfritschheydon/Bonvot/settings/se
 #### 5.4 Workflows GitHub Actions
 
 **Chercher dans `.github/workflows/*.yml`:**
+
 - Toutes les URLs contenant `/DooDates/` → `/Bonvot/`
 - Mentions de "DooDates" dans commentaires ou noms de jobs
 
@@ -476,6 +518,7 @@ echo "   1. Aller sur: https://github.com/julienfritschheydon/Bonvot/settings/se
 #### 6.2 Documentation Utilisateur (1h)
 
 **Tous les fichiers dans `Docs/USER-DOCUMENTATION/`:**
+
 - 01-Guide-Demarrage-Rapide.md (13 occurrences)
 - 02-Concepts-Base.md (8 occurrences)
 - 03-Sondages-Dates.md (7 occurrences)
@@ -489,6 +532,7 @@ echo "   1. Aller sur: https://github.com/julienfritschheydon/Bonvot/settings/se
 #### 6.3 Documentation Publique (1h)
 
 **Tous les fichiers dans `public/docs/`:**
+
 - Mêmes fichiers que USER-DOCUMENTATION (copie synchronisée)
 
 #### 6.4 Script de Remplacement Automatique
@@ -509,16 +553,19 @@ git status --short | grep "\.md$" | wc -l
 #### 7.1 Logo & Icônes
 
 **Fichiers à créer:**
+
 - `public/logo-bonvot.svg` (remplace `logo-doodates.svg`)
 - `dist/logo-bonvot.svg`
 
 **Fichiers à supprimer (après migration):**
+
 - `public/logo-doodates.svg`
 - `dist/logo-doodates.svg`
 
 #### 7.2 Manifest PWA
 
 **`public/manifest.json`**
+
 ```json
 {
   "name": "Bonvot - Assistant IA Planification",
@@ -538,9 +585,10 @@ git status --short | grep "\.md$" | wc -l
 #### 7.3 Service Worker
 
 **`public/sw.js`** (4 occurrences)
+
 ```javascript
 // Remplacer mentions de "DooDates" dans commentaires et logs
-console.log('Bonvot Service Worker installed');
+console.log("Bonvot Service Worker installed");
 ```
 
 ---
@@ -552,6 +600,7 @@ console.log('Bonvot Service Worker installed');
 **22 fichiers dans `sql-scripts/`**
 
 **Exemples:**
+
 - `sql-scripts/README.md` (commentaires)
 - `sql-scripts/00-INIT-DATABASE-COMPLETE.sql` (commentaires documentation)
 - `sql-scripts/create-beta-keys-and-quotas.sql` (métadonnées)
@@ -561,6 +610,7 @@ console.log('Bonvot Service Worker installed');
 #### 8.2 Email de Test
 
 **Dans Supabase Dashboard:**
+
 1. Créer `test-integration@bonvot.com`
 2. Générer mot de passe fort
 3. Tester auth manuellement
@@ -573,6 +623,7 @@ console.log('Bonvot Service Worker installed');
 #### 9.1 Netlify
 
 **`netlify.toml`**
+
 ```toml
 [build]
   publish = "dist"
@@ -591,6 +642,7 @@ console.log('Bonvot Service Worker installed');
 #### 9.2 Variables d'Environnement
 
 **Vérifier `.env.example` et `.env.local`:**
+
 ```bash
 # Pas de changement nécessaire (clés Supabase/Gemini inchangées)
 VITE_SUPABASE_URL=...
@@ -603,6 +655,7 @@ VITE_GEMINI_API_KEY=...
 ## ✅ Checklist Complète
 
 ### Avant de Commencer
+
 - [ ] Créer branche `feature/rebrand-bonvot`
 - [ ] Backup complet (ZIP + Git tag)
 - [ ] Backup Supabase (export SQL)
@@ -610,6 +663,7 @@ VITE_GEMINI_API_KEY=...
 - [ ] Informer équipe + beta testeurs (si déjà lancés)
 
 ### Configuration & Identité
+
 - [ ] `package.json` - Nom du package
 - [ ] `index.html` - 20+ occurrences (titre, meta, favicon, PWA)
 - [ ] `README.md` - Toutes les mentions
@@ -617,6 +671,7 @@ VITE_GEMINI_API_KEY=...
 - [ ] **Repository GitHub - Renommer `DooDates` → `Bonvot`**
 
 ### Migration Données Utilisateurs ⚠️
+
 - [ ] Créer `src/lib/migration/migrateDooDatesToBonvot.ts`
 - [ ] Intégrer dans `src/main.tsx`
 - [ ] Mettre à jour toutes les clés localStorage (8 clés)
@@ -624,15 +679,18 @@ VITE_GEMINI_API_KEY=...
 - [ ] Vérifier aucune perte de données
 
 ### Code Source
+
 - [ ] `src/lib/error-handling.ts` - `DooDatesError` → `BonvotError` (19×)
 - [ ] `src/types/conversation.d.ts` - Types (10×)
 - [ ] Rechercher `DooDatesError` dans tous les `.ts/.tsx`
 - [ ] `src/lib/logger.ts` - Clé storage (4×)
 
 ### Prompts IA
+
 - [ ] `src/lib/gemini.ts` - 4 prompts système
 
 ### Tests & CI/CD
+
 - [ ] `tests/integration/real-supabase.test.ts` - URL + email
 - [ ] `tests/integration/real-supabase-simplified.test.ts` - URL + email
 - [ ] `tests/e2e/dashboard-complete.spec.ts` - localStorage (4×)
@@ -643,6 +701,7 @@ VITE_GEMINI_API_KEY=...
 - [ ] Workflows `.github/workflows/*.yml` - URLs
 
 ### Documentation
+
 - [ ] `Docs/README.md`
 - [ ] `Docs/0. Index-Documentation.md`
 - [ ] `Docs/1. Strategy.md` (21×)
@@ -653,6 +712,7 @@ VITE_GEMINI_API_KEY=...
 - [ ] Script remplacement automatique
 
 ### Assets
+
 - [ ] Créer `public/logo-bonvot.svg`
 - [ ] Créer `dist/logo-bonvot.svg`
 - [ ] `public/manifest.json`
@@ -660,10 +720,12 @@ VITE_GEMINI_API_KEY=...
 - [ ] Supprimer anciens logos (après validation)
 
 ### Base de Données
+
 - [ ] Scripts SQL `sql-scripts/` - Commentaires (22 fichiers)
 - [ ] Compte test Supabase
 
 ### Déploiement
+
 - [ ] `netlify.toml`
 - [ ] Vérifier variables d'environnement
 - [ ] Configuration GitHub Pages
@@ -675,22 +737,24 @@ VITE_GEMINI_API_KEY=...
 ### Tests Manuels Post-Migration
 
 #### 1. Test Migration LocalStorage (CRITIQUE)
+
 ```javascript
 // Dans console navigateur AVANT migration:
-localStorage.setItem('doodates_conversations', '[{"id":"test"}]');
-localStorage.setItem('doodates_tags', '["tag1"]');
+localStorage.setItem("doodates_conversations", '[{"id":"test"}]');
+localStorage.setItem("doodates_tags", '["tag1"]');
 
 // Recharger page (migration automatique)
 
 // Vérifier APRÈS migration:
-console.log(localStorage.getItem('bonvot_conversations')); // doit afficher '[{"id":"test"}]'
-console.log(localStorage.getItem('bonvot_tags')); // doit afficher '["tag1"]'
-console.log(localStorage.getItem('doodates_conversations')); // doit toujours exister (backup)
+console.log(localStorage.getItem("bonvot_conversations")); // doit afficher '[{"id":"test"}]'
+console.log(localStorage.getItem("bonvot_tags")); // doit afficher '["tag1"]'
+console.log(localStorage.getItem("doodates_conversations")); // doit toujours exister (backup)
 ```
 
 **Résultat attendu:** Données copiées, anciennes clés conservées
 
 #### 2. Test Utilisateur Existant
+
 1. Créer compte avec données (conversations, polls, tags)
 2. Déployer version Bonvot
 3. Se reconnecter avec même compte
@@ -699,6 +763,7 @@ console.log(localStorage.getItem('doodates_conversations')); // doit toujours ex
 **Résultat attendu:** Aucune perte de données
 
 #### 3. Test Nouvel Utilisateur
+
 1. Mode navigation privée
 2. Créer conversation + poll
 3. Vérifier clés utilisées = `bonvot_*` (pas `doodates_*`)
@@ -706,6 +771,7 @@ console.log(localStorage.getItem('doodates_conversations')); // doit toujours ex
 **Résultat attendu:** Nouvelles clés utilisées directement
 
 #### 4. Test GitHub Pages
+
 1. Accéder `https://julienfritschheydon.github.io/Bonvot/`
 2. Vérifier titre = "Bonvot"
 3. Vérifier favicon = logo Bonvot
@@ -714,6 +780,7 @@ console.log(localStorage.getItem('doodates_conversations')); // doit toujours ex
 **Résultat attendu:** Site accessible et fonctionnel
 
 #### 5. Test Ancien Lien (Redirection)
+
 1. Accéder `https://julienfritschheydon.github.io/DooDates/`
 2. Vérifier redirection automatique → `/Bonvot/`
 
@@ -722,6 +789,7 @@ console.log(localStorage.getItem('doodates_conversations')); // doit toujours ex
 ### Tests Automatisés
 
 #### Test Suite Complète
+
 ```bash
 # Tests unitaires
 npm run test:unit
@@ -736,6 +804,7 @@ npm run test:integration
 **Résultat attendu:** 100% des tests passent (même score qu'avant)
 
 #### Test CI/CD
+
 ```bash
 # Push branche et vérifier GitHub Actions
 git push origin feature/rebrand-bonvot
@@ -754,6 +823,7 @@ git push origin feature/rebrand-bonvot
 ### En Cas de Problème Critique
 
 #### Option 1: Rollback Git (< 1h après déploiement)
+
 ```bash
 # Revenir au tag avant migration
 git reset --hard v0-doodates-final
@@ -765,11 +835,20 @@ npm run deploy
 ```
 
 #### Option 2: Rollback LocalStorage (pour utilisateurs)
+
 ```javascript
 // Script à exécuter dans console si perte de données
-const KEYS = ['conversations', 'messages', 'tags', 'folders', 'ai_quota', 'quota_consumed', 'quota_journal'];
+const KEYS = [
+  "conversations",
+  "messages",
+  "tags",
+  "folders",
+  "ai_quota",
+  "quota_consumed",
+  "quota_journal",
+];
 
-KEYS.forEach(key => {
+KEYS.forEach((key) => {
   const oldData = localStorage.getItem(`doodates_${key}`);
   if (oldData) {
     localStorage.setItem(`bonvot_${key}`, oldData);
@@ -779,6 +858,7 @@ KEYS.forEach(key => {
 ```
 
 #### Option 3: Rollback Partiel
+
 - Garder nom "Bonvot" en frontend (branding)
 - Revenir aux clés `doodates_*` en localStorage (technique)
 - Modifier uniquement `migrateDooDatesToBonvot.ts`
@@ -788,6 +868,7 @@ KEYS.forEach(key => {
 ## 📊 Métriques de Succès
 
 ### Critères de Validation
+
 - ✅ 0 perte de données utilisateurs
 - ✅ Tous les tests passent (100%)
 - ✅ Site accessible sur nouvelle URL
@@ -795,6 +876,7 @@ KEYS.forEach(key => {
 - ✅ Performance identique (< 5% variation)
 
 ### Monitoring Post-Migration (7 jours)
+
 - [ ] Suivre taux d'erreur Sentry
 - [ ] Vérifier analytics (pas de chute trafic)
 - [ ] Recueillir feedback utilisateurs
@@ -807,22 +889,26 @@ KEYS.forEach(key => {
 ### Timeline Recommandée
 
 **Jour 1 (6h):**
+
 - Phase 0: Préparation (2h)
 - Phase 1: Configuration & Identité (3h)
 - Phase 2: Migration Données (début, 1h)
 
 **Jour 2 (7h):**
+
 - Phase 2: Migration Données (suite, 3h)
 - Phase 3: Code Source (2h)
 - Phase 4: Prompts IA (1h)
 - Phase 5: Tests (début, 1h)
 
 **Jour 3 (7h):**
+
 - Phase 5: Tests (suite, 2h)
 - Phase 6: Documentation (4h)
 - Phase 7: Assets (1h)
 
 **Jour 4 (2h):**
+
 - Phase 8: SQL (1h)
 - Phase 9: Déploiement (1h)
 - Tests validation finale
@@ -830,6 +916,7 @@ KEYS.forEach(key => {
 **Total:** 22h réparties sur 4 jours
 
 ### Jalons Critiques
+
 - [x] Document de migration créé
 - [ ] Branche créée + backup complet
 - [ ] Logo Bonvot créé
@@ -844,34 +931,42 @@ KEYS.forEach(key => {
 ## 🚨 Risques & Mitigation
 
 ### Risque 1: Perte de Données Utilisateurs
+
 **Impact:** CRITIQUE  
 **Probabilité:** FAIBLE  
 **Mitigation:**
+
 - Script migration avec conservation anciennes clés
 - Tests extensifs avant déploiement
 - Backup Supabase
 - Rollback plan documenté
 
 ### Risque 2: Liens Cassés
+
 **Impact:** MOYEN  
 **Probabilité:** FAIBLE  
 **Mitigation:**
+
 - GitHub redirige automatiquement ancien repo
 - Tester tous les liens importants
 - Mettre à jour liens externes (docs, social media)
 
 ### Risque 3: Tests CI/CD Échouent
+
 **Impact:** MOYEN  
 **Probabilité:** MOYEN  
 **Mitigation:**
+
 - Compte test Supabase créé AVANT migration
 - Secrets GitHub Actions mis à jour
 - Tests locaux avant push
 
 ### Risque 4: Confusion Utilisateurs Beta
+
 **Impact:** FAIBLE  
 **Probabilité:** MOYEN  
 **Mitigation:**
+
 - Email notification 48h avant
 - Message in-app expliquant changement
 - FAQ "Pourquoi Bonvot ?"
@@ -885,6 +980,7 @@ KEYS.forEach(key => {
 **Sujet:** DooDates devient Bonvot 🎉
 
 **Corps:**
+
 ```
 Bonjour [Prénom],
 
@@ -915,6 +1011,7 @@ L'équipe Bonvot
 ### Message In-App
 
 **Modal au premier login post-migration:**
+
 ```
 🎉 DooDates est maintenant Bonvot !
 
@@ -931,12 +1028,14 @@ Toutes vos données sont conservées.
 ### Après la Migration
 
 **Nettoyage (J+30):**
+
 - [ ] Supprimer anciennes clés localStorage (optionnel)
 - [ ] Supprimer ancien compte test `test-integration@doodates.com`
 - [ ] Archiver anciens logos
 - [ ] Mettre à jour liens externes (social media, docs partagées)
 
 **Suivi Long Terme:**
+
 - [ ] Acheter domaine `bonvot.com`, `bonvot.io`, `bonvot.app`
 - [ ] Configurer redirections DNS
 - [ ] Enregistrer marque auprès INPI/EUIPO/USPTO
@@ -947,4 +1046,3 @@ Toutes vos données sont conservées.
 **Dernière mise à jour:** 10 Novembre 2025  
 **Version:** 1.0  
 **Statut:** 🟡 EN ATTENTE VALIDATION
-

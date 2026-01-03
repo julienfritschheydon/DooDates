@@ -10,16 +10,16 @@ Améliorer l'expérience mobile en réduisant les tailles de police et d'espacem
 
 Les tailles de police ont été réduites de ~10-15% pour optimiser l'espace sur mobile :
 
-| Classe | Mobile (par défaut) | Desktop (Tailwind standard) | Réduction |
-|--------|---------------------|----------------------------|-----------|
-| `text-xs` | 0.7rem (11.2px) | 0.75rem (12px) | -6.7% |
-| `text-sm` | 0.8rem (12.8px) | 0.875rem (14px) | -8.6% |
-| `text-base` | 0.9rem (14.4px) | 1rem (16px) | -10% |
-| `text-lg` | 1rem (16px) | 1.125rem (18px) | -11.1% |
-| `text-xl` | 1.15rem (18.4px) | 1.25rem (20px) | -8% |
-| `text-2xl` | 1.4rem (22.4px) | 1.5rem (24px) | -6.7% |
-| `text-3xl` | 1.75rem (28px) | 1.875rem (30px) | -6.7% |
-| `text-4xl` | 2rem (32px) | 2.25rem (36px) | -11.1% |
+| Classe      | Mobile (par défaut) | Desktop (Tailwind standard) | Réduction |
+| ----------- | ------------------- | --------------------------- | --------- |
+| `text-xs`   | 0.7rem (11.2px)     | 0.75rem (12px)              | -6.7%     |
+| `text-sm`   | 0.8rem (12.8px)     | 0.875rem (14px)             | -8.6%     |
+| `text-base` | 0.9rem (14.4px)     | 1rem (16px)                 | -10%      |
+| `text-lg`   | 1rem (16px)         | 1.125rem (18px)             | -11.1%    |
+| `text-xl`   | 1.15rem (18.4px)    | 1.25rem (20px)              | -8%       |
+| `text-2xl`  | 1.4rem (22.4px)     | 1.5rem (24px)               | -6.7%     |
+| `text-3xl`  | 1.75rem (28px)      | 1.875rem (30px)             | -6.7%     |
+| `text-4xl`  | 2rem (32px)         | 2.25rem (36px)              | -11.1%    |
 
 ### Espacements mobiles personnalisés
 
@@ -27,15 +27,15 @@ Nouvelles classes d'espacement optimisées pour mobile :
 
 ```tsx
 // Classes disponibles
-className="p-mobile-xs"   // padding: 4px
-className="p-mobile-sm"   // padding: 8px
-className="p-mobile-md"   // padding: 12px
-className="p-mobile-lg"   // padding: 16px
-className="p-mobile-xl"   // padding: 24px
+className = "p-mobile-xs"; // padding: 4px
+className = "p-mobile-sm"; // padding: 8px
+className = "p-mobile-md"; // padding: 12px
+className = "p-mobile-lg"; // padding: 16px
+className = "p-mobile-xl"; // padding: 24px
 
 // Fonctionne aussi avec margin, padding-x, padding-y, etc.
-className="px-mobile-md py-mobile-sm"
-className="m-mobile-lg"
+className = "px-mobile-md py-mobile-sm";
+className = "m-mobile-lg";
 ```
 
 ### Breakpoints disponibles
@@ -57,9 +57,7 @@ Les tailles de police sont **automatiquement réduites sur mobile**. Aucun chang
 
 ```tsx
 // Ce code fonctionne déjà avec les nouvelles tailles
-<button className="text-lg px-6 py-3">
-  Mon bouton
-</button>
+<button className="text-lg px-6 py-3">Mon bouton</button>
 ```
 
 ### Approche 2 : Classes responsive explicites (contrôle fin)
@@ -107,9 +105,9 @@ Utilise les classes `mobile-*` pour des espacements optimisés :
 ```tsx
 // Bouton principal
 <button className="
-  px-mobile-lg py-mobile-sm 
-  text-sm 
-  md:px-6 md:py-3 
+  px-mobile-lg py-mobile-sm
+  text-sm
+  md:px-6 md:py-3
   md:text-base
   rounded-lg bg-primary text-white
 ">
@@ -118,9 +116,9 @@ Utilise les classes `mobile-*` pour des espacements optimisés :
 
 // Bouton secondaire
 <button className="
-  px-mobile-md py-mobile-xs 
-  text-xs 
-  md:px-4 md:py-2 
+  px-mobile-md py-mobile-xs
+  text-xs
+  md:px-4 md:py-2
   md:text-sm
   border border-gray-300
 ">
@@ -131,29 +129,29 @@ Utilise les classes `mobile-*` pour des espacements optimisés :
 ### Cards
 
 ```tsx
-<div className="
+<div
+  className="
   p-mobile-md 
   md:p-6 
   lg:p-8
   rounded-lg bg-white shadow
-">
-  <h3 className="text-base md:text-xl mb-mobile-sm md:mb-4">
-    Titre de la card
-  </h3>
-  <p className="text-sm md:text-base text-gray-600">
-    Description de la card
-  </p>
+"
+>
+  <h3 className="text-base md:text-xl mb-mobile-sm md:mb-4">Titre de la card</h3>
+  <p className="text-sm md:text-base text-gray-600">Description de la card</p>
 </div>
 ```
 
 ### Navigation
 
 ```tsx
-<nav className="
+<nav
+  className="
   px-mobile-md py-mobile-sm 
   md:px-6 md:py-4
   bg-white border-b
-">
+"
+>
   <div className="flex items-center gap-mobile-sm md:gap-4">
     <button className="text-sm md:text-base">Menu</button>
     <h1 className="text-lg md:text-2xl font-bold">DooDates</h1>
@@ -166,10 +164,8 @@ Utilise les classes `mobile-*` pour des espacements optimisés :
 ```tsx
 <form className="space-y-mobile-md md:space-y-4">
   <div>
-    <label className="text-xs md:text-sm font-medium">
-      Email
-    </label>
-    <input 
+    <label className="text-xs md:text-sm font-medium">Email</label>
+    <input
       className="
         w-full 
         px-mobile-md py-mobile-sm 
@@ -181,15 +177,17 @@ Utilise les classes `mobile-*` pour des espacements optimisés :
       type="email"
     />
   </div>
-  
-  <button className="
+
+  <button
+    className="
     w-full 
     px-mobile-lg py-mobile-md 
     text-sm 
     md:px-6 md:py-3 
     md:text-base
     bg-primary text-white rounded-lg
-  ">
+  "
+  >
     Soumettre
   </button>
 </form>
@@ -217,12 +215,14 @@ Après avoir appliqué ces changements, teste sur :
 ## 📊 Impact attendu
 
 ### Avantages
+
 - ✅ Plus de contenu visible sur mobile
 - ✅ Interface moins chargée visuellement
 - ✅ Meilleure utilisation de l'espace écran
 - ✅ Cohérence globale automatique
 
 ### Points d'attention
+
 - ⚠️ Vérifier la lisibilité (min 14px pour le texte principal)
 - ⚠️ Vérifier les zones de clic (min 44x44px pour les boutons)
 - ⚠️ Tester sur vrais devices (pas seulement DevTools)

@@ -7,17 +7,21 @@ Créer une liste exhaustive de vocabulaire français utilisé dans les sondages/
 ## 📋 Approche Multi-Sources
 
 ### 1. Analyse des Prompts Existants
+
 - ✅ **57 prompts** dans `gemini-comprehensive.test.ts`
 - ✅ Extraction automatique des mots français
 - ✅ Catégorisation : verbes, noms, expressions temporelles
 
 ### 2. Génération avec Gemini
+
 Utiliser Gemini pour générer une liste exhaustive basée sur :
+
 - Les prompts existants
 - Le contexte des sondages/événements
 - Les synonymes et variantes courantes
 
 ### 3. Sources Externes
+
 - Listes de verbes français les plus fréquents
 - Vocabulaire professionnel (réunions, événements)
 - Expressions temporelles françaises
@@ -25,6 +29,7 @@ Utiliser Gemini pour générer une liste exhaustive basée sur :
 ## 🔍 Mots Identifiés dans les Prompts
 
 ### Verbes d'Action (à exclure des titres)
+
 - planifie, planifier
 - trouve, trouver
 - organise, organiser
@@ -40,6 +45,7 @@ Utiliser Gemini pour générer une liste exhaustive basée sur :
 - repère, repérer, repéré
 
 ### Noms d'Événements
+
 - réunion, équipe, entretien, client
 - visioconférence, partenaires
 - suivi, projet, déjeuner, soirée
@@ -66,6 +72,7 @@ Utiliser Gemini pour générer une liste exhaustive basée sur :
 - réponses, mensuel
 
 ### Expressions Temporelles (déjà gérées)
+
 - Jours : lundi, mardi, mercredi, jeudi, vendredi, samedi, dimanche
 - Mois : janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre
 - Périodes : matin, midi, après-midi, soir, soirée, nuit
@@ -74,20 +81,24 @@ Utiliser Gemini pour générer une liste exhaustive basée sur :
 ## 🚀 Plan d'Action
 
 ### Phase 1 : Extraction Automatique ✅
+
 - [x] Script d'extraction des mots des prompts
 - [x] Catégorisation automatique
 
 ### Phase 2 : Génération avec Gemini
+
 - [ ] Créer un prompt Gemini pour générer une liste exhaustive
 - [ ] Inclure synonymes, variantes, expressions courantes
 - [ ] Valider avec les prompts existants
 
 ### Phase 3 : Enrichissement Progressif
+
 - [ ] Créer un système de mapping enrichi
 - [ ] Intégrer dans `temporalTranslator.ts`
 - [ ] Tester avec les prompts existants
 
 ### Phase 4 : Maintenance Continue
+
 - [ ] Système de détection des mots non traduits
 - [ ] Logging des échecs de traduction
 - [ ] Enrichissement automatique basé sur les logs
@@ -126,4 +137,3 @@ Utiliser Gemini pour générer une liste exhaustive basée sur :
 1. **`generate-vocabulary-list.js`** : Extrait les mots des prompts
 2. **`ask-gemini-vocabulary.js`** : Demande à Gemini de générer une liste exhaustive
 3. **`merge-vocabulary.js`** : Fusionne les listes et génère le mapping final
-

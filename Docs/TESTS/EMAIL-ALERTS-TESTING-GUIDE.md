@@ -13,6 +13,7 @@ npm run test:email-alerts
 ```
 
 Ce script exécute 5 tests :
+
 - ✅ Calcul des suppressions à venir
 - ✅ Génération des emails
 - ✅ Simulation du job quotidien
@@ -30,6 +31,7 @@ Puis naviguer sur `http://localhost:5173/data-control`
 **Tests manuels à effectuer :**
 
 #### 📧 Paramètres Email
+
 1. **Activer les notifications email**
    - Cocher "Alertes email avant suppression"
    - Vérifier le toast de confirmation
@@ -41,6 +43,7 @@ Puis naviguer sur `http://localhost:5173/data-control`
    - Vérifier localStorage `doodates_email_notifications = false`
 
 #### ⏰ Alertes de Suppression
+
 1. **Vérifier l'affichage des alertes**
    - Les alertes doivent apparaître avec "📧 Alerte email prévue"
    - Vérifier le compte à rebours (jours restants)
@@ -52,6 +55,7 @@ Puis naviguer sur `http://localhost:5173/data-control`
    - L'alerte devrait disparaître ou se mettre à jour
 
 #### 📊 Paramètres de Conservation
+
 1. **Conversations IA**
    - Changer de "30 jours" → "12 mois"
    - Vérifier le toast et localStorage
@@ -81,6 +85,7 @@ supabase functions serve data-retention-warnings
 ```
 
 **Test manuel :**
+
 ```bash
 curl -X POST 'http://localhost:54321/functions/v1/data-retention-warnings' \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
@@ -161,6 +166,7 @@ SUPABASE_SERVICE_ROLE_KEY
 ## 📋 Checklist de Test
 
 ### ✅ Interface Utilisateur
+
 - [ ] Navigation vers `/data-control`
 - [ ] Toggle notifications email fonctionne
 - [ ] Alertes affichées correctement
@@ -169,18 +175,21 @@ SUPABASE_SERVICE_ROLE_KEY
 - [ ] Toasts de confirmation affichés
 
 ### ✅ Service Backend
+
 - [ ] Calcul des suppressions fonctionne
 - [ ] Génération d'email HTML correcte
 - [ ] Supabase Function déployée
 - [ ] Logs sauvegardés en base
 
 ### ✅ Job Automatisé
+
 - [ ] Script s'exécute sans erreur
 - [ ] Utilisateurs traités correctement
 - [ ] Emails envoyés (simulation)
 - [ ] Logs job créés
 
 ### ✅ Infrastructure
+
 - [ ] Tables SQL créées
 - [ ] RLS configuré
 - [ ] GitHub Actions configuré
@@ -191,6 +200,7 @@ SUPABASE_SERVICE_ROLE_KEY
 ### Erreurs Communes
 
 1. **"Module not found"**
+
    ```bash
    npm install
    npm run build
@@ -235,13 +245,13 @@ supabase logs
 ```sql
 -- Vue pour le dashboard
 CREATE VIEW email_alerts_dashboard AS
-SELECT 
+SELECT
   DATE(sent_at) as date,
   COUNT(*) as total_emails,
   COUNT(*) FILTER (WHERE status = 'sent') as successful,
   COUNT(*) FILTER (WHERE status = 'failed') as failed,
   COUNT(DISTINCT user_id) as unique_users
-FROM email_logs 
+FROM email_logs
 WHERE sent_at >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY DATE(sent_at)
 ORDER BY date DESC;

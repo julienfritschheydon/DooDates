@@ -12,6 +12,7 @@
 **Statut:** ⏳ unknown
 
 **Statistiques:**
+
 - ❌ Échecs (24h): **0**
 - ❌ Échecs (7 jours): **0**
 - 📊 Total runs analysés: **0**
@@ -29,6 +30,7 @@ Aucun échec détecté dans les 7 derniers jours.
 **Dernier run:** 10/11/2025 17:56:00
 
 **Statistiques:**
+
 - ❌ Échecs (24h): **2**
 - ❌ Échecs (7 jours): **2**
 - 📊 Total runs analysés: **20**
@@ -42,18 +44,18 @@ Aucun échec détecté dans les 7 derniers jours.
 - **Branche:** `develop`
 - **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19239398123)
 - **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🔗 Tests d'intégration`
-    - **Erreurs détectées (10):**
-      ```
-File: src/components/polls/PollAnalyticsPanel.tsx:24
-Error: stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+  - ❌ `tests-unit` (failure) - Steps en échec: `🔗 Tests d'intégration` - **Erreurs détectées (10):**
+    ```
+    File: src/components/polls/PollAnalyticsPanel.tsx:24
+    Error: stdout | src/lib/services/**tests**/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+    ```
 
-stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+stdout | src/lib/services/**tests**/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
 at PollAnalyticsPanel (/home/runner/work/DooDates/DooDates/src/components/polls/PollAnalyticsPanel.tsx:24:31)
 ❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
 ❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
-```
+
+````
       ```
 File: src/lib/error-handling.ts:150
 Error: 🚨 DooDates Error: {
@@ -62,16 +64,19 @@ Error: 🚨 DooDates Error: {
 name: 'DooDatesError',
 stack: 'DooDatesError: Gemini model not initialized\n' +
 '    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
-```
+````
+
       ```
+
 File: src/lib/error-handling.ts:136
 Error: 🚨 DooDates Error: {
 
 🚨 DooDates Error: {
 name: 'DooDatesError',
 stack: 'DooDatesError: Poll not found\n' +
-'    at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n' +
-```
+' at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n' +
+
+````
       ```
 File: src/lib/error-handling.ts:103
 Error: 🚨 DooDates Error: {
@@ -81,8 +86,10 @@ message: 'API Error',
 name: 'DooDatesError',
 stack: 'DooDatesError: API Error\n' +
 '    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
-```
+````
+
       ```
+
 File: src/lib/error-handling.ts:103
 Error: 🚨 DooDates Error: {
 
@@ -90,7 +97,8 @@ Error: 🚨 DooDates Error: {
 message: 'API Error',
 name: 'DooDatesError',
 stack: 'DooDatesError: API Error\n' +
-'    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
+' at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
+
 ```
       *... et 5 autre(s) erreur(s)*
 
@@ -135,3 +143,4 @@ Aucun échec détecté dans les 7 derniers jours.
 
 Des échecs ont été détectés dans les 24 dernières heures. Consultez les sections ci-dessus pour plus de détails.
 
+```

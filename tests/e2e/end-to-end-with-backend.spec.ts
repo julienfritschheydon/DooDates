@@ -24,40 +24,53 @@
  * Couverture : 7 tests de workflows complets
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
-import { v4 as uuidv4 } from 'uuid';
-import { setupGeminiMock } from './global-setup';
-import { mockSupabaseAuth, authenticateWithSupabase } from './utils';
+import { test, expect, Page, BrowserContext } from "@playwright/test";
+import { v4 as uuidv4 } from "uuid";
+import { setupGeminiMock } from "./global-setup";
+import { mockSupabaseAuth, authenticateWithSupabase } from "./utils";
 import {
   getTestSupabaseClient,
   cleanupTestData,
   generateTestEmail,
-  signInTestUser
-} from './helpers/supabase-test-helpers';
+  signInTestUser,
+} from "./helpers/supabase-test-helpers";
 import {
   authenticateUserInPage,
   ensureSessionAfterReload,
   getSessionFromPage,
   waitForConversationsInDashboard,
   openConversationFromDashboard,
-} from './helpers/auth-helpers';
-import { navigateToWorkspace, sendChatMessage, getLatestConversationId, waitForConversationCreated } from './helpers/chat-helpers';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForCondition, waitForChatInputReady } from './helpers/wait-helpers';
+} from "./helpers/auth-helpers";
+import {
+  navigateToWorkspace,
+  sendChatMessage,
+  getLatestConversationId,
+  waitForConversationCreated,
+} from "./helpers/chat-helpers";
+import {
+  waitForNetworkIdle,
+  waitForReactStable,
+  waitForElementReady,
+  waitForCondition,
+  waitForChatInputReady,
+} from "./helpers/wait-helpers";
 
 // Ces tests d'intégration backend ne fonctionnent correctement que sur Chromium
-test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
-  test.skip(({ browserName }) => browserName !== 'chromium', 'Backend integration tests optimized for Chrome');
+test.describe("Tests Supabase Automatisés (anciennement manuels)", () => {
+  test.skip(
+    ({ browserName }) => browserName !== "chromium",
+    "Backend integration tests optimized for Chrome",
+  );
 
   let supabase: ReturnType<typeof getTestSupabaseClient>;
   let testUserId: string;
   let testEmail: string;
-  let testPassword: string = 'TestPassword123!';
+  let testPassword: string = "TestPassword123!";
   let testConversationIds: string[] = [];
-
 
   test.beforeAll(async () => {
     supabase = getTestSupabaseClient();
-    testEmail = generateTestEmail('supabase-test');
+    testEmail = generateTestEmail("supabase-test");
 
     // Créer un utilisateur de test
     const { data, error } = await supabase.auth.signUp({
@@ -65,7 +78,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       password: testPassword,
     });
 
-    if (error && !error.message.includes('already registered')) {
+    if (error && !error.message.includes("already registered")) {
       throw new Error(`Failed to create test user: ${error.message}`);
     }
 
@@ -93,7 +106,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -110,11 +123,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // Nettoyer les conversations créées pendant les tests
     if (testUserId && testConversationIds.length > 0) {
       for (const convId of testConversationIds) {
-        await supabase
-          .from('conversations')
-          .delete()
-          .eq('id', convId)
-          .eq('user_id', testUserId);
+        await supabase.from("conversations").delete().eq("id", convId).eq("user_id", testUserId);
       }
       testConversationIds = [];
     }
@@ -134,16 +143,16 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier message_count mis à jour
    * - Vérifier cache localStorage
    */
-  test('2. Test ajout de messages', async ({ page, browserName }) => {
+  test("2. Test ajout de messages", async ({ page, browserName }) => {
     // Se connecter
     await mockSupabaseAuth(page, { userId: testUserId, email: testEmail });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
     // Naviguer vers workspace et envoyer un message (utilise les helpers)
     await navigateToWorkspace(page, browserName);
-    await sendChatMessage(page, 'Premier message de test');
+    await sendChatMessage(page, "Premier message de test");
 
     // Attendre que le message soit traité et sauvegardé
     await waitForNetworkIdle(page, { browserName });
@@ -158,20 +167,20 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         page,
         async () => {
           const { data: recentConversations } = await supabase
-            .from('conversations')
-            .select('id')
-            .eq('user_id', testUserId)
-            .order('created_at', { ascending: false })
+            .from("conversations")
+            .select("id")
+            .eq("user_id", testUserId)
+            .order("created_at", { ascending: false })
             .limit(1);
           return !!(recentConversations && recentConversations.length > 0);
         },
-        { browserName, timeout: 5000 }
+        { browserName, timeout: 5000 },
       );
       const { data: recentConversations } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('user_id', testUserId)
-        .order('created_at', { ascending: false })
+        .from("conversations")
+        .select("id")
+        .eq("user_id", testUserId)
+        .order("created_at", { ascending: false })
         .limit(1);
 
       if (recentConversations && recentConversations.length > 0) {
@@ -180,7 +189,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     }
 
     if (!conversationId) {
-      console.warn('Impossible de trouver l\'ID de conversation - peut nécessiter plus de temps pour la sauvegarde');
+      console.warn(
+        "Impossible de trouver l'ID de conversation - peut nécessiter plus de temps pour la sauvegarde",
+      );
       test.skip();
       return;
     }
@@ -188,7 +199,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     testConversationIds.push(conversationId);
 
     // Ajouter plusieurs messages supplémentaires (utilise le helper)
-    const messages = ['Deuxième message', 'Troisième message', 'Quatrième message'];
+    const messages = ["Deuxième message", "Troisième message", "Quatrième message"];
     for (const msg of messages) {
       await sendChatMessage(page, msg);
       await waitForReactStable(page, { browserName });
@@ -207,17 +218,17 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     while (attempts < maxAttempts) {
       // Chercher la conversation la plus récente de cet utilisateur (plus fiable que par ID)
       const resultRecent = await supabase
-        .from('conversations')
-        .select('messages, message_count, id')
-        .eq('user_id', testUserId)
-        .order('created_at', { ascending: false })
+        .from("conversations")
+        .select("messages, message_count, id")
+        .eq("user_id", testUserId)
+        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(); // Utiliser maybeSingle() pour éviter l'erreur si pas trouvé
 
       conversation = resultRecent.data;
       error = resultRecent.error;
 
-      if (conversation || (error && error.code !== 'PGRST116')) {
+      if (conversation || (error && error.code !== "PGRST116")) {
         break; // Trouvé ou erreur autre que "pas trouvé"
       }
 
@@ -230,21 +241,20 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     const localStorageData = await page.evaluate((convId) => {
       const keys = Object.keys(localStorage);
       // Chercher différentes clés possibles
-      const convKey = keys.find(k =>
-        k.includes(convId) ||
-        k.startsWith('conversation_') ||
-        k === 'doodates_conversations'
+      const convKey = keys.find(
+        (k) =>
+          k.includes(convId) || k.startsWith("conversation_") || k === "doodates_conversations",
       );
 
       if (convKey) {
         const value = localStorage.getItem(convKey);
         // Si c'est la clé principale, chercher la conversation dedans
-        if (convKey === 'doodates_conversations' && value) {
+        if (convKey === "doodates_conversations" && value) {
           try {
             const convs = JSON.parse(value);
             const found = convs.find((c: any) => c.id === convId || c.id?.includes(convId));
             return found ? JSON.stringify(found) : value;
-          } catch { }
+          } catch {}
         }
         return value;
       }
@@ -264,7 +274,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         // Peut être un tableau de conversations
         const convs = JSON.parse(localStorageData);
         if (Array.isArray(convs)) {
-          const found = convs.find((c: any) => c.id === conversationId || c.id?.includes(conversationId));
+          const found = convs.find(
+            (c: any) => c.id === conversationId || c.id?.includes(conversationId),
+          );
           if (found && found.messages && found.messages.length >= 4) {
             return; // Test réussi
           }
@@ -290,7 +302,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // (le test peut passer même si la sauvegarde est différée)
     const messageCount = await page.evaluate(() => {
       // Compter les messages visibles dans l'interface
-      const messageElements = document.querySelectorAll('[data-testid*="message"], .message, [class*="Message"]');
+      const messageElements = document.querySelectorAll(
+        '[data-testid*="message"], .message, [class*="Message"]',
+      );
       return messageElements.length;
     });
 
@@ -311,24 +325,24 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier migration dans Supabase
    * - Vérifier messages migrés
    */
-  test('4. Test migration automatique localStorage → Supabase', async ({ page, browserName }) => {
+  test("4. Test migration automatique localStorage → Supabase", async ({ page, browserName }) => {
     // Créer des conversations en mode guest (localStorage uniquement)
     // Format attendu par ConversationStorageSimple
     const guestConversations = [
       {
-        id: 'guest-conv-1',
-        title: 'Conversation guest 1',
+        id: "guest-conv-1",
+        title: "Conversation guest 1",
         userId: null, // Important : userId null pour être considéré comme guest
-        status: 'active',
+        status: "active",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         messageCount: 1,
       },
       {
-        id: 'guest-conv-2',
-        title: 'Conversation guest 2',
+        id: "guest-conv-2",
+        title: "Conversation guest 2",
         userId: null,
-        status: 'active',
+        status: "active",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         messageCount: 1,
@@ -338,35 +352,37 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // Stocker dans le format attendu par ConversationStorageSimple (clé 'doodates_conversations')
     await page.evaluate((convs) => {
       // Stocker les conversations dans le format attendu
-      const existingConvs = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
+      const existingConvs = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
       const allConvs = [...existingConvs, ...convs];
-      localStorage.setItem('doodates_conversations', JSON.stringify(allConvs));
+      localStorage.setItem("doodates_conversations", JSON.stringify(allConvs));
 
       // Stocker aussi les messages pour chaque conversation
       convs.forEach((conv: any) => {
-        const messages = [{
-          id: `msg-${conv.id}-1`,
-          conversationId: conv.id,
-          content: `Message pour ${conv.title}`,
-          role: 'user',
-          timestamp: new Date().toISOString(),
-        }];
+        const messages = [
+          {
+            id: `msg-${conv.id}-1`,
+            conversationId: conv.id,
+            content: `Message pour ${conv.title}`,
+            role: "user",
+            timestamp: new Date().toISOString(),
+          },
+        ];
         localStorage.setItem(`messages_${conv.id}`, JSON.stringify(messages));
       });
     }, guestConversations);
 
     // Écouter les logs de console pour détecter la migration
     const consoleLogs: string[] = [];
-    page.on('console', (msg) => {
+    page.on("console", (msg) => {
       const text = msg.text();
-      if (text.includes('migration') || text.includes('Migration') || text.includes('migrate')) {
+      if (text.includes("migration") || text.includes("Migration") || text.includes("migrate")) {
         consoleLogs.push(text);
       }
     });
 
     // Se connecter avec un compte (déclenche la migration automatique)
     await mockSupabaseAuth(page, { userId: testUserId, email: testEmail });
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: "networkidle" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -383,10 +399,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     const maxMigrationAttempts = 10;
 
     for (let attempt = 0; attempt < maxMigrationAttempts; attempt++) {
-      const { data } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', testUserId);
+      const { data } = await supabase.from("conversations").select("*").eq("user_id", testUserId);
 
       if (data && data.length > 0) {
         migratedConversations = data;
@@ -401,11 +414,13 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     if (!migratedConversations || migratedConversations.length === 0) {
       // Vérifier que les conversations guest sont toujours dans localStorage (migration non automatique)
       const stillInLocalStorage = await page.evaluate(() => {
-        return Object.keys(localStorage).some(k => k.includes('guest-conv'));
+        return Object.keys(localStorage).some((k) => k.includes("guest-conv"));
       });
 
       if (stillInLocalStorage) {
-        console.warn('Migration non automatique détectée - conversations toujours dans localStorage');
+        console.warn(
+          "Migration non automatique détectée - conversations toujours dans localStorage",
+        );
         // Accepter ce cas comme valide si la migration n'est pas automatique
         expect(migratedConversations?.length ?? 0).toBeGreaterThanOrEqual(0);
       } else {
@@ -429,7 +444,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     } else {
       // Si migration non automatique, vérifier au moins que les données guest existent toujours
       const guestDataExists = await page.evaluate(() => {
-        return Object.keys(localStorage).some(k => k.includes('guest-conv'));
+        return Object.keys(localStorage).some((k) => k.includes("guest-conv"));
       });
       expect(guestDataExists).toBeTruthy();
     }
@@ -437,20 +452,20 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   /**
    * Test 5: Fusion localStorage + Supabase
-   * 
+   *
    * Ce test vérifie la synchronisation multi-appareils avec Supabase :
    * - Appareil A : Créer une conversation avec authentification réelle
    * - Appareil B : Voir la conversation depuis le dashboard (même compte)
    * - Appareil B : Ajouter un message
    * - Appareil A : Voir le nouveau message après rechargement
    * - Vérifier qu'il n'y a pas de doublons dans Supabase
-   * 
+   *
    * Points clés :
    * - Utilise l'authentification réelle Supabase (pas de mock)
    * - Les deux appareils passent par le dashboard pour charger depuis Supabase
    * - La session persiste après reload grâce à l'authentification réelle
    */
-  test('5. Test fusion localStorage + Supabase', async ({ browser }) => {
+  test("5. Test fusion localStorage + Supabase", async ({ browser }) => {
     test.setTimeout(120000); // 2 minutes pour Firefox qui peut être plus lent
     const contextA = await browser.newContext();
     const contextB = await browser.newContext();
@@ -462,9 +477,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await setupGeminiMock(pageB);
 
       // ===== APPAREIL A : Créer une conversation =====
-      await pageA.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(pageA, { browserName: 'chromium' });
-      await waitForReactStable(pageA, { browserName: 'chromium' });
+      await pageA.goto("/DooDates/workspace", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(pageA, { browserName: "chromium" });
+      await waitForReactStable(pageA, { browserName: "chromium" });
 
       // Authentifier avec compte réel Supabase (helper gère la désactivation E2E)
       await authenticateUserInPage(pageA, testEmail, testPassword);
@@ -473,10 +488,13 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await ensureSessionAfterReload(pageA, testEmail, testPassword, testUserId);
 
       // Créer une conversation avec un message concret (utilise les helpers)
-      await navigateToWorkspace(pageA, 'chromium');
-      await sendChatMessage(pageA, 'Je veux organiser une réunion d\'équipe la semaine prochaine');
+      await navigateToWorkspace(pageA, "chromium");
+      await sendChatMessage(pageA, "Je veux organiser une réunion d'équipe la semaine prochaine");
       // Attendre réponse IA et sauvegarde
-      await waitForElementReady(pageA, '[data-testid="message"]', { browserName: 'chromium', timeout: 10000 });
+      await waitForElementReady(pageA, '[data-testid="message"]', {
+        browserName: "chromium",
+        timeout: 10000,
+      });
 
       // Récupérer l'ID de la conversation créée (utilise le helper)
       let conversationId = await waitForConversationCreated(pageA, 15);
@@ -484,10 +502,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       // Si pas trouvé dans localStorage, chercher dans Supabase
       if (!conversationId) {
         const { data: recentConversations } = await supabase
-          .from('conversations')
-          .select('id')
-          .eq('user_id', testUserId)
-          .order('created_at', { ascending: false })
+          .from("conversations")
+          .select("id")
+          .eq("user_id", testUserId)
+          .order("created_at", { ascending: false })
           .limit(1);
         if (recentConversations && recentConversations.length > 0) {
           conversationId = recentConversations[0].id;
@@ -501,11 +519,11 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       testConversationIds.push(conversationId);
       // Attendre synchronisation complète
-      await waitForNetworkIdle(pageA, { browserName: 'chromium' });
+      await waitForNetworkIdle(pageA, { browserName: "chromium" });
 
       // Vérifier que la conversation a le bon userId (pas "guest")
       const conversationInLocalStorage = await pageA.evaluate((convId) => {
-        const conversationsData = localStorage.getItem('doodates_conversations');
+        const conversationsData = localStorage.getItem("doodates_conversations");
         if (conversationsData) {
           try {
             const conversations = JSON.parse(conversationsData);
@@ -521,9 +539,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       expect(conversationInLocalStorage?.userId).toBe(testUserId);
 
       // ===== APPAREIL B : Voir la conversation depuis le dashboard =====
-      await pageB.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(pageB, { browserName: 'chromium' });
-      await waitForReactStable(pageB, { browserName: 'chromium' });
+      await pageB.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(pageB, { browserName: "chromium" });
+      await waitForReactStable(pageB, { browserName: "chromium" });
 
       // Authentifier avec le même compte (helper gère la désactivation E2E)
       await authenticateUserInPage(pageB, testEmail, testPassword);
@@ -547,14 +565,22 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       // Ouvrir la conversation depuis le dashboard
       // Utiliser une approche plus robuste : cliquer sur la première conversation
       // Utiliser une approche plus robuste : cliquer sur la première conversation
-      let firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
+      let firstConversation = pageB
+        .locator(
+          '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+        )
+        .first();
       try {
         await expect(firstConversation).toBeVisible({ timeout: 5000 });
       } catch (e) {
-        console.log('Conversation not found, reloading...');
-        await pageB.reload({ waitUntil: 'domcontentloaded' });
+        console.log("Conversation not found, reloading...");
+        await pageB.reload({ waitUntil: "domcontentloaded" });
         await waitForConversationsInDashboard(pageB);
-        firstConversation = pageB.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
+        firstConversation = pageB
+          .locator(
+            '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+          )
+          .first();
         await expect(firstConversation).toBeVisible({ timeout: 10000 });
       }
       await firstConversation.click();
@@ -563,37 +589,47 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await pageB.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
       // Vérifier que nous ne sommes pas sur la page 404
-      await expect(pageB.getByRole("heading", { name: '404' })).toHaveCount(0);
+      await expect(pageB.getByRole("heading", { name: "404" })).toHaveCount(0);
 
       // Vérifier que la page agent est bien montée
-      await expect(pageB.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
+      await expect(pageB.getByTestId("agent-page-root")).toBeVisible({ timeout: 10000 });
 
       // Vérifier que le chat est chargé (utilise helper robuste avec fallback agent-page-root)
-      const messageInputB = await waitForChatInputReady(pageB, 'chromium', { timeout: 10000 });
+      const messageInputB = await waitForChatInputReady(pageB, "chromium", { timeout: 10000 });
       // Attendre chargement messages depuis Supabase
-      await waitForElementReady(pageB, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
+      await waitForElementReady(pageB, '[data-testid="message"]', {
+        browserName: "chromium",
+        timeout: 5000,
+      });
 
       // Vérifier que les messages sont présents
       const hasMessages = await pageB.evaluate(() => {
-        const messageElements = Array.from(document.querySelectorAll('[data-testid="message"], .message, [class*="message"]'));
+        const messageElements = Array.from(
+          document.querySelectorAll('[data-testid="message"], .message, [class*="message"]'),
+        );
         const bodyText = document.body.innerText.toLowerCase();
-        return messageElements.length > 0 ||
-          bodyText.includes('réunion') ||
-          bodyText.includes('équipe') ||
-          bodyText.includes('organiser');
+        return (
+          messageElements.length > 0 ||
+          bodyText.includes("réunion") ||
+          bodyText.includes("équipe") ||
+          bodyText.includes("organiser")
+        );
       });
       expect(hasMessages).toBeTruthy();
 
       // Ajouter un message depuis l'appareil B
-      await messageInputB.fill('Peux-tu ajouter une question sur le format de la réunion ?');
-      await messageInputB.press('Enter');
+      await messageInputB.fill("Peux-tu ajouter une question sur le format de la réunion ?");
+      await messageInputB.press("Enter");
       // Attendre réponse IA
-      await waitForElementReady(pageB, '[data-testid="message"]', { browserName: 'chromium', timeout: 10000 });
+      await waitForElementReady(pageB, '[data-testid="message"]', {
+        browserName: "chromium",
+        timeout: 10000,
+      });
 
       // ===== APPAREIL A : Vérifier la synchronisation =====
-      await pageA.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(pageA, { browserName: 'chromium' });
-      await waitForReactStable(pageA, { browserName: 'chromium' });
+      await pageA.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(pageA, { browserName: "chromium" });
+      await waitForReactStable(pageA, { browserName: "chromium" });
 
       // Attendre que les conversations soient chargées
       const conversationsLoadedA = await waitForConversationsInDashboard(pageA);
@@ -601,16 +637,20 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // Ouvrir la conversation depuis le dashboard (cliquer sur la première carte disponible)
       let firstConversationA = pageA
-        .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+        .locator(
+          '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+        )
         .first();
       try {
         await expect(firstConversationA).toBeVisible({ timeout: 5000 });
       } catch (e) {
         // Si aucune carte n'est visible immédiatement, recharger et réessayer
-        await pageA.reload({ waitUntil: 'domcontentloaded' });
+        await pageA.reload({ waitUntil: "domcontentloaded" });
         await waitForConversationsInDashboard(pageA);
         firstConversationA = pageA
-          .locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item')
+          .locator(
+            '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+          )
           .first();
         await expect(firstConversationA).toBeVisible({ timeout: 10000 });
       }
@@ -619,16 +659,21 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       // Attendre la navigation vers workspace
       await pageA.waitForURL(/\/date-polls\/workspace\/date\?conversationId=/, { timeout: 10000 });
 
-       // Vérifier que nous ne sommes pas sur la page 404
-      await expect(pageA.getByRole("heading", { name: '404' })).toHaveCount(0);
+      // Vérifier que nous ne sommes pas sur la page 404
+      await expect(pageA.getByRole("heading", { name: "404" })).toHaveCount(0);
 
       // Vérifier que la page agent est bien montée
-      await expect(pageA.getByTestId('agent-page-root')).toBeVisible({ timeout: 10000 });
+      await expect(pageA.getByTestId("agent-page-root")).toBeVisible({ timeout: 10000 });
 
       // Vérifier que le chat est chargé (utilise helper robuste avec fallback agent-page-root)
-      const messageInputARefresh = await waitForChatInputReady(pageA, 'chromium', { timeout: 10000 });
+      const messageInputARefresh = await waitForChatInputReady(pageA, "chromium", {
+        timeout: 10000,
+      });
       // Attendre chargement messages depuis Supabase
-      await waitForElementReady(pageA, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
+      await waitForElementReady(pageA, '[data-testid="message"]', {
+        browserName: "chromium",
+        timeout: 5000,
+      });
 
       // Vérifier que le nouveau message de l'appareil B apparaît
       let messageBVisible = false;
@@ -637,7 +682,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       while (!messageBVisible && messageAttempts < maxMessageAttempts) {
         const hasMessage = await pageA.evaluate(() => {
           const bodyText = document.body.innerText.toLowerCase();
-          return bodyText.includes('format') && bodyText.includes('réunion');
+          return bodyText.includes("format") && bodyText.includes("réunion");
         });
 
         if (hasMessage) {
@@ -645,7 +690,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
           break;
         }
 
-        await waitForReactStable(pageA, { browserName: 'chromium' });
+        await waitForReactStable(pageA, { browserName: "chromium" });
         messageAttempts++;
       }
 
@@ -653,10 +698,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       // Vérifier qu'il n'y a pas de doublons dans Supabase
       const { data: conversations } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('id', conversationId)
-        .eq('user_id', testUserId);
+        .from("conversations")
+        .select("*")
+        .eq("id", conversationId)
+        .eq("user_id", testUserId);
 
       expect(conversations).toBeTruthy();
       expect(conversations!.length).toBe(1); // Une seule conversation, pas de doublon
@@ -674,37 +719,45 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Réactiver internet
    * - Vérifier synchronisation
    */
-  test('6. Test fallback localStorage si Supabase échoue', async ({ page, browserName }) => {
+  test("6. Test fallback localStorage si Supabase échoue", async ({ page, browserName }) => {
     // Note: Ce test utilise mockSupabaseAuth car il teste le fallback localStorage
     // quand Supabase n'est pas disponible (mode offline)
     await mockSupabaseAuth(page, { userId: testUserId, email: testEmail });
 
     // Créer une conversation en mode offline
-    const messageInput = page.locator('input[placeholder*="message"], textarea[placeholder*="message"], input[type="text"]').first();
-    await messageInput.fill('Message en mode offline');
-    await messageInput.press('Enter');
+    const messageInput = page
+      .locator(
+        'input[placeholder*="message"], textarea[placeholder*="message"], input[type="text"]',
+      )
+      .first();
+    await messageInput.fill("Message en mode offline");
+    await messageInput.press("Enter");
     // Attendre plus longtemps pour la sauvegarde locale
     await waitForCondition(
       page,
       () => {
         const keys = Object.keys(localStorage);
-        return keys.some(k => k.startsWith('conversation_') || k.includes('doodates'));
+        return keys.some((k) => k.startsWith("conversation_") || k.includes("doodates"));
       },
-      { browserName, timeout: 5000 }
+      { browserName, timeout: 5000 },
     );
 
     // Vérifier sauvegarde localStorage
     const localStorageData = await page.evaluate(() => {
       const keys = Object.keys(localStorage);
-      const convKey = keys.find(k => k.startsWith('conversation_'));
+      const convKey = keys.find((k) => k.startsWith("conversation_"));
       return convKey ? localStorage.getItem(convKey) : null;
     });
 
     // En mode offline, la conversation peut être sauvegardée différemment
     // Vérifier qu'il y a au moins quelque chose dans localStorage
-    const hasLocalStorageData = localStorageData !== null || await page.evaluate(() => {
-      return Object.keys(localStorage).some(k => k.includes('conversation') || k.includes('doodates'));
-    });
+    const hasLocalStorageData =
+      localStorageData !== null ||
+      (await page.evaluate(() => {
+        return Object.keys(localStorage).some(
+          (k) => k.includes("conversation") || k.includes("doodates"),
+        );
+      }));
 
     expect(hasLocalStorageData).toBeTruthy();
     if (localStorageData) {
@@ -718,17 +771,17 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await waitForNetworkIdle(page, { browserName });
 
     // Rafraîchir la page pour déclencher la synchronisation
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: "networkidle" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     await waitForNetworkIdle(page, { browserName });
 
     // Vérifier synchronisation dans Supabase
     const { data: conversations } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('user_id', testUserId)
-      .order('updated_at', { ascending: false })
+      .from("conversations")
+      .select("*")
+      .eq("user_id", testUserId)
+      .order("updated_at", { ascending: false })
       .limit(1);
 
     expect(conversations).toBeTruthy();
@@ -740,17 +793,17 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   /**
    * Test 7: Multi-appareils (CRITIQUE)
-   * 
+   *
    * NOTE: Ce test est redondant avec le test 5 qui teste déjà la synchronisation multi-appareils
    * de manière plus complète (via le dashboard, flux utilisateur réel).
    * Le test 5 couvre :
    * - La découverte de conversation depuis le dashboard
    * - La synchronisation des messages entre appareils
    * - La vérification des doublons
-   * 
+   *
    * Ce test est donc désactivé pour éviter la redondance.
    */
-  test.skip('7. Test multi-appareils (CRITIQUE)', async ({ browser }) => {
+  test.skip("7. Test multi-appareils (CRITIQUE)", async ({ browser }) => {
     // Test désactivé - redondant avec le test 5
   });
 
@@ -761,8 +814,8 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Se déconnecter/reconnecter
    * - Vérifier persistence
    */
-  test('8. Test mise à jour conversation', async ({ page, browserName }) => {
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+  test("8. Test mise à jour conversation", async ({ page, browserName }) => {
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -774,7 +827,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Créer une conversation (utilise les helpers)
     await navigateToWorkspace(page, browserName);
-    await sendChatMessage(page, 'Message pour test mise à jour');
+    await sendChatMessage(page, "Message pour test mise à jour");
     await waitForNetworkIdle(page, { browserName });
 
     // Attendre que la conversation soit créée (utilise le helper)
@@ -787,10 +840,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         const { data } = await supabase
-          .from('conversations')
-          .select('id')
-          .eq('user_id', testUserId)
-          .order('created_at', { ascending: false })
+          .from("conversations")
+          .select("id")
+          .eq("user_id", testUserId)
+          .order("created_at", { ascending: false })
           .limit(1);
 
         if (data && data.length > 0) {
@@ -828,10 +881,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     while (!conversation && attempts < maxAttempts) {
       await waitForReactStable(page, { browserName });
       const result = await supabase
-        .from('conversations')
-        .select('title, is_favorite')
-        .eq('id', conversationId)
-        .eq('user_id', testUserId)
+        .from("conversations")
+        .select("title, is_favorite")
+        .eq("id", conversationId)
+        .eq("user_id", testUserId)
         .maybeSingle();
       conversation = result.data;
       attempts++;
@@ -846,14 +899,14 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // Se déconnecter
     await page.evaluate(() => {
       const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.includes('auth-token')) {
+      keys.forEach((key) => {
+        if (key.includes("auth-token")) {
           localStorage.removeItem(key);
         }
       });
     });
 
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -864,10 +917,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Vérifier persistence
     const { data: persistedConversation } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('id', conversationId)
-      .eq('user_id', testUserId)
+      .from("conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .eq("user_id", testUserId)
       .single();
 
     expect(persistedConversation).toBeTruthy();
@@ -881,8 +934,8 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier localStorage
    * - Vérifier non réapparition
    */
-  test('9. Test suppression conversation', async ({ page, browserName }) => {
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+  test("9. Test suppression conversation", async ({ page, browserName }) => {
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -894,7 +947,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Créer une conversation (utilise les helpers)
     await navigateToWorkspace(page, browserName);
-    await sendChatMessage(page, 'Message pour test suppression');
+    await sendChatMessage(page, "Message pour test suppression");
     await waitForNetworkIdle(page, { browserName });
 
     // Attendre que la conversation soit créée (utilise le helper)
@@ -906,20 +959,20 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         page,
         async () => {
           const { data: recentConversations } = await supabase
-            .from('conversations')
-            .select('id')
-            .eq('user_id', testUserId)
-            .order('created_at', { ascending: false })
+            .from("conversations")
+            .select("id")
+            .eq("user_id", testUserId)
+            .order("created_at", { ascending: false })
             .limit(1);
           return !!(recentConversations && recentConversations.length > 0);
         },
-        { browserName, timeout: 5000 }
+        { browserName, timeout: 5000 },
       );
       const { data: recentConversations } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('user_id', testUserId)
-        .order('created_at', { ascending: false })
+        .from("conversations")
+        .select("id")
+        .eq("user_id", testUserId)
+        .order("created_at", { ascending: false })
         .limit(1);
 
       if (recentConversations && recentConversations.length > 0) {
@@ -937,10 +990,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     while (!beforeDelete && attempts < maxAttempts) {
       await waitForReactStable(page, { browserName });
       const result = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('id', conversationId)
-        .eq('user_id', testUserId)
+        .from("conversations")
+        .select("*")
+        .eq("id", conversationId)
+        .eq("user_id", testUserId)
         .maybeSingle();
       beforeDelete = result.data;
       attempts++;
@@ -954,17 +1007,17 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Supprimer la conversation (via l'interface ou directement)
     await supabase
-      .from('conversations')
+      .from("conversations")
       .delete()
-      .eq('id', conversationId)
-      .eq('user_id', testUserId);
+      .eq("id", conversationId)
+      .eq("user_id", testUserId);
 
     // Vérifier Supabase
     const { data: afterDelete } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('id', conversationId)
-      .eq('user_id', testUserId)
+      .from("conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .eq("user_id", testUserId)
       .single();
 
     expect(afterDelete).toBeNull();
@@ -978,12 +1031,15 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // C'est acceptable si Supabase est la source de vérité
 
     // Rafraîchir et vérifier non réapparition
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     await waitForNetworkIdle(page, { browserName });
 
-    const messageVisible = await page.locator(`text=Message pour test suppression`).isVisible({ timeout: 2000 }).catch(() => false);
+    const messageVisible = await page
+      .locator(`text=Message pour test suppression`)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     expect(messageVisible).toBeFalsy();
   });
 
@@ -992,12 +1048,12 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Créer conversation + messages
    * - Attendre que le titre soit généré automatiquement (debounce ~1.5s)
    * - Vérifier que le titre existe dans localStorage
-   * 
+   *
    * Note: Ce test vérifie uniquement la génération du titre, pas sa sauvegarde dans Supabase
    * (la sauvegarde est testée dans d'autres tests)
    */
-  test('10. Test génération automatique titre', async ({ page, browserName }) => {
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+  test("10. Test génération automatique titre", async ({ page, browserName }) => {
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1009,9 +1065,12 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Créer conversation + messages (utilise les helpers)
     await navigateToWorkspace(page, browserName);
-    await sendChatMessage(page, 'Je veux organiser une réunion la semaine prochaine');
+    await sendChatMessage(page, "Je veux organiser une réunion la semaine prochaine");
     // Attendre réponse IA
-    await waitForElementReady(page, '[data-testid="chat-message"]', { browserName, timeout: 10000 });
+    await waitForElementReady(page, '[data-testid="chat-message"]', {
+      browserName,
+      timeout: 10000,
+    });
 
     // Attendre que la conversation soit créée (utilise le helper)
     const conversationId = await waitForConversationCreated(page, 15);
@@ -1033,12 +1092,14 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await waitForReactStable(page, { browserName });
 
       const conversationData = await page.evaluate((convId) => {
-        const conversationsData = localStorage.getItem('doodates_conversations');
+        const conversationsData = localStorage.getItem("doodates_conversations");
         if (conversationsData) {
           try {
             const conversations = JSON.parse(conversationsData);
             const conversation = conversations.find((c: any) => c.id === convId);
-            return conversation ? { title: conversation.title, titleHistory: conversation.title_history } : null;
+            return conversation
+              ? { title: conversation.title, titleHistory: conversation.title_history }
+              : null;
           } catch {
             return null;
           }
@@ -1046,10 +1107,10 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
         return null;
       }, conversationId);
 
-      if (conversationData && conversationData.title && conversationData.title.trim() !== '') {
+      if (conversationData && conversationData.title && conversationData.title.trim() !== "") {
         titleGenerated = true;
         expect(conversationData.title).toBeTruthy();
-        expect(conversationData.title).not.toBe('');
+        expect(conversationData.title).not.toBe("");
 
         // Vérifier historique si disponible
         if (conversationData.titleHistory) {
@@ -1070,11 +1131,11 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier uniquement dans localStorage
    * - Vérifier PAS dans Supabase
    */
-  test('11. Test mode guest', async ({ page, browserName }) => {
+  test("11. Test mode guest", async ({ page, browserName }) => {
     // Ne pas se connecter - rester en mode guest
     // Créer une conversation en mode guest (utilise les helpers)
     await navigateToWorkspace(page, browserName);
-    await sendChatMessage(page, 'Message guest');
+    await sendChatMessage(page, "Message guest");
     // Attendre que le message soit traité
     await waitForNetworkIdle(page, { browserName });
 
@@ -1082,35 +1143,37 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     const localStorageData = await page.evaluate(() => {
       const keys = Object.keys(localStorage);
       // Chercher différentes clés possibles pour les conversations guest
-      const convKey = keys.find(k =>
-        k.startsWith('conversation_') ||
-        k.includes('doodates_conversations') ||
-        k.includes('guest')
+      const convKey = keys.find(
+        (k) =>
+          k.startsWith("conversation_") ||
+          k.includes("doodates_conversations") ||
+          k.includes("guest"),
       );
       return convKey ? localStorage.getItem(convKey) : null;
     });
 
     // En mode guest, les données peuvent être stockées différemment
     // Vérifier qu'il y a au moins des données dans localStorage
-    const hasGuestData = localStorageData !== null || await page.evaluate(() => {
-      return Object.keys(localStorage).some(k =>
-        k.includes('conversation') ||
-        k.includes('doodates') ||
-        k.includes('guest')
-      );
-    });
+    const hasGuestData =
+      localStorageData !== null ||
+      (await page.evaluate(() => {
+        return Object.keys(localStorage).some(
+          (k) => k.includes("conversation") || k.includes("doodates") || k.includes("guest"),
+        );
+      }));
 
     expect(hasGuestData).toBeTruthy();
 
     // Vérifier PAS dans Supabase (devrait être vide ou avec user_id = 'guest')
     const { data: conversations } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('user_id', testUserId);
+      .from("conversations")
+      .select("*")
+      .eq("user_id", testUserId);
 
     // Les conversations guest ne devraient PAS être dans Supabase avec notre testUserId
     // (elles peuvent être avec user_id = 'guest' ou null, mais pas avec testUserId)
-    const guestConversationsInSupabase = conversations?.filter(c => c.user_id === testUserId) || [];
+    const guestConversationsInSupabase =
+      conversations?.filter((c) => c.user_id === testUserId) || [];
     expect(guestConversationsInSupabase.length).toBe(0);
   });
 
@@ -1121,9 +1184,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier pagination
    * - Vérifier pas de timeout
    */
-  test('12. Test performance et limites', async ({ page, browserName }) => {
+  test("12. Test performance et limites", async ({ page, browserName }) => {
     await mockSupabaseAuth(page, { userId: testUserId, email: testEmail });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -1138,18 +1201,18 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
         // session_id doit être égal à l'ID de la conversation selon toSupabaseConversation
         const { data, error } = await supabase
-          .from('conversations')
+          .from("conversations")
           .insert({
             id: conversationId,
             user_id: testUserId,
             session_id: conversationId, // Utiliser l'ID comme session_id (comme dans le code)
             title: `Test conversation ${i + 1}`,
-            messages: JSON.stringify([{ content: `Message ${i + 1}`, role: 'user' }]), // Format correct
+            messages: JSON.stringify([{ content: `Message ${i + 1}`, role: "user" }]), // Format correct
             message_count: 1,
-            status: 'active',
+            status: "active",
             first_message: `Message ${i + 1}`,
           })
-          .select('id')
+          .select("id")
           .single();
 
         if (data && !error) {
@@ -1165,7 +1228,9 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Accepter au moins quelques conversations créées (peut échouer si permissions insuffisantes)
     if (createdIds.length === 0) {
-      console.warn('Aucune conversation créée - peut nécessiter des permissions Supabase supplémentaires');
+      console.warn(
+        "Aucune conversation créée - peut nécessiter des permissions Supabase supplémentaires",
+      );
       test.skip();
       return;
     }
@@ -1174,7 +1239,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
     // Mesurer le temps de chargement
     const startTime = Date.now();
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: "networkidle" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     const loadTime = Date.now() - startTime;
@@ -1189,4 +1254,3 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     // mais on peut vérifier que la page charge sans erreur
   });
 });
-

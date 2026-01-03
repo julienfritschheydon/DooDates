@@ -9,12 +9,14 @@
 Le système de quotas guests détectait correctement la limite (5 conversations) mais **ne bloquait pas** la création de nouvelles conversations.
 
 **Symptômes :**
+
 - Dashboard affiche "5/5 crédits utilisés"
 - Mais l'utilisateur peut créer 12+ conversations
 - Journal de consommation enregistre toutes les actions
 - Aucun message d'erreur affiché
 
 **Preuve :**
+
 ```
 Journal de consommation : 12 crédits totaux consommés
 Dashboard : "5/5 crédits utilisés"
@@ -138,7 +140,7 @@ await incrementConversationCreated("guest"); // ✅ Await pour propager l'erreur
   // Détecter si c'est une erreur de quota
   const errorMessage = error instanceof Error ? error.message : String(error);
   const isQuotaError = errorMessage.includes("limit reached") || errorMessage.includes("Credit limit");
-  
+
   logError(
     ErrorFactory.storage(
       isQuotaError ? "Limite de conversations atteinte" : "Erreur dans createConversation",
@@ -172,7 +174,8 @@ try {
   if (errorMessage.includes("limit reached") || errorMessage.includes("Credit limit")) {
     toast({
       title: "Limite atteinte",
-      description: "Vous avez atteint la limite de 5 conversations en mode invité. Créez un compte pour continuer.",
+      description:
+        "Vous avez atteint la limite de 5 conversations en mode invité. Créez un compte pour continuer.",
       variant: "destructive",
     });
   } else {
@@ -229,11 +232,13 @@ try {
 ## Impact
 
 **Avant le fix :**
+
 - ❌ Utilisateurs guests pouvaient créer 100+ conversations
 - ❌ Contournement facile avec localStorage.clear()
 - ❌ Système de quotas inutile
 
 **Après le fix :**
+
 - ✅ Limite de 5 conversations strictement appliquée
 - ✅ Impossible de contourner avec localStorage.clear()
 - ✅ Message clair à l'utilisateur
@@ -242,20 +247,24 @@ try {
 ## Bug additionnel découvert : Fingerprinting instable
 
 **Problème identifié (10/11/2025) :**
+
 - Le fingerprint change à chaque rechargement (canvas, WebGL, fonts volatiles)
 - Résultat : Nouveau quota créé à chaque fois → contournement facile
 - Preuve : 3 fingerprints différents pour le même navigateur en 30 minutes
 
 **Solution appliquée :**
+
 - **Fallback localStorage** : Stocker `guest_quota_id` en cache
 - **Double vérification** : Chercher par fingerprint, puis par ID si pas trouvé
 - **Mise à jour auto** : Si quota trouvé par ID, mettre à jour le fingerprint
 - **Persistance** : L'ID reste même si localStorage vidé (Supabase conserve)
 
 **Fichiers modifiés :**
+
 - `src/lib/guestQuotaService.ts` - Ajout fallback localStorage (lignes 106-136, 181)
 
 **Résultat :**
+
 - ✅ Quota persiste même si fingerprint change
 - ✅ Impossible de contourner en vidant localStorage (ID reste en base)
 - ✅ Fingerprint mis à jour automatiquement pour améliorer la précision

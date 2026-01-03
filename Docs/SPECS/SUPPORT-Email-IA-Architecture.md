@@ -269,9 +269,7 @@ Les prompts sont envoyés au modèle via `SecureGeminiService`, en incluant :
 {
   "replyText": "...",
   "language": "fr",
-  "references": [
-    { "title": "Créer un sondage de dates", "url": "https://doodates.com/docs/..." }
-  ],
+  "references": [{ "title": "Créer un sondage de dates", "url": "https://doodates.com/docs/..." }],
   "confidence": 0.88
 }
 ```
@@ -399,11 +397,12 @@ Body:
    - Prompt orienté :
 
 > Voici un rapport utilisateur (email) et des extraits de logs. Tu dois :
+>
 > 1. Résumer le bug observé.
 > 2. Formuler des hypothèses de cause technique.
 > 3. Lister les fichiers du projet qui sont probablement concernés.
 
-   - Sortie :
+- Sortie :
 
 ```json
 {

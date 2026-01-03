@@ -6,6 +6,7 @@ Ce document décrit les étapes pour identifier, récupérer et analyser les log
 
 1. **Lister les dernières exécutions**
    Affiche les 5 derniers runs pour repérer celui qui a échoué.
+
    ```bash
    gh run list --limit 5
    ```
@@ -15,24 +16,28 @@ Ce document décrit les étapes pour identifier, récupérer et analyser les log
 
 3. **Récupérer les logs**
    Pour visualiser les logs directement dans le terminal :
+
    ```bash
    gh run view <RUN_ID> --log
    ```
-   
+
    Pour sauvegarder les logs dans un fichier (recommandé pour l'analyse approfondie ou si les logs sont tronqués) :
+
    ```bash
    gh run view <RUN_ID> --log > workflow_log.txt
    ```
 
 4. **Analyser les logs**
    Recherchez les erreurs courantes.
-   
-   *Chercher des erreurs explicites :*
+
+   _Chercher des erreurs explicites :_
+
    ```bash
    grep -i "Error" workflow_log.txt
    ```
-   
-   *Chercher des échecs de tests (Playwright/Vitest) :*
+
+   _Chercher des échecs de tests (Playwright/Vitest) :_
+
    ```bash
    grep -i "failed" workflow_log.txt
    grep -i "Timeout" workflow_log.txt

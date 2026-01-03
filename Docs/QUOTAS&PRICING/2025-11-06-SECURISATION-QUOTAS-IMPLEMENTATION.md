@@ -116,23 +116,28 @@ Pour chaque utilisateur authentifié, un quota par défaut (20 crédits/mois) se
 ## Protection implémentée
 
 ### Couche 1 : Authentification
+
 - ✅ JWT Supabase obligatoire
 - ✅ Impossible d'appeler Edge Function sans compte valide
 
 ### Couche 2 : Quotas en DB (source de vérité)
+
 - ✅ Transaction atomique (FOR UPDATE) = pas de race condition
 - ✅ Vérification + consommation = une seule opération
 - ✅ Rollback automatique en cas d'erreur Gemini API
 
 ### Couche 3 : Rate limiting
+
 - ✅ Par userId : 100 messages/heure (authentifié), 20/heure (invité)
 - ✅ Par IP : 100 req/heure (protection anti-multi-comptes)
 
 ### Couche 4 : Monitoring
+
 - ✅ Logs toutes les requêtes (userId, timestamp, crédits consommés)
 - ✅ Console logs dans Edge Function
 
 ### Couche 5 : Restrictions API externe
+
 - ⚠️ À configurer : Quotas Gemini dans Google Cloud Console
 - ⚠️ À configurer : Alertes si dépassement
 
@@ -160,10 +165,12 @@ Ces fichiers utilisent encore `VITE_GEMINI_API_KEY` mais ne sont pas critiques p
 ## Coûts maîtrisés
 
 **Avant :**
+
 - 1 utilisateur malveillant = illimité = 50-100€/mois
 - Risque : faillite
 
 **Après :**
+
 - 1 utilisateur gratuit = max 20 crédits/mois = 0.01€
 - 1 utilisateur Premium = max 100 crédits/mois = 0.05€
 - Protection contre abus = impossible de bypass
@@ -178,4 +185,3 @@ Ces fichiers utilisent encore `VITE_GEMINI_API_KEY` mais ne sont pas critiques p
 6. ⏳ Supprimer VITE_GEMINI_API_KEY du .env
 7. ⏳ Tester en production
 8. ⏳ Migrer services secondaires (enhanced-gemini, simulation)
-

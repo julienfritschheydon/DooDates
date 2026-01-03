@@ -19,6 +19,7 @@
 **Solution**: Normaliser les noms de mois français avant d'appeler chrono-node
 
 **Tests résolus**:
+
 - `bug1-1`: "Crée un sondage pour un week-end jeux. Ajoute tous les samedis de mars 2026" → Cause: "mars 2026" non détecté
 - `bug1-3`: "Planifie un événement tous les samedis de mai 2026" → Cause: "mai 2026" non détecté
 - `bug1-4`: "Crée un sondage pour les dimanches de décembre 2025" → Cause: "décembre 2025" non détecté (date passée aussi)
@@ -42,6 +43,7 @@
 **Solution**: Détecter "ou" vs "et" dans le prompt. Si "ou" → accepter n'importe quel jour (au moins 1), si "et" → exiger tous les jours
 
 **Tests résolus**:
+
 - `realistic-1`: "Calcule un brunch samedi 23 ou dimanche 24." → Cause: Validation exige les deux jours au lieu d'accepter l'un ou l'autre
 - `realistic-4`: "Bloque un créneau vendredi soir ou samedi matin pour un footing." → Cause: Validation exige les deux jours
 - `realistic-10`: "Trouve un créneau pour un ciné mardi ou mercredi soir." → Cause: Validation exige les deux jours
@@ -64,6 +66,7 @@
 **Solution**: Si le prompt ne mentionne pas explicitement une plage horaire ("entre 8h et 12h"), rendre la validation optionnelle ou plus souple
 
 **Tests résolus**:
+
 - `realistic-1`: "Calcule un brunch samedi 23 ou dimanche 24." → Cause: Pas de plage horaire explicite mais expectedTimeConstraints défini
 - `realistic-3`: "Trouve un après-midi libre la semaine prochaine pour la visite au musée." → Cause: "après-midi" est vague, pas de plage explicite
 - `realistic-5`: "Organise un dîner avec les cousins courant avril, plutôt le week-end." → Cause: Pas de plage horaire explicite
@@ -92,6 +95,7 @@
 **Solution**: Au début de chaque test, vérifier si les dates attendues sont passées et annuler avec message clair
 
 **Tests concernés**:
+
 - `bug1-4`: "Crée un sondage pour les dimanches de décembre 2025" → Date passée (décembre 2025)
 - Tous les tests avec dates en 2025 qui sont maintenant passées
 
@@ -101,15 +105,18 @@
 
 ### 5. Amélioration des prompts Gemini
 
-**Problème identifié**: 
+**Problème identifié**:
+
 - Mots-clés manquants dans le titre
 - Créneaux horaires non générés quand attendus
 
-**Solution**: 
+**Solution**:
+
 - Ajouter hint pour créneaux horaires
 - Forcer inclusion mots-clés dans titre si manquants
 
 **Tests résolus**:
+
 - Tous les tests avec `requiredWords` qui ne sont pas dans le titre généré
 - Tests avec `expectedTimeConstraints` mais pas de `timeSlots` générés
 
@@ -154,4 +161,3 @@
 - **Avant**: 27/57 tests réussis (47%)
 - **Après fixes 1-3**: ~55/57 tests réussis (96%) - estimation optimiste
 - **Après tous les fixes**: ~57/57 tests réussis (100%) - objectif
-

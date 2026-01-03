@@ -10,33 +10,33 @@
 
 ## 📋 Détail des Tests
 
-| Test | Catégorie | Score | Status | Détails |
-|------|-----------|--------|--------|---------|
-| 1 | Réunions | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 2 | Réunions | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 3 | Réunions | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 4 | Réunions | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 5 | Réunions | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 6 | Événements | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 7 | Événements | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 8 | Événements | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 9 | Événements | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 10 | Événements | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 11 | Formations | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 12 | Formations | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 13 | Formations | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 14 | Formations | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 15 | Formations | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 16 | Form Polls - Simples | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 17 | Form Polls - Simples | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 18 | Form Polls - Rating | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 19 | Form Polls - NPS | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 20 | Form Polls - Matrix | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 21 | Form Polls - Validation | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 22 | Form Polls - Mix Types | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 23 | Form Polls - Event | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 24 | Form Polls - Feedback | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
-| 25 | Form Polls - Complex | 0.0/4 | ❌ | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| Test | Catégorie               | Score | Status | Détails                                                                                          |
+| ---- | ----------------------- | ----- | ------ | ------------------------------------------------------------------------------------------------ |
+| 1    | Réunions                | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 2    | Réunions                | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 3    | Réunions                | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 4    | Réunions                | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 5    | Réunions                | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 6    | Événements              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 7    | Événements              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 8    | Événements              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 9    | Événements              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 10   | Événements              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 11   | Formations              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 12   | Formations              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 13   | Formations              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 14   | Formations              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 15   | Formations              | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 16   | Form Polls - Simples    | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 17   | Form Polls - Simples    | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 18   | Form Polls - Rating     | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 19   | Form Polls - NPS        | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 20   | Form Polls - Matrix     | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 21   | Form Polls - Validation | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 22   | Form Polls - Mix Types  | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 23   | Form Polls - Event      | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 24   | Form Polls - Feedback   | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
+| 25   | Form Polls - Complex    | 0.0/4 | ❌     | Échec génération: Erreur HTTP 400: Bad Request - API key not valid. Please pass a valid API key. |
 
 ## 🔍 Analyse des Échecs
 
@@ -189,7 +189,6 @@
 **Score:** 0.0/4
 
 ---
-
 
 ## 📈 Recommandations
 

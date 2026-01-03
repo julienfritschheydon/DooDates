@@ -14,11 +14,7 @@
       "actualWorkers": 6
     },
     "preserveOutput": "always",
-    "reporter": [
-      [
-        "json"
-      ]
-    ],
+    "reporter": [["json"]],
     "reportSlowTests": {
       "max": 5,
       "threshold": 300000
@@ -35,10 +31,7 @@
         "id": "chromium",
         "name": "chromium",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -57,10 +50,7 @@
         "id": "firefox",
         "name": "firefox",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -79,10 +69,7 @@
         "id": "webkit",
         "name": "webkit",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -101,10 +88,7 @@
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -123,10 +107,7 @@
         "id": "Mobile Safari",
         "name": "Mobile Safari",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",

@@ -7,6 +7,7 @@ Le helper `navigateToWorkspace` a été amélioré pour supporter tous les types
 ## Nouvelles fonctionnalités
 
 ### 1. Support de tous les types de workspace
+
 - `date` - `/DooDates/date-polls/workspace/date`
 - `form` - `/DooDates/form-polls/workspace/form`
 - `quizz` - `/DooDates/quizz/workspace`
@@ -14,94 +15,101 @@ Le helper `navigateToWorkspace` a été amélioré pour supporter tous les types
 - `default` - `/DooDates/workspace` (par défaut)
 
 ### 2. Options flexibles
+
 - `addE2EFlag` - Ajoute automatiquement `?e2e-test=true` à l'URL
 - `waitUntil` - Contrôle le moment de considérer la navigation comme terminée
 
 ## Syntaxe
 
 ```typescript
-import { navigateToWorkspace, type WorkspaceType } from './helpers/chat-helpers';
+import { navigateToWorkspace, type WorkspaceType } from "./helpers/chat-helpers";
 
 // Syntaxe complète
 await navigateToWorkspace(page, browserName, workspaceType, options);
 
 // Syntaxes courantes
-await navigateToWorkspace(page, 'chromium', 'default');                    // Workspace principal
-await navigateToWorkspace(page, 'chromium', 'date');                       // Date polls
-await navigateToWorkspace(page, 'chromium', 'form');                       // Form polls
-await navigateToWorkspace(page, 'chromium', 'default', { addE2EFlag: true }); // Avec flag E2E
+await navigateToWorkspace(page, "chromium", "default"); // Workspace principal
+await navigateToWorkspace(page, "chromium", "date"); // Date polls
+await navigateToWorkspace(page, "chromium", "form"); // Form polls
+await navigateToWorkspace(page, "chromium", "default", { addE2EFlag: true }); // Avec flag E2E
 ```
 
 ## Exemples d'utilisation
 
 ### Avant (ancienne méthode)
+
 ```typescript
 // ❌ Ancienne méthode - duplication de code
-await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/workspace", { waitUntil: "domcontentloaded" });
 await waitForPageLoad(page, browserName);
 await waitForChatInput(page);
 
-await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
 await waitForPageLoad(page, browserName);
 await waitForChatInput(page);
 
-await page.goto('/DooDates/form-polls/workspace/form', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/form-polls/workspace/form", { waitUntil: "domcontentloaded" });
 await waitForPageLoad(page, browserName);
 await waitForChatInput(page);
 ```
 
 ### Après (nouvelle méthode)
+
 ```typescript
 // ✅ Nouvelle méthode - unifié et flexible
-import { navigateToWorkspace } from './helpers/chat-helpers';
+import { navigateToWorkspace } from "./helpers/chat-helpers";
 
-await navigateToWorkspace(page, browserName, 'default');                    // Workspace principal
-await navigateToWorkspace(page, browserName, 'date');                       // Date polls
-await navigateToWorkspace(page, browserName, 'form');                       // Form polls
-await navigateToWorkspace(page, browserName, 'quizz');                      // Quizz
-await navigateToWorkspace(page, browserName, 'availability');               // Availability polls
+await navigateToWorkspace(page, browserName, "default"); // Workspace principal
+await navigateToWorkspace(page, browserName, "date"); // Date polls
+await navigateToWorkspace(page, browserName, "form"); // Form polls
+await navigateToWorkspace(page, browserName, "quizz"); // Quizz
+await navigateToWorkspace(page, browserName, "availability"); // Availability polls
 ```
 
 ### Avec options E2E
+
 ```typescript
 // ✅ Avec flag E2E automatique
-await navigateToWorkspace(page, browserName, 'default', { 
+await navigateToWorkspace(page, browserName, "default", {
   addE2EFlag: true,
-  waitUntil: 'networkidle' 
+  waitUntil: "networkidle",
 });
 ```
 
 ## Migration des tests existants
 
 ### 1. Remplacements simples
+
 ```typescript
 // ❌ Ancien code
-await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/workspace", { waitUntil: "domcontentloaded" });
 await waitForNetworkIdle(page, { browserName });
 
 // ✅ Nouveau code
-await navigateToWorkspace(page, browserName, 'default');
+await navigateToWorkspace(page, browserName, "default");
 ```
 
 ### 2. Workspace spécifiques
+
 ```typescript
 // ❌ Ancien code
-await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
 await waitForPageLoad(page, browserName);
 await waitForChatInput(page);
 
 // ✅ Nouveau code
-await navigateToWorkspace(page, browserName, 'date');
+await navigateToWorkspace(page, browserName, "date");
 ```
 
 ### 3. Avec flag E2E
+
 ```typescript
 // ❌ Ancien code
-await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+await page.goto("/DooDates/workspace?e2e-test=true", { waitUntil: "domcontentloaded" });
 await waitForNetworkIdle(page, { browserName });
 
 // ✅ Nouveau code
-await navigateToWorkspace(page, browserName, 'default', { addE2EFlag: true });
+await navigateToWorkspace(page, browserName, "default", { addE2EFlag: true });
 ```
 
 ## Fonctions dépréciées (compatibilité)

@@ -5,6 +5,7 @@
 L'Edge Function `hyper-task` utilisait le modèle **Gemini expérimental** (`gemini-2.0-flash-exp`) qui n'est plus disponible ou nécessite des permissions spéciales.
 
 ### Symptômes
+
 - Tests Gemini échouent avec `NETWORK_ERROR` / `API_ERROR`
 - Tous les secrets GitHub sont présents ✅
 - Configuration détectée correctement ✅
@@ -18,13 +19,16 @@ L'Edge Function `hyper-task` utilisait le modèle **Gemini expérimental** (`gem
 
 ```typescript
 // ❌ AVANT (modèle expérimental)
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent";
 
 // ✅ APRÈS (modèle stable)
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 ```
 
 **Pourquoi ce changement ?**
+
 - `gemini-2.0-flash-exp` : Modèle expérimental, peut être désactivé sans préavis
 - `gemini-1.5-flash` : Modèle stable, garanti disponible, performant et fiable
 
@@ -41,6 +45,7 @@ L'Edge Function utilise la variable **`GEMINI_API_KEY`** (pas `VITE_GEMINI_API_K
 3. Vérifiez que `GEMINI_API_KEY` existe avec la même valeur que votre secret GitHub `VITE_GEMINI_API_KEY`
 
 **Si la variable manque, ajoutez-la :**
+
 ```bash
 # Via Supabase CLI
 supabase secrets set GEMINI_API_KEY=votre_cle_api_gemini
@@ -90,6 +95,7 @@ curl -X POST "https://[VOTRE_SUPABASE_URL]/functions/v1/hyper-task" \
 ```
 
 **Réponse attendue :**
+
 ```json
 {
   "success": true,
@@ -101,19 +107,19 @@ curl -X POST "https://[VOTRE_SUPABASE_URL]/functions/v1/hyper-task" \
 
 ### Configuration GitHub Actions ✅
 
-| Secret | Statut | Utilisation |
-|--------|--------|-------------|
-| `VITE_GEMINI_API_KEY` | ✅ Présent (5 months) | Workflow tests |
-| `VITE_SUPABASE_URL` | ✅ Présent (3 days) | Workflow tests |
-| `VITE_SUPABASE_ANON_KEY` | ✅ Présent (3 days) | Workflow tests |
+| Secret                   | Statut                | Utilisation    |
+| ------------------------ | --------------------- | -------------- |
+| `VITE_GEMINI_API_KEY`    | ✅ Présent (5 months) | Workflow tests |
+| `VITE_SUPABASE_URL`      | ✅ Présent (3 days)   | Workflow tests |
+| `VITE_SUPABASE_ANON_KEY` | ✅ Présent (3 days)   | Workflow tests |
 
 ### Configuration Supabase Edge Function ❓
 
-| Variable | Statut | Action Requise |
-|----------|--------|----------------|
-| `GEMINI_API_KEY` | ❓ À vérifier | Vérifier dans Supabase Dashboard |
-| `SUPABASE_URL` | ✅ Auto-injecté | Rien à faire |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-injecté | Rien à faire |
+| Variable                    | Statut          | Action Requise                   |
+| --------------------------- | --------------- | -------------------------------- |
+| `GEMINI_API_KEY`            | ❓ À vérifier   | Vérifier dans Supabase Dashboard |
+| `SUPABASE_URL`              | ✅ Auto-injecté | Rien à faire                     |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-injecté | Rien à faire                     |
 
 ## 🔄 Après le Déploiement
 
@@ -125,6 +131,7 @@ npm run test:gemini
 ```
 
 **Output attendu :**
+
 ```
 📋 Configuration détectée:
   - VITE_GEMINI_API_KEY: ✅ Présente
@@ -140,6 +147,7 @@ Test 1: Réunions - Organise une réunion d'équipe...
 ### Test CI/CD
 
 Une fois l'Edge Function déployée :
+
 1. Relancez le workflow GitHub Actions (7-monthly-gemini.yml)
 2. Vérifiez les logs pour voir le nouveau diagnostic
 3. Les tests devraient maintenant passer ✅
@@ -158,7 +166,8 @@ Une fois l'Edge Function déployée :
 
 **Cause racine :** Edge Function utilisait un modèle Gemini expérimental non disponible
 
-**Solution :** 
+**Solution :**
+
 1. ✅ Mise à jour vers modèle stable `gemini-1.5-flash`
 2. ❓ Déploiement de l'Edge Function sur Supabase requis
 
@@ -167,4 +176,3 @@ Une fois l'Edge Function déployée :
 ---
 
 **Date** : 10 Novembre 2025
-

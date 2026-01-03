@@ -1,175 +1,183 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nettoyer le cache Supabase</title>
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            margin-top: 0;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        button.danger {
-            background: #dc3545;
-        }
-        button.danger:hover {
-            background: #c82333;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            background: #f8f9fa;
-            border-left: 4px solid #007bff;
-        }
-        .result.success {
-            border-left-color: #28a745;
-            background: #d4edda;
-        }
-        .result.error {
-            border-left-color: #dc3545;
-            background: #f8d7da;
-        }
-        code {
-            background: #f1f1f1;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-        }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        margin-top: 0;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button.danger {
+        background: #dc3545;
+      }
+      button.danger:hover {
+        background: #c82333;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 6px;
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+      }
+      .result.success {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .result.error {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+      code {
+        background: #f1f1f1;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: "Courier New", monospace;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🧹 Nettoyer le cache Supabase</h1>
-        <p>Cet outil nettoie le localStorage pour supprimer les anciennes sessions Supabase.</p>
-        
-        <button onclick="clearSupabaseCache()">Nettoyer le cache Supabase</button>
-        <button onclick="clearAllLocalStorage()" class="danger">Nettoyer TOUT le localStorage</button>
-        <button onclick="showCacheInfo()">Afficher les infos de cache</button>
-        
-        <div id="result"></div>
+      <h1>🧹 Nettoyer le cache Supabase</h1>
+      <p>Cet outil nettoie le localStorage pour supprimer les anciennes sessions Supabase.</p>
+
+      <button onclick="clearSupabaseCache()">Nettoyer le cache Supabase</button>
+      <button onclick="clearAllLocalStorage()" class="danger">Nettoyer TOUT le localStorage</button>
+      <button onclick="showCacheInfo()">Afficher les infos de cache</button>
+
+      <div id="result"></div>
     </div>
 
     <script>
-        function showResult(message, isSuccess = true) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
-            resultDiv.innerHTML = message;
-        }
+      function showResult(message, isSuccess = true) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.className = "result " + (isSuccess ? "success" : "error");
+        resultDiv.innerHTML = message;
+      }
 
-        function clearSupabaseCache() {
-            try {
-                let cleared = [];
-                
-                // Nettoyer toutes les clés Supabase dans localStorage
-                for (let i = localStorage.length - 1; i >= 0; i--) {
-                    const key = localStorage.key(i);
-                    if (key && (
-                        key.startsWith('sb-') || 
-                        key.includes('supabase') || 
-                        key.includes('auth') ||
-                        key.includes('ifbhbcktfqxxoxqlinzm') // Ancienne URL
-                    )) {
-                        localStorage.removeItem(key);
-                        cleared.push(key);
-                    }
-                }
-                
-                if (cleared.length > 0) {
-                    showResult(`
+      function clearSupabaseCache() {
+        try {
+          let cleared = [];
+
+          // Nettoyer toutes les clés Supabase dans localStorage
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (
+              key &&
+              (key.startsWith("sb-") ||
+                key.includes("supabase") ||
+                key.includes("auth") ||
+                key.includes("ifbhbcktfqxxoxqlinzm")) // Ancienne URL
+            ) {
+              localStorage.removeItem(key);
+              cleared.push(key);
+            }
+          }
+
+          if (cleared.length > 0) {
+            showResult(`
                         <strong>✅ Cache nettoyé !</strong><br>
                         <strong>Clés supprimées (${cleared.length}) :</strong><br>
-                        <code>${cleared.join('</code><br><code>')}</code>
+                        <code>${cleared.join("</code><br><code>")}</code>
                     `);
-                } else {
-                    showResult('ℹ️ Aucune clé Supabase trouvée dans le cache.');
-                }
-            } catch (error) {
-                showResult(`❌ Erreur : ${error.message}`, false);
-            }
+          } else {
+            showResult("ℹ️ Aucune clé Supabase trouvée dans le cache.");
+          }
+        } catch (error) {
+          showResult(`❌ Erreur : ${error.message}`, false);
         }
+      }
 
-        function clearAllLocalStorage() {
-            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer TOUT le localStorage ?\n\nCela supprimera aussi vos données DooDates (polls, conversations, etc.).')) {
-                try {
-                    localStorage.clear();
-                    showResult('<strong>✅ localStorage complètement nettoyé !</strong><br>Rechargez la page pour continuer.');
-                } catch (error) {
-                    showResult(`❌ Erreur : ${error.message}`, false);
-                }
-            }
+      function clearAllLocalStorage() {
+        if (
+          confirm(
+            "⚠️ Êtes-vous sûr de vouloir supprimer TOUT le localStorage ?\n\nCela supprimera aussi vos données DooDates (polls, conversations, etc.).",
+          )
+        ) {
+          try {
+            localStorage.clear();
+            showResult(
+              "<strong>✅ localStorage complètement nettoyé !</strong><br>Rechargez la page pour continuer.",
+            );
+          } catch (error) {
+            showResult(`❌ Erreur : ${error.message}`, false);
+          }
         }
+      }
 
-        function showCacheInfo() {
-            try {
-                const supabaseKeys = [];
-                const otherKeys = [];
-                
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && (
-                        key.startsWith('sb-') || 
-                        key.includes('supabase') || 
-                        key.includes('auth')
-                    )) {
-                        supabaseKeys.push(key);
-                    } else {
-                        otherKeys.push(key);
-                    }
-                }
-                
-                let html = '<strong>📊 État du cache :</strong><br><br>';
-                
-                if (supabaseKeys.length > 0) {
-                    html += `<strong>Clés Supabase (${supabaseKeys.length}) :</strong><br>`;
-                    html += `<code>${supabaseKeys.join('</code><br><code>')}</code><br><br>`;
-                } else {
-                    html += '✅ Aucune clé Supabase trouvée.<br><br>';
-                }
-                
-                if (otherKeys.length > 0) {
-                    html += `<strong>Autres clés (${otherKeys.length}) :</strong><br>`;
-                    html += `<code>${otherKeys.slice(0, 10).join('</code><br><code>')}</code>`;
-                    if (otherKeys.length > 10) {
-                        html += `<br>... et ${otherKeys.length - 10} autres`;
-                    }
-                }
-                
-                showResult(html);
-            } catch (error) {
-                showResult(`❌ Erreur : ${error.message}`, false);
+      function showCacheInfo() {
+        try {
+          const supabaseKeys = [];
+          const otherKeys = [];
+
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (
+              key &&
+              (key.startsWith("sb-") || key.includes("supabase") || key.includes("auth"))
+            ) {
+              supabaseKeys.push(key);
+            } else {
+              otherKeys.push(key);
             }
-        }
+          }
 
-        // Afficher les infos au chargement
-        window.addEventListener('load', showCacheInfo);
+          let html = "<strong>📊 État du cache :</strong><br><br>";
+
+          if (supabaseKeys.length > 0) {
+            html += `<strong>Clés Supabase (${supabaseKeys.length}) :</strong><br>`;
+            html += `<code>${supabaseKeys.join("</code><br><code>")}</code><br><br>`;
+          } else {
+            html += "✅ Aucune clé Supabase trouvée.<br><br>";
+          }
+
+          if (otherKeys.length > 0) {
+            html += `<strong>Autres clés (${otherKeys.length}) :</strong><br>`;
+            html += `<code>${otherKeys.slice(0, 10).join("</code><br><code>")}</code>`;
+            if (otherKeys.length > 10) {
+              html += `<br>... et ${otherKeys.length - 10} autres`;
+            }
+          }
+
+          showResult(html);
+        } catch (error) {
+          showResult(`❌ Erreur : ${error.message}`, false);
+        }
+      }
+
+      // Afficher les infos au chargement
+      window.addEventListener("load", showCacheInfo);
     </script>
-</body>
+  </body>
 </html>
-

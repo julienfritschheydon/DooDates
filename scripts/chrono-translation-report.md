@@ -16,14 +16,12 @@
 
 ## Détails par cas
 
-
 ### 1. "mars 2026"
 
 - **Traduit**: "march 2026"
 - **Chrono FR**: RIEN
 - **Chrono EN**: march 2026
 - **Amélioration**: ✅ OUI
-
 
 ### 2. "7 mars 2026"
 
@@ -32,14 +30,12 @@
 - **Chrono EN**: 7 march 2026
 - **Amélioration**: ❌ NON
 
-
 ### 3. "début mars"
 
 - **Traduit**: "beginning of march"
 - **Chrono FR**: RIEN
 - **Chrono EN**: march
 - **Amélioration**: ✅ OUI
-
 
 ### 4. "fin mars"
 
@@ -48,14 +44,12 @@
 - **Chrono EN**: march
 - **Amélioration**: ✅ OUI
 
-
 ### 5. "en mars"
 
 - **Traduit**: "in march"
 - **Chrono FR**: RIEN
 - **Chrono EN**: march
 - **Amélioration**: ✅ OUI
-
 
 ### 6. "tous les samedis de mars 2026"
 
@@ -64,14 +58,12 @@
 - **Chrono EN**: march 2026
 - **Amélioration**: ✅ OUI
 
-
 ### 7. "lundi ou mardi"
 
 - **Traduit**: "monday ou tuesday"
 - **Chrono FR**: lundi
 - **Chrono EN**: monday
 - **Amélioration**: ❌ NON
-
 
 ### 8. "semaine prochaine"
 
@@ -80,7 +72,6 @@
 - **Chrono EN**: next week
 - **Amélioration**: ✅ OUI
 
-
 ### 9. "Organise une réunion le 7 mars 2026"
 
 - **Traduit**: "Organise une réunion le 7 march 2026"
@@ -88,11 +79,9 @@
 - **Chrono EN**: 7 march 2026
 - **Amélioration**: ❌ NON
 
-
 ### 10. "Crée un sondage pour un week-end jeux. Ajoute tous les samedis de mars 2026"
 
 - **Traduit**: "Crée un sondage pour un week-end jeux. Ajoute every samedis de march 2026"
 - **Chrono FR**: RIEN
 - **Chrono EN**: march 2026
 - **Amélioration**: ✅ OUI
-

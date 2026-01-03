@@ -3,11 +3,11 @@ name: 5️⃣ YAML Workflows Validation
 on:
   pull_request:
     paths:
-      - '.github/workflows/**'
+      - ".github/workflows/**"
   push:
     branches: [main]
     paths:
-      - '.github/workflows/**'
+      - ".github/workflows/**"
 
 jobs:
   validate-yaml:
@@ -19,7 +19,7 @@ jobs:
       - name: 🔍 Validate YAML syntax
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: 📦 Install YAML validator
         run: npm install -g yaml-validator
@@ -36,7 +36,7 @@ jobs:
       - name: 🔍 Check for common issues
         run: |
           echo "Checking for common YAML issues in workflows..."
-          
+
           # Check for problematic patterns in body/title fields
           # Note: Checking for cross mark emoji (U+274C) in body/title
           if grep -r 'body:.*\xE2\x9D\x8C' .github/workflows/ || grep -r 'title:.*\xE2\x9D\x8C' .github/workflows/; then
@@ -44,19 +44,19 @@ jobs:
             echo "Use text instead: 'Failed' or 'Error'"
             exit 1
           fi
-          
+
           # Check for markdown bold ** in multi-line strings
           if grep -r "body:.*\*\*" .github/workflows/; then
             echo "⚠️ Warning: Found markdown bold ** in body fields"
             echo "This may cause YAML parsing issues. Use plain text instead."
             exit 1
           fi
-          
+
           # Check for numbered lists starting with digits
           if grep -r "body:.*^[0-9]\." .github/workflows/; then
             echo "⚠️ Warning: Found numbered lists in body fields"
             echo "Use bullet points (-) instead to avoid YAML parsing issues."
             exit 1
           fi
-          
+
           echo "✅ No common YAML issues found!"

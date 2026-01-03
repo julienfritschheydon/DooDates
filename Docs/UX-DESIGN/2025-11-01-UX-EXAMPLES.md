@@ -7,6 +7,7 @@ Ce document fournit des exemples concrets d'utilisation des composants UX créé
 ## 🎯 Toasts
 
 ### Toast de succès
+
 ```typescript
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,6 +27,7 @@ function MyComponent() {
 ```
 
 ### Toast d'erreur
+
 ```typescript
 const handleError = () => {
   toast({
@@ -37,6 +39,7 @@ const handleError = () => {
 ```
 
 ### Toast avec action
+
 ```typescript
 const handleUndo = () => {
   toast({
@@ -57,6 +60,7 @@ const handleUndo = () => {
 ## ⏳ Loading States
 
 ### Bouton avec loading
+
 ```typescript
 function SubmitButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +76,7 @@ function SubmitButton() {
   };
 
   return (
-    <button 
+    <button
       onClick={handleSubmit}
       disabled={isLoading}
       className="flex items-center gap-2"
@@ -85,6 +89,7 @@ function SubmitButton() {
 ```
 
 ### Page avec loading
+
 ```typescript
 function PollPage() {
   const { data: poll, isLoading } = usePoll(pollId);
@@ -98,6 +103,7 @@ function PollPage() {
 ```
 
 ### Overlay de chargement
+
 ```typescript
 function SaveModal() {
   const [isSaving, setIsSaving] = useState(false);
@@ -116,6 +122,7 @@ function SaveModal() {
 ## ❌ Messages d'erreur
 
 ### Erreur de champ de formulaire
+
 ```typescript
 function VoterForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -134,6 +141,7 @@ function VoterForm() {
 ```
 
 ### Message d'erreur global
+
 ```typescript
 function PollCreator() {
   const [error, setError] = useState<string | null>(null);
@@ -158,6 +166,7 @@ function PollCreator() {
 ```
 
 ### Erreur inline
+
 ```typescript
 function QuestionCard() {
   const hasError = options.length === 0;
@@ -178,6 +187,7 @@ function QuestionCard() {
 ## 🎬 Animations
 
 ### Fade in simple
+
 ```typescript
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/motion-variants";
@@ -192,6 +202,7 @@ function Card() {
 ```
 
 ### Slide up
+
 ```typescript
 import { slideUp } from "@/lib/motion-variants";
 
@@ -205,6 +216,7 @@ function VoteOption() {
 ```
 
 ### Liste avec stagger
+
 ```typescript
 import { staggerContainer, staggerItem } from "@/lib/motion-variants";
 
@@ -222,6 +234,7 @@ function PollList({ polls }) {
 ```
 
 ### Modal avec backdrop
+
 ```typescript
 import { backdropFade, modalContent } from "@/lib/motion-variants";
 import { AnimatePresence } from "framer-motion";
@@ -231,7 +244,7 @@ function Modal({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             {...backdropFade}
             onClick={onClose}
             className="fixed inset-0 bg-black/50"
@@ -247,6 +260,7 @@ function Modal({ isOpen, onClose }) {
 ```
 
 ### Animation shake pour erreur
+
 ```typescript
 import { shake } from "@/lib/motion-variants";
 
@@ -266,6 +280,7 @@ function LoginForm() {
 ## 📐 Espacement cohérent
 
 ### Utiliser les gaps
+
 ```typescript
 import { gaps } from "@/lib/design-tokens";
 
@@ -280,6 +295,7 @@ function Header() {
 ```
 
 ### Utiliser les padding
+
 ```typescript
 import { padding } from "@/lib/design-tokens";
 
@@ -293,6 +309,7 @@ function Card() {
 ```
 
 ### Utiliser getCardClasses
+
 ```typescript
 import { getCardClasses } from "@/lib/design-tokens";
 
@@ -326,12 +343,12 @@ function VoteForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     const newErrors: Record<string, string> = {};
     if (!formData.name) newErrors.name = "Le nom est requis";
     if (!formData.email) newErrors.email = "L'email est requis";
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -357,7 +374,7 @@ function VoteForm() {
   };
 
   return (
-    <motion.form 
+    <motion.form
       {...slideUp}
       onSubmit={handleSubmit}
       className={`space-y-${gaps.lg}`}
@@ -401,8 +418,8 @@ function VoteForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full ${padding.md} bg-blue-500 text-white rounded-lg 
-          hover:bg-blue-600 disabled:bg-gray-400 flex items-center 
+        className={`w-full ${padding.md} bg-blue-500 text-white rounded-lg
+          hover:bg-blue-600 disabled:bg-gray-400 flex items-center
           justify-center ${gaps.sm}`}
       >
         {isSubmitting && <ButtonSpinner className="text-white" />}
@@ -418,6 +435,7 @@ function VoteForm() {
 ## 📱 Responsive
 
 ### Mobile-first avec breakpoints
+
 ```typescript
 function Card() {
   return (
@@ -439,6 +457,7 @@ function Card() {
 ## ♿ Accessibilité
 
 ### Focus management
+
 ```typescript
 function Modal({ isOpen }) {
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -458,6 +477,7 @@ function Modal({ isOpen }) {
 ```
 
 ### ARIA labels
+
 ```typescript
 function ErrorField({ error }) {
   return (

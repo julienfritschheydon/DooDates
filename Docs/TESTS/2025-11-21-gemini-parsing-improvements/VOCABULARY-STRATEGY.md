@@ -9,8 +9,9 @@ Créer une liste exhaustive de vocabulaire français utilisé dans les sondages/
 ### Analyse des 57 Prompts de Test
 
 **Statistiques extraites** :
+
 - ✅ **14 verbes uniques** identifiés
-- ✅ **61 noms uniques** identifiés  
+- ✅ **61 noms uniques** identifiés
 - ✅ **30 expressions temporelles** identifiées
 - ✅ **105 mots uniques** au total
 
@@ -24,16 +25,19 @@ Créer une liste exhaustive de vocabulaire français utilisé dans les sondages/
 ## 🚀 Plan d'Action
 
 ### Phase 1 : Extraction ✅
+
 - [x] Script `generate-vocabulary-list.js` créé
 - [x] Analyse des 57 prompts effectuée
 - [x] Extraction des mots français catégorisés
 
 ### Phase 2 : Génération avec Gemini ✅
+
 - [x] Exécuter `ask-gemini-vocabulary.js` pour générer une liste exhaustive
 - [x] Inclure synonymes, variantes, expressions courantes
 - [x] Fichier `gemini-vocabulary.json` généré (86 verbes, 121 noms, 106 expressions temporelles)
 
 ### Phase 3 : Fusion et Intégration ✅
+
 - [x] Exécuter `merge-vocabulary-into-translator.js`
 - [x] Rapport `vocabulary-merge-report.json` généré
 - [x] Intégrer les nouvelles traductions dans `temporalTranslator.ts`
@@ -44,6 +48,7 @@ Créer une liste exhaustive de vocabulaire français utilisé dans les sondages/
 - [ ] Tester avec les prompts existants (à faire : `npm run test:gemini`)
 
 ### Phase 4 : Maintenance Continue
+
 - [ ] Système de détection des mots non traduits
 - [ ] Logging des échecs de traduction
 - [ ] Enrichissement automatique basé sur les logs
@@ -112,12 +117,15 @@ Créer une liste exhaustive de vocabulaire français utilisé dans les sondages/
 ## 📋 Mots Identifiés dans les Prompts
 
 ### Verbes d'Action (14)
+
 planifie, planifier, trouve, trouver, organise, organiser, bloque, bloquer, propose, proposer, cherche, chercher, crée, créer, créé, fais, faire, prévois, prévoir, génère, générer, ajoute, ajouter, calcule, calculer, repère, repérer, repéré
 
 ### Noms d'Événements (61)
+
 réunion, équipe, entretien, client, visioconférence, partenaires, suivi, projet, déjeuner, soirée, amis, anniversaire, barbecue, formation, sécurité, atelier, créatif, brainstorming, webinaire, technique, brunch, footing, escape game, visite, musée, apéro, voisins, ciné, AG, association, tournoi, pétanque, bureau, vide-grenier, gala, stand-up, point, budget, lancement, démo, présentation, slides, revue, partenariats, canadien, questionnaire, sondage, satisfaction, produit, service, contact, feedback, évaluation, qualité, prix, matrice, enquête, préférences, participants, nourriture, horaire, allergies, alimentaires, étoiles, commentaires, aspects, réponses, mensuel
 
 ### Expressions Temporelles (30)
+
 début, fin, en, courant, semaine prochaine, cette semaine, semaine dernière, demain, aujourd'hui, hier, dans, deux semaines, trois semaines, quatre semaines, quinze jours, quatorze jours, matin, midi, après-midi, d'après-midi, soir, soirée, nuit, lundi, mardi, mercredi, jeudi, vendredi, samedi, dimanche, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre
 
 ## ✅ État d'Avancement
@@ -140,18 +148,21 @@ début, fin, en, courant, semaine prochaine, cette semaine, semaine dernière, d
 ## 📈 Résultats de l'Enrichissement
 
 ### Avant
+
 - **Mois** : 12 traductions de base
 - **Jours** : 7 traductions de base
 - **Expressions** : 12 traductions de base
 - **Périodes** : 9 traductions de base
 
 ### Après
+
 - **Mois** : 30 variantes (abréviations, "rentrée", "fêtes de fin d'année")
 - **Jours** : 28 variantes (pluriels, "chaque X" → "every X", "tous les X" → "every X")
 - **Expressions** : 30+ variantes (weekend, trimestres, deadlines, variantes de "semaine")
 - **Périodes** : 15 variantes (matinée, aprem, a.m./p.m., "début/fin de journée")
 
 ### Corrections Importantes
+
 - ✅ "chaque lundi" / "tous les lundis" → "every monday" (pas juste "monday")
 - ✅ "nuit" → "night" (pas "evening")
 - ✅ Retrait des numéros "01"-"12" (ambigus avec les heures)
@@ -165,4 +176,3 @@ début, fin, en, courant, semaine prochaine, cette semaine, semaine dernière, d
 - Les expressions courantes nécessitent des regex spécifiques
 - Un système de logging permettra d'identifier les mots manquants en production
 - **Phase 4** (Maintenance Continue) reste à implémenter pour l'enrichissement automatique
-

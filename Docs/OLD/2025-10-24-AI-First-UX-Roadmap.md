@@ -3,12 +3,14 @@
 ## 🎯 VISION STRATÉGIQUE
 
 ### **Principe fondamental**
+
 ```
 DooDates ≠ "Outil avec chatbot assistant"
 DooDates = "IA conversationnelle qui génère des sondages"
 ```
 
 **Inversion du paradigme :**
+
 - Calendly : GUI principal + IA assistant
 - **DooDates : IA principale + GUI preview/édition**
 
@@ -81,18 +83,20 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ## **Objectif : Prouver le concept, workflow basique fonctionnel**
 
 ### **1.1 Chat plein écran landing ✅ TERMINÉ (3-4h)**
+
 ### **1.2 Sidebar navigation ✅ TERMINÉ (4-5h)**
 
 ### **Responsive ✅ IMPLÉMENTÉ :**
+
 - Desktop : Sidebar fixe 240px
 - Tablet : Sidebar collapsible
 - Mobile : Sidebar overlay avec backdrop (z-50)
 - Mobile : Bouton hamburger + fermeture auto après navigation
 
-
 ### **1.3 Preview live basique ✅ TERMINÉ (3-4h)**
 
 ### **Features preview ✅ IMPLÉMENTÉES :**
+
 - ✅ Synchronisation temps réel avec chat (key-based re-rendering)
 - ✅ Affichage calendrier/questions selon type
 - ✅ Highlight changements récents (animations CSS 3s)
@@ -103,6 +107,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ### **🎯 Résultat Phase 1 ✅ ATTEINT**
 
 **Après 10-13h, tu as :**
+
 ```
 ✅ Landing chat plein écran (expérience IA-first)
 ✅ Sidebar navigation moderne (responsive mobile/desktop)
@@ -114,6 +119,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ```
 
 **Ce qu'on peut faire ✅ :**
+
 - User arrive → Chat plein écran
 - User crée via conversation → Preview s'affiche
 - User finalise → Partage
@@ -131,6 +137,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ### **2.1 Context management ✅ TERMINÉ (2h)**
 
 **Features ✅ IMPLÉMENTÉES :**
+
 - ✅ Mémorisation conversation (ConversationProvider)
 - ✅ Référence au poll en cours (currentPoll dans contexte)
 - ✅ Contexte pertinent pour Gemini
@@ -141,6 +148,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ### **2.2 Modification sondages via IA ⚠️ PARTIELLEMENT TERMINÉ (8h réalisées)**
 
 **✅ Commandes supportées (Date Polls) :**
+
 - ✅ "Ajoute le 27/10/2025" (6+ formats de dates)
 - ✅ "Retire le 28"
 - ✅ "Renomme en Apéro vendredi"
@@ -148,6 +156,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 - ✅ Détection doublons automatique
 
 **✅ Commandes partiellement supportées (Form Polls) :**
+
 - ✅ "Ajoute une question sur le prix" (via Gemini complet)
 - ✅ "Retire la question 3" (pas de détection intention)
 - ✅ "Change Q2 en choix multiple" (pas de détection intention)
@@ -155,16 +164,17 @@ DooDates = "IA conversationnelle qui génère des sondages"
 - ✅ "Ajoute option 'Autre' à Q1" (pas de détection intention)
 
 **Architecture implémentée :**
+
 - ✅ **Reducer centralisé** (pollReducer + formPollReducer) - Pattern Redux-like
 - ✅ **Service de détection d'intentions** (IntentDetectionService) - Regex rapides
 - ✅ **60 tests automatisés** (100% passent)
 - ✅ **5 actions Date Polls** : ADD_DATE, REMOVE_DATE, UPDATE_TITLE, ADD_TIMESLOT, REPLACE_POLL
 - ⚠️ **Form Polls** : Passe par Gemini complet (pas de détection intentions spécifiques)
 
-
 ### **2.3 Preview réactive avancée ✅ TERMINÉ (5-6h)**
 
 **Features ✅ IMPLÉMENTÉES :**
+
 - ✅ **Animations highlight** (3 couleurs : vert=add, bleu=modify, rouge=remove)
 - ✅ Animations transitions fluides (3 cycles de 1s)
 - ✅ Scroll auto vers changement
@@ -175,6 +185,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 ### **🎯 Résultat Phase 2 ✅ ATTEINT**
 
 **Après ~16h réalisées (total 26-29h), tu as :**
+
 ```
 ✅ Modifications conversationnelles fluides (Date Polls)
 ✅ Preview réactive avec highlights (animations 3 couleurs)
@@ -185,6 +196,7 @@ DooDates = "IA conversationnelle qui génère des sondages"
 **Expérience utilisateur actuelle :**
 
 **✅ Date Polls (fonctionnel) :**
+
 ```
 User: "Crée un sondage pour réunion équipe mardi ou mercredi"
 IA: [Crée sondage avec dates 28 et 29 octobre]
@@ -200,6 +212,7 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 ```
 
 **✅ Form Polls (partiellement fonctionnel) :**
+
 ```
 User: "Crée un questionnaire satisfaction client"
 IA: [Crée questionnaire complet via Gemini]
@@ -216,4 +229,3 @@ IA: [Régénère tout via Gemini] ← Pas de détection intention spécifique
 ---
 
 # 🔴 PHASE 3 : Expérience IA complète (32-40h | 4-6 semaines)
-

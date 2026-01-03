@@ -31,12 +31,12 @@ Ce document explique comment configurer et exécuter les tests E2E avec la nouve
 ### 1. Importer la configuration E2E
 
 ```typescript
-import { setupAllMocks } from './global-setup';
+import { setupAllMocks } from "./global-setup";
 
 test.beforeEach(async ({ page }) => {
   // Configurer les mocks et activer le mode E2E
   await setupAllMocks(page);
-  
+
   // Votre code de test ici
 });
 ```
@@ -46,7 +46,7 @@ test.beforeEach(async ({ page }) => {
 Ajoutez `e2e-test=true` à vos URLs de test :
 
 ```typescript
-await page.goto('/?e2e-test=true');
+await page.goto("/?e2e-test=true");
 // ou
 await page.goto(`/poll/${slug}?e2e-test=true`);
 ```
@@ -58,8 +58,8 @@ Les quotas sont automatiquement désactivés en mode E2E. Si nécessaire, vous p
 ```typescript
 // Dans votre test
 await page.evaluate(() => {
-  localStorage.setItem('e2e', '1');
-  localStorage.setItem('dev-local-mode', '1');
+  localStorage.setItem("e2e", "1");
+  localStorage.setItem("dev-local-mode", "1");
 });
 ```
 
@@ -122,6 +122,7 @@ npx tsx scripts/update-e2e-tests.ts
 ```
 
 Ce script va :
+
 - Mettre à jour les imports
 - Ajouter `setupAllMocks` aux `beforeEach`
 - Ajouter `e2e-test=true` aux URLs

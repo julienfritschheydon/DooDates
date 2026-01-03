@@ -1,95 +1,109 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Test Resume Functionality</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Test Resume Functionality</h1>
     <div id="results"></div>
 
     <script>
-        function log(message) {
-            document.getElementById('results').innerHTML += message + '<br>';
-            console.log(message);
-        }
+      function log(message) {
+        document.getElementById("results").innerHTML += message + "<br>";
+        console.log(message);
+      }
 
-        // Check current localStorage state
-        log('=== Checking localStorage ===');
-        const storageKey = 'doodates_conversations';
-        const existingData = localStorage.getItem(storageKey);
-        
-        if (existingData) {
-            try {
-                const decompressed = LZString.decompress(existingData);
-                const parsed = JSON.parse(decompressed);
-                const conversationIds = Object.keys(parsed.conversations || {});
-                log('Found ' + conversationIds.length + ' conversations');
-                log('IDs: ' + JSON.stringify(conversationIds));
-                
-                if (conversationIds.length > 0) {
-                    const firstId = conversationIds[0];
-                    log('Testing resume with ID: ' + firstId);
-                    log('Resume URL: <a href="/chat?resume=' + firstId + '" target="_blank">http://localhost:8086/chat?resume=' + firstId + '</a>');
-                } else {
-                    log('No conversations found, creating test conversation...');
-                    createTestConversation();
-                }
-            } catch (e) {
-                log('Error parsing data: ' + e.message);
-                createTestConversation();
-            }
-        } else {
-            log('No localStorage data found, creating test conversation...');
+      // Check current localStorage state
+      log("=== Checking localStorage ===");
+      const storageKey = "doodates_conversations";
+      const existingData = localStorage.getItem(storageKey);
+
+      if (existingData) {
+        try {
+          const decompressed = LZString.decompress(existingData);
+          const parsed = JSON.parse(decompressed);
+          const conversationIds = Object.keys(parsed.conversations || {});
+          log("Found " + conversationIds.length + " conversations");
+          log("IDs: " + JSON.stringify(conversationIds));
+
+          if (conversationIds.length > 0) {
+            const firstId = conversationIds[0];
+            log("Testing resume with ID: " + firstId);
+            log(
+              'Resume URL: <a href="/chat?resume=' +
+                firstId +
+                '" target="_blank">http://localhost:8086/chat?resume=' +
+                firstId +
+                "</a>",
+            );
+          } else {
+            log("No conversations found, creating test conversation...");
             createTestConversation();
+          }
+        } catch (e) {
+          log("Error parsing data: " + e.message);
+          createTestConversation();
         }
+      } else {
+        log("No localStorage data found, creating test conversation...");
+        createTestConversation();
+      }
 
-        function createTestConversation() {
-            const testId = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            const storageData = {
-                conversations: {},
-                messages: {},
-                metadata: {
-                    version: '1.0.0',
-                    createdAt: new Date().toISOString(),
-                    lastAccessed: new Date().toISOString(),
-                    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    isGuest: true
-                }
-            };
+      function createTestConversation() {
+        const testId = "local-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
+        const storageData = {
+          conversations: {},
+          messages: {},
+          metadata: {
+            version: "1.0.0",
+            createdAt: new Date().toISOString(),
+            lastAccessed: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            isGuest: true,
+          },
+        };
 
-            storageData.conversations[testId] = {
-                id: testId,
-                title: 'Test Resume Conversation',
-                status: 'active',
-                firstMessage: 'Hello, this is a test conversation for resume functionality',
-                messageCount: 1,
-                isFavorite: false,
-                tags: [],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                metadata: {
-                    pollGenerated: false,
-                    errorOccurred: false,
-                    aiModel: 'gemini-pro',
-                    language: 'fr'
-                }
-            };
+        storageData.conversations[testId] = {
+          id: testId,
+          title: "Test Resume Conversation",
+          status: "active",
+          firstMessage: "Hello, this is a test conversation for resume functionality",
+          messageCount: 1,
+          isFavorite: false,
+          tags: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          metadata: {
+            pollGenerated: false,
+            errorOccurred: false,
+            aiModel: "gemini-pro",
+            language: "fr",
+          },
+        };
 
-            storageData.messages[testId] = [{
-                id: 'msg-' + Date.now(),
-                conversationId: testId,
-                content: 'Hello, this is a test conversation for resume functionality',
-                role: 'user',
-                timestamp: new Date().toISOString()
-            }];
+        storageData.messages[testId] = [
+          {
+            id: "msg-" + Date.now(),
+            conversationId: testId,
+            content: "Hello, this is a test conversation for resume functionality",
+            role: "user",
+            timestamp: new Date().toISOString(),
+          },
+        ];
 
-            const compressed = LZString.compress(JSON.stringify(storageData));
-            localStorage.setItem(storageKey, compressed);
+        const compressed = LZString.compress(JSON.stringify(storageData));
+        localStorage.setItem(storageKey, compressed);
 
-            log('✅ Created test conversation with ID: ' + testId);
-            log('Resume URL: <a href="/chat?resume=' + testId + '" target="_blank">http://localhost:8086/chat?resume=' + testId + '</a>');
-        }
+        log("✅ Created test conversation with ID: " + testId);
+        log(
+          'Resume URL: <a href="/chat?resume=' +
+            testId +
+            '" target="_blank">http://localhost:8086/chat?resume=' +
+            testId +
+            "</a>",
+        );
+      }
     </script>
-</body>
+  </body>
 </html>

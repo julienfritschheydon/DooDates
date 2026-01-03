@@ -41,47 +41,50 @@ interface TestResult {
 function parseTestFile(filePath: string): PromptTest[] {
   const content = readFileSync(filePath, "utf-8");
   const tests: PromptTest[] = [];
-  
+
   // Extraire les blocs YAML entre ```yaml et ```
   const yamlBlocks = content.match(/```yaml\n([\s\S]*?)\n```/g);
-  
+
   if (!yamlBlocks) {
     throw new Error("Aucun bloc YAML trouvé dans le fichier");
   }
-  
+
   for (const block of yamlBlocks) {
     const yamlContent = block.replace(/```yaml\n/, "").replace(/\n```/, "");
     const test: Partial<PromptTest> = {};
-    
+
     // Parser le YAML simple
     const lines = yamlContent.split("\n");
     let currentKey = "";
     let currentValue = "";
-    
+
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith("#")) continue;
-      
+
       if (trimmed.includes(":")) {
         // Sauvegarder la valeur précédente
         if (currentKey && currentValue) {
           setValue(test, currentKey, currentValue.trim());
         }
-        
+
         const [key, ...valueParts] = trimmed.split(":");
         currentKey = key.trim();
-        currentValue = valueParts.join(":").trim().replace(/^["']|["']$/g, "");
+        currentValue = valueParts
+          .join(":")
+          .trim()
+          .replace(/^["']|["']$/g, "");
       } else if (trimmed.startsWith("-")) {
         // Continuation de la valeur précédente
         currentValue += " " + trimmed.replace(/^-/, "").trim();
       }
     }
-    
+
     // Sauvegarder la dernière valeur
     if (currentKey && currentValue) {
       setValue(test, currentKey, currentValue.trim());
     }
-    
+
     // Parser expected
     if (yamlContent.includes("expected:")) {
       const expectedMatch = yamlContent.match(/expected:\s*\n((?:\s+[\w_]+\s*:.*\n?)+)/);
@@ -98,12 +101,12 @@ function parseTestFile(filePath: string): PromptTest[] {
         }
       }
     }
-    
+
     if (test.id && test.prompt && test.expected && test.category && test.priority) {
       tests.push(test as PromptTest);
     }
   }
-  
+
   return tests;
 }
 
@@ -136,15 +139,15 @@ describe("Tests automatisés - Génération de sondages", () => {
 
   beforeAll(async () => {
     geminiService = GeminiService.getInstance();
-    
+
     // Charger les tests depuis le fichier YAML
     const testFile = join(process.cwd(), "TESTS-PROMPTS-GENERATION.md");
     console.log(`\n📖 Chargement des tests depuis: ${testFile}`);
-    
+
     try {
       testCases = parseTestFile(testFile);
       console.log(`✅ ${testCases.length} tests chargés`);
-      
+
       // Filtrer pour tester seulement quelques prompts CRITIQUE d'abord
       const criticalTests = testCases.filter((t) => t.priority === "CRITIQUE").slice(0, 3);
       console.log(`🎯 Test de ${criticalTests.length} prompts CRITIQUE`);
@@ -160,16 +163,20 @@ describe("Tests automatisés - Génération de sondages", () => {
     it(`[${testCase.priority}] ${testCase.id}: "${testCase.prompt}"`, async () => {
       console.log(`\n🧪 Test: ${testCase.id}`);
       console.log(`📝 Prompt: "${testCase.prompt}"`);
-      
+
       const result = await runPromptTest(testCase);
       testResults.push(result);
 
       console.log(`\n📊 Résultat:`);
       console.log(`  - Score: ${result.score.toFixed(2)}/1.0`);
       console.log(`  - Status: ${result.passed ? "✅ RÉUSSI" : "❌ ÉCHEC"}`);
-      console.log(`  - Dates générées: ${result.details.datesCount} (attendu: ${result.details.expectedDatesRange})`);
-      console.log(`  - Créneaux générés: ${result.details.slotsCount} (attendu: ${result.details.expectedSlotsRange})`);
-      
+      console.log(
+        `  - Dates générées: ${result.details.datesCount} (attendu: ${result.details.expectedDatesRange})`,
+      );
+      console.log(
+        `  - Créneaux générés: ${result.details.slotsCount} (attendu: ${result.details.expectedSlotsRange})`,
+      );
+
       if (result.details.violations.length > 0) {
         console.log(`  - Violations:`);
         result.details.violations.forEach((v) => {
@@ -194,13 +201,15 @@ describe("Tests automatisés - Génération de sondages", () => {
       const passed = testResults.filter((r) => r.passed).length;
       const failed = testResults.filter((r) => !r.passed).length;
       const avgScore = testResults.reduce((sum, r) => sum + r.score, 0) / testResults.length;
-      
+
       console.log(`  ✅ Réussis: ${passed}/${testResults.length}`);
       console.log(`  ❌ Échoués: ${failed}/${testResults.length}`);
       console.log(`  📊 Score moyen: ${avgScore.toFixed(2)}/1.0`);
-      
+
       testResults.forEach((result) => {
-        console.log(`\n  ${result.passed ? "✅" : "❌"} ${result.id}: ${result.score.toFixed(2)}/1.0`);
+        console.log(
+          `\n  ${result.passed ? "✅" : "❌"} ${result.id}: ${result.score.toFixed(2)}/1.0`,
+        );
         if (result.details.violations.length > 0) {
           result.details.violations.forEach((v) => console.log(`     - ${v}`));
         }
@@ -213,7 +222,7 @@ describe("Tests automatisés - Génération de sondages", () => {
       const startTime = Date.now();
       const response = await geminiService.generatePollFromText(testCase.prompt);
       const duration = Date.now() - startTime;
-      
+
       console.log(`⏱️  Temps de réponse: ${duration}ms`);
 
       if (!response.success || !response.data) {
@@ -307,4 +316,3 @@ describe("Tests automatisés - Génération de sondages", () => {
     }
   }
 });
-

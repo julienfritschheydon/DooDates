@@ -18,6 +18,7 @@ Ce document décrit les helpers de chat améliorés qui fonctionnent pour tous l
 Détecte automatiquement le type de poll en fonction de l'URL et du contenu.
 
 **Stratégies de détection :**
+
 1. Via l'URL (`/form-polls/`, `/date-polls/`, etc.)
 2. Via les éléments DOM (`[data-testid="calendar"]`, `[data-testid="question-card"]`)
 3. Via les placeholders du chat
@@ -48,14 +49,15 @@ const chatZone = await findChatZone(page);
 Valide l'état du chat (prêt, chargement, désactivé, caché).
 
 **États possibles :**
+
 - `'ready'` : Visible et activé
 - `'loading'` : Visible mais désactivé + indicateur de chargement
 - `'disabled'` : Désactivé
 - `'hidden'` : Caché
 
 ```typescript
-await validateChatState(page, 'ready', { timeout: 10000 });
-await validateChatState(page, 'loading', { timeout: 5000 });
+await validateChatState(page, "ready", { timeout: 10000 });
+await validateChatState(page, "loading", { timeout: 5000 });
 ```
 
 ### 4. `navigateToWorkspaceAuto(page, browserName, options?)`
@@ -66,7 +68,7 @@ Navigation avec détection automatique du type de poll.
 const detectedType = await navigateToWorkspaceAuto(page, browserName, {
   addE2EFlag: true,
   waitForChat: true,
-  forceType: 'form' // Optionnel: forcer un type
+  forceType: "form", // Optionnel: forcer un type
 });
 ```
 
@@ -75,10 +77,10 @@ const detectedType = await navigateToWorkspaceAuto(page, browserName, {
 Envoie un message avec détection automatique de la zone chat.
 
 ```typescript
-await sendChatMessage(page, 'Crée un sondage', {
+await sendChatMessage(page, "Crée un sondage", {
   useAutoDetection: true, // true par défaut
   waitForResponse: true,
-  timeout: 15000
+  timeout: 15000,
 });
 ```
 
@@ -87,6 +89,7 @@ await sendChatMessage(page, 'Crée un sondage', {
 Attend une réponse IA avec patterns spécifiques au type de poll.
 
 **Patterns par type :**
+
 - **Form** : "Voici votre questionnaire/formulaire"
 - **Quizz** : "Voici votre quiz/quizz"
 - **Availability** : "Voici vos disponibilités/créneaux"
@@ -94,8 +97,8 @@ Attend une réponse IA avec patterns spécifiques au type de poll.
 
 ```typescript
 await waitForAIResponse(page, {
-  pollType: 'form', // Optionnel: détecté automatiquement
-  timeout: 30000
+  pollType: "form", // Optionnel: détecté automatiquement
+  timeout: 30000,
 });
 ```
 
@@ -105,9 +108,9 @@ Vérification complète du chat (détection + validation + test).
 
 ```typescript
 const verification = await verifyChatFunctionality(page, {
-  testMessage: 'Test de fonctionnement',
-  pollType: 'form', // Optionnel
-  timeout: 15000
+  testMessage: "Test de fonctionnement",
+  pollType: "form", // Optionnel
+  timeout: 15000,
 });
 
 if (!verification.isFunctional) {
@@ -123,19 +126,19 @@ console.log(`Zone: ${verification.chatZone}`);
 ### Test Générique (fonctionne pour tous les types)
 
 ```typescript
-test('Test générique de chat', async ({ page, browserName }) => {
+test("Test générique de chat", async ({ page, browserName }) => {
   // 1. Navigation auto
   const pollType = await navigateToWorkspaceAuto(page, browserName);
-  
+
   // 2. Vérification complète
   const verification = await verifyChatFunctionality(page);
   expect(verification.isFunctional).toBe(true);
-  
+
   // 3. Interaction
-  await sendChatMessage(page, 'Crée un sondage de test', {
-    useAutoDetection: true
+  await sendChatMessage(page, "Crée un sondage de test", {
+    useAutoDetection: true,
   });
-  
+
   // 4. Attente réponse
   await waitForAIResponse(page, { pollType });
 });
@@ -145,21 +148,21 @@ test('Test générique de chat', async ({ page, browserName }) => {
 
 ```typescript
 const testCases = [
-  { type: 'date', message: 'Organise une réunion demain' },
-  { type: 'form', message: 'Crée un formulaire de feedback' },
-  { type: 'quizz', message: 'Crée un quiz React' },
-  { type: 'availability', message: 'Disponibilités cette semaine ?' }
+  { type: "date", message: "Organise une réunion demain" },
+  { type: "form", message: "Crée un formulaire de feedback" },
+  { type: "quizz", message: "Crée un quiz React" },
+  { type: "availability", message: "Disponibilités cette semaine ?" },
 ];
 
 for (const testCase of testCases) {
   await navigateToWorkspaceAuto(page, browserName, {
-    forceType: testCase.type
+    forceType: testCase.type,
   });
-  
+
   await verifyChatFunctionality(page, {
-    testMessage: testCase.message
+    testMessage: testCase.message,
   });
-  
+
   await waitForAIResponse(page, { pollType: testCase.type });
 }
 ```
@@ -173,13 +176,13 @@ for (const testCase of testCases) {
 await navigateToDateWorkspace(page, browserName);
 await waitForChatInput(page);
 const chatInput = page.locator('[data-testid="chat-input"]');
-await chatInput.fill('Organise une réunion');
+await chatInput.fill("Organise une réunion");
 
-// Form polls  
+// Form polls
 await navigateToFormWorkspace(page, browserName);
 await waitForChatInput(page);
 const chatInput = page.locator('[data-testid="chat-input"]');
-await chatInput.fill('Crée un formulaire');
+await chatInput.fill("Crée un formulaire");
 ```
 
 ### Après (générique)
@@ -187,7 +190,7 @@ await chatInput.fill('Crée un formulaire');
 ```typescript
 // Fonctionne pour tous les types
 await navigateToWorkspaceAuto(page, browserName);
-await sendChatMessage(page, 'Organise une réunion', { useAutoDetection: true });
+await sendChatMessage(page, "Organise une réunion", { useAutoDetection: true });
 ```
 
 ## 🎯 Avantages
@@ -203,10 +206,10 @@ await sendChatMessage(page, 'Organise une réunion', { useAutoDetection: true })
 Les helpers incluent du logging détaillé pour faciliter le debug :
 
 ```typescript
-console.log('🔍 Auto-detected poll type: form');
-console.log('✅ Chat zone found');
-console.log('✅ Chat state validated: ready');
-console.log('✅ Test message sent successfully');
+console.log("🔍 Auto-detected poll type: form");
+console.log("✅ Chat zone found");
+console.log("✅ Chat state validated: ready");
+console.log("✅ Test message sent successfully");
 ```
 
 ## ⚠️ Notes Importantes

@@ -1,6 +1,7 @@
 # Plan: DooDates AI Scheduling Assistant
 
 ## Notes
+
 - **Core Strategy**: The project has pivoted from a "modern Doodle" to a revolutionary "AI-first scheduling assistant". The key differentiator is the conversational UI, positioning it as a Blue Ocean product.
 - **Business Model**: A hybrid one-time payment model has been finalized:
   - **Free**: Basic, limited functionality (3 active polls, no history).
@@ -13,6 +14,7 @@
 ## Task List
 
 ### Phase 0: Project Foundation & Setup
+
 - [x] Initialize Next.js project (`npx create-next-app@latest doodates`).
 - [x] Install core dependencies (`Supabase`, `Prisma`, `Stripe`, `date-fns`, `next-intl`).
 - [x] Set up Supabase project (Database, Auth, Storage).
@@ -20,6 +22,7 @@
 - [x] Establish project structure (e.g., `app/[locale]`, `components/ui`, `lib`, `services`).
 
 ### Phase 1: Core MVP (Classic Interface - Free/Pro Tiers)
+
 - [ ] **Authentication & User Management**
   - [ ] Implement email/password and social login (Google, GitHub) with Supabase Auth.
   - [ ] Create user profile page with account deletion (GDPR compliant).
@@ -45,6 +48,7 @@
   - [ ] Implement basic `.ics` export for selected time slots.
 
 ### Phase 2: Monetization & Pro Features
+
 - [ ] **Payments**
   - [ ] Integrate Stripe for one-time payments (Pro & Premium).
   - [ ] Create a pricing page detailing the tiers.
@@ -55,6 +59,7 @@
   - [ ] Implement permanent poll history and search.
 
 ### Phase 3: The AI Assistant (Premium Tier)
+
 - [ ] **AI Stack Integration**
   - [ ] Set up Vercel AI SDK for streaming responses.
   - [ ] Integrate with OpenAI API (GPT-4).
@@ -70,4 +75,5 @@
   - [ ] Integrate with Slack for creating polls via slash commands.
 
 ## Current Goal
+
 Set up the project foundation and build the core MVP features for the classic UI.

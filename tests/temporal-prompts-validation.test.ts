@@ -1,7 +1,7 @@
 /**
  * Tests de validation des prompts temporels PARTIEL/NOK
  * Rejoue les prompts problématiques du dataset pour vérifier les améliorations
- * 
+ *
  * Teste avec un seul prompt pour valider l'appel réel à Gemini via Supabase
  */
 
@@ -49,18 +49,20 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
   beforeAll(async () => {
     geminiService = GeminiService.getInstance();
     calendarQuery = new CalendarQuery();
-    
+
     const apiKey = process.env.VITE_GEMINI_API_KEY;
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
     const useDirectGemini = process.env.VITE_USE_DIRECT_GEMINI === "true";
-    
+
     console.log("\n📋 Configuration détectée:");
     console.log(`  - VITE_GEMINI_API_KEY: ${apiKey ? "✅ Présente" : "❌ Manquante"}`);
     console.log(`  - VITE_SUPABASE_URL: ${supabaseUrl ? "✅ Présente" : "❌ Manquante"}`);
     console.log(`  - Mode: ${useDirectGemini ? "DIRECT API" : "EDGE FUNCTION (Supabase)"}`);
-    
+
     if (!useDirectGemini && !supabaseUrl) {
-      throw new Error("VITE_SUPABASE_URL manquante. Configurez-la dans .env.local pour tester via Edge Function");
+      throw new Error(
+        "VITE_SUPABASE_URL manquante. Configurez-la dans .env.local pour tester via Edge Function",
+      );
     }
   });
 
@@ -76,13 +78,14 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       timeRange: { start: "08:00", end: "10:00" },
       duration: { max: 30 },
     },
-    originalAnalysis: "PARTIEL – bonnes dates mais aucune plage horaire, donc inutilisable en l'état.",
+    originalAnalysis:
+      "PARTIEL – bonnes dates mais aucune plage horaire, donc inutilisable en l'état.",
   };
 
   it(`[${testCase.expectedStatus}] ${testCase.input}`, async () => {
     console.log(`\n🧪 Test du prompt: "${testCase.input}"`);
     console.log(`📋 Critères attendus:`, testCase.expectedCriteria);
-    
+
     const result = await runPromptTest(testCase);
     testResults.push(result);
 
@@ -91,15 +94,17 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     console.log(`  - Status: ${result.passed ? "✅ RÉUSSI" : "❌ ÉCHEC"}`);
     console.log(`  - Dates générées: ${result.details.datesCount}`);
     console.log(`  - Créneaux générés: ${result.details.timeSlotsCount}`);
-    
+
     if (result.details.timeSlots && result.details.timeSlots.length > 0) {
       console.log(`  - Créneaux détaillés:`);
       result.details.timeSlots.forEach((slot, idx) => {
         const duration = calculateDuration(slot.start, slot.end);
-        console.log(`    ${idx + 1}. ${slot.start}-${slot.end} (${duration}min) sur ${slot.dates?.join(", ") || "dates"}`);
+        console.log(
+          `    ${idx + 1}. ${slot.start}-${slot.end} (${duration}min) sur ${slot.dates?.join(", ") || "dates"}`,
+        );
       });
     }
-    
+
     if (result.details.violations.length > 0) {
       console.log(`  - Violations:`);
       result.details.violations.forEach((v) => {
@@ -111,7 +116,9 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     expect(result.passed).toBe(true);
     expect(result.score).toBeGreaterThanOrEqual(0.7);
     expect(result.details.hasTimeSlots).toBe(true);
-    expect(result.details.timeSlotsCount).toBeGreaterThanOrEqual(testCase.expectedCriteria.minTimeSlots || 1);
+    expect(result.details.timeSlotsCount).toBeGreaterThanOrEqual(
+      testCase.expectedCriteria.minTimeSlots || 1,
+    );
   }, 60000);
 
   afterAll(async () => {
@@ -129,12 +136,12 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     try {
       console.log(`\n🔄 Appel à GeminiService.generatePollFromText...`);
       const startTime = Date.now();
-      
+
       const response = await geminiService.generatePollFromText(testCase.input);
-      
+
       const duration = Date.now() - startTime;
       console.log(`⏱️  Temps de réponse: ${duration}ms`);
-      
+
       if (!response.success || !response.data) {
         console.error(`❌ Échec génération: ${response.message}`);
         return {
@@ -153,7 +160,7 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
       console.log(`✅ Réponse reçue avec succès`);
       const poll = response.data as DatePollSuggestion;
-      
+
       console.log(`  - Type: ${poll.type}`);
       console.log(`  - Dates: ${poll.dates?.length || 0}`);
       console.log(`  - Créneaux: ${poll.timeSlots?.length || 0}`);
@@ -170,12 +177,22 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
       // Vérifier nombre de créneaux
       const timeSlotsCount = poll.timeSlots?.length || 0;
-      if (testCase.expectedCriteria.minTimeSlots && timeSlotsCount < testCase.expectedCriteria.minTimeSlots) {
-        violations.push(`Trop peu de créneaux: ${timeSlotsCount} < ${testCase.expectedCriteria.minTimeSlots}`);
+      if (
+        testCase.expectedCriteria.minTimeSlots &&
+        timeSlotsCount < testCase.expectedCriteria.minTimeSlots
+      ) {
+        violations.push(
+          `Trop peu de créneaux: ${timeSlotsCount} < ${testCase.expectedCriteria.minTimeSlots}`,
+        );
         score -= 0.2;
       }
-      if (testCase.expectedCriteria.maxTimeSlots && timeSlotsCount > testCase.expectedCriteria.maxTimeSlots) {
-        violations.push(`Trop de créneaux: ${timeSlotsCount} > ${testCase.expectedCriteria.maxTimeSlots}`);
+      if (
+        testCase.expectedCriteria.maxTimeSlots &&
+        timeSlotsCount > testCase.expectedCriteria.maxTimeSlots
+      ) {
+        violations.push(
+          `Trop de créneaux: ${timeSlotsCount} > ${testCase.expectedCriteria.maxTimeSlots}`,
+        );
         score -= 0.1;
       }
 
@@ -183,7 +200,10 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       if (testCase.expectedCriteria.timeRange && poll.timeSlots) {
         const validSlots = poll.timeSlots.filter((slot) => {
           const startHour = parseInt(slot.start.split(":")[0], 10);
-          const expectedStart = parseInt(testCase.expectedCriteria.timeRange!.start.split(":")[0], 10);
+          const expectedStart = parseInt(
+            testCase.expectedCriteria.timeRange!.start.split(":")[0],
+            10,
+          );
           const expectedEnd = parseInt(testCase.expectedCriteria.timeRange!.end.split(":")[0], 10);
           return startHour >= expectedStart && startHour < expectedEnd;
         });
@@ -199,12 +219,22 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       if (testCase.expectedCriteria.duration && poll.timeSlots) {
         poll.timeSlots.forEach((slot) => {
           const duration = calculateDuration(slot.start, slot.end);
-          if (testCase.expectedCriteria.duration!.min && duration < testCase.expectedCriteria.duration!.min) {
-            violations.push(`Durée trop courte: ${duration}min < ${testCase.expectedCriteria.duration!.min}min`);
+          if (
+            testCase.expectedCriteria.duration!.min &&
+            duration < testCase.expectedCriteria.duration!.min
+          ) {
+            violations.push(
+              `Durée trop courte: ${duration}min < ${testCase.expectedCriteria.duration!.min}min`,
+            );
             score -= 0.1;
           }
-          if (testCase.expectedCriteria.duration!.max && duration > testCase.expectedCriteria.duration!.max) {
-            violations.push(`Durée trop longue: ${duration}min > ${testCase.expectedCriteria.duration!.max}min`);
+          if (
+            testCase.expectedCriteria.duration!.max &&
+            duration > testCase.expectedCriteria.duration!.max
+          ) {
+            violations.push(
+              `Durée trop longue: ${duration}min > ${testCase.expectedCriteria.duration!.max}min`,
+            );
             score -= 0.1;
           }
         });
@@ -251,4 +281,3 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     return (endHour - startHour) * 60 + (endMin - startMin);
   }
 });
-

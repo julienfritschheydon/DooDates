@@ -54,10 +54,10 @@ Options dans l’UI :
 
 On autorise des paramètres optionnels :
 
-- `primary`: couleur principale (boutons, liens)  
-- `accent`: couleur secondaire  
-- `bg`: couleur de fond  
-- `text`: couleur de texte principale  
+- `primary`: couleur principale (boutons, liens)
+- `accent`: couleur secondaire
+- `bg`: couleur de fond
+- `text`: couleur de texte principale
 - `border`: couleur de bordures
 
 Exemple :
@@ -77,7 +77,6 @@ Côté app :
 
 - Lecture des query params au montage.
 - Application via variables CSS (ou thème Tailwind) :
-
   - `--dd-primary`
   - `--dd-accent`
   - `--dd-bg`
@@ -91,7 +90,6 @@ Côté app :
 Pour éviter de répéter les hex dans tous les sites, gestion de **thèmes nommés** côté DooDates :
 
 - Dans le dashboard, l’utilisateur configure un **thème** :
-
   - Nom interne : `client-foo`
   - Palette : primary, accent, bg, text, border
 
@@ -128,7 +126,6 @@ Principe :
 1. Le site tiers gère **son propre login**.
 2. Quand il doit afficher un embed DooDates, il génère ou récupère un **JWT embed**.
 3. Ce JWT est passé en paramètre d’URL :
-
    - `...?embed=1&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 4. DooDates valide le token, associe l’utilisateur externe à un **compte/organisation DooDates** et affiche les sondages correspondants.
@@ -144,12 +141,10 @@ Principe :
 #### 3.1.2. Flux d’intégration
 
 - Côté SaaS :
-
   - L’API backend génère un JWT signé avec une clé partagée ou un couple clé privée/publique.
   - Le frontend injecte ce token dans l’URL de l’iframe.
 
 - Côté DooDates :
-
   - Middleware d’auth embed :
     - Récupère `token`.
     - Vérifie signature + expiration.
@@ -169,10 +164,10 @@ Pour simplifier la vie des intégrateurs, fournir un petit SDK :
     pollSlug: "my-slug",
     theme: {
       primary: "#4F46E5",
-      accent: "#F97316"
+      accent: "#F97316",
     },
     auth: {
-      token: "JWT_EMBED_ISSU_PAR_LE_CLIENT"
+      token: "JWT_EMBED_ISSU_PAR_LE_CLIENT",
     },
     callbacks: {
       onSubmit: (result) => {
@@ -180,8 +175,8 @@ Pour simplifier la vie des intégrateurs, fournir un petit SDK :
       },
       onError: (error) => {
         console.error("Erreur embed DooDates", error);
-      }
-    }
+      },
+    },
   });
 </script>
 ```

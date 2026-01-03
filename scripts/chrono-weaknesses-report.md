@@ -12,14 +12,12 @@
 
 ## Cas problématiques
 
-
 ### 1. "Crée un sondage pour un week-end jeux. Ajoute tous les samedis de mars 2026"
 
 - **Attendu**: mars 2026
 - **Détecté**: RIEN
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
-
 
 ### 2. "Planifie un événement tous les samedis de mai 2026"
 
@@ -28,14 +26,12 @@
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
 
-
 ### 3. "Crée un sondage pour les dimanches de décembre 2025"
 
 - **Attendu**: décembre 2025
 - **Détecté**: RIEN
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
-
 
 ### 4. "mars 2026"
 
@@ -44,14 +40,12 @@
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
 
-
 ### 5. "mars"
 
 - **Attendu**: mars
 - **Détecté**: RIEN
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
-
 
 ### 6. "en mars"
 
@@ -60,14 +54,12 @@
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
 
-
 ### 7. "début mars"
 
 - **Attendu**: début mars
 - **Détecté**: RIEN
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
-
 
 ### 8. "fin mars"
 
@@ -76,14 +68,12 @@
 - **Problème**: Aucune date détectée
 - **Date extraite**: N/A
 
-
 ### 9. "vendredi soir ou samedi matin"
 
 - **Attendu**: vendredi ou samedi
 - **Détecté**: vendredi soir
 - **Problème**: Texte détecté ne correspond pas
 - **Date extraite**: 2025-11-21
-
 
 ### 10. "Propose trois soirées pour un escape game fin mars."
 
@@ -92,7 +82,6 @@
 - **Problème**: Texte détecté ne correspond pas
 - **Date extraite**: 2025-11-21
 
-
 ### 11. "Trouve un après-midi libre la semaine prochaine pour la visite au musée."
 
 - **Attendu**: semaine prochaine
@@ -100,14 +89,12 @@
 - **Problème**: Texte détecté ne correspond pas
 - **Date extraite**: 2025-11-22
 
-
 ### 12. "Bloque un créneau vendredi soir ou samedi matin pour un footing."
 
 - **Attendu**: vendredi ou samedi
 - **Détecté**: vendredi soir
 - **Problème**: Texte détecté ne correspond pas
 - **Date extraite**: 2025-11-21
-
 
 ## Patterns non reconnus
 

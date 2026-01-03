@@ -7,6 +7,7 @@
 **Statut :** **TOUS LES TESTS SONT EN VERT** 🎉
 
 ### Détails des tests validés :
+
 - ✅ Pas d'erreurs console critiques
 - ✅ Navigation principale fonctionne
 - ✅ Configuration BASE_URL valide
@@ -28,6 +29,7 @@
 **Principe fondamental :** **Jamais de modification sans test immédiat**
 
 #### 1. **Tests Unitaires (TU) - Avant chaque refactor**
+
 ```bash
 # Exécuter avant toute modification
 npm test -- --watch src/lib/produits/date-polls/
@@ -36,6 +38,7 @@ npm test -- --watch src/lib/produits/quizz/
 ```
 
 #### 2. **Tests E2E - Après chaque étape majeure**
+
 ```bash
 # Validation production après chaque scission
 npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium
@@ -47,6 +50,7 @@ npx playwright test tests/e2e/quizz/ --project=chromium
 ```
 
 #### 3. **Tests Intégration - Cross-produits**
+
 ```bash
 # Validation services partagés
 npx playwright test tests/integration/api-security-performance.spec.ts --project=chromium
@@ -61,6 +65,7 @@ npx playwright test tests/integration/api-security-performance.spec.ts --project
 **Objectif :** Scinder `pollStorage.ts` (1343 lignes) en 3 services distincts
 
 #### Structure Cible :
+
 ```
 src/lib/products/
 ├── date-polls/
@@ -78,19 +83,17 @@ src/lib/products/
 ```
 
 #### Étapes JOUR 1 :
+
 1. **Analyser pollStorage.ts** (30 min)
    - Identifier fonctions par produit
    - Documenter dépendances croisées
-   
 2. **Créer services séparés** (1h30)
    - Extraire logique date-polls
-   - Extraire logique form-polls  
+   - Extraire logique form-polls
    - Extraire logique quizz
-   
 3. **Maintenir interface unifiée** (30 min)
    - Créer `index.ts` avec exports rétrocompatibles
    - Mettre à jour imports critiques
-   
 4. **Tests validation** (1h)
    - TU chaque service
    - E2E production complet
@@ -101,6 +104,7 @@ src/lib/products/
 **Objectif :** Scinder `gemini.ts` (2072 lignes) en modules IA
 
 #### Structure Cible :
+
 ```
 src/lib/ai/gemini/
 ├── gemini-service.ts          (orchestration)
@@ -115,19 +119,17 @@ src/lib/ai/gemini/
 ```
 
 #### Étapes JOUR 2 :
+
 1. **Analyser gemini.ts** (30 min)
    - Identifier logique par type de prompt
    - Isoler services hints
-   
 2. **Créer modules séparés** (1h30)
    - Module prompts simples
    - Module prompts complexes
    - Module hints
-   
 3. **Implémenter logique conditionnelle** (30 min)
    - `isComplexCase()` function
    - Routing automatique
-   
 4. **Tests validation** (1h)
    - TU chaque module
    - Tests IA complets
@@ -138,7 +140,9 @@ src/lib/ai/gemini/
 **Objectif :** Finaliser structure backend multi-produits
 
 #### Actions JOUR 3 :
+
 1. **Créer dossiers partagés** (30 min)
+
    ```
    src/lib/shared/
    ├── conversation-storage.ts
@@ -150,12 +154,10 @@ src/lib/ai/gemini/
 2. **Mettre à jour imports restants** (1h)
    - 50+ imports pollStorage.ts
    - 20+ imports gemini.ts
-   
 3. **Validation complète** (1h30)
    - TU tous services
    - E2E tous produits
    - Tests intégration
-   
 4. **Documentation** (30 min)
    - README architecture
    - Guide migration
@@ -167,6 +169,7 @@ src/lib/ai/gemini/
 ### Tests Unitaires (TU) - Chaque Service
 
 #### Pour chaque service créé :
+
 ```typescript
 // Exemple : date-polls-service.test.ts
 describe('DatePollsService', () => {
@@ -174,7 +177,7 @@ describe('DatePollsService', () => {
     const result = await datePollsService.create({...});
     expect(result.type).toBe('date');
   });
-  
+
   test('parsing temporel', async () => {
     const result = await datePollsService.parseTemporal("demain à 14h");
     expect(result.isValid).toBe(true);
@@ -183,17 +186,19 @@ describe('DatePollsService', () => {
 ```
 
 #### Couverture attendue :
+
 - **Date Polls :** 15 tests TU
-- **Form Polls :** 10 tests TU  
+- **Form Polls :** 10 tests TU
 - **Quizz :** 8 tests TU
 - **Services IA :** 12 tests TU
 
 ### Tests E2E - Par Produit
 
 #### Date Polls :
+
 ```typescript
 // date-polls-smoke.spec.ts
-test('Création sondage dates', async () => {
+test("Création sondage dates", async () => {
   // Navigation vers création
   // Remplissage formulaire dates
   // Validation création
@@ -202,9 +207,10 @@ test('Création sondage dates', async () => {
 ```
 
 #### Form Polls :
+
 ```typescript
 // form-polls-smoke.spec.ts
-test('Création sondage formulaire', async () => {
+test("Création sondage formulaire", async () => {
   // Navigation vers création
   // Ajout questions
   // Validation création
@@ -213,9 +219,10 @@ test('Création sondage formulaire', async () => {
 ```
 
 #### Quizz :
+
 ```typescript
 // quizz-smoke.spec.ts
-test('Création quizz', async () => {
+test("Création quizz", async () => {
   // Navigation vers création
   // Ajout questions + réponses
   // Validation création
@@ -226,16 +233,17 @@ test('Création quizz', async () => {
 ### Tests Intégration - Cross-Produits
 
 #### Services Partagés :
+
 ```typescript
 // shared-services-integration.spec.ts
-test('Authentification partagée', async () => {
+test("Authentification partagée", async () => {
   // Test login unique
   // Vérification accès tous produits
 });
 
-test('Quotas cross-produits', async () => {
+test("Quotas cross-produits", async () => {
   // Création poll date
-  // Création poll formulaire  
+  // Création poll formulaire
   // Vérification décompte unifié
 });
 ```
@@ -245,18 +253,21 @@ test('Quotas cross-produits', async () => {
 ## 📊 MÉTRIQUES DE SUCCÈS
 
 ### Techniques :
+
 - ✅ **0 régression** dans tests E2E production
 - ✅ **85%+ couverture** TU nouveaux services
 - ✅ **Temps execution** tests < 2 minutes
 - ✅ **0 erreur** TypeScript
 
 ### Fonctionnelles :
+
 - ✅ **Date Polls** 100% fonctionnels
-- ✅ **Form Polls** 100% fonctionnels  
+- ✅ **Form Polls** 100% fonctionnels
 - ✅ **Quizz** 100% fonctionnels
 - ✅ **Services partagés** opérationnels
 
 ### Architecture :
+
 - ✅ **Services isolés** par produit
 - ✅ **Zéro dépendance** croisée
 - ✅ **Interface unifiée** maintenue
@@ -267,30 +278,39 @@ test('Quotas cross-produits', async () => {
 ## 🚀 EXÉCUTION - JOUR PAR JOUR
 
 ### LUNDI : Scission pollStorage.ts
+
 **Matin (2h) :**
+
 - 09:00-09:30 : Analyse pollStorage.ts
 - 09:30-11:00 : Création services séparés
 - 11:00-11:30 : Interface unifiée
 
 **Après-midi (1h) :**
+
 - 14:00-15:00 : Tests validation
 
-### MARDI : Scission gemini.ts  
+### MARDI : Scission gemini.ts
+
 **Matin (2h) :**
+
 - 09:00-09:30 : Analyse gemini.ts
 - 09:30-11:00 : Création modules IA
 - 11:00-11:30 : Logique conditionnelle
 
 **Après-midi (1h) :**
+
 - 14:00-15:00 : Tests validation
 
 ### MERCREDI : Finalisation
+
 **Matin (2h) :**
+
 - 09:00-09:30 : Dossiers partagés
 - 09:30-10:30 : Imports restants
 - 10:30-11:30 : Tests complets
 
 **Après-midi (1h) :**
+
 - 14:00-14:30 : Documentation
 - 14:30-15:00 : Validation finale
 
@@ -299,19 +319,22 @@ test('Quotas cross-produits', async () => {
 ## 🎯 CRITÈRES DE VALIDATION FINALE
 
 ### Tests Passants :
+
 - [ ] `production-smoke.spec.ts` : **11/11** ✅
 - [ ] `date-polls-smoke.spec.ts` : **5/5**
-- [ ] `form-polls-smoke.spec.ts` : **5/5**  
+- [ ] `form-polls-smoke.spec.ts` : **5/5**
 - [ ] `quizz-smoke.spec.ts` : **3/3**
 - [ ] `shared-services-integration.spec.ts` : **4/4**
 
 ### Architecture :
+
 - [ ] **pollStorage.ts** scindé en 3 services ✅
 - [ ] **gemini.ts** modularisé ✅
 - [ ] **Imports** mis à jour ✅
 - [ ] **Documentation** complète ✅
 
 ### Fonctionnalités :
+
 - [ ] Date Polls : **100%** fonctionnels ✅
 - [ ] Form Polls : **100%** fonctionnels ✅
 - [ ] Quizz : **100%** fonctionnels ✅
@@ -322,6 +345,7 @@ test('Quotas cross-produits', async () => {
 ## 🏆 RÉSULTAT ATTENDU
 
 **Après 3 jours :**
+
 - Architecture **modulaire et maintenable**
 - Services **isolés par produit**
 - Tests **automatisés et fiables**
@@ -332,4 +356,4 @@ test('Quotas cross-produits', async () => {
 
 ---
 
-*Document créé le 2 décembre 2025 - Basé sur tests E2E réussis et planning existant*
+_Document créé le 2 décembre 2025 - Basé sur tests E2E réussis et planning existant_

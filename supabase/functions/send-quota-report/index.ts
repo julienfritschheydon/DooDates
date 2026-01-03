@@ -1,10 +1,10 @@
 /**
  * Edge Function: Envoi automatique du rapport de quotas guests
- * 
+ *
  * Usage:
  * - Appel manuel: POST /functions/v1/send-quota-report
  * - Cron job: Configurer dans Supabase Dashboard > Database > Cron Jobs
- * 
+ *
  * Configuration cron recommandée:
  * - Quotidien: 0 9 * * * (9h du matin)
  * - Hebdomadaire: 0 9 * * 1 (Lundi 9h)
@@ -34,7 +34,11 @@ interface ReportData {
   alerts: {
     critical: Array<{ fingerprint: string; total_credits: number; status: string }>;
     near_limit: number;
-    suspicious_activity: Array<{ fingerprint: string; rapid_actions: number; minutes_span: number }>;
+    suspicious_activity: Array<{
+      fingerprint: string;
+      rapid_actions: number;
+      minutes_span: number;
+    }>;
   };
   top_consumers: Array<{
     fingerprint: string;
@@ -74,40 +78,41 @@ serve(async (req) => {
       // Si les variables d'environnement ne sont pas disponibles, essayer de les récupérer depuis les headers
       const authHeader = req.headers.get("Authorization");
       const apiKeyHeader = req.headers.get("apikey");
-      
+
       // Pour les Edge Functions, SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont automatiquement disponibles
       // Si ce n'est pas le cas, utiliser l'URL depuis la requête
       const inferredUrl = supabaseUrl || req.url.split("/functions/v1/")[0];
-      
+
       if (!supabaseServiceKey && (authHeader || apiKeyHeader)) {
         // Utiliser la clé fournie dans les headers comme fallback
         const providedKey = authHeader?.replace("Bearer ", "") || apiKeyHeader || "";
         const supabase = createClient(inferredUrl, providedKey);
-        
+
         // Vérifier si c'est une clé service_role valide
         if (!providedKey.startsWith("eyJ")) {
           return new Response(
             JSON.stringify({
               success: false,
-              error: "Invalid API key format. Please use your anon public or service_role key from Supabase Dashboard > Settings > API",
+              error:
+                "Invalid API key format. Please use your anon public or service_role key from Supabase Dashboard > Settings > API",
             }),
             {
               headers: { ...corsHeaders, "Content-Type": "application/json" },
               status: 401,
-            }
+            },
           );
         }
       } else if (!supabaseServiceKey) {
-        throw new Error("Missing Supabase environment variables. SUPABASE_SERVICE_ROLE_KEY should be automatically available in Edge Functions.");
+        throw new Error(
+          "Missing Supabase environment variables. SUPABASE_SERVICE_ROLE_KEY should be automatically available in Edge Functions.",
+        );
       }
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Générer le rapport via la fonction SQL
-    const { data: report, error: reportError } = await supabase.rpc(
-      "generate_guest_quota_report"
-    );
+    const { data: report, error: reportError } = await supabase.rpc("generate_guest_quota_report");
 
     if (reportError) {
       throw new Error(`Failed to generate report: ${reportError.message}`);
@@ -140,7 +145,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("Error generating quota report:", error);
@@ -152,7 +157,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
-      }
+      },
     );
   }
 });
@@ -165,7 +170,7 @@ function formatReport(report: ReportData): string {
   const alerts = report.alerts;
 
   let formatted = `
-📊 RAPPORT QUOTAS GUESTS - ${new Date(report.generated_at).toLocaleString('fr-FR')}
+📊 RAPPORT QUOTAS GUESTS - ${new Date(report.generated_at).toLocaleString("fr-FR")}
 ${"=".repeat(60)}
 
 📈 STATISTIQUES GLOBALES
@@ -211,18 +216,22 @@ ${"=".repeat(60)}
 async function sendWebhookReport(
   webhookUrl: string,
   formattedReport: string,
-  reportData: ReportData
+  reportData: ReportData,
 ): Promise<void> {
   const stats = reportData.statistics;
   const alerts = reportData.alerts;
 
   // Format Slack avec blocks pour un meilleur rendu
-  const blocks: Array<{ type: string; text?: { type: string; text: string }; fields?: Array<{ type: string; text: string }> }> = [
+  const blocks: Array<{
+    type: string;
+    text?: { type: string; text: string };
+    fields?: Array<{ type: string; text: string }>;
+  }> = [
     {
       type: "header",
       text: {
         type: "plain_text",
-        text: `📊 Rapport Quotas Guests - ${new Date(reportData.generated_at).toLocaleDateString('fr-FR')}`,
+        text: `📊 Rapport Quotas Guests - ${new Date(reportData.generated_at).toLocaleDateString("fr-FR")}`,
       },
     },
     {
@@ -303,7 +312,7 @@ async function sendWebhookReport(
             text: `*Activités suspectes:*\n${alerts.suspicious_activity?.length || 0}`,
           },
         ],
-      }
+      },
     );
 
     // Liste des guests critiques si présents
@@ -335,14 +344,14 @@ async function sendWebhookReport(
           type: "mrkdwn",
           text: "*🔝 TOP 5 CONSOMMATEURS (24h)*",
         },
-      }
+      },
     );
 
     const topList = reportData.top_consumers
       .slice(0, 5)
       .map(
         (g, i) =>
-          `${i + 1}. ${g.fingerprint.substring(0, 16)}... - ${g.total_credits} crédits (${g.ai_messages} IA, ${g.conversations} conv)`
+          `${i + 1}. ${g.fingerprint.substring(0, 16)}... - ${g.total_credits} crédits (${g.ai_messages} IA, ${g.conversations} conv)`,
       )
       .join("\n");
 
@@ -375,7 +384,10 @@ async function sendWebhookReport(
 /**
  * Log le rapport dans Supabase (optionnel)
  */
-async function logReport(supabase: import("@supabase/supabase-js").SupabaseClient, reportData: ReportData): Promise<void> {
+async function logReport(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  reportData: ReportData,
+): Promise<void> {
   // Créer une table de logs si nécessaire
   // CREATE TABLE IF NOT EXISTS quota_report_logs (
   //   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -392,4 +404,3 @@ async function logReport(supabase: import("@supabase/supabase-js").SupabaseClien
     console.log("Could not log report (table may not exist):", error);
   }
 }
-

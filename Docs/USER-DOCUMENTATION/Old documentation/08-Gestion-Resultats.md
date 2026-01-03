@@ -24,6 +24,7 @@ Dashboard → Votre sondage → [Voir les résultats]
 ```
 
 **Ou via le lien direct :**
+
 ```
 https://doodates.com/results/abc123
 ```
@@ -33,11 +34,13 @@ https://doodates.com/results/abc123
 ### Vérification des Permissions
 
 **Accès autorisé si :**
+
 - ✅ Vous êtes le **créateur** du sondage
 - ✅ Vous avez **voté** (si visibilité = "Participants")
 - ✅ Visibilité = "Public"
 
 **Accès refusé si :**
+
 - ❌ Visibilité = "Créateur uniquement" ET vous n'êtes pas le créateur
 - ❌ Visibilité = "Participants" ET vous n'avez pas voté
 
@@ -48,6 +51,7 @@ https://doodates.com/results/abc123
 ### Sondages de Dates
 
 #### Vue Tableau
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │  Mardi 12 nov, 9h-11h                               │
@@ -65,6 +69,7 @@ https://doodates.com/results/abc123
 ```
 
 #### Vue Matrice
+
 ```
                   12/11  12/11  14/11
                   9h-11h 14h-16h 14h-16h
@@ -79,6 +84,7 @@ Henry Taylor        ✗      ✗      ✗
 ```
 
 #### Vue Calendrier
+
 ```
  Novembre 2025
 ┌──┬──┬──┬──┬──┬──┬──┐
@@ -100,6 +106,7 @@ Légende :
 ### Formulaires
 
 #### Questions à Choix (Pie Chart)
+
 ```
 Q1 : Niveau de satisfaction
 
@@ -121,6 +128,7 @@ Q1 : Niveau de satisfaction
 ```
 
 #### Questions à Choix Multiples (Bar Chart)
+
 ```
 Q2 : Qu'appréciez-vous ?
 
@@ -131,6 +139,7 @@ Ambiance      ████████ 36% (18)
 ```
 
 #### Rating (Distribution)
+
 ```
 Q3 : Note globale
 
@@ -144,6 +153,7 @@ Note moyenne : 4.2/5 ⭐⭐⭐⭐☆
 ```
 
 #### NPS (Score + Segments)
+
 ```
 Q4 : Net Promoter Score
 
@@ -172,6 +182,7 @@ Détail par note :
 ```
 
 #### Matrix (Heatmap)
+
 ```
 Q5 : Évaluez notre service
 
@@ -188,6 +199,7 @@ Légende :
 ```
 
 #### Texte Libre (Nuage + Liste)
+
 ```
 Q6 : Vos suggestions ?
 
@@ -196,7 +208,7 @@ Nuage de mots :
        RAPIDITÉ
     ambiance  prix  livraison
        menu    parking
-    
+
 Mots-clés les plus fréquents :
 1. Rapidité (12 mentions)
 2. Qualité (8 mentions)
@@ -216,6 +228,7 @@ Liste des réponses :
 ### Vue d'Ensemble
 
 **En haut de la page de résultats :**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │  📊 Résultats : Satisfaction Client Q4           │
@@ -262,6 +275,7 @@ Distribution :
 ### Tendances Temporelles
 
 **Graphique d'évolution :**
+
 ```
 📈 Satisfaction dans le temps
 
@@ -305,6 +319,7 @@ Distribution :
 ### Configurer la Visibilité
 
 **Paramètres du sondage :**
+
 ```
 Qui peut voir les résultats ?
 ⚫ Moi uniquement (créateur)
@@ -317,11 +332,13 @@ Qui peut voir les résultats ?
 ### Visibilité : Créateur Uniquement
 
 **Avantages :**
+
 - ✅ Confidentialité maximale
 - ✅ Contrôle total
 - ✅ Pas de biais de réponses
 
 **Cas d'usage :**
+
 - Enquêtes RH sensibles
 - Feedback confidentiel
 - Études de marché compétitives
@@ -331,17 +348,20 @@ Qui peut voir les résultats ?
 ### Visibilité : Participants
 
 **Avantages :**
+
 - ✅ Transparence
 - ✅ Engagement des participants
 - ✅ Décisions collaboratives
 
 **Mécanisme :**
+
 ```
 Après avoir voté → Bouton "Voir les résultats" activé
 Sans voter → Message "Votez pour voir les résultats"
 ```
 
 **Cas d'usage :**
+
 - Sondages de groupe (date de réunion)
 - Décisions d'équipe
 - Votes communautaires
@@ -351,15 +371,18 @@ Sans voter → Message "Votez pour voir les résultats"
 ### Visibilité : Public
 
 **Avantages :**
+
 - ✅ Maximum de transparence
 - ✅ Partage facile
 - ✅ Marketing viral
 
 **Risques :**
+
 - ⚠️ Biais de réponses ("effet mouton")
 - ⚠️ Données sensibles exposées
 
 **Cas d'usage :**
+
 - Sondages d'opinion publics
 - Études de marché transparentes
 - Votes ouverts
@@ -379,6 +402,7 @@ Sans voter → Message "Votez pour voir les résultats"
 ### Exporter
 
 **Formats disponibles :**
+
 ```
 📥 Exporter ▼
 ├── CSV (Excel, Google Sheets)
@@ -394,6 +418,7 @@ Sans voter → Message "Votez pour voir les résultats"
 ### Partager les Résultats
 
 **Options :**
+
 ```
 🔗 Copier le lien des résultats
 📧 Envoyer par email
@@ -402,6 +427,7 @@ Sans voter → Message "Votez pour voir les résultats"
 ```
 
 **Lien généré :**
+
 ```
 https://doodates.com/results/abc123
 ```
@@ -411,6 +437,7 @@ https://doodates.com/results/abc123
 ### Analytics IA
 
 **Bouton dédié :**
+
 ```
 [📊 Analytics IA]
 → Ouvre le panneau d'analyse intelligente
@@ -442,6 +469,7 @@ https://doodates.com/results/abc123
 ### Mise à Jour Automatique
 
 **Les résultats se mettent à jour en direct :**
+
 ```
 ⟳ Nouveau vote reçu !
   📊 Mise à jour automatique...
@@ -449,6 +477,7 @@ https://doodates.com/results/abc123
 ```
 
 **Fréquence :**
+
 - Instantané (< 1 seconde via WebSocket)
 - Pas besoin de rafraîchir la page
 
@@ -457,6 +486,7 @@ https://doodates.com/results/abc123
 ### Notifications de Nouveau Vote
 
 **Paramétrable dans Settings :**
+
 ```
 ☑ Me notifier des nouveaux votes
   Fréquence : ○ Chaque vote
@@ -465,6 +495,7 @@ https://doodates.com/results/abc123
 ```
 
 **Notification :**
+
 ```
 ┌─────────────────────────────────────┐
 │  🔔 Nouveau vote !                  │
@@ -481,6 +512,7 @@ https://doodates.com/results/abc123
 ### Suivi en Direct
 
 **Page "Suivi en temps réel" :**
+
 ```
 🔴 LIVE - Réponses en temps réel
 
@@ -510,6 +542,7 @@ Graphique en direct :
 ### Comparer Deux Sondages
 
 **Feature Premium :**
+
 ```
 Résultats → Menu ••• → "Comparer avec..."
 → Sélectionnez un autre sondage
@@ -556,6 +589,7 @@ Affichage côte à côte :
 ## 🎯 Récapitulatif
 
 **Vous savez maintenant :**
+
 - ✅ Accéder et naviguer dans les résultats
 - ✅ Lire tous les types de graphiques
 - ✅ Configurer la visibilité
@@ -578,4 +612,3 @@ Affichage côte à côte :
 ---
 
 **© 2025 DooDates - Gestion des Résultats v1.0**
-

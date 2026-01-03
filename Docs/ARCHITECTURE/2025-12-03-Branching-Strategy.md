@@ -8,15 +8,16 @@ Ce document définit la stratégie de branching et de déploiement pour DooDates
 
 Chaque IDE travaille sur une branche dédiée avec un **dossier séparé** :
 
-| Dossier | Branche | Usage |
-|---------|---------|-------|
-| `DooDates` | `main` | Repo principal (production) |
-| `DooDates-bug` | `bug` | Corrections bugs |
-| `DooDates-testing` | `testing` | Tests d'intégration |
-| `DooDates-staging` | `staging` | Pré-validation |
-| `DooDates-preprod` | `pre-prod` | Pré-production |
+| Dossier            | Branche    | Usage                       |
+| ------------------ | ---------- | --------------------------- |
+| `DooDates`         | `main`     | Repo principal (production) |
+| `DooDates-bug`     | `bug`      | Corrections bugs            |
+| `DooDates-testing` | `testing`  | Tests d'intégration         |
+| `DooDates-staging` | `staging`  | Pré-validation              |
+| `DooDates-preprod` | `pre-prod` | Pré-production              |
 
 **⚠️ Important :** Tous les dossiers doivent pointer vers le même remote GitHub :
+
 ```bash
 # Vérifier le remote
 git remote -v
@@ -27,6 +28,7 @@ git remote set-url origin https://github.com/julienfritschheydon/DooDates.git
 ```
 
 **Règles :**
+
 - **1 dossier = 1 branche** - Ne jamais changer de branche dans un dossier
 - **Push direct vers GitHub.com** - Pas de remote local entre dossiers
 - **Workflows GitHub Actions** se déclenchent uniquement sur push vers GitHub.com
@@ -47,18 +49,21 @@ main (Production)
 **Approche :** "Automatique dès que les tests passent" ✅
 
 ### Flux Automatisé Complet
+
 ```
 bug/* ──[push]──> Tests ──[✅]──> testing ──[push]──> Tests ──[✅]──> staging ──[push]──> Tests E2E ──[✅]──> pre-prod ──[push]──> Tests Complets ──[✅]──> main
          └──[❌]──> Échec           └──[❌]──> Échec              └──[❌]──> Échec                  └──[❌]──> Échec
 ```
 
 ### Principe
+
 - **Pas de PR manuelle** : Tout est automatisé via GitHub Actions
 - **Critère unique** : Tous les tests de l'étape doivent passer ✅
 - **Promotion immédiate** : Si tests OK → merge automatique vers la branche suivante
 - **Sécurité** : Si un test échoue → aucun merge (vous devez corriger)
 
 ### Workflow Développeur
+
 ```bash
 # 1. Vous créez une branche bug
 git checkout -b bug/mon-fix
@@ -67,7 +72,7 @@ git push origin bug/mon-fix
 
 # 2. GitHub Actions fait le reste automatiquement :
 #    - Tests sur bug/* → merge vers testing
-#    - Tests sur testing → merge vers staging  
+#    - Tests sur testing → merge vers staging
 #    - Tests sur staging → merge vers pre-prod
 #    - Tests sur pre-prod → merge vers main + tag release
 
@@ -76,7 +81,8 @@ git push origin bug/mon-fix
 ```
 
 ### Temps de Promotion Estimé
-- **bug/* → testing** : 2-5 minutes
+
+- **bug/\* → testing** : 2-5 minutes
 - **testing → staging** : 5-10 minutes
 - **staging → pre-prod** : 20-30 minutes
 - **pre-prod → main** : 30-45 minutes
@@ -85,12 +91,14 @@ git push origin bug/mon-fix
 ## 🏗️ Migration des Worktrees
 
 ### État Actuel
+
 ```
 C:/Users/Julien Fritsch/Documents/GitHub/DooDates          [main]
 C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [develop]
 ```
 
 ### État Ciblé (après renommage)
+
 ```
 C:/Users/Julien Fritsch/Documents/GitHub/DooDates-main      [main]
 C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [staging]
@@ -99,7 +107,9 @@ C:/Users/Julien Fritsch/Documents/GitHub/DooDates-pre-prod  [pre-prod]  # Local 
 ```
 
 ### Plan de Migration
+
 1. **Renommer le worktree develop**
+
    ```bash
    # Depuis le worktree develop actuel
    cd ../DooDates-develop
@@ -109,6 +119,7 @@ C:/Users/Julien Fritsch/Documents/GitHub/DooDates-pre-prod  [pre-prod]  # Local 
    ```
 
 2. **Créer les nouveaux worktrees**
+
    ```bash
    # Depuis le répertoire principal
    git worktree add ../DooDates-testing testing
@@ -123,6 +134,7 @@ C:/Users/Julien Fritsch/Documents/GitHub/DooDates-pre-prod  [pre-prod]  # Local 
 ## 🌐 Environnements de Déploiement GitHub
 
 ### Architecture GitHub Pages (Locale)
+
 Chaque branche = environnement distinct avec déploiement local uniquement :
 
 ```
@@ -134,6 +146,7 @@ main      → Local (npm run preview) puis production si validé
 **Note :** Tous les environnements testés en local, pas de déploiement GitHub Pages
 
 ### Configuration GitHub Actions (Locale)
+
 ```yaml
 # .github/workflows/test-testing.yml
 on:
@@ -150,6 +163,7 @@ jobs:
 ```
 
 ### Workflows par Environnement
+
 - **testing** : `.github/workflows/test-testing.yml` (tests uniquement)
 - **staging** : `.github/workflows/test-staging.yml` (tests complets)
 - **main** : `.github/workflows/deploy-production.yml` (déploiement production)
@@ -158,10 +172,12 @@ jobs:
 ## 🧪 Stratégie de Tests par Branche
 
 ### Testing (testing)
+
 **Objectif :** Validation de l'intégration technique
 **Durée estimée :** 5-15 minutes par validation
 
 #### Tests Automatisés (GitHub Actions)
+
 ```yaml
 jobs:
   testing-validation:
@@ -170,33 +186,37 @@ jobs:
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
         timeout: 2m
-        
+
       - name: 📝 TypeScript Check
         run: npm run type-check
         timeout: 1m
-        
+
       - name: 🧹 Linting & Formatage
         run: npm run lint && npm run format:check
         timeout: 1m
-        
+
       - name: 🏗️ Build Validation
         run: npm run build
         timeout: 2m
 ```
 
 #### Tests Unitaires Existants (66 tests)
+
 **Scripts concernés :** `npm run test:unit:fast`
+
 - **Hooks** : useAutoSave, useConversationSearch, useConversationStorage, useConversations
 - **Lib** : conditionalEvaluator, conditionalValidator, date-utils, exports, temporalParser
 - **Components** : Calendar, Dashboard, PollActions, QuotaIndicator
 - **Services** : deleteCascade, titleGeneration, SimulationService
 
 #### Tests Manuels Rapides
+
 - **Navigation** : Pages principales accessibles
 - **Fonctionnalités critiques** : Chat, création sondage, vote
 - **Pas de régression évidente** : UX de base fonctionnelle
 
 #### Critères de Succès
+
 - ✅ Tous les tests unitaires passent (66+ tests)
 - ✅ Build production réussi
 - ✅ Aucune erreur TypeScript
@@ -206,10 +226,12 @@ jobs:
 ---
 
 ### Staging (staging)
+
 **Objectif :** Validation complète et performance
 **Durée estimée :** 20-45 minutes par validation
 
 #### Tests Automatisés (GitHub Actions)
+
 ```yaml
 jobs:
   staging-validation:
@@ -218,40 +240,44 @@ jobs:
       # Tous les tests de testing
       - name: 🧪 Tests Testing Complets
         run: npm run test:unit:fast && npm run lint && npm run build
-        
+
       - name: 🎭 Tests E2E Smoke
         run: npm run test:e2e:smoke
         timeout: 5m
-        
+
       - name: 🎭 Tests E2E Functional
         run: npm run test:e2e:functional
         timeout: 10m
-        
+
       - name: ⚡ Tests Performance
         run: npm run test:integration
         timeout: 5m
-        
+
       - name: ♿ Tests Accessibilité
         run: npm run test:accessibility
         timeout: 3m
 ```
 
 #### Tests E2E Existants (15+ tests)
+
 **Scripts concernés :** `npm run test:e2e:smoke` + `npm run test:e2e:functional`
 
 **Smoke Tests (@smoke) :**
+
 - `ultra-simple-poll.spec.ts` - Workflow création vote
 - `dashboard-complete.spec.ts` - Navigation dashboard
 - `authenticated-workflow.spec.ts` - Login complet
 - `production-smoke.spec.ts` - Smoke production
 
 **Functional Tests (@functional) :**
+
 - `availability-poll-workflow.spec.ts` - Sondages disponibilités
 - `form-poll-results-access.spec.ts` - Accès résultats formulaires
 - `guest-quota.spec.ts` - Quotas utilisateurs invités
 - `quota-tracking-complete.spec.ts` - Suivi quotas complet
 
 #### Tests Manuels Approfondis
+
 - **Workflow complet utilisateur** : Création → Vote → Résultats
 - **Responsive design** : Mobile, tablette, desktop
 - **Accessibilité** : Navigation clavier, lecteur écran
@@ -259,6 +285,7 @@ jobs:
 - **Cross-browser** : Chrome, Firefox, Safari, Edge
 
 #### Critères de Succès
+
 - ✅ Tous les tests E2E smoke passent
 - ✅ Tests fonctionnels critiques passent
 - ✅ Performance acceptable (< 3s)
@@ -268,10 +295,12 @@ jobs:
 ---
 
 ### Pré-production (pre-prod)
+
 **Objectif :** Validation métier et acceptation utilisateur (LOCAL UNIQUEMENT)
 **Durée estimée :** 30-45 minutes par validation
 
 #### Tests Automatisés (Local)
+
 ```bash
 # Scripts de tests locaux complets
 npm run test:unit:coverage          # Tous les tests unitaires avec coverage
@@ -281,9 +310,11 @@ npm run test:accessibility:all    # Tests accessibilité tous navigateurs
 ```
 
 #### Tests E2E Complets Existants (30+ tests)
+
 **Scripts concernés :** `npm run test:e2e:regression`
 
 **Tests Régression :**
+
 - `end-to-end-with-backend.spec.ts` - Backend complet
 - `form-poll-regression.spec.ts` - Régression formulaires
 - `security-isolation.spec.ts` - Sécurité
@@ -292,12 +323,14 @@ npm run test:accessibility:all    # Tests accessibilité tous navigateurs
 - `mobile-drag-drop.spec.ts` - Mobile interactions
 
 **Tests Spécifiques :**
+
 - `supabase-integration.spec.ts` - Intégration Supabase
 - `analytics-ai-optimized.spec.ts` - Analytics IA
 - `beta-key-activation.spec.ts` - Activation bêta
 - `tags-folders.spec.ts` - Gestion tags/dossiers
 
 #### Tests Manuels Métier (Local)
+
 - **Scénarios réels utilisateurs** : Cas d'usage complets
 - **Données réelles** : Tests avec volumes significatifs
 - **Intégrations externes** : Supabase, Gemini, Analytics
@@ -306,6 +339,7 @@ npm run test:accessibility:all    # Tests accessibilité tous navigateurs
 - **PWA** : Installation, offline, notifications
 
 #### Critères de Succès
+
 - ✅ Tous les tests E2E passent (30+ tests)
 - ✅ Couverture tests > 90%
 - ✅ APIs externes stables et performantes
@@ -313,6 +347,7 @@ npm run test:accessibility:all    # Tests accessibilité tous navigateurs
 - ✅ Feedback utilisateurs positif
 
 #### Processus de Promotion (Automatisé)
+
 ```bash
 # Toutes les promotions sont automatiques via CI/CD :
 # 1. bug/* → testing (auto-merge après tests unitaires)
@@ -328,31 +363,34 @@ git push origin bug/mon-fix
 ---
 
 ### Production (main)
+
 **Objectif :** Monitoring et surveillance continue
 **Durée estimée :** Surveillance 24/7
 
 #### Tests Automatisés (GitHub Actions)
+
 ```yaml
 jobs:
   production-monitoring:
     runs-on: ubuntu-latest
-    schedule: "*/5 * * * *"  # Toutes les 5 minutes
+    schedule: "*/5 * * * *" # Toutes les 5 minutes
     steps:
       - name: ❤️ Health Checks
         run: npm run health:check
         timeout: 2m
         endpoints: [app, api, database]
-        
+
       - name: 📊 Monitoring Performance
         run: npm run monitor:performance
         metrics: [uptime, response_time, error_rate]
-        
+
       - name: 🚨 Alertes
         run: npm run alerts:check
         conditions: [downtime, high_error_rate, slow_performance]
 ```
 
 #### Surveillance Continue
+
 - **Uptime** : Disponibilité 99.9%
 - **Performance** : Temps de réponse < 2s
 - **Erreurs** : Taux d'erreur < 1%
@@ -360,6 +398,7 @@ jobs:
 - **Ressources** : CPU, mémoire, bande passante
 
 #### Critères de Succès
+
 - ✅ Disponibilité 99.9%
 - ✅ Performance optimale
 - ✅ Erreurs minimales
@@ -368,18 +407,19 @@ jobs:
 
 ## 📊 Matrice de Tests (Basée sur Tests Existants)
 
-| Type de Test | Testing | Staging | Pre-prod (Local) | Production |
-|-------------|---------|---------|------------------|------------|
-| Unitaires (66 tests) | ✅ | ✅ | ✅ | ⏸️ |
-| E2E Smoke (4 tests) | ❌ | ✅ | ✅ | ❌ |
-| E2E Functional (8 tests) | ❌ | ✅ | ✅ | ❌ |
-| E2E Régression (15+ tests) | ❌ | ❌ | ✅ | ❌ |
-| Integration API | ❌ | ✅ | ✅ | ✅ |
-| Accessibilité | ❌ | ✅ | ✅ | ⏸️ |
-| Performance | ❌ | ✅ | ❌ | ✅ |
-| Coverage | ❌ | ❌ | ✅ | ⏸️ |
+| Type de Test               | Testing | Staging | Pre-prod (Local) | Production |
+| -------------------------- | ------- | ------- | ---------------- | ---------- |
+| Unitaires (66 tests)       | ✅      | ✅      | ✅               | ⏸️         |
+| E2E Smoke (4 tests)        | ❌      | ✅      | ✅               | ❌         |
+| E2E Functional (8 tests)   | ❌      | ✅      | ✅               | ❌         |
+| E2E Régression (15+ tests) | ❌      | ❌      | ✅               | ❌         |
+| Integration API            | ❌      | ✅      | ✅               | ✅         |
+| Accessibilité              | ❌      | ✅      | ✅               | ⏸️         |
+| Performance                | ❌      | ✅      | ❌               | ✅         |
+| Coverage                   | ❌      | ❌      | ✅               | ⏸️         |
 
 **Légende :**
+
 - ✅ Exécuté
 - ❌ Non exécuté
 - ⏸️ Monitoring uniquement
@@ -387,21 +427,27 @@ jobs:
 **Détail des tests existants :**
 
 ### 🧪 **Unitaires (66 tests) - npm run test:unit:fast**
+
 **Testing + Staging + Pre-prod**
+
 - **Hooks (25 tests)** : useAutoSave, useConversationSearch, useConversationStorage, useConversations, usePolls
-- **Lib (30 tests)** : conditionalEvaluator, conditionalValidator, date-utils, exports, temporalParser, pollStorage, gemini-*
+- **Lib (30 tests)** : conditionalEvaluator, conditionalValidator, date-utils, exports, temporalParser, pollStorage, gemini-\*
 - **Components (8 tests)** : Calendar, Dashboard, PollActions, QuotaIndicator, CascadeDeleteModal
 - **Services (3 tests)** : deleteCascade, titleGeneration, SimulationService
 
 ### 🎭 **E2E Smoke (4 tests) - npm run test:e2e:smoke**
+
 **Staging + Pre-prod**
+
 - `ultra-simple-poll.spec.ts` - Workflow création vote (@smoke)
 - `dashboard-complete.spec.ts` - Navigation dashboard (@smoke)
 - `authenticated-workflow.spec.ts` - Login complet (@smoke)
 - `production-smoke.spec.ts` - Smoke production (@smoke)
 
 ### 🎭 **E2E Functional (8 tests) - npm run test:e2e:functional**
+
 **Staging + Pre-prod**
+
 - `availability-poll-workflow.spec.ts` - Sondages disponibilités (@functional)
 - `form-poll-results-access.spec.ts` - Accès résultats formulaires (@functional)
 - `guest-quota.spec.ts` - Quotas utilisateurs invités (@functional)
@@ -412,7 +458,9 @@ jobs:
 - `analytics-ai-optimized.spec.ts` - Analytics IA (@functional)
 
 ### 🎭 **E2E Régression (15+ tests) - npm run test:e2e:regression**
+
 **Pre-prod uniquement**
+
 - `end-to-end-with-backend.spec.ts` - Backend complet
 - `form-poll-regression.spec.ts` - Régression formulaires
 - `security-isolation.spec.ts` - Sécurité
@@ -425,13 +473,17 @@ jobs:
 - Plusieurs autres tests spécifiques...
 
 ### ⚡ **Integration & Performance - npm run test:integration**
+
 **Staging + Pre-prod + Production**
+
 - `api-security-performance.spec.ts` - API + sécurité + performance
 - Tests de charge légers (k6)
 - Monitoring production
 
 ### ♿ **Accessibilité - npm run test:accessibility**
+
 **Staging + Pre-prod**
+
 - Tests WCAG 2.1 AA
 - Navigation clavier
 - Lecteur écran
@@ -440,6 +492,7 @@ jobs:
 ## 🔄 Processus de Merge (100% Automatisé)
 
 ### Workflow Complet
+
 ```
 bug/* ──[push]──> Tests Unitaires ──[✅]──> Auto-merge vers testing
                                       └──[❌]──> Échec (pas de merge)
@@ -455,7 +508,9 @@ pre-prod ──[push]──> Tests E2E Complets ──[✅]──> Auto-merge ve
 ```
 
 ### Bug → Testing (Automatisé)
+
 **Workflow:** `.github/workflows/auto-merge-bug-to-testing.yml`
+
 ```bash
 # Vous travaillez sur une branche bug
 git checkout -b bug/fix-calendar-issue
@@ -469,7 +524,9 @@ git push origin bug/fix-calendar-issue
 ```
 
 ### Testing → Staging (Automatisé)
+
 **Workflow:** `.github/workflows/test-testing.yml`
+
 ```bash
 # Dès qu'un commit arrive sur testing (via bug/* ou push direct)
 # GitHub Actions exécute automatiquement :
@@ -481,7 +538,9 @@ git push origin bug/fix-calendar-issue
 ```
 
 ### Staging → Pre-prod (Automatisé)
+
 **Workflow:** `.github/workflows/auto-merge-staging-to-preprod.yml`
+
 ```bash
 # Dès qu'un commit arrive sur staging
 # GitHub Actions exécute automatiquement :
@@ -494,7 +553,9 @@ git push origin bug/fix-calendar-issue
 ```
 
 ### Pre-prod → Main (Automatisé)
+
 **Workflow:** `.github/workflows/auto-merge-preprod-to-main.yml`
+
 ```bash
 # Dès qu'un commit arrive sur pre-prod
 # GitHub Actions exécute automatiquement :
@@ -509,6 +570,7 @@ git push origin bug/fix-calendar-issue
 ```
 
 ### Feature → Testing (Manuel)
+
 ```bash
 # Pour les nouvelles fonctionnalités, merge manuel vers testing
 git checkout testing
@@ -518,7 +580,9 @@ git push origin testing
 ```
 
 ### ⚠️ En Cas d'Échec
+
 Si un workflow échoue, **aucun merge automatique n'est effectué**. Vous devez :
+
 1. Consulter les logs GitHub Actions
 2. Corriger le problème sur la branche source
 3. Push à nouveau (relance automatique des tests)
@@ -526,11 +590,13 @@ Si un workflow échoue, **aucun merge automatique n'est effectué**. Vous devez 
 ## 🚀 Workflows GitHub Actions (Automatisés)
 
 ### 1. Bug → Testing (Auto-merge)
+
 **Fichier:** `.github/workflows/auto-merge-bug-to-testing.yml`
+
 ```yaml
 on:
   push:
-    branches: ['bug/*']
+    branches: ["bug/*"]
 jobs:
   validate:
     # Tests unitaires rapides
@@ -538,10 +604,13 @@ jobs:
     needs: validate
     # Auto-merge vers testing si succès
 ```
+
 **Durée:** 2-5 minutes
 
 ### 2. Testing → Staging (Auto-merge)
+
 **Fichier:** `.github/workflows/test-testing.yml`
+
 ```yaml
 on:
   push:
@@ -553,10 +622,13 @@ jobs:
     needs: testing-validation
     # Auto-merge vers staging si succès
 ```
+
 **Durée:** 5-10 minutes
 
 ### 3. Staging → Pre-prod (Auto-merge)
+
 **Fichier:** `.github/workflows/auto-merge-staging-to-preprod.yml`
+
 ```yaml
 on:
   push:
@@ -568,10 +640,13 @@ jobs:
     needs: staging-validation
     # Auto-merge vers pre-prod si succès
 ```
+
 **Durée:** 20-30 minutes
 
 ### 4. Pre-prod → Main (Auto-merge + Release)
+
 **Fichier:** `.github/workflows/auto-merge-preprod-to-main.yml`
+
 ```yaml
 on:
   push:
@@ -583,10 +658,13 @@ jobs:
     needs: preprod-validation
     # Auto-merge vers main + création tag release
 ```
+
 **Durée:** 30-45 minutes
 
 ### 5. Production Deployment
+
 **Fichier:** `.github/workflows/deploy-production.yml`
+
 ```yaml
 on:
   push:
@@ -595,6 +673,7 @@ jobs:
   deploy-and-monitor:
     # Build production + déploiement + health checks
 ```
+
 **Durée:** 5-10 minutes
 
 ## 🚀 Workflows GitHub Actions
@@ -602,21 +681,25 @@ jobs:
 ### Workflow par Branche
 
 #### testing
+
 - **Trigger** : Push sur testing
 - **Jobs** : Tests unitaires, intégration, build
 - **Environnement** : Testing
 
 #### staging
+
 - **Trigger** : Push sur staging
 - **Jobs** : Tests complets, E2E, performance
 - **Environnement** : Staging
 
 #### pre-prod
+
 - **Trigger** : Push sur pre-prod
 - **Jobs** : Tests UAT, charge, sécurité
 - **Environnement** : Pre-prod
 
 #### main
+
 - **Trigger** : Push sur main
 - **Jobs** : Déploiement production, monitoring
 - **Environnement** : Production
@@ -624,6 +707,7 @@ jobs:
 ## 📝 Conventions de Nomination
 
 ### Branches de Features
+
 ```
 feature/nom-de-la-feature
 feature/ui-redesign-dashboard
@@ -632,6 +716,7 @@ feature/export-form-polls
 ```
 
 ### Branches de Bugs
+
 ```
 bug/description-du-bug
 bug/fix-chat-reset-issue
@@ -640,6 +725,7 @@ bug/resolve-ci-timeout
 ```
 
 ### Branches de Hotfixes (urgence)
+
 ```
 hotfix/critique-securite
 hotfix/production-down
@@ -648,6 +734,7 @@ hotfix/production-down
 ## 🛡️ Règles de Protection
 
 ### Branches Protégées
+
 - **main** : Require PR, require status checks, require approvals
 - **pre-prod** : Require PR, require status checks
 - **staging** : Require status checks
@@ -656,6 +743,7 @@ hotfix/production-down
 ### Status Checks Obligatoires
 
 #### testing
+
 - Unit Tests
 - Integration Tests
 - TypeScript Check
@@ -663,6 +751,7 @@ hotfix/production-down
 - Build Validation
 
 #### staging
+
 - Tous les checks testing +
 - E2E Tests
 - Performance Tests
@@ -670,12 +759,14 @@ hotfix/production-down
 - Accessibility Tests
 
 #### pre-prod
+
 - Tous les checks staging +
 - UAT Tests
 - Load Tests
 - External API Tests
 
 #### main
+
 - Tous les checks pre-prod +
 - Health Checks
 - Monitoring Validation
@@ -683,11 +774,13 @@ hotfix/production-down
 ## 🔄 Migration Actuelle
 
 ### État Actuel
+
 - `develop` → sera renommé en `staging`
 - `main` → reste `main`
 - Worktrees existants à réorganiser
 
 ### Plan de Migration
+
 1. **Créer les nouvelles branches** (testing, staging, pre-prod)
 2. **Renommer develop en staging**
 3. **Mettre à jour les worktrees**
@@ -697,12 +790,14 @@ hotfix/production-down
 ## 📊 Métriques et Monitoring
 
 ### KPIs par Branche
+
 - **Temps de merge** : feature → testing
 - **Temps de promotion** : testing → staging → pre-prod → main
 - **Taux de succès des tests** par environnement
 - **Nombre de rollback** par environnement
 
 ### Dashboard de Monitoring
+
 - Statut des branches
 - Workflows en cours
 - Déploiements récents
@@ -711,21 +806,25 @@ hotfix/production-down
 ## 🎯 Bonnes Pratiques
 
 ### Développement
-- Travailler sur des branches feature/* ou bug/*
+
+- Travailler sur des branches feature/_ ou bug/_
 - Commits fréquents et descriptifs
 - Tests unitaires locaux avant push
 
 ### Integration
+
 - Résoudre les conflits rapidement
 - Valider les résultats des tests
 - Documentation des changements
 
 ### Déploiement
+
 - Suivre l'ordre des promotions
 - Valider chaque étape
 - Monitorer après déploiement
 
 ### Rollback
+
 - Capacité de rollback rapide
 - Communication claire des incidents
 - Post-mortem systématique
@@ -733,6 +832,7 @@ hotfix/production-down
 ## 🔧 Outils et Configuration
 
 ### Git Worktrees
+
 ```bash
 # Créer un worktree pour testing
 git worktree add ../DooDates-testing testing
@@ -745,6 +845,7 @@ git worktree add ../DooDates-pre-prod pre-prod
 ```
 
 ### Scripts d'Aide
+
 ```bash
 # Script de promotion testing → staging
 ./scripts/promote-to-staging.sh
@@ -765,10 +866,11 @@ git worktree add ../DooDates-pre-prod pre-prod
 ## ⏱️ Estimation de Temps d'Implémentation (Simplifiée)
 
 ### Phase 1 : Préparation et Migration (2-3 heures)
+
 ```bash
 # Tâches estimées
 - Renommer develop → staging : 15 min
-- Créer branches testing + pre-prod : 15 min  
+- Créer branches testing + pre-prod : 15 min
 - Réorganiser worktrees : 30 min
 - Mettre à jour documentation : 30 min
 - Tester navigation worktrees : 30 min
@@ -776,15 +878,17 @@ git worktree add ../DooDates-pre-prod pre-prod
 ```
 
 ### Phase 2 : Workflows GitHub Actions (2-3 heures)
+
 ```yaml
 # Workflows simplifiés à créer
-- deploy-testing.yml : 45 min
-- deploy-staging.yml : 1h (tests complets)
-- deploy-production.yml : 45 min (monitoring)
-- Mise en place protections branches : 30 min
+- deploy-testing.yml: 45 min
+- deploy-staging.yml: 1h (tests complets)
+- deploy-production.yml: 45 min (monitoring)
+- Mise en place protections branches: 30 min
 ```
 
 ### Phase 3 : Configuration Tests (1-2 heures)
+
 ```bash
 # Scripts de tests essentiels
 - test:testing:all : 20 min
@@ -795,6 +899,7 @@ git worktree add ../DooDates-pre-prod pre-prod
 ```
 
 ### Phase 4 : Déploiement GitHub Pages (1-2 heures)
+
 ```bash
 # Configuration multi-environnements simplifiée
 - Configuration base path Vite : 30 min
@@ -803,15 +908,17 @@ git worktree add ../DooDates-pre-prod pre-prod
 ```
 
 ### Phase 5 : Scripts d'Aide (1 heure)
+
 ```bash
 # Scripts utilitaires essentiels
 - promote-to-staging.sh : 15 min
-- promote-to-main.sh : 15 min  
+- promote-to-main.sh : 15 min
 - health-checks.sh : 20 min
 - Documentation scripts : 10 min
 ```
 
 ### Phase 6 : Validation et Documentation (1-2 heures)
+
 ```bash
 - Test chaîne promotion complète : 45 min
 - Rédaction guide utilisation : 45 min
@@ -823,31 +930,34 @@ git worktree add ../DooDates-pre-prod pre-prod
 
 ## 📊 Résumé des Temps (Simplifié)
 
-| Phase | Temps Estimé | Complexité | Risques |
-|-------|--------------|------------|---------|
-| Migration Worktrees | 2-3h | Faible | Faible |
-| Workflows GitHub Actions | 2-3h | Faible | Faible |
-| Configuration Tests | 1-2h | Faible | Faible |
-| Déploiement GitHub Pages | 1-2h | Moyenne | Moyen |
-| Scripts d'Aide | 1h | Faible | Faible |
-| Validation & Documentation | 1-2h | Faible | Faible |
-| **TOTAL** | **8-13 heures** | **Faible** | **Faible** |
+| Phase                      | Temps Estimé    | Complexité | Risques    |
+| -------------------------- | --------------- | ---------- | ---------- |
+| Migration Worktrees        | 2-3h            | Faible     | Faible     |
+| Workflows GitHub Actions   | 2-3h            | Faible     | Faible     |
+| Configuration Tests        | 1-2h            | Faible     | Faible     |
+| Déploiement GitHub Pages   | 1-2h            | Moyenne    | Moyen      |
+| Scripts d'Aide             | 1h              | Faible     | Faible     |
+| Validation & Documentation | 1-2h            | Faible     | Faible     |
+| **TOTAL**                  | **8-13 heures** | **Faible** | **Faible** |
 
 ### 🎯 **Planning Réaliste (Simplifié)**
 
 #### **Option 1 : Week-end Optimisé**
+
 - **Samedi** : Phase 1 + 2 (4-6h)
-- **Dimanche** : Phase 3 + 4 (2-4h) 
+- **Dimanche** : Phase 3 + 4 (2-4h)
 - **Lundi soir** : Phase 5 + 6 (2-3h)
 - **Total** : 8-13h répartis sur 3 jours
 
 #### **Option 2 : Progressif Soir**
+
 - **Semaine 1** : 1h par soir (5h) - Phase 1 + 2
 - **Semaine 2** : 1h par soir (3h) - Phase 3 + 4
 - **Week-end** : 2h - Phase 5 + 6
 - **Total** : 10h répartis sur 2 semaines
 
 #### **Option 3 : Bloc Continu**
+
 - **2 jours** : 4-6h/jour
 - **Focus total** : Pas d'interruptions
 - **Résultat rapide** : Système opérationnel en 48h
@@ -858,16 +968,19 @@ git worktree add ../DooDates-pre-prod pre-prod
 ## ⚡ Facteurs d'Accélération (Simplifiés)
 
 ### ✅ **Ce qui va plus vite maintenant**
+
 - **Pas de pre-prod GitHub Pages** : -2h de configuration
 - **Pas de tests de charge** : -1h de setup
 - **Intégrations simplifiées** : -1h de configuration
 - **Workflows plus simples** : -2h total
 
 ### ⚠️ **Points restants**
+
 - **Configuration multi-environnements** : Base path Vite (1-2h)
 - **Tests E2E staging** : Configuration navigateurs (1h)
 
 ### 🚀 **Conseils pour Optimiser**
+
 1. **Commencer simple** : Testing → Staging → Main
 2. **Pre-prod local** : Tests manuels dans worktree
 3. **Réutiliser l'existant** : 80% du CI/CD adapté
@@ -878,6 +991,7 @@ git worktree add ../DooDates-pre-prod pre-prod
 ## 🎯 **Recommandation (Simplifiée)**
 
 **Approche suggérée :** **Option 2 (Progressif Soir)**
+
 - **Très faible risque** : Configuration simple
 - **Excellent équilibre** : 1h/jour facile
 - **Qualité maintenue** : Tests essentiels conservés
@@ -890,11 +1004,13 @@ git worktree add ../DooDates-pre-prod pre-prod
 ## 🔄 Flux Correct de Propagation
 
 ### Sens Naturel (promotion)
+
 ```
 bug → testing → staging → pre-prod → main
 ```
 
 ### Sens Inverse (sync descendante)
+
 ```
 testing → bug (maintient bug à jour)
 staging → testing (maintient testing à jour)
@@ -904,6 +1020,7 @@ pre-prod → staging (maintient staging à jour)
 ## 📝 Workflows Créés
 
 ### 1. `auto-merge-bug-to-testing.yml`
+
 **Trigger :** Push sur `bug/*`
 **Action :** Tests unitaires → Auto-merge vers testing
 
@@ -917,6 +1034,7 @@ pre-prod → staging (maintient staging à jour)
 ```
 
 ### 2. `auto-merge-testing-to-staging.yml`
+
 **Trigger :** Push sur `testing`
 **Action :** Tests complets → Auto-merge vers staging
 
@@ -933,10 +1051,12 @@ pre-prod → staging (maintient staging à jour)
 ## ✅ État Actuel de l'Implémentation
 
 ### Branches mises à jour
+
 - **testing** : ✅ Workflows créés + corrigés
 - **bug** : ✅ Cherry-pick effectué
 
 ### Branches en attente
+
 - **staging** : ⏳ En attente de sync depuis testing
 - **pre-prod** : ⏳ En attente de sync depuis staging
 - **main** : ⏳ En attente de sync depuis pre-prod
@@ -944,6 +1064,7 @@ pre-prod → staging (maintient staging à jour)
 ## 🎯 Prochaines Étapes d'Implémentation
 
 ### 1. Activer la promotion testing → staging
+
 ```bash
 git checkout testing
 git push origin testing --force-with-lease
@@ -951,10 +1072,12 @@ git push origin testing --force-with-lease
 ```
 
 ### 2. Vérifier les workflows existants
+
 - ✅ `11-staging-to-preprod.yml` (existe déjà)
 - ✅ `13-preprod-to-main.yml` (existe déjà)
 
 ### 3. Configurer la sync descendante
+
 - `sync-testing-to-bug.yml`
 - `sync-staging-to-testing.yml`
 - `sync-preprod-to-staging.yml`
@@ -962,30 +1085,33 @@ git push origin testing --force-with-lease
 ## ⚠️ Problèmes Rencontrés et Résolus
 
 ### Conflit de cherry-pick sur staging
+
 - **Cause** : Staging avait déjà une version ancienne du fichier
 - **Solution** : Laisser l'auto-merge depuis testing écraser l'ancienne version
 - **Statut** : Résolu par abandon du cherry-pick
 
 ### Erreurs de syntaxe GitHub Actions
+
 - **Problème** : `timeout: 3m` invalide
 - **Solution** : `timeout-minutes: 3`
 - **Statut** : ✅ Corrigé sur testing et bug
 
 ## 📊 Timeline d'Implémentation
 
-| Étape | Temps | Statut |
-|-------|-------|--------|
-| Création workflows | 30min | ✅ |
-| Correction syntaxe | 10min | ✅ |
-| Cherry-pick bug | 5min | ✅ |
-| Push testing | 5min | ⏳ |
-| Auto-merge vers staging | 10min | ⏳ |
-| Création workflows restants | 45min | ⏳ |
-| Configuration complète | 1h | ⏳ |
+| Étape                       | Temps | Statut |
+| --------------------------- | ----- | ------ |
+| Création workflows          | 30min | ✅     |
+| Correction syntaxe          | 10min | ✅     |
+| Cherry-pick bug             | 5min  | ✅     |
+| Push testing                | 5min  | ⏳     |
+| Auto-merge vers staging     | 10min | ⏳     |
+| Création workflows restants | 45min | ⏳     |
+| Configuration complète      | 1h    | ⏳     |
 
 ## 🎯 Objectif Final du Système
 
 Système 100% automatisé où :
+
 - **Push sur bug** → Auto-merge vers testing
 - **Push sur testing** → Auto-merge vers staging + sync vers bug
 - **Push sur staging** → Auto-merge vers pre-prod + sync vers testing

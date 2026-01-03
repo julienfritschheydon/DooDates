@@ -2,54 +2,54 @@
 
 ```yaml
 - generic [ref=e2]:
-  - main [ref=e4]:
-    - generic [ref=e5]:
-      - generic [ref=e6]:
-        - generic [ref=e7]:
-          - heading "DooDates" [level=2] [ref=e8]
-          - generic [ref=e9]:
-            - button "Aide" [ref=e10] [cursor=pointer]:
-              - img [ref=e11]
-            - button "Fermer le menu" [ref=e13] [cursor=pointer]:
-              - img [ref=e14]
-        - generic [ref=e17]:
-          - generic [ref=e18]:
-            - generic [ref=e19]:
-              - img [ref=e21]
-              - generic [ref=e24]:
-                - paragraph [ref=e25]: Invité
-                - paragraph [ref=e26]: Non connecté
-            - button "Se connecter" [ref=e27] [cursor=pointer]
-          - generic [ref=e28]:
-            - generic [ref=e32]: IA connectée
-            - generic [ref=e34]:
-              - img [ref=e35]
-              - generic [ref=e37]: 0 conversation
-      - generic [ref=e38]:
-        - generic [ref=e40]:
-          - button "Ouvrir le menu" [ref=e41] [cursor=pointer]:
-            - img [ref=e42]
-          - heading "DooDates" [level=1] [ref=e43]
-        - generic [ref=e46]:
-          - generic [ref=e50]:
-            - img [ref=e52]
-            - heading "Bonjour ! 👋" [level=3] [ref=e54]
-            - paragraph [ref=e55]: Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !
-            - generic [ref=e56]:
-              - generic [ref=e57]:
-                - paragraph [ref=e58]: "📅 Sondages de dates :"
-                - paragraph [ref=e59]: • "Réunion d'équipe la semaine prochaine"
-                - paragraph [ref=e60]: • "Déjeuner mardi ou mercredi"
-              - generic [ref=e61]:
-                - paragraph [ref=e62]: "📝 Questionnaires :"
-                - paragraph [ref=e63]: • "Questionnaire de satisfaction client"
-                - paragraph [ref=e64]: • "Sondage d'opinion sur notre produit"
-          - generic [ref=e67]:
-            - textbox "Décrivez votre sondage..." [ref=e68]
-            - button "Activer le micro" [ref=e69] [cursor=pointer]:
-              - img [ref=e70]
-            - button [disabled] [ref=e73]:
-              - img [ref=e74]
-  - region "Notifications (F8)":
-    - list
+    - main [ref=e4]:
+        - generic [ref=e5]:
+            - generic [ref=e6]:
+                - generic [ref=e7]:
+                    - heading "DooDates" [level=2] [ref=e8]
+                    - generic [ref=e9]:
+                        - button "Aide" [ref=e10] [cursor=pointer]:
+                            - img [ref=e11]
+                        - button "Fermer le menu" [ref=e13] [cursor=pointer]:
+                            - img [ref=e14]
+                - generic [ref=e17]:
+                    - generic [ref=e18]:
+                        - generic [ref=e19]:
+                            - img [ref=e21]
+                            - generic [ref=e24]:
+                                - paragraph [ref=e25]: Invité
+                                - paragraph [ref=e26]: Non connecté
+                        - button "Se connecter" [ref=e27] [cursor=pointer]
+                    - generic [ref=e28]:
+                        - generic [ref=e32]: IA connectée
+                        - generic [ref=e34]:
+                            - img [ref=e35]
+                            - generic [ref=e37]: 0 conversation
+            - generic [ref=e38]:
+                - generic [ref=e40]:
+                    - button "Ouvrir le menu" [ref=e41] [cursor=pointer]:
+                        - img [ref=e42]
+                    - heading "DooDates" [level=1] [ref=e43]
+                - generic [ref=e46]:
+                    - generic [ref=e50]:
+                        - img [ref=e52]
+                        - heading "Bonjour ! 👋" [level=3] [ref=e54]
+                        - paragraph [ref=e55]: Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !
+                        - generic [ref=e56]:
+                            - generic [ref=e57]:
+                                - paragraph [ref=e58]: "📅 Sondages de dates :"
+                                - paragraph [ref=e59]: • "Réunion d'équipe la semaine prochaine"
+                                - paragraph [ref=e60]: • "Déjeuner mardi ou mercredi"
+                            - generic [ref=e61]:
+                                - paragraph [ref=e62]: "📝 Questionnaires :"
+                                - paragraph [ref=e63]: • "Questionnaire de satisfaction client"
+                                - paragraph [ref=e64]: • "Sondage d'opinion sur notre produit"
+                    - generic [ref=e67]:
+                        - textbox "Décrivez votre sondage..." [ref=e68]
+                        - button "Activer le micro" [ref=e69] [cursor=pointer]:
+                            - img [ref=e70]
+                        - button [disabled] [ref=e73]:
+                            - img [ref=e74]
+    - region "Notifications (F8)":
+        - list
 ```

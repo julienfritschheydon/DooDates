@@ -1,4 +1,4 @@
-import { Page, BrowserContext } from '@playwright/test';
+import { Page, BrowserContext } from "@playwright/test";
 
 export const E2E_CONFIG = {
   // Active le mode E2E dans l'application
@@ -8,7 +8,7 @@ export const E2E_CONFIG = {
       await new Promise<void>((resolve) => {
         const checkBody = () => {
           if (document && document.body) {
-            document.body.classList.add('e2e-testing');
+            document.body.classList.add("e2e-testing");
             resolve();
           } else {
             requestAnimationFrame(checkBody);
@@ -16,25 +16,25 @@ export const E2E_CONFIG = {
         };
         checkBody();
       });
-      
+
       // Définir le flag global pour les tests E2E
       (window as any).__IS_E2E_TESTING__ = true;
-      
+
       // Forcer le mode développement pour désactiver certaines fonctionnalités en test
-      if (typeof process !== 'undefined' && process.env) {
-        process.env.NODE_ENV = 'test';
+      if (typeof process !== "undefined" && process.env) {
+        process.env.NODE_ENV = "test";
       }
     });
   },
-  
+
   // Configure le contexte pour les tests E2E
   async setupE2EContext(context: BrowserContext): Promise<void> {
     // Activer le mode E2E
     await this.enableE2EMode(context);
-    
+
     // Désactiver les animations pour des tests plus stables
     await context.addInitScript(() => {
-      const style = document.createElement('style');
+      const style = document.createElement("style");
       style.textContent = `
         *, *::before, *::after {
           animation-duration: 0.01ms !important;
@@ -46,7 +46,7 @@ export const E2E_CONFIG = {
       document.head.appendChild(style);
     });
   },
-  
+
   // Configuration par défaut pour les tests E2E
   testSetup: {
     // Désactive les timeouts pour les tests lents
@@ -57,19 +57,18 @@ export const E2E_CONFIG = {
       /ResizeObserver/, // Erreurs courantes de redimensionnement
       /^The .*? API is not supported on this platform/, // APIs non supportées en test
     ],
-  }
+  },
 };
 
 // Fonction utilitaire pour attendre que l'application soit prête
 export async function waitForAppReady(page: Page): Promise<void> {
   // Attendre que l'application soit chargée
-  await page.waitForFunction(() => 
-    document.readyState === 'complete' && 
-    (window as any).__APP_READY__ === true
+  await page.waitForFunction(
+    () => document.readyState === "complete" && (window as any).__APP_READY__ === true,
   );
-  
+
   // Attendre que les chargements initiaux soient terminés
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
   await page.waitForTimeout(500); // Petit délai supplémentaire
 }
 
@@ -77,7 +76,7 @@ export async function waitForAppReady(page: Page): Promise<void> {
 export async function disableQuotaChecks(page: Page): Promise<void> {
   await page.evaluate(() => {
     // Désactive les vérifications de quota
-    localStorage.setItem('e2e', '1');
-    localStorage.setItem('dev-local-mode', '1');
+    localStorage.setItem("e2e", "1");
+    localStorage.setItem("dev-local-mode", "1");
   });
 }

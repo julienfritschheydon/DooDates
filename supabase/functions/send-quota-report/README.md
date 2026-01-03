@@ -29,6 +29,7 @@ CREATE INDEX idx_quota_report_logs_created_at ON quota_report_logs(created_at DE
 Dans Supabase Dashboard > Database > Cron Jobs, créer :
 
 **Quotidien (9h du matin)**
+
 ```sql
 SELECT cron.schedule(
   'daily-quota-report',
@@ -47,6 +48,7 @@ SELECT cron.schedule(
 ```
 
 **Hebdomadaire (Lundi 9h)**
+
 ```sql
 SELECT cron.schedule(
   'weekly-quota-report',
@@ -84,6 +86,7 @@ supabase functions invoke send-quota-report
 ## Format du rapport
 
 Le rapport inclut :
+
 - Statistiques globales
 - Alertes (critiques, suspects)
 - Top 10 consommateurs
@@ -94,15 +97,17 @@ Le rapport inclut :
 ## Intégrations possibles
 
 ### Slack
+
 1. Créer un webhook Slack
 2. Configurer `QUOTA_REPORT_WEBHOOK_URL` avec l'URL du webhook
 3. Le rapport sera envoyé automatiquement
 
 ### Discord
+
 1. Créer un webhook Discord
 2. Configurer `QUOTA_REPORT_WEBHOOK_URL` avec l'URL du webhook
 3. Adapter le format si nécessaire
 
 ### Email
-Modifier la fonction pour ajouter l'envoi par email (nécessite configuration SMTP).
 
+Modifier la fonction pour ajouter l'envoi par email (nécessite configuration SMTP).

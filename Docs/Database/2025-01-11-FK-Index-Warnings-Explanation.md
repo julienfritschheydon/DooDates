@@ -31,6 +31,7 @@ The Supabase database linter only tracks **SELECT query usage** statistics. It d
 ### Example: Deleting a Poll
 
 Without the index on `conversations.poll_id`:
+
 ```sql
 DELETE FROM polls WHERE id = 'some-id';
 -- PostgreSQL must scan ALL rows in conversations table to check for references
@@ -38,6 +39,7 @@ DELETE FROM polls WHERE id = 'some-id';
 ```
 
 With the index:
+
 ```sql
 DELETE FROM polls WHERE id = 'some-id';
 -- PostgreSQL uses the index to quickly find only the rows that reference this poll
@@ -47,13 +49,17 @@ DELETE FROM polls WHERE id = 'some-id';
 ## Configuration Status
 
 ### ✅ CLI Linter (Working)
+
 The `splinter.toml` file correctly suppresses these warnings when using:
+
 ```bash
 npm run supabase:lint
 ```
 
 ### ⚠️ Dashboard Linter (May Not Respect Config)
+
 The Supabase Dashboard linter may not read `splinter.toml` from your repository. The warnings may still appear in the dashboard even though:
+
 - The indexes are correctly created
 - The CLI linter doesn't show warnings
 - The indexes are required for FK performance
@@ -82,17 +88,17 @@ All foreign key constraints have been verified:
 
 ```sql
 -- All foreign keys confirmed
-SELECT 
-  tc.table_name, 
-  kcu.column_name, 
+SELECT
+  tc.table_name,
+  kcu.column_name,
   tc.constraint_name,
   ccu.table_name AS foreign_table_name
-FROM information_schema.table_constraints AS tc 
+FROM information_schema.table_constraints AS tc
 JOIN information_schema.key_column_usage AS kcu
   ON tc.constraint_name = kcu.constraint_name
 JOIN information_schema.constraint_column_usage AS ccu
   ON ccu.constraint_name = tc.constraint_name
-WHERE tc.constraint_type = 'FOREIGN KEY' 
+WHERE tc.constraint_type = 'FOREIGN KEY'
   AND tc.table_schema = 'public'
   AND tc.table_name IN (
     'country_region_map',
@@ -107,6 +113,7 @@ WHERE tc.constraint_type = 'FOREIGN KEY'
 **✅ KEEP ALL 7 INDEXES**
 
 These warnings can be **safely ignored**. The indexes are:
+
 - Required for foreign key performance
 - Correctly configured in `splinter.toml` for CLI linting
 - Documented as intentional in the migration files
@@ -122,4 +129,3 @@ These warnings can be **safely ignored**. The indexes are:
 - [PostgreSQL Foreign Key Performance](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK)
 - [Supabase Database Linter Documentation](https://supabase.com/docs/guides/database/database-linter)
 - [Why Foreign Keys Need Indexes](https://www.postgresql.org/docs/current/indexes-unique.html)
-

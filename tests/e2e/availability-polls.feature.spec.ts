@@ -3,11 +3,11 @@ import { navigateToWorkspace, waitForChatInput } from "./helpers/chat-helpers";
 
 /**
  * Tests API+UI pour la feature Availability Polls
- * 
+ *
  * Pattern API+UI :
  * - Test API pur : vérifie le contrat backend (Playwright request)
  * - Test UI miroir : vérifie que le frontend reflète fidèlement l'état backend
- * 
+ *
  * Features couvertes :
  * - Création de sondages de disponibilité (via IA et manuelle)
  * - Vote sur disponibilités (sélection dates, participants)
@@ -25,11 +25,11 @@ test.describe("Availability Polls - API Contract", () => {
       description: "Disponibilités pour la prochaine réunion",
       dates: ["2025-01-15", "2025-01-16", "2025-01-17"],
       times: ["09:00", "14:00", "16:00"],
-      type: "availability"
+      type: "availability",
     };
 
     const createResponse = await request.post("/api/availability-polls", {
-      data: createPayload
+      data: createPayload,
     });
 
     expect(createResponse.status()).toBe(200);
@@ -37,7 +37,7 @@ test.describe("Availability Polls - API Contract", () => {
     expect(createdPoll).toMatchObject({
       title: createPayload.title,
       description: createPayload.description,
-      type: "availability"
+      type: "availability",
     });
     expect(createdPoll.id).toBeDefined();
     expect(createdPoll.slug).toBeDefined();
@@ -45,7 +45,7 @@ test.describe("Availability Polls - API Contract", () => {
     // 2. Récupérer le Availability Poll créé
     const getResponse = await request.get(`/api/availability-polls/${createdPoll.slug}`);
     expect(getResponse.status()).toBe(200);
-    
+
     const retrievedPoll = await getResponse.json();
     expect(retrievedPoll).toMatchObject(createdPoll);
     expect(retrievedPoll.dates).toEqual(createPayload.dates);
@@ -54,7 +54,7 @@ test.describe("Availability Polls - API Contract", () => {
     // 3. Vérifier que le poll apparaît dans la liste
     const listResponse = await request.get("/api/availability-polls");
     expect(listResponse.status()).toBe(200);
-    
+
     const polls = await listResponse.json();
     const foundPoll = polls.find((p: any) => p.id === createdPoll.id);
     expect(foundPoll).toBeDefined();
@@ -67,7 +67,7 @@ test.describe("Availability Polls - API Contract", () => {
       title: "Planning sprint",
       dates: ["2025-01-20", "2025-01-21", "2025-01-22"],
       times: ["10:00", "15:00"],
-      type: "availability"
+      type: "availability",
     };
 
     const createResponse = await request.post("/api/availability-polls", { data: pollData });
@@ -83,12 +83,12 @@ test.describe("Availability Polls - API Contract", () => {
         { date: "2025-01-21", time: "10:00", available: true },
         { date: "2025-01-21", time: "15:00", available: true },
         { date: "2025-01-22", time: "10:00", available: false },
-        { date: "2025-01-22", time: "15:00", available: false }
-      ]
+        { date: "2025-01-22", time: "15:00", available: false },
+      ],
     };
 
     const voteResponse = await request.post(`/api/availability-polls/${poll.slug}/vote`, {
-      data: votePayload
+      data: votePayload,
     });
 
     expect(voteResponse.status()).toBe(200);
@@ -116,12 +116,16 @@ test.describe("Availability Polls - API Contract", () => {
     const pollData = {
       title: "Sondage grouping",
       dates: [
-        "2025-01-10", "2025-01-11", // Weekend
-        "2025-01-13", "2025-01-14", "2025-01-15", // Semaine
-        "2025-01-17", "2025-01-18"  // Weekend suivant
+        "2025-01-10",
+        "2025-01-11", // Weekend
+        "2025-01-13",
+        "2025-01-14",
+        "2025-01-15", // Semaine
+        "2025-01-17",
+        "2025-01-18", // Weekend suivant
       ],
       times: ["09:00"],
-      type: "availability"
+      type: "availability",
     };
 
     const createResponse = await request.post("/api/availability-polls", { data: pollData });
@@ -132,16 +136,18 @@ test.describe("Availability Polls - API Contract", () => {
       data: {
         pollId: poll.id,
         participantName: "Alice",
-        availabilities: pollData.dates.map(date => ({
+        availabilities: pollData.dates.map((date) => ({
           date,
           time: "09:00",
-          available: true
-        }))
-      }
+          available: true,
+        })),
+      },
     });
 
     // 3. Tester les résultats avec grouping
-    const resultsResponse = await request.get(`/api/availability-polls/${poll.slug}/results?grouping=true`);
+    const resultsResponse = await request.get(
+      `/api/availability-polls/${poll.slug}/results?grouping=true`,
+    );
     expect(resultsResponse.status()).toBe(200);
 
     const results = await resultsResponse.json();
@@ -151,12 +157,12 @@ test.describe("Availability Polls - API Contract", () => {
 
     // 4. Tester les exports
     const exportResponse = await request.get(
-      `/api/availability-polls/${poll.slug}/export?format=csv`
+      `/api/availability-polls/${poll.slug}/export?format=csv`,
     );
-    
+
     expect(exportResponse.status()).toBe(200);
     expect(exportResponse.headers()["content-type"]).toBe("text/csv");
-    
+
     const content = await exportResponse.text();
     expect(content).toContain(poll.title);
     expect(content).toContain("John Doe");
@@ -164,18 +170,26 @@ test.describe("Availability Polls - API Contract", () => {
 });
 
 test.describe("Availability Polls - UI Mirror", () => {
-  test.skip(() => true, "UI tests need data-testid alignment - skipping until components are properly tagged");
+  test.skip(
+    () => true,
+    "UI tests need data-testid alignment - skipping until components are properly tagged",
+  );
 
   test("UI - Création et vote Availability Poll", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le workspace
     await navigateToWorkspace(page, "chromium");
     await waitForChatInput(page);
 
     // 2. Créer un Availability Poll via l'IA
     const chatInput = page.locator('[data-testid="chat-input"]');
-    await chatInput.fill("Crée un sondage de disponibilité pour une réunion d'équipe la semaine prochaine");
+    await chatInput.fill(
+      "Crée un sondage de disponibilité pour une réunion d'équipe la semaine prochaine",
+    );
     await chatInput.press("Enter");
 
     // Attendre la réponse de l'IA
@@ -204,12 +218,14 @@ test.describe("Availability Polls - UI Mirror", () => {
     await viewPollButton.click();
 
     // 8. Voter sur les disponibilités
-    await expect(page.locator('[data-testid="availability-poll-vote"]')).toBeVisible({ timeout: 15000 });
-    
+    await expect(page.locator('[data-testid="availability-poll-vote"]')).toBeVisible({
+      timeout: 15000,
+    });
+
     // Sélectionner des disponibilités
     const availableSlots = page.locator('[data-testid="available-slot"]');
     const count = await availableSlots.count();
-    
+
     if (count > 0) {
       await availableSlots.first().click();
     }
@@ -229,8 +245,11 @@ test.describe("Availability Polls - UI Mirror", () => {
   });
 
   test("UI - Grouping weekends et visualisation", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le workspace
     await navigateToWorkspace(page, "chromium");
     await waitForChatInput(page);
@@ -268,7 +287,9 @@ test.describe("Availability Polls - UI Mirror", () => {
     await viewPollButton.click();
 
     // 6. Tester la visualisation des résultats
-    await expect(page.locator('[data-testid="availability-results"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="availability-results"]')).toBeVisible({
+      timeout: 15000,
+    });
     await expect(page.locator('[data-testid="availability-grid"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="participants-list"]')).toBeVisible({ timeout: 10000 });
 
@@ -278,15 +299,18 @@ test.describe("Availability Polls - UI Mirror", () => {
   });
 
   test("UI - Exports et partage Availability Poll", async ({ page }) => {
-    test.skip(page.context()?.browser()?.browserType()?.name() !== "chromium", "UI tests limités à Chromium");
-    
+    test.skip(
+      page.context()?.browser()?.browserType()?.name() !== "chromium",
+      "UI tests limités à Chromium",
+    );
+
     // 1. Naviguer vers le dashboard
     await page.goto("//DooDates/dashboard");
     await page.waitForLoadState("networkidle");
 
     // 2. Trouver un sondage de disponibilité existant
     const availabilityPoll = page.locator('[data-testid="availability-poll-card"]').first();
-    
+
     if (await availabilityPoll.isVisible()) {
       await availabilityPoll.click();
     } else {
@@ -294,16 +318,16 @@ test.describe("Availability Polls - UI Mirror", () => {
       await navigateToWorkspace(page, "chromium");
       await waitForChatInput(page, 10000);
       await waitForChatInput(page);
-      
+
       const chatInput = page.locator('[data-testid="chat-input"]');
       await chatInput.fill("Crée un sondage de disponibilité rapide pour cette semaine");
       await chatInput.press("Enter");
-      
+
       await page.waitForSelector('[data-testid="ai-response"]', { timeout: 15000 });
-      
+
       const finalizeButton = page.locator('[data-testid="finalize-poll"]');
       await finalizeButton.click();
-      
+
       await page.waitForSelector('text="Sondage publié !"', { timeout: 10000 });
       const dashboardButton = page.locator('[data-testid="go-to-dashboard"]');
       await dashboardButton.click();
@@ -318,10 +342,10 @@ test.describe("Availability Polls - UI Mirror", () => {
 
     // 4. Vérifier les options d'export
     await expect(page.locator('[data-testid="export-options"]')).toBeVisible({ timeout: 15000 });
-    
+
     const exportButtons = page.locator('[data-testid^="export-"]');
     const exportCount = await exportButtons.count();
-    
+
     if (exportCount > 0) {
       // Tester l'export CSV
       const csvExport = page.locator('[data-testid="export-csv"]');
@@ -333,7 +357,7 @@ test.describe("Availability Polls - UI Mirror", () => {
 
     // 5. Vérifier le lien de partage
     await expect(page.locator('[data-testid="share-link"]')).toBeVisible({ timeout: 10000 });
-    
+
     const copyButton = page.locator('[data-testid="copy-link"]');
     if (await copyButton.isVisible()) {
       await copyButton.click();

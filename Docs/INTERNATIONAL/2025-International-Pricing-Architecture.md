@@ -31,6 +31,7 @@
 **Signal :** Géo-IP de l'utilisateur (détecté côté serveur)
 
 **Contrôle :**
+
 - Prix applicable
 - Devise par défaut
 - Disponibilité des produits
@@ -39,13 +40,14 @@
 **Exigence :** Ce signal détermine **ce que l'utilisateur peut acheter et à quel prix**.
 
 **Exemple :**
+
 ```typescript
 interface UserGeography {
-  country: string;        // "FR", "CH", "US", "IN"
-  region?: string;        // "EU", "NA", "APAC"
-  detectedBy: "geoip";    // Source: Géo-IP serveur
-  priceList: string;      // "EU_EUR", "CH_CHF", "US_USD", "IN_INR"
-  taxRate: number;        // TVA: 20% (FR), 7.7% (CH), 0% (US certains états)
+  country: string; // "FR", "CH", "US", "IN"
+  region?: string; // "EU", "NA", "APAC"
+  detectedBy: "geoip"; // Source: Géo-IP serveur
+  priceList: string; // "EU_EUR", "CH_CHF", "US_USD", "IN_INR"
+  taxRate: number; // TVA: 20% (FR), 7.7% (CH), 0% (US certains états)
 }
 ```
 
@@ -54,6 +56,7 @@ interface UserGeography {
 **Signal :** En-tête `Accept-Language` du navigateur (uniquement comme **suggestion par défaut**)
 
 **Contrôle :**
+
 - Langue de l'interface (UI)
 - Langue des e-mails
 - Langue du support client
@@ -62,16 +65,18 @@ interface UserGeography {
 **Exigence :** **NE JAMAIS** utiliser la langue pour déduire le prix.
 
 **Exemple :**
+
 ```typescript
 interface UserLanguage {
-  current: string;        // "fr", "en", "hi"
-  browser: string;        // Détecté via Accept-Language
-  userChoice: string;     // Sélectionné manuellement par l'utilisateur
+  current: string; // "fr", "en", "hi"
+  browser: string; // Détecté via Accept-Language
+  userChoice: string; // Sélectionné manuellement par l'utilisateur
   detectedBy: "browser" | "user_preference";
 }
 ```
 
 **❌ Anti-pattern :**
+
 ```typescript
 // FAUX - Ne JAMAIS faire cela
 if (language === "fr") {
@@ -81,6 +86,7 @@ if (language === "fr") {
 ```
 
 **✅ Pattern correct :**
+
 ```typescript
 // CORRECT - Découplé
 const geography = detectGeography(ipAddress); // "CH"
@@ -92,11 +98,12 @@ const price = priceList.premium; // 7.50 CHF
 return {
   displayPrice: formatPrice(price, "fr-CH"), // "7,50 CHF"
   language: "fr",
-  country: "CH"
+  country: "CH",
 };
 ```
 
 **Cas d'usage réel :**
+
 - Francophone en Suisse → UI française + Prix CHF (non EUR)
 - Anglophone en France → UI anglaise + Prix EUR (non GBP)
 - Francophone au Canada → UI française + Prix CAD (non EUR)
@@ -106,6 +113,7 @@ return {
 **Signal :** Paramètre utilisateur (souvent lié à la langue, mais **indépendant**)
 
 **Contrôle :**
+
 - Format des dates : `JJ/MM/AAAA` vs `MM/JJ/AAAA` vs `AAAA-MM-JJ`
 - Séparateurs de nombres : `1.000,50` vs `1,000.50`
 - Position du symbole de devise : `10€` vs `€10` vs `10 €`
@@ -114,52 +122,54 @@ return {
 **Exigence :** Doit être **configurable indépendamment** de la langue.
 
 **Exemple :**
+
 ```typescript
 interface UserLocale {
-  code: string;              // "fr-FR", "fr-CH", "en-US", "en-GB", "hi-IN"
-  dateFormat: string;        // "dd/MM/yyyy", "MM/dd/yyyy"
+  code: string; // "fr-FR", "fr-CH", "en-US", "en-GB", "hi-IN"
+  dateFormat: string; // "dd/MM/yyyy", "MM/dd/yyyy"
   numberFormat: {
-    decimal: string;         // "," ou "."
-    thousands: string;       // "." ou ","
+    decimal: string; // "," ou "."
+    thousands: string; // "." ou ","
   };
   currencyPosition: "before" | "after";
-  weekStart: 0 | 1;          // 0=Dimanche, 1=Lundi
+  weekStart: 0 | 1; // 0=Dimanche, 1=Lundi
 }
 ```
 
 **Exemples pratiques :**
+
 ```typescript
 // France (fr-FR)
-formatDate(new Date(2025, 10, 10), "fr-FR")  // "10/11/2025"
-formatNumber(1234.56, "fr-FR")                // "1 234,56"
-formatCurrency(10, "EUR", "fr-FR")            // "10,00 €"
+formatDate(new Date(2025, 10, 10), "fr-FR"); // "10/11/2025"
+formatNumber(1234.56, "fr-FR"); // "1 234,56"
+formatCurrency(10, "EUR", "fr-FR"); // "10,00 €"
 
 // Suisse francophone (fr-CH)
-formatDate(new Date(2025, 10, 10), "fr-CH")  // "10.11.2025"
-formatNumber(1234.56, "fr-CH")                // "1'234.56"
-formatCurrency(10, "CHF", "fr-CH")            // "10,00 CHF"
+formatDate(new Date(2025, 10, 10), "fr-CH"); // "10.11.2025"
+formatNumber(1234.56, "fr-CH"); // "1'234.56"
+formatCurrency(10, "CHF", "fr-CH"); // "10,00 CHF"
 
 // États-Unis (en-US)
-formatDate(new Date(2025, 10, 10), "en-US")  // "11/10/2025"
-formatNumber(1234.56, "en-US")                // "1,234.56"
-formatCurrency(10, "USD", "en-US")            // "$10.00"
+formatDate(new Date(2025, 10, 10), "en-US"); // "11/10/2025"
+formatNumber(1234.56, "en-US"); // "1,234.56"
+formatCurrency(10, "USD", "en-US"); // "$10.00"
 
 // Inde (hi-IN)
-formatDate(new Date(2025, 10, 10), "hi-IN")  // "10/11/2025"
-formatNumber(1234.56, "hi-IN")                // "1,234.56"
-formatCurrency(10, "INR", "hi-IN")            // "₹10.00"
+formatDate(new Date(2025, 10, 10), "hi-IN"); // "10/11/2025"
+formatNumber(1234.56, "hi-IN"); // "1,234.56"
+formatCurrency(10, "INR", "hi-IN"); // "₹10.00"
 ```
 
 ### 1.2. Décisions Architecturales Clés
 
-| Décision | Choix | Justification |
-|----------|-------|---------------|
-| **Merchant of Record** | ✅ Lemon Squeezy | Élimine 100% responsabilité fiscale mondiale, gère TVA/GST/Sales Tax automatiquement |
-| **Géo-IP Provider** | ✅ Cloudflare (gratuit via headers) | Déjà disponible si hébergé sur Netlify/Cloudflare, sinon IPinfo (gratuit 50k req/mois) |
-| **i18n Library** | ✅ react-i18next | Standard industrie, 10M téléchargements/semaine, support pluralization |
-| **Pricing Model** | ✅ Price Lists (table séparée) | Flexibilité régionale, pas de colonne `price` dans Products |
-| **VPN Detection** | ✅ BIN Card Matching (Stripe Radar) | Évite blocage VPN légitime, détecte vraie fraude |
-| **Analytics** | ✅ Plausible Analytics | GDPR-friendly, pas de cookie, hébergement EU |
+| Décision               | Choix                               | Justification                                                                          |
+| ---------------------- | ----------------------------------- | -------------------------------------------------------------------------------------- |
+| **Merchant of Record** | ✅ Lemon Squeezy                    | Élimine 100% responsabilité fiscale mondiale, gère TVA/GST/Sales Tax automatiquement   |
+| **Géo-IP Provider**    | ✅ Cloudflare (gratuit via headers) | Déjà disponible si hébergé sur Netlify/Cloudflare, sinon IPinfo (gratuit 50k req/mois) |
+| **i18n Library**       | ✅ react-i18next                    | Standard industrie, 10M téléchargements/semaine, support pluralization                 |
+| **Pricing Model**      | ✅ Price Lists (table séparée)      | Flexibilité régionale, pas de colonne `price` dans Products                            |
+| **VPN Detection**      | ✅ BIN Card Matching (Stripe Radar) | Évite blocage VPN légitime, détecte vraie fraude                                       |
+| **Analytics**          | ✅ Plausible Analytics              | GDPR-friendly, pas de cookie, hébergement EU                                           |
 
 ---
 
@@ -172,6 +182,7 @@ formatCurrency(10, "INR", "hi-IN")            // "₹10.00"
 **Exigence :** La détection **DOIT** être effectuée **côté serveur** pour des raisons de fiabilité et de sécurité.
 
 **❌ Pourquoi pas côté client ?**
+
 - Facile à contourner (modification JavaScript)
 - Dépend de la véracité du navigateur
 - Vulnérable aux abus VPN non détectés
@@ -184,21 +195,22 @@ formatCurrency(10, "INR", "hi-IN")            // "₹10.00"
 // Supabase Edge Function ou Netlify Function
 export async function handler(event) {
   // Headers Cloudflare automatiques
-  const country = event.headers['cf-ipcountry'] || 'US'; // ISO 3166-1 alpha-2
-  const continent = event.headers['cf-ipcontinent'] || 'NA';
-  
+  const country = event.headers["cf-ipcountry"] || "US"; // ISO 3166-1 alpha-2
+  const continent = event.headers["cf-ipcontinent"] || "NA";
+
   return {
     statusCode: 200,
     body: JSON.stringify({
       country,
       continent,
-      priceList: getPriceListForCountry(country)
-    })
+      priceList: getPriceListForCountry(country),
+    }),
   };
 }
 ```
 
 **Avantages :**
+
 - ✅ Gratuit (déjà inclus)
 - ✅ Aucune API externe
 - ✅ Latence minimale
@@ -216,16 +228,17 @@ const ipinfo = new IPinfoWrapper(process.env.IPINFO_TOKEN);
 async function detectCountry(ip: string) {
   const response = await ipinfo.lookupIp(ip);
   return {
-    country: response.country,        // "FR"
-    region: response.region,          // "Île-de-France"
-    city: response.city,              // "Paris"
-    timezone: response.timezone,      // "Europe/Paris"
-    eu: response.isEU,                // true
+    country: response.country, // "FR"
+    region: response.region, // "Île-de-France"
+    city: response.city, // "Paris"
+    timezone: response.timezone, // "Europe/Paris"
+    eu: response.isEU, // true
   };
 }
 ```
 
 **Pricing IPinfo :**
+
 - ✅ **Gratuit :** 50,000 req/mois
 - ⚠️ **Basic :** $249/mois → 250,000 req/mois
 - Pour **1000 users/mois × 10 pages** = 10k requests → Plan gratuit suffisant
@@ -262,6 +275,7 @@ CREATE INDEX idx_geo_logs_country ON geo_detection_logs(country);
 #### Exigence 1 : Interdiction de la Redirection Forcée
 
 **❌ INTERDIT :**
+
 ```typescript
 // Ne JAMAIS faire cela
 if (country === "FR" && currentDomain !== "doodates.fr") {
@@ -270,6 +284,7 @@ if (country === "FR" && currentDomain !== "doodates.fr") {
 ```
 
 **✅ AUTORISÉ :**
+
 ```typescript
 // Proposition avec consentement
 if (country === "FR" && currentDomain !== "doodates.fr" && !hasSeenBanner) {
@@ -277,8 +292,8 @@ if (country === "FR" && currentDomain !== "doodates.fr" && !hasSeenBanner) {
     message: "Il semble que vous soyez en France. Voir les prix en EUR ?",
     actions: [
       { label: "Oui, aller sur doodates.fr", href: "https://doodates.fr" },
-      { label: "Non, rester ici", dismiss: true }
-    ]
+      { label: "Non, rester ici", dismiss: true },
+    ],
   });
 }
 ```
@@ -286,6 +301,7 @@ if (country === "FR" && currentDomain !== "doodates.fr" && !hasSeenBanner) {
 #### Exigence 2 : Consentement Actif
 
 **Implémentation Bannière :**
+
 ```tsx
 // components/GeoBanner.tsx
 interface GeoBannerProps {
@@ -296,23 +312,24 @@ interface GeoBannerProps {
 
 export function GeoBanner({ detectedCountry, currentSite, suggestedSite }: GeoBannerProps) {
   const [dismissed, setDismissed] = useState(false);
-  
+
   if (dismissed || currentSite === suggestedSite) return null;
-  
+
   return (
     <Banner variant="info" position="top">
       <Text>
-        Il semble que vous soyez en {getCountryName(detectedCountry)}. 
-        Voulez-vous voir les prix en {getCurrency(detectedCountry)} ?
+        Il semble que vous soyez en {getCountryName(detectedCountry)}. Voulez-vous voir les prix en{" "}
+        {getCurrency(detectedCountry)} ?
       </Text>
       <ButtonGroup>
-        <Button onClick={() => window.location.href = suggestedSite}>
-          Oui, changer
-        </Button>
-        <Button variant="ghost" onClick={() => {
-          setDismissed(true);
-          localStorage.setItem('geo_banner_dismissed', 'true');
-        }}>
+        <Button onClick={() => (window.location.href = suggestedSite)}>Oui, changer</Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setDismissed(true);
+            localStorage.setItem("geo_banner_dismissed", "true");
+          }}
+        >
           Non merci
         </Button>
       </ButtonGroup>
@@ -326,22 +343,23 @@ export function GeoBanner({ detectedCountry, currentSite, suggestedSite }: GeoBa
 **Principe :** Un utilisateur Italien visitant manuellement le site Allemand doit pouvoir acheter aux **mêmes conditions** qu'un Allemand.
 
 **Implémentation :**
+
 ```typescript
 // Permettre override manuel de la région
 interface PricingContext {
-  detectedCountry: string;    // Détecté via Géo-IP
-  selectedCountry: string;    // Choix utilisateur (peut différer)
-  priceList: string;          // Basé sur selectedCountry
+  detectedCountry: string; // Détecté via Géo-IP
+  selectedCountry: string; // Choix utilisateur (peut différer)
+  priceList: string; // Basé sur selectedCountry
 }
 
 function getPricing(user: User): PricingContext {
   const detected = user.detectedCountry;
   const selected = user.preferences?.selectedCountry || detected;
-  
+
   return {
     detectedCountry: detected,
     selectedCountry: selected,
-    priceList: getPriceListForCountry(selected) // User choice wins
+    priceList: getPriceListForCountry(selected), // User choice wins
   };
 }
 ```
@@ -349,11 +367,12 @@ function getPricing(user: User): PricingContext {
 #### Exigence 4 : Sélecteur Global de Région/Devise
 
 **UI Component :**
+
 ```tsx
 // components/CountrySelector.tsx
 export function CountrySelector() {
   const { detectedCountry, selectedCountry, setSelectedCountry } = useGeography();
-  
+
   return (
     <Select
       value={selectedCountry}
@@ -379,6 +398,7 @@ export function CountrySelector() {
 ```
 
 **Position dans UI :**
+
 - Footer (toujours visible)
 - Navigation (menu hamburger mobile)
 - Page de tarification (avant CTA d'achat)
@@ -390,6 +410,7 @@ export function CountrySelector() {
 ### 3.1. Schéma Base de Données : Price Lists
 
 **❌ Anti-pattern : Prix dans table Products**
+
 ```sql
 -- NE PAS FAIRE
 CREATE TABLE products (
@@ -448,11 +469,11 @@ CREATE TABLE product_prices (
   amount DECIMAL(10,2) NOT NULL,          -- 6.95, 499.00
   compare_at_amount DECIMAL(10,2),        -- Prix barré (promos)
   tax_rate DECIMAL(5,2),                  -- 20.00 (TVA FR), 7.70 (TVA CH)
-  
+
   -- Métadonnées Lemon Squeezy
   lemonsqueezy_variant_id VARCHAR(50),
   lemonsqueezy_product_id VARCHAR(50),
-  
+
   UNIQUE(product_id, price_list_id),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -531,9 +552,9 @@ INSERT INTO product_prices (product_id, price_list_id, amount, tax_rate) VALUES
 ```typescript
 // lib/pricing/get-prices.ts
 interface PricingQuery {
-  country?: string;           // ISO 3166-1 alpha-2
-  priceListCode?: string;     // Override manuel
-  userId?: string;            // Pour tracking
+  country?: string; // ISO 3166-1 alpha-2
+  priceListCode?: string; // Override manuel
+  userId?: string; // Pour tracking
 }
 
 interface ProductPrice {
@@ -541,7 +562,7 @@ interface ProductPrice {
   productName: string;
   amount: number;
   currency: string;
-  displayAmount: string;      // Formaté avec locale
+  displayAmount: string; // Formaté avec locale
   taxRate: number;
   taxIncluded: boolean;
   lemonsqueezyVariantId?: string;
@@ -550,7 +571,7 @@ interface ProductPrice {
 export async function getPricing(query: PricingQuery): Promise<ProductPrice[]> {
   // 1. Déterminer la price list
   let priceListCode: string;
-  
+
   if (query.priceListCode) {
     // Override manuel (compliance EU 2018/302)
     priceListCode = query.priceListCode;
@@ -559,80 +580,88 @@ export async function getPricing(query: PricingQuery): Promise<ProductPrice[]> {
     priceListCode = getPriceListForCountry(query.country);
   } else {
     // Default fallback
-    priceListCode = 'EU_EUR_2025';
+    priceListCode = "EU_EUR_2025";
   }
-  
+
   // 2. Récupérer les prix
   const { data, error } = await supabase
-    .from('product_prices')
-    .select(`
+    .from("product_prices")
+    .select(
+      `
       amount,
       tax_rate,
       lemonsqueezy_variant_id,
       product:products(code, name),
       price_list:price_lists(currency, region:regions(tax_included))
-    `)
-    .eq('price_list.code', priceListCode)
-    .eq('product.active', true);
-  
+    `,
+    )
+    .eq("price_list.code", priceListCode)
+    .eq("product.active", true);
+
   if (error) throw error;
-  
+
   // 3. Formater pour l'UI
-  return data.map(item => ({
+  return data.map((item) => ({
     productCode: item.product.code,
     productName: item.product.name,
     amount: item.amount,
     currency: item.price_list.currency,
-    displayAmount: formatCurrency(
-      item.amount,
-      item.price_list.currency,
-      query.country || 'FR'
-    ),
+    displayAmount: formatCurrency(item.amount, item.price_list.currency, query.country || "FR"),
     taxRate: item.tax_rate,
     taxIncluded: item.price_list.region.tax_included,
-    lemonsqueezyVariantId: item.lemonsqueezy_variant_id
+    lemonsqueezyVariantId: item.lemonsqueezy_variant_id,
   }));
 }
 
 function getPriceListForCountry(country: string): string {
   const mapping: Record<string, string> = {
     // Europe (EUR)
-    'FR': 'EU_EUR_2025', 'DE': 'EU_EUR_2025', 'IT': 'EU_EUR_2025',
-    'ES': 'EU_EUR_2025', 'BE': 'EU_EUR_2025', 'NL': 'EU_EUR_2025',
-    'PT': 'EU_EUR_2025', 'AT': 'EU_EUR_2025', 'IE': 'EU_EUR_2025',
-    
+    FR: "EU_EUR_2025",
+    DE: "EU_EUR_2025",
+    IT: "EU_EUR_2025",
+    ES: "EU_EUR_2025",
+    BE: "EU_EUR_2025",
+    NL: "EU_EUR_2025",
+    PT: "EU_EUR_2025",
+    AT: "EU_EUR_2025",
+    IE: "EU_EUR_2025",
+
     // Europe (autres devises)
-    'CH': 'CH_CHF_2025',
-    'GB': 'GB_GBP_2025',
-    
+    CH: "CH_CHF_2025",
+    GB: "GB_GBP_2025",
+
     // Amérique du Nord
-    'US': 'US_USD_2025',
-    'CA': 'CA_CAD_2025',
-    
+    US: "US_USD_2025",
+    CA: "CA_CAD_2025",
+
     // Phase 2 (à ajouter)
     // 'IN': 'IN_INR_2025',
   };
-  
-  return mapping[country] || 'EU_EUR_2025'; // Default: Europe
+
+  return mapping[country] || "EU_EUR_2025"; // Default: Europe
 }
 
 function formatCurrency(amount: number, currency: string, country: string): string {
   const locale = getLocaleForCountry(country);
-  
+
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency: currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
 function getLocaleForCountry(country: string): string {
   const locales: Record<string, string> = {
-    'FR': 'fr-FR', 'CH': 'fr-CH', 'GB': 'en-GB',
-    'US': 'en-US', 'CA': 'en-CA', 'IN': 'hi-IN',
+    FR: "fr-FR",
+    CH: "fr-CH",
+    GB: "en-GB",
+    US: "en-US",
+    CA: "en-CA",
+    IN: "hi-IN",
   };
-  return locales[country] || 'en-US';
+  return locales[country] || "en-US";
 }
 ```
 
@@ -641,6 +670,7 @@ function getLocaleForCountry(country: string): string {
 **Décision :** ✅ Lemon Squeezy (Merchant of Record)
 
 #### Avantages Lemon Squeezy
+
 - ✅ **MoR = Zero responsabilité fiscale** : Ils vendent en leur nom
 - ✅ **TVA UE automatique** : 27 pays gérés
 - ✅ **Sales Tax US automatique** : 50 états gérés
@@ -659,36 +689,32 @@ npm install @lemonsqueezy/lemonsqueezy.js
 
 ```typescript
 // lib/payments/lemonsqueezy.ts
-import { lemonSqueezySetup, createCheckout, Variant } from '@lemonsqueezy/lemonsqueezy.js';
+import { lemonSqueezySetup, createCheckout, Variant } from "@lemonsqueezy/lemonsqueezy.js";
 
 lemonSqueezySetup({
   apiKey: process.env.LEMONSQUEEZY_API_KEY!,
-  onError: (error) => console.error('Lemon Squeezy Error:', error),
+  onError: (error) => console.error("Lemon Squeezy Error:", error),
 });
 
 export async function createPaymentCheckout(
   variantId: string,
   userId: string,
-  email: string
+  email: string,
 ): Promise<string> {
-  const checkout = await createCheckout(
-    process.env.LEMONSQUEEZY_STORE_ID!,
-    variantId,
-    {
-      checkoutData: {
-        email: email,
-        custom: {
-          user_id: userId,
-        },
+  const checkout = await createCheckout(process.env.LEMONSQUEEZY_STORE_ID!, variantId, {
+    checkoutData: {
+      email: email,
+      custom: {
+        user_id: userId,
       },
-      productOptions: {
-        enabledVariants: [variantId],
-        redirectUrl: `${process.env.APP_URL}/dashboard?success=true`,
-      },
-    }
-  );
+    },
+    productOptions: {
+      enabledVariants: [variantId],
+      redirectUrl: `${process.env.APP_URL}/dashboard?success=true`,
+    },
+  });
 
-  return checkout.data?.attributes.url || '';
+  return checkout.data?.attributes.url || "";
 }
 ```
 
@@ -696,8 +722,8 @@ export async function createPaymentCheckout(
 
 ```typescript
 // supabase/functions/lemonsqueezy-webhook/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 interface LemonSqueezyWebhook {
   meta: {
@@ -719,81 +745,79 @@ interface LemonSqueezyWebhook {
 }
 
 serve(async (req) => {
-  const signature = req.headers.get('x-signature');
-  
+  const signature = req.headers.get("x-signature");
+
   // 1. Vérifier signature (HMAC SHA-256)
   // const isValid = verifySignature(await req.text(), signature, process.env.LEMONSQUEEZY_WEBHOOK_SECRET);
   // if (!isValid) return new Response('Unauthorized', { status: 401 });
-  
+
   const payload: LemonSqueezyWebhook = await req.json();
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
-  
+
   // 2. Traiter l'événement
   switch (payload.meta.event_name) {
-    case 'order_created':
+    case "order_created":
       await handleOrderCreated(supabase, payload);
       break;
-    case 'subscription_created':
+    case "subscription_created":
       await handleSubscriptionCreated(supabase, payload);
       break;
-    case 'subscription_updated':
+    case "subscription_updated":
       await handleSubscriptionUpdated(supabase, payload);
       break;
-    case 'subscription_cancelled':
+    case "subscription_cancelled":
       await handleSubscriptionCancelled(supabase, payload);
       break;
   }
-  
-  return new Response('OK', { status: 200 });
+
+  return new Response("OK", { status: 200 });
 });
 
 async function handleOrderCreated(supabase: any, payload: LemonSqueezyWebhook) {
   const userId = payload.meta.custom_data.user_id;
   const productCode = getProductCodeFromVariant(payload.data.attributes.variant_id);
-  
+
   // Activer le plan
   await supabase
-    .from('users')
+    .from("users")
     .update({
       plan: productCode,
       credits: getCreditsForProduct(productCode),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
-    .eq('id', userId);
-    
+    .eq("id", userId);
+
   // Logger la transaction
-  await supabase
-    .from('transactions')
-    .insert({
-      user_id: userId,
-      order_number: payload.data.attributes.order_number,
-      amount: payload.data.attributes.total,
-      currency: payload.data.attributes.currency,
-      status: payload.data.attributes.status,
-      provider: 'lemonsqueezy',
-      created_at: new Date().toISOString()
-    });
+  await supabase.from("transactions").insert({
+    user_id: userId,
+    order_number: payload.data.attributes.order_number,
+    amount: payload.data.attributes.total,
+    currency: payload.data.attributes.currency,
+    status: payload.data.attributes.status,
+    provider: "lemonsqueezy",
+    created_at: new Date().toISOString(),
+  });
 }
 
 function getProductCodeFromVariant(variantId: string): string {
   // Mapping variant_id Lemon Squeezy → product_code
   const mapping: Record<string, string> = {
-    '123456': 'STARTER',
-    '123457': 'PREMIUM',
-    '123458': 'PRO',
+    "123456": "STARTER",
+    "123457": "PREMIUM",
+    "123458": "PRO",
   };
-  return mapping[variantId] || 'FREE';
+  return mapping[variantId] || "FREE";
 }
 
 function getCreditsForProduct(productCode: string): number {
   const credits: Record<string, number> = {
-    'FREE': 20,
-    'STARTER': 200,
-    'PREMIUM': 100,
-    'PRO': 1000,
+    FREE: 20,
+    STARTER: 200,
+    PREMIUM: 100,
+    PRO: 1000,
   };
   return credits[productCode] || 20;
 }
@@ -810,6 +834,7 @@ function getCreditsForProduct(productCode: string): number {
 **Scénario :** Un utilisateur aux États-Unis (prix élevé $29) utilise un VPN pour s'inscrire depuis l'Inde (prix bas ₹299 = ~$3.50).
 
 **Impact :**
+
 - Perte de revenu : ~$25.50 par utilisateur
 - Déséquilibre financier si abus massif
 
@@ -826,6 +851,7 @@ if (isVPN(ipAddress)) {
 ```
 
 **Pourquoi c'est mauvais :**
+
 - Bloque les utilisateurs légitimes (entreprises, voyageurs)
 - Faux positifs élevés
 - Facilement contournable
@@ -838,56 +864,56 @@ if (isVPN(ipAddress)) {
 ```typescript
 // lib/fraud-detection/bin-matching.ts
 interface PaymentVerification {
-  ipCountry: string;          // Détecté via Géo-IP
-  cardCountry: string;        // Obtenu via BIN (Bank Identification Number)
-  riskLevel: 'low' | 'medium' | 'high';
-  action: 'approve' | 'review' | 'block';
+  ipCountry: string; // Détecté via Géo-IP
+  cardCountry: string; // Obtenu via BIN (Bank Identification Number)
+  riskLevel: "low" | "medium" | "high";
+  action: "approve" | "review" | "block";
 }
 
 export async function verifyPayment(
   ipAddress: string,
-  cardBIN: string
+  cardBIN: string,
 ): Promise<PaymentVerification> {
   const ipCountry = await detectCountry(ipAddress);
   const cardCountry = await getBINCountry(cardBIN);
-  
+
   // Règle 1: Concordance parfaite
   if (ipCountry === cardCountry) {
     return {
       ipCountry,
       cardCountry,
-      riskLevel: 'low',
-      action: 'approve'
+      riskLevel: "low",
+      action: "approve",
     };
   }
-  
+
   // Règle 2: Même région économique (UE)
   if (isEUCountry(ipCountry) && isEUCountry(cardCountry)) {
     return {
       ipCountry,
       cardCountry,
-      riskLevel: 'low',
-      action: 'approve'
+      riskLevel: "low",
+      action: "approve",
     };
   }
-  
+
   // Règle 3: Écart de prix modéré (<20%)
   const priceGap = calculatePriceGap(ipCountry, cardCountry);
-  if (priceGap < 0.20) {
+  if (priceGap < 0.2) {
     return {
       ipCountry,
       cardCountry,
-      riskLevel: 'medium',
-      action: 'review'
+      riskLevel: "medium",
+      action: "review",
     };
   }
-  
+
   // Règle 4: Écart important (>20%) = Fraude potentielle
   return {
     ipCountry,
     cardCountry,
-    riskLevel: 'high',
-    action: 'block'
+    riskLevel: "high",
+    action: "block",
   };
 }
 
@@ -896,13 +922,13 @@ async function getBINCountry(bin: string): Promise<string> {
   // Ou API BIN: https://binlist.net/
   const response = await fetch(`https://lookup.binlist.net/${bin.substring(0, 6)}`);
   const data = await response.json();
-  return data.country?.alpha2 || 'US';
+  return data.country?.alpha2 || "US";
 }
 
 function calculatePriceGap(country1: string, country2: string): number {
-  const price1 = getPriceForCountry(country1, 'PREMIUM');
-  const price2 = getPriceForCountry(country2, 'PREMIUM');
-  
+  const price1 = getPriceForCountry(country1, "PREMIUM");
+  const price2 = getPriceForCountry(country2, "PREMIUM");
+
   return Math.abs(price1 - price2) / Math.max(price1, price2);
 }
 ```
@@ -913,14 +939,14 @@ function calculatePriceGap(country1: string, country2: string): number {
 // Règles Stripe Radar à configurer
 const radarRules = [
   {
-    name: 'Country Mismatch High Risk',
-    condition: 'ip_country != card_country AND price_gap > 0.20',
-    action: 'block',
+    name: "Country Mismatch High Risk",
+    condition: "ip_country != card_country AND price_gap > 0.20",
+    action: "block",
   },
   {
-    name: 'Country Mismatch Medium Risk',
-    condition: 'ip_country != card_country AND price_gap > 0.10',
-    action: 'review',
+    name: "Country Mismatch Medium Risk",
+    condition: "ip_country != card_country AND price_gap > 0.10",
+    action: "review",
   },
 ];
 ```
@@ -934,6 +960,7 @@ const radarRules = [
 **Scénario :** Un utilisateur américain découvre qu'il paie $29 pour exactement le même produit qu'un utilisateur indien qui paie ₹299 (~$3.50).
 
 **Réaction :**
+
 - ❌ "Je me sens floué !"
 - ❌ Boycott / Bad reviews
 - ❌ Viral négatif sur Twitter/Reddit
@@ -949,56 +976,57 @@ const radarRules = [
 const US_PLANS = {
   PREMIUM_US: {
     price: 6.95,
-    currency: 'USD',
+    currency: "USD",
     credits: 100,
     features: [
-      'US Priority Support (24/7)',
-      'Integrations: Salesforce, HubSpot',
-      'Advanced Analytics (US Data Centers)',
-      'Compliance: SOC 2, HIPAA Ready',
-    ]
+      "US Priority Support (24/7)",
+      "Integrations: Salesforce, HubSpot",
+      "Advanced Analytics (US Data Centers)",
+      "Compliance: SOC 2, HIPAA Ready",
+    ],
   },
   PRO_US: {
-    price: 29.00,
-    currency: 'USD',
+    price: 29.0,
+    currency: "USD",
     credits: 1000,
     features: [
-      'US Dedicated Account Manager',
-      'White-label branding',
-      'US-hosted data (California)',
-      'SLA 99.9% uptime',
-    ]
-  }
+      "US Dedicated Account Manager",
+      "White-label branding",
+      "US-hosted data (California)",
+      "SLA 99.9% uptime",
+    ],
+  },
 };
 
 // Plans Inde
 const IN_PLANS = {
   PREMIUM_IN: {
     price: 299,
-    currency: 'INR',
-    credits: 50,  // Moins de crédits IA
+    currency: "INR",
+    credits: 50, // Moins de crédits IA
     features: [
-      'India Support (9am-6pm IST)',
-      'Integrations: Zoho, Freshworks',
-      'Standard Analytics',
-      'Hindi Language Support',
-    ]
+      "India Support (9am-6pm IST)",
+      "Integrations: Zoho, Freshworks",
+      "Standard Analytics",
+      "Hindi Language Support",
+    ],
   },
   PRO_IN: {
     price: 1299,
-    currency: 'INR',
-    credits: 500,  // Moins que US
+    currency: "INR",
+    credits: 500, // Moins que US
     features: [
-      'India Priority Support',
-      'Standard branding options',
-      'India-hosted data (Mumbai)',
-      'SLA 99.5% uptime',
-    ]
-  }
+      "India Priority Support",
+      "Standard branding options",
+      "India-hosted data (Mumbai)",
+      "SLA 99.5% uptime",
+    ],
+  },
 };
 ```
 
 **Différences subtiles mais réelles :**
+
 - ✅ Support régional (horaires locaux)
 - ✅ Intégrations locales (Zoho vs Salesforce)
 - ✅ Hébergement local (conformité DPDP)
@@ -1010,12 +1038,13 @@ const IN_PLANS = {
 **Page FAQ :**
 
 > **Q: Pourquoi les prix varient-ils selon les pays ?**
-> 
+>
 > **R:** Nous proposons des plans régionaux adaptés au marché local :
+>
 > - Les prix reflètent le **pouvoir d'achat local** (coût de la vie, salaire moyen)
 > - Les fonctionnalités sont **optimisées pour chaque région** (support local, intégrations locales, hébergement local)
 > - Les plans sont conformes aux **réglementations locales** (RGPD en UE, DPDP en Inde, HIPAA aux US)
-> 
+>
 > Cette approche nous permet d'offrir un produit **accessible à tous**, peu importe votre localisation.
 
 **Principe :** Être **transparent** plutôt que de cacher.
@@ -1032,15 +1061,15 @@ const IN_PLANS = {
 
 ```typescript
 // Prompt utilisateur (France)
-"Crée un sondage pour savoir ce que les gens pensent de mon restaurant"
+"Crée un sondage pour savoir ce que les gens pensent de mon restaurant";
 
 // ❌ Réponse non localisée (biais US)
 {
   questions: [
     "Rate our service on a scale of 1-10",
     "How often do you dine out per week?",
-    "What's your favorite appetizer? (Wings, Nachos, Mozzarella Sticks)"
-  ]
+    "What's your favorite appetizer? (Wings, Nachos, Mozzarella Sticks)",
+  ];
 }
 
 // ✅ Réponse localisée (France)
@@ -1048,12 +1077,13 @@ const IN_PLANS = {
   questions: [
     "Comment évaluez-vous notre service ? (Très satisfait → Très insatisfait)",
     "À quelle fréquence déjeunez-vous au restaurant ?",
-    "Quelle est votre entrée préférée ? (Salade, Terrine, Soupe à l'oignon)"
-  ]
+    "Quelle est votre entrée préférée ? (Salade, Terrine, Soupe à l'oignon)",
+  ];
 }
 ```
 
 **Problèmes identifiés :**
+
 1. **Langue :** Tutoiement vs vouvoiement
 2. **Références culturelles :** Wings vs Terrine
 3. **Format :** Échelle 1-10 vs Likert descriptif
@@ -1066,28 +1096,28 @@ const IN_PLANS = {
 ```typescript
 // lib/ai/cultural-prompting.ts
 interface CulturalContext {
-  country: string;          // "FR", "US", "IN"
-  language: string;         // "fr", "en", "hi"
-  formality: 'formal' | 'informal';
+  country: string; // "FR", "US", "IN"
+  language: string; // "fr", "en", "hi"
+  formality: "formal" | "informal";
   currency: string;
   locale: string;
 }
 
 export function buildCulturalSystemPrompt(context: CulturalContext): string {
   const basePrompt = `Tu es un assistant expert en création de sondages.`;
-  
+
   // Ajouter contexte culturel
   const culturalPrompt = getCulturalPrompt(context.country);
-  
+
   // Ajouter règles linguistiques
   const languagePrompt = getLanguagePrompt(context.language, context.formality);
-  
+
   return `${basePrompt}\n\n${culturalPrompt}\n\n${languagePrompt}`;
 }
 
 function getCulturalPrompt(country: string): string {
   const prompts: Record<string, string> = {
-    'FR': `
+    FR: `
 CONTEXTE CULTUREL : France
 - Utilise des références culturelles françaises (pas américaines)
 - Exemples de restaurants : bistrot, brasserie, restaurant gastronomique
@@ -1097,7 +1127,7 @@ CONTEXTE CULTUREL : France
 - Horaires : Format 24h (ex: 14h00, pas 2pm)
 - Références sportives : Football, rugby, cyclisme (pas baseball, NFL)
 `,
-    'US': `
+    US: `
 CULTURAL CONTEXT: United States
 - Use American cultural references
 - Restaurant examples: Diner, steakhouse, fast-casual
@@ -1107,7 +1137,7 @@ CULTURAL CONTEXT: United States
 - Time: 12-hour format with AM/PM
 - Sports: Baseball, NFL, NBA
 `,
-    'IN': `
+    IN: `
 सांस्कृतिक संदर्भ : भारत (CULTURAL CONTEXT: India)
 - Use Indian cultural references and context
 - Restaurant examples: Dhaba, pure veg, multi-cuisine
@@ -1119,14 +1149,14 @@ CULTURAL CONTEXT: United States
 - Languages: Support Hindi, Tamil, Bengali alongside English
 `,
   };
-  
-  return prompts[country] || prompts['US'];
+
+  return prompts[country] || prompts["US"];
 }
 
-function getLanguagePrompt(language: string, formality: 'formal' | 'informal'): string {
+function getLanguagePrompt(language: string, formality: "formal" | "informal"): string {
   const prompts: Record<string, Record<string, string>> = {
-    'fr': {
-      'formal': `
+    fr: {
+      formal: `
 RÈGLES LINGUISTIQUES : Français (formel)
 - Utilise TOUJOURS le vouvoiement ("vous", jamais "tu")
 - Ton professionnel et poli
@@ -1134,7 +1164,7 @@ RÈGLES LINGUISTIQUES : Français (formel)
 - Évite l'anglicisme sauf termes techniques acceptés
 - Exemples : "Comment évaluez-vous..." (pas "Comment tu trouves...")
 `,
-      'informal': `
+      informal: `
 RÈGLES LINGUISTIQUES : Français (informel)
 - Tutoiement acceptable ("tu") si contexte casual
 - Ton amical mais respectueux
@@ -1142,30 +1172,30 @@ RÈGLES LINGUISTIQUES : Français (informel)
 - Exemples : "Comment tu trouves..." acceptable
 `,
     },
-    'en': {
-      'formal': `
+    en: {
+      formal: `
 LANGUAGE RULES: English (formal)
 - Use professional, polite tone
 - Formal phrasing: "Could you please", "We would appreciate"
 - Avoid contractions (use "do not" instead of "don't")
 - Examples: "How would you rate..." (not "How'd you rate...")
 `,
-      'informal': `
+      informal: `
 LANGUAGE RULES: English (casual)
 - Friendly, conversational tone
 - Contractions are fine ("don't", "we're")
 - Simple language: "How do you like..." acceptable
 `,
     },
-    'hi': {
-      'formal': `
+    hi: {
+      formal: `
 भाषा नियम : हिंदी (औपचारिक) (LANGUAGE RULES: Hindi - Formal)
 - Use आप (aap) form - formal "you"
 - Professional and respectful tone
 - Formal phrases: "कृपया", "आपसे निवेदन है"
 - Mix Hindi with English technical terms is acceptable
 `,
-      'informal': `
+      informal: `
 भाषा नियम : हिंदी (अनौपचारिक) (LANGUAGE RULES: Hindi - Casual)
 - तुम (tum) form acceptable - informal "you"
 - Friendly, approachable tone
@@ -1174,8 +1204,8 @@ LANGUAGE RULES: English (casual)
 `,
     },
   };
-  
-  return prompts[language]?.[formality] || prompts['en']['formal'];
+
+  return prompts[language]?.[formality] || prompts["en"]["formal"];
 }
 ```
 
@@ -1183,23 +1213,23 @@ LANGUAGE RULES: English (casual)
 
 ```typescript
 // lib/ai/gemini-service.ts
-import { buildCulturalSystemPrompt } from './cultural-prompting';
+import { buildCulturalSystemPrompt } from "./cultural-prompting";
 
 export async function generateSurvey(
   userPrompt: string,
-  context: CulturalContext
+  context: CulturalContext,
 ): Promise<Survey> {
   // 1. Construire le system prompt avec contexte culturel
   const systemPrompt = buildCulturalSystemPrompt(context);
-  
+
   // 2. Appeler Gemini avec prompt culturel
   const response = await geminiClient.generateContent({
     contents: [
       {
-        role: 'user',
+        role: "user",
         parts: [
-          { text: systemPrompt },  // Meta-prompt culturel
-          { text: userPrompt },    // Prompt utilisateur
+          { text: systemPrompt }, // Meta-prompt culturel
+          { text: userPrompt }, // Prompt utilisateur
         ],
       },
     ],
@@ -1208,7 +1238,7 @@ export async function generateSurvey(
       maxOutputTokens: 2000,
     },
   });
-  
+
   return parseSurveyResponse(response);
 }
 ```
@@ -1219,7 +1249,7 @@ export async function generateSurvey(
 // Détection depuis les données utilisateur
 export function detectCulturalContext(user: User): CulturalContext {
   return {
-    country: user.detectedCountry || user.preferences?.selectedCountry || 'US',
+    country: user.detectedCountry || user.preferences?.selectedCountry || "US",
     language: user.preferences?.language || detectBrowserLanguage(),
     formality: getDefaultFormality(user.detectedCountry),
     currency: getCurrencyForCountry(user.detectedCountry),
@@ -1227,10 +1257,10 @@ export function detectCulturalContext(user: User): CulturalContext {
   };
 }
 
-function getDefaultFormality(country: string): 'formal' | 'informal' {
+function getDefaultFormality(country: string): "formal" | "informal" {
   // Pays avec culture formelle par défaut
-  const formalCountries = ['FR', 'DE', 'JP', 'IN'];
-  return formalCountries.includes(country) ? 'formal' : 'informal';
+  const formalCountries = ["FR", "DE", "JP", "IN"];
+  return formalCountries.includes(country) ? "formal" : "informal";
 }
 ```
 
@@ -1239,9 +1269,11 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 #### Exemple 1 : Sondage Restaurant (France vs US)
 
 **Prompt utilisateur (identique) :**
+
 > "Crée un sondage de satisfaction pour mon restaurant"
 
 **France (fr-FR, formal) :**
+
 ```json
 {
   "title": "Questionnaire de Satisfaction - [Nom du Restaurant]",
@@ -1265,6 +1297,7 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 ```
 
 **USA (en-US, informal) :**
+
 ```json
 {
   "title": "Customer Satisfaction Survey - [Restaurant Name]",
@@ -1290,9 +1323,11 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 #### Exemple 2 : Sondage Event (Inde)
 
 **Prompt utilisateur (Hindi) :**
+
 > "मेरे शादी समारोह के लिए एक सर्वेक्षण बनाएं" (Crée un sondage pour ma cérémonie de mariage)
 
 **Inde (hi-IN, formal) :**
+
 ```json
 {
   "title": "विवाह समारोह सर्वेक्षण (Wedding Ceremony Survey)",
@@ -1324,18 +1359,21 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 **Référence :** [INTERNATIONAL-LAUNCH-STRATEGY.md - Section 6](./INTERNATIONAL-LAUNCH-STRATEGY.md#6-roadmap-dimplémentation)
 
 #### Semaine 1 : Base de Données
+
 - [ ] Créer tables `regions`, `price_lists`, `products`, `product_prices`
 - [ ] Insérer données Phase 1 (EU, US, CA, CH, GB)
 - [ ] Créer API `getPricing()`
 - [ ] Tests unitaires pricing logic
 
 #### Semaine 2 : Géo-Détection
+
 - [ ] Implémenter Cloudflare headers detection
 - [ ] Fallback IPinfo
 - [ ] Stocker `detected_country` dans users
 - [ ] Tests détection (mock IPs)
 
 #### Semaine 3 : Lemon Squeezy
+
 - [ ] Créer compte + store
 - [ ] Créer produits et variants
 - [ ] Mapper variants → product_prices
@@ -1347,6 +1385,7 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 **Pays cibles :** FR, DE, IT, ES, GB, CH, US, CA
 
 #### Mois 1 : i18n + UI
+
 - [ ] Installation react-i18next
 - [ ] Traductions EN/FR à 100%
 - [ ] Composant `CountrySelector`
@@ -1354,12 +1393,14 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 - [ ] Page pricing avec prix dynamiques
 
 #### Mois 2 : Paiements + Tests
+
 - [ ] Intégration Lemon Squeezy frontend
 - [ ] Flow complet signup → payment → activation
 - [ ] Tests E2E multi-pays (FR, US, CH)
 - [ ] Tests VPN/fraude (BIN matching)
 
 #### Mois 3 : Conformité + Launch
+
 - [ ] Cookie consent banner
 - [ ] Privacy Policy + Terms (iubenda)
 - [ ] Audit RGPD (checklist)
@@ -1371,17 +1412,20 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 **Pays cibles :** IN
 
 #### Mois 4-5 : Localisation Hindi
+
 - [ ] Traductions Hindi (hi-IN)
 - [ ] Support devises INR
 - [ ] Prix spécifiques Inde
 - [ ] Cultural prompting Hindi
 
 #### Mois 6 : Paiements UPI
+
 - [ ] Configuration Lemon Squeezy UPI
 - [ ] Tests paiements locaux
 - [ ] Support RazorPay (backup)
 
 #### Mois 7-9 : Conformité DPDP
+
 - [ ] Nomination DPO
 - [ ] Logs de consentement
 - [ ] Data localization (Mumbai region Supabase)
@@ -1395,42 +1439,42 @@ function getDefaultFormality(country: string): 'formal' | 'informal' {
 
 ```tsx
 // pages/Pricing.tsx
-import { useEffect, useState } from 'react';
-import { useGeography } from '@/hooks/useGeography';
-import { getPricing } from '@/lib/pricing/get-prices';
-import { createPaymentCheckout } from '@/lib/payments/lemonsqueezy';
+import { useEffect, useState } from "react";
+import { useGeography } from "@/hooks/useGeography";
+import { getPricing } from "@/lib/pricing/get-prices";
+import { createPaymentCheckout } from "@/lib/payments/lemonsqueezy";
 
 export default function PricingPage() {
   const { country, currency, isLoading } = useGeography();
   const [prices, setPrices] = useState<ProductPrice[]>([]);
-  
+
   useEffect(() => {
     if (country) {
       getPricing({ country }).then(setPrices);
     }
   }, [country]);
-  
+
   const handleSubscribe = async (productCode: string) => {
-    const product = prices.find(p => p.productCode === productCode);
+    const product = prices.find((p) => p.productCode === productCode);
     if (!product?.lemonsqueezyVariantId) return;
-    
+
     const checkoutUrl = await createPaymentCheckout(
       product.lemonsqueezyVariantId,
       user.id,
-      user.email
+      user.email,
     );
-    
+
     window.location.href = checkoutUrl;
   };
-  
+
   if (isLoading) return <Spinner />;
-  
+
   return (
     <div className="pricing-page">
       <CountrySelector />
-      
+
       <div className="pricing-grid">
-        {prices.map(product => (
+        {prices.map((product) => (
           <PricingCard
             key={product.productCode}
             name={product.productName}
@@ -1441,12 +1485,11 @@ export default function PricingPage() {
           />
         ))}
       </div>
-      
+
       <LegalNotice>
-        {product.taxIncluded 
+        {product.taxIncluded
           ? `Prix TTC (TVA ${product.taxRate}% incluse)`
-          : `Prix HT (taxes locales en sus)`
-        }
+          : `Prix HT (taxes locales en sus)`}
       </LegalNotice>
     </div>
   );
@@ -1457,8 +1500,8 @@ export default function PricingPage() {
 
 ```typescript
 // hooks/useGeography.ts
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Geography {
   country: string;
@@ -1470,9 +1513,9 @@ interface Geography {
 
 export function useGeography(): Geography {
   const { user } = useAuth();
-  const [country, setCountryState] = useState<string>('');
+  const [country, setCountryState] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     async function detectGeography() {
       // 1. Check user preference
@@ -1481,49 +1524,46 @@ export function useGeography(): Geography {
         setIsLoading(false);
         return;
       }
-      
+
       // 2. Check stored detection
       if (user?.detectedCountry) {
         setCountryState(user.detectedCountry);
         setIsLoading(false);
         return;
       }
-      
+
       // 3. Call detection API
-      const response = await fetch('/api/detect-country');
+      const response = await fetch("/api/detect-country");
       const data = await response.json();
       setCountryState(data.country);
       setIsLoading(false);
-      
+
       // 4. Store in user profile
       if (user) {
-        await supabase
-          .from('users')
-          .update({ detected_country: data.country })
-          .eq('id', user.id);
+        await supabase.from("users").update({ detected_country: data.country }).eq("id", user.id);
       }
     }
-    
+
     detectGeography();
   }, [user]);
-  
+
   const setCountry = async (newCountry: string) => {
     setCountryState(newCountry);
-    
+
     // Store user preference
     if (user) {
       await supabase
-        .from('users')
+        .from("users")
         .update({
           preferences: {
             ...user.preferences,
-            selectedCountry: newCountry
-          }
+            selectedCountry: newCountry,
+          },
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
     }
   };
-  
+
   return {
     country,
     currency: getCurrencyForCountry(country),
@@ -1637,11 +1677,13 @@ $$ LANGUAGE plpgsql;
 ## 9. Références
 
 ### Documents Liés
+
 - [INTERNATIONAL-LAUNCH-STRATEGY.md](./INTERNATIONAL-LAUNCH-STRATEGY.md) - Stratégie et roadmap
 - [2. Planning.md](./2.%20Planning.md) - Planning général produit
 - [REBRANDING-DOODATES-TO-BONVOT.md](./REBRANDING-DOODATES-TO-BONVOT.md) - Stratégie branding
 
 ### Ressources Externes
+
 - [Règlement UE 2018/302 (Géoblocage)](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32018R0302)
 - [RGPD - Texte officiel](https://www.cnil.fr/fr/reglement-europeen-protection-donnees)
 - [DPDP Act 2023 (Inde)](https://www.meity.gov.in/writereaddata/files/Digital%20Personal%20Data%20Protection%20Act%202023.pdf)
@@ -1649,6 +1691,7 @@ $$ LANGUAGE plpgsql;
 - [react-i18next Documentation](https://react.i18next.com/)
 
 ### Outils Recommandés
+
 - **Géo-IP :** Cloudflare headers (gratuit), IPinfo (gratuit 50k/mois)
 - **MoR :** Lemon Squeezy (5% + Stripe fees)
 - **i18n :** react-i18next
@@ -1661,4 +1704,3 @@ $$ LANGUAGE plpgsql;
 **Dernière mise à jour :** 10 Novembre 2025  
 **Version :** 1.0  
 **Prochaine revue :** Après implémentation Phase 0
-

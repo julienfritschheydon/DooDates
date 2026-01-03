@@ -3,6 +3,7 @@
 ## 📋 Overview
 
 The Quota Alerts system provides:
+
 - **Admin Dashboard**: Visual monitoring of quota usage with charts and export
 - **Email Alerts**: Automatic notifications for unusual consumption patterns
 - **Anomaly Detection**: High usage (>50 credits) and suspicious activity (>30 credits/hour)
@@ -31,15 +32,17 @@ npx supabase functions list
 ### 3. Configure Cron Job
 
 The function includes `cron.json` for automatic checks:
+
 ```json
 {
-  "schedule": "0 */6 * * *"  // Every 6 hours
+  "schedule": "0 */6 * * *" // Every 6 hours
 }
 ```
 
 ## 🧪 Testing
 
 ### Quick Test Script
+
 ```bash
 npm run test:quota-alerts
 ```
@@ -47,6 +50,7 @@ npm run test:quota-alerts
 ### Manual Testing Steps
 
 1. **Access Admin Dashboard**
+
    ```bash
    npm run dev
    # Navigate to: http://localhost:5173/admin/quota-dashboard
@@ -66,23 +70,27 @@ npm run test:quota-alerts
 ## 🔧 Configuration
 
 ### Alert Thresholds
+
 - **High Usage**: 50 credits total
 - **Suspicious Activity**: 30 credits in 1 hour
 - **Check Frequency**: Every 6 hours
 
 ### Email Recipient
+
 Default: `julien.fritsch@gmail.com`
 Can be changed via `ADMIN_EMAIL` environment variable.
 
 ## 📊 Dashboard Features
 
 ### Main Dashboard Tab
+
 - **Statistics Cards**: Total guests, credits consumed, active users, high usage
 - **Charts**: Top users bar chart, action distribution pie chart
 - **Detailed Table**: All users with status badges
 - **Export**: Download CSV report
 
 ### Alerts & Monitoring Tab
+
 - **Alert Summary**: Current alert counts by type
 - **Active Alerts**: List of users triggering alerts
 - **Manual Controls**: Check now, send test email
@@ -93,10 +101,11 @@ Can be changed via `ADMIN_EMAIL` environment variable.
 ### Common Issues
 
 1. **Email not sending**
+
    ```bash
    # Check Resend API key
    npx supabase functions logs quota-alerts
-   
+
    # Verify environment variables
    npx supabase secrets list
    ```
@@ -128,11 +137,13 @@ npx supabase secrets list
 ## 📈 Monitoring
 
 ### Production Monitoring
+
 - Check dashboard daily for high usage users
 - Monitor email alerts for suspicious patterns
 - Review function logs for errors
 
 ### Performance Metrics
+
 - Response time should be <2 seconds
 - Email delivery within 5 minutes
 - Automatic checks every 6 hours
@@ -140,11 +151,13 @@ npx supabase secrets list
 ## 🔄 Maintenance
 
 ### Regular Tasks
+
 1. **Weekly**: Review dashboard for unusual patterns
 2. **Monthly**: Check email quota usage (Resend limit: 1000/month)
 3. **Quarterly**: Adjust alert thresholds if needed
 
 ### Updates
+
 - Redeploy function after code changes:
   ```bash
   npx supabase functions deploy quota-alerts
@@ -153,6 +166,7 @@ npx supabase secrets list
 ## 📞 Support
 
 For issues:
+
 1. Check browser console
 2. Review function logs
 3. Verify environment variables

@@ -3,10 +3,12 @@
 ## Problème Identifié
 
 **Symptôme :** Après avoir créé/modifié un formulaire, le lien généré était incorrect :
+
 - Format affiché : `/poll/poll-1761929446884/vote` ❌
 - Format attendu : `/poll/satisfaction-client-yb1ardk1` ✅
 
 **Impact :**
+
 - Le lien ne fonctionnait pas
 - Impossible de voter après avoir changé le thème
 - Confusion pour l'utilisateur
@@ -24,6 +26,7 @@ to={`/poll/${publishedPoll.id}/vote`}
 ```
 
 **Problème :**
+
 1. Utilise l'`id` (ex: `poll-1761929446884`) au lieu du `slug` (ex: `satisfaction-client-yb1ardk1`)
 2. Ajoute `/vote` alors que la route est `/poll/:slug` (sans `/vote`)
 
@@ -34,18 +37,21 @@ to={`/poll/${publishedPoll.id}/vote`}
 ### Fichier : `src/pages/FormCreator.tsx`
 
 **1. Bouton "Voir le formulaire" :**
+
 ```tsx
 // ✅ APRÈS (CORRIGÉ)
 to={`/poll/${publishedPoll.slug || publishedPoll.id}`}
 ```
 
 **2. Lien affiché :**
+
 ```tsx
 // ✅ APRÈS (CORRIGÉ)
 {window.location.origin}/poll/{publishedPoll.slug || publishedPoll.id}
 ```
 
 **3. Copie du lien :**
+
 ```tsx
 // ✅ APRÈS (CORRIGÉ)
 const url = `${window.location.origin}/poll/${publishedPoll.slug || publishedPoll.id}`;
@@ -56,6 +62,7 @@ const url = `${window.location.origin}/poll/${publishedPoll.slug || publishedPol
 ## Routes Correctes
 
 Les routes définies dans `App.tsx` :
+
 - `/poll/:slug` → Formulaire de vote ✅
 - `/poll/:slug/results` → Résultats ✅
 - `/vote/:pollId` → Ancien format (rétrocompatibilité)
@@ -95,6 +102,7 @@ Les routes définies dans `App.tsx` :
 ### Problème
 
 Quand on modifie un formulaire (ex: changer le thème), le **slug change** :
+
 - **Avant :** `/poll/satisfaction-client-gy9inspg`
 - **Après :** `/poll/satisfaction-client-euwcnphv`
 
@@ -124,6 +132,7 @@ Inverser l'ordre des opérations :
 ```
 
 **Code corrigé :**
+
 ```tsx
 // Créer/mettre à jour le poll actif
 const saved = upsertFormPoll(draft, "active");
@@ -137,12 +146,13 @@ savePolls(withoutOldDrafts);
 ### Logs de Debug
 
 Ajout de logs pour tracer le problème :
+
 ```tsx
-logger.debug("upsertFormPoll", "poll", { 
-  draftId: draft.id, 
-  existingIdx, 
+logger.debug("upsertFormPoll", "poll", {
+  draftId: draft.id,
+  existingIdx,
   existingSlug: existingIdx >= 0 ? all[existingIdx].slug : "none",
-  allPollIds: all.map(p => p.id)
+  allPollIds: all.map((p) => p.id),
 });
 ```
 

@@ -1,15 +1,15 @@
 /**
  * Script de migration : localStorage → quota_tracking (Supabase)
- * 
+ *
  * Ce script migre les données de quota depuis localStorage vers la table quota_tracking
- * 
+ *
  * Usage:
  * 1. Exporter les données localStorage depuis le navigateur (DevTools → Application → Local Storage)
  * 2. Sauvegarder dans un fichier JSON
  * 3. Exécuter ce script avec les données
- * 
+ *
  * OU
- * 
+ *
  * Exécuter côté client lors de la première connexion d'un utilisateur authentifié
  */
 
@@ -47,7 +47,7 @@ interface CreditJournalEntry {
 
 /**
  * Migrer les données de quota d'un utilisateur depuis localStorage vers Supabase
- * 
+ *
  * @param userId - ID de l'utilisateur authentifié
  * @param quotaData - Données de quota depuis localStorage
  * @param journalEntries - Entrées du journal depuis localStorage
@@ -55,10 +55,12 @@ interface CreditJournalEntry {
 export async function migrateUserQuotaToSupabase(
   userId: string,
   quotaData: QuotaConsumedData,
-  journalEntries: CreditJournalEntry[] = []
+  journalEntries: CreditJournalEntry[] = [],
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
       return { success: false, error: "User not authenticated" };
     }
@@ -81,43 +83,31 @@ export async function migrateUserQuotaToSupabase(
         .update({
           conversations_created: Math.max(
             existingQuota.conversations_created || 0,
-            quotaData.conversationsCreated || 0
+            quotaData.conversationsCreated || 0,
           ),
-          polls_created: Math.max(
-            existingQuota.polls_created || 0,
-            quotaData.pollsCreated || 0
-          ),
+          polls_created: Math.max(existingQuota.polls_created || 0, quotaData.pollsCreated || 0),
           date_polls_created: Math.max(
             existingQuota.date_polls_created || 0,
-            quotaData.datePollsCreated || 0
+            quotaData.datePollsCreated || 0,
           ),
           form_polls_created: Math.max(
             existingQuota.form_polls_created || 0,
-            quotaData.formPollsCreated || 0
+            quotaData.formPollsCreated || 0,
           ),
-          quizz_created: Math.max(
-            existingQuota.quizz_created || 0,
-            quotaData.quizzCreated || 0
-          ),
+          quizz_created: Math.max(existingQuota.quizz_created || 0, quotaData.quizzCreated || 0),
           availability_polls_created: Math.max(
             existingQuota.availability_polls_created || 0,
-            quotaData.availabilityPollsCreated || 0
+            quotaData.availabilityPollsCreated || 0,
           ),
-          ai_messages: Math.max(
-            existingQuota.ai_messages || 0,
-            quotaData.aiMessages || 0
-          ),
+          ai_messages: Math.max(existingQuota.ai_messages || 0, quotaData.aiMessages || 0),
           analytics_queries: Math.max(
             existingQuota.analytics_queries || 0,
-            quotaData.analyticsQueries || 0
+            quotaData.analyticsQueries || 0,
           ),
-          simulations: Math.max(
-            existingQuota.simulations || 0,
-            quotaData.simulations || 0
-          ),
+          simulations: Math.max(existingQuota.simulations || 0, quotaData.simulations || 0),
           total_credits_consumed: Math.max(
             existingQuota.total_credits_consumed || 0,
-            quotaData.totalCreditsConsumed || 0
+            quotaData.totalCreditsConsumed || 0,
           ),
           subscription_start_date: quotaData.subscriptionStartDate
             ? new Date(quotaData.subscriptionStartDate).toISOString()
@@ -133,27 +123,25 @@ export async function migrateUserQuotaToSupabase(
       }
     } else {
       // Créer nouveau quota
-      const { error: createError } = await supabase
-        .from("quota_tracking")
-        .insert({
-          user_id: userId,
-          conversations_created: quotaData.conversationsCreated || 0,
-          polls_created: quotaData.pollsCreated || 0,
-          date_polls_created: quotaData.datePollsCreated || 0,
-          form_polls_created: quotaData.formPollsCreated || 0,
-          quizz_created: quotaData.quizzCreated || 0,
-          availability_polls_created: quotaData.availabilityPollsCreated || 0,
-          ai_messages: quotaData.aiMessages || 0,
-          analytics_queries: quotaData.analyticsQueries || 0,
-          simulations: quotaData.simulations || 0,
-          total_credits_consumed: quotaData.totalCreditsConsumed || 0,
-          subscription_start_date: quotaData.subscriptionStartDate
-            ? new Date(quotaData.subscriptionStartDate).toISOString()
-            : null,
-          last_reset_date: quotaData.lastResetDate
-            ? new Date(quotaData.lastResetDate).toISOString()
-            : null,
-        });
+      const { error: createError } = await supabase.from("quota_tracking").insert({
+        user_id: userId,
+        conversations_created: quotaData.conversationsCreated || 0,
+        polls_created: quotaData.pollsCreated || 0,
+        date_polls_created: quotaData.datePollsCreated || 0,
+        form_polls_created: quotaData.formPollsCreated || 0,
+        quizz_created: quotaData.quizzCreated || 0,
+        availability_polls_created: quotaData.availabilityPollsCreated || 0,
+        ai_messages: quotaData.aiMessages || 0,
+        analytics_queries: quotaData.analyticsQueries || 0,
+        simulations: quotaData.simulations || 0,
+        total_credits_consumed: quotaData.totalCreditsConsumed || 0,
+        subscription_start_date: quotaData.subscriptionStartDate
+          ? new Date(quotaData.subscriptionStartDate).toISOString()
+          : null,
+        last_reset_date: quotaData.lastResetDate
+          ? new Date(quotaData.lastResetDate).toISOString()
+          : null,
+      });
 
       if (createError) {
         return { success: false, error: createError.message };
@@ -241,9 +229,7 @@ export async function autoMigrateLocalStorageQuota(userId: string): Promise<void
     }
 
     // Migrer les données
-    const journalEntries: CreditJournalEntry[] = journalData
-      ? JSON.parse(journalData)
-      : [];
+    const journalEntries: CreditJournalEntry[] = journalData ? JSON.parse(journalData) : [];
 
     const result = await migrateUserQuotaToSupabase(userId, userData, journalEntries);
 
@@ -259,4 +245,3 @@ export async function autoMigrateLocalStorageQuota(userId: string): Promise<void
     // Ne pas bloquer l'utilisateur si la migration échoue
   }
 }
-

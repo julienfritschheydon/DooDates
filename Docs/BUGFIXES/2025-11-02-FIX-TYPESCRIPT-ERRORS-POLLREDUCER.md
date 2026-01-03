@@ -27,6 +27,7 @@
 **Conflit entre deux définitions du type `Poll` :**
 
 ### 1. Type dans `types/poll.ts` (basique)
+
 ```typescript
 export interface Poll {
   id: string;
@@ -39,6 +40,7 @@ export interface Poll {
 ```
 
 ### 2. Type dans `lib/pollStorage.ts` (unifié)
+
 ```typescript
 export interface Poll {
   id: string;
@@ -69,6 +71,7 @@ import { Poll } from "../lib/pollStorage"; // Type Poll unifié
 ```
 
 **Raison :** Le type de `pollStorage.ts` est le type unifié qui supporte :
+
 - Sondages de dates (`type: "date"`)
 - Formulaires (`type: "form"`)
 - Settings optionnel
@@ -90,12 +93,15 @@ export interface PollSettings {
 // ✅ APRÈS
 export interface PollSettings {
   selectedDates?: string[];
-  timeSlotsByDate?: Record<string, Array<{ 
-    hour: number; 
-    minute: number; 
-    enabled: boolean; 
-    duration?: number 
-  }>>;
+  timeSlotsByDate?: Record<
+    string,
+    Array<{
+      hour: number;
+      minute: number;
+      enabled: boolean;
+      duration?: number;
+    }>
+  >;
   timeGranularity?: number; // ✅ Ajouté pour le reducer
 }
 ```
@@ -107,12 +113,14 @@ export interface PollSettings {
 ## 📊 Résultat
 
 ### Avant
+
 ```
 ❌ 3 erreurs TypeScript
 ⚠️ 531 warnings TypeScript
 ```
 
 ### Après
+
 ```
 ✅ 0 erreurs TypeScript
 ✅ 519 warnings TypeScript (-12)

@@ -39,57 +39,41 @@
           {
             "start": "11:30",
             "end": "12:30",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "12:00",
             "end": "13:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "12:30",
             "end": "13:30",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           }
         ],
-        "dates": [
-          "2025-12-10"
-        ],
+        "dates": ["2025-12-10"],
         "generatedTitle": "Déjeuner partenariats",
         "generatedDescription": "Créneau pour un déjeuner partenariats",
         "rawResponse": {
           "title": "Déjeuner partenariats",
           "description": "Créneau pour un déjeuner partenariats",
-          "dates": [
-            "2025-12-10"
-          ],
+          "dates": ["2025-12-10"],
           "timeSlots": [
             {
               "start": "11:30",
               "end": "12:30",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "12:00",
               "end": "13:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "12:30",
               "end": "13:30",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             }
           ],
           "type": "date",
@@ -122,129 +106,91 @@
           {
             "start": "17:00",
             "end": "18:30",
-            "dates": [
-              "2025-12-05"
-            ]
+            "dates": ["2025-12-05"]
           },
           {
             "start": "17:30",
             "end": "19:00",
-            "dates": [
-              "2025-12-05"
-            ]
+            "dates": ["2025-12-05"]
           },
           {
             "start": "18:00",
             "end": "19:30",
-            "dates": [
-              "2025-12-05"
-            ]
+            "dates": ["2025-12-05"]
           },
           {
             "start": "18:30",
             "end": "20:00",
-            "dates": [
-              "2025-12-05"
-            ]
+            "dates": ["2025-12-05"]
           },
           {
             "start": "17:00",
             "end": "18:30",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "17:30",
             "end": "19:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "18:00",
             "end": "19:30",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "18:30",
             "end": "20:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           }
         ],
-        "dates": [
-          "2025-12-05",
-          "2025-12-08"
-        ],
+        "dates": ["2025-12-05", "2025-12-08"],
         "generatedTitle": "Créneau pour le bureau de l'asso",
         "generatedDescription": "Trouve un créneau de 90 minutes en fin de semaine prochaine pour le bureau de l'asso.",
         "rawResponse": {
           "title": "Créneau pour le bureau de l'asso",
           "description": "Trouve un créneau de 90 minutes en fin de semaine prochaine pour le bureau de l'asso.",
-          "dates": [
-            "2025-12-05",
-            "2025-12-08"
-          ],
+          "dates": ["2025-12-05", "2025-12-08"],
           "timeSlots": [
             {
               "start": "17:00",
               "end": "18:30",
-              "dates": [
-                "2025-12-05"
-              ]
+              "dates": ["2025-12-05"]
             },
             {
               "start": "17:30",
               "end": "19:00",
-              "dates": [
-                "2025-12-05"
-              ]
+              "dates": ["2025-12-05"]
             },
             {
               "start": "18:00",
               "end": "19:30",
-              "dates": [
-                "2025-12-05"
-              ]
+              "dates": ["2025-12-05"]
             },
             {
               "start": "18:30",
               "end": "20:00",
-              "dates": [
-                "2025-12-05"
-              ]
+              "dates": ["2025-12-05"]
             },
             {
               "start": "17:00",
               "end": "18:30",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "17:30",
               "end": "19:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "18:00",
               "end": "19:30",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "18:30",
               "end": "20:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             }
           ],
           "type": "date",
@@ -277,49 +223,31 @@
           {
             "start": "18:30",
             "end": "20:30",
-            "dates": [
-              "2025-12-08",
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-08", "2025-12-09"]
           },
           {
             "start": "19:00",
             "end": "21:00",
-            "dates": [
-              "2025-12-08",
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-08", "2025-12-09"]
           }
         ],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09"
-        ],
+        "dates": ["2025-12-08", "2025-12-09"],
         "generatedTitle": "Réunion du comité de quartier",
         "generatedDescription": "Prévois la réunion du comité de quartier dans quinze jours, sur 2 heures, plutôt en début de soirée.",
         "rawResponse": {
           "title": "Réunion du comité de quartier",
           "description": "Prévois la réunion du comité de quartier dans quinze jours, sur 2 heures, plutôt en début de soirée.",
-          "dates": [
-            "2025-12-08",
-            "2025-12-09"
-          ],
+          "dates": ["2025-12-08", "2025-12-09"],
           "timeSlots": [
             {
               "start": "18:30",
               "end": "20:30",
-              "dates": [
-                "2025-12-08",
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-08", "2025-12-09"]
             },
             {
               "start": "19:00",
               "end": "21:00",
-              "dates": [
-                "2025-12-08",
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-08", "2025-12-09"]
             }
           ],
           "type": "date",

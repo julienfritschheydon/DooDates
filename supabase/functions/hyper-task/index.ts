@@ -124,20 +124,18 @@ serve(async (req) => {
   try {
     // Vérifier méthode
     if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ error: "Method not allowed" }),
-        {
-          status: 405,
-          headers: {
-            "Content-Type": "application/json",
-            ...corsHeaders,
-          },
+      return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        status: 405,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
         },
-      );
+      });
     }
 
     // Récupérer l'IP du client
-    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] ||
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0] ||
       req.headers.get("x-real-ip") ||
       "unknown";
 
@@ -155,32 +153,43 @@ serve(async (req) => {
     let isAuthenticated = false;
 
     const authStartTime = Date.now();
-    
+
     // Check for anon key authentication (guest mode)
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    const isAnonKey = authHeader === `Bearer ${supabaseAnonKey}` || apiKeyHeader === supabaseAnonKey;
-    
+    const isAnonKey =
+      authHeader === `Bearer ${supabaseAnonKey}` || apiKeyHeader === supabaseAnonKey;
+
     if (isAnonKey) {
       console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (anon key) (${timings.auth}ms)`);
     } else if (authHeader && authHeader !== `Bearer ${supabaseAnonKey}`) {
       // Vérifier le JWT si présent et ce n'est pas l'anon key
       const token = authHeader.replace("Bearer ", "");
       console.log(`[${timestamp}] [${requestId}] 🔐 Vérification authentification...`);
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser(token);
       timings.auth = Date.now() - authStartTime;
 
       if (!authError && user) {
         userId = user.id;
         isAuthenticated = true;
-        console.log(`[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId} (${timings.auth}ms)`);
+        console.log(
+          `[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId} (${timings.auth}ms)`,
+        );
       } else {
-        console.log(`[${timestamp}] [${requestId}] ⚠️  Authentification échouée:`, authError?.message || "Token invalide");
+        console.log(
+          `[${timestamp}] [${requestId}] ⚠️  Authentification échouée:`,
+          authError?.message || "Token invalide",
+        );
         // Fall back to guest mode instead of failing
         console.log(`[${timestamp}] [${requestId}] 👤 Fallback vers mode invité`);
       }
     } else {
       timings.auth = Date.now() - authStartTime;
-      console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (pas d'authentification) (${timings.auth}ms)`);
+      console.log(
+        `[${timestamp}] [${requestId}] 👤 Mode invité (pas d'authentification) (${timings.auth}ms)`,
+      );
     }
 
     // Rate limiting par IP
@@ -188,14 +197,18 @@ serve(async (req) => {
     const ipKey = `ip:${clientIp}`;
     const ipLimit = checkRateLimit(ipKey, RATE_LIMITS.ip);
     timings.rateLimit = Date.now() - rateLimitStartTime;
-    console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit IP:`, { allowed: ipLimit.allowed, retryAfter: ipLimit.retryAfter, duration: timings.rateLimit });
+    console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit IP:`, {
+      allowed: ipLimit.allowed,
+      retryAfter: ipLimit.retryAfter,
+      duration: timings.rateLimit,
+    });
     if (!ipLimit.allowed) {
       console.log(`[${timestamp}] [${requestId}] ❌ Rate limit IP dépassé`);
       return new Response(
         JSON.stringify({
           success: false,
           error: "RATE_LIMIT_EXCEEDED",
-          message: `Limite de requêtes dépassée. Réessayez dans ${ipLimit.retryAfter} secondes.`
+          message: `Limite de requêtes dépassée. Réessayez dans ${ipLimit.retryAfter} secondes.`,
         }),
         {
           status: 429,
@@ -212,14 +225,17 @@ serve(async (req) => {
     if (isAuthenticated) {
       const userKey = `user:${userId}`;
       const userLimit = checkRateLimit(userKey, RATE_LIMITS.authenticated);
-      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit User:`, { allowed: userLimit.allowed, retryAfter: userLimit.retryAfter });
+      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit User:`, {
+        allowed: userLimit.allowed,
+        retryAfter: userLimit.retryAfter,
+      });
       if (!userLimit.allowed) {
         console.log(`[${timestamp}] [${requestId}] ❌ Rate limit User dépassé`);
         return new Response(
           JSON.stringify({
             success: false,
             error: "RATE_LIMIT_EXCEEDED",
-            message: `Limite de requêtes dépassée. Réessayez dans ${userLimit.retryAfter} secondes.`
+            message: `Limite de requêtes dépassée. Réessayez dans ${userLimit.retryAfter} secondes.`,
           }),
           {
             status: 429,
@@ -235,14 +251,17 @@ serve(async (req) => {
       // Rate limiting pour invités
       const guestKey = `guest:${clientIp}`;
       const guestLimit = checkRateLimit(guestKey, RATE_LIMITS.guest);
-      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit Guest:`, { allowed: guestLimit.allowed, retryAfter: guestLimit.retryAfter });
+      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit Guest:`, {
+        allowed: guestLimit.allowed,
+        retryAfter: guestLimit.retryAfter,
+      });
       if (!guestLimit.allowed) {
         console.log(`[${timestamp}] [${requestId}] ❌ Rate limit Guest dépassé`);
         return new Response(
           JSON.stringify({
             success: false,
             error: "RATE_LIMIT_EXCEEDED",
-            message: `Limite de requêtes dépassée pour les invités. Créez un compte pour plus de crédits.`
+            message: `Limite de requêtes dépassée pour les invités. Créez un compte pour plus de crédits.`,
           }),
           {
             status: 429,
@@ -266,7 +285,7 @@ serve(async (req) => {
         success: quotaCheck.success,
         creditsRemaining: quotaCheck.creditsRemaining,
         error: quotaCheck.error,
-        duration: timings.quota
+        duration: timings.quota,
       });
       if (!quotaCheck.success) {
         console.log(`[${timestamp}] [${requestId}] ❌ Quota insuffisant:`, quotaCheck.message);
@@ -275,7 +294,7 @@ serve(async (req) => {
             success: false,
             error: quotaCheck.error,
             message: quotaCheck.message,
-            creditsRemaining: quotaCheck.creditsRemaining
+            creditsRemaining: quotaCheck.creditsRemaining,
           }),
           {
             status: 403,
@@ -298,7 +317,7 @@ serve(async (req) => {
         hasUserInput: !!body.userInput,
         hasPrompt: !!body.prompt,
         userInputLength: body.userInput?.length || 0,
-        promptLength: body.prompt?.length || 0
+        promptLength: body.prompt?.length || 0,
       });
     } catch (error) {
       console.log(`[${timestamp}] [${requestId}] ❌ Erreur parsing JSON:`, error);
@@ -306,7 +325,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "INVALID_REQUEST",
-          message: "Body JSON invalide"
+          message: "Body JSON invalide",
         }),
         {
           status: 400,
@@ -324,7 +343,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Edge Function accessible"
+          message: "Edge Function accessible",
         }),
         {
           status: 200,
@@ -343,7 +362,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "INVALID_REQUEST",
-          message: "userInput ou prompt requis"
+          message: "userInput ou prompt requis",
         }),
         {
           status: 400,
@@ -363,7 +382,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "SERVER_ERROR",
-          message: "Configuration serveur manquante"
+          message: "Configuration serveur manquante",
         }),
         {
           status: 500,
@@ -450,48 +469,48 @@ serve(async (req) => {
     const geminiStartTime = Date.now();
     const parts = attachedFile
       ? [
-        {
-          inlineData: {
-            mimeType: attachedFile.mimeType,
-            data: attachedFile.contentBase64,
-          },
-        },
-        {
-          text: geminiPrompt,
-        },
-      ]
-      : [
-        {
-          text: geminiPrompt,
-        },
-      ];
-
-    const geminiResponse = await fetch(
-      `${GEMINI_API_URL}?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts,
+          {
+            inlineData: {
+              mimeType: attachedFile.mimeType,
+              data: attachedFile.contentBase64,
             },
-          ],
-          generationConfig: {
-            temperature: 1,
-            topK: 40,
-            topP: 0.95,
           },
-        }),
+          {
+            text: geminiPrompt,
+          },
+        ]
+      : [
+          {
+            text: geminiPrompt,
+          },
+        ];
+
+    const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${geminiApiKey}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        contents: [
+          {
+            parts,
+          },
+        ],
+        generationConfig: {
+          temperature: 1,
+          topK: 40,
+          topP: 0.95,
+        },
+      }),
+    });
     const geminiDuration = Date.now() - geminiStartTime;
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      console.error(`[${timestamp}] [${requestId}] ❌ Gemini API error (${geminiResponse.status}):`, errorText);
+      console.error(
+        `[${timestamp}] [${requestId}] ❌ Gemini API error (${geminiResponse.status}):`,
+        errorText,
+      );
 
       // Si erreur de quota Gemini, ne pas consommer notre quota
       if (geminiResponse.status === 429) {
@@ -505,7 +524,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "GEMINI_API_ERROR",
-          message: "Erreur lors de l'appel à l'API Gemini"
+          message: "Erreur lors de l'appel à l'API Gemini",
         }),
         {
           status: geminiResponse.status,
@@ -538,7 +557,7 @@ serve(async (req) => {
 
     console.log(`[${timestamp}] [${requestId}] ✅ Gemini API réponse reçue (${geminiDuration}ms)`, {
       hasResponse: !!responseText,
-      responseLength: responseText?.length || 0
+      responseLength: responseText?.length || 0,
     });
 
     if (!responseText) {
@@ -547,7 +566,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "PARSE_ERROR",
-          message: "Réponse Gemini invalide"
+          message: "Réponse Gemini invalide",
         }),
         {
           status: 500,
@@ -565,11 +584,13 @@ serve(async (req) => {
     }
 
     // Retourner la réponse avec timings dans les headers (pour debug)
-    console.log(`[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès (total: ${timings.total}ms)`);
+    console.log(
+      `[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès (total: ${timings.total}ms)`,
+    );
     return new Response(
       JSON.stringify({
         success: true,
-        data: responseText
+        data: responseText,
       }),
       {
         status: 200,
@@ -585,7 +606,7 @@ serve(async (req) => {
       JSON.stringify({
         success: false,
         error: "SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Erreur serveur"
+        message: error instanceof Error ? error.message : "Erreur serveur",
       }),
       {
         status: 500,
@@ -642,7 +663,10 @@ async function checkAndConsumeQuota(
 }
 
 // Fonction pour rollback le quota en cas d'erreur Gemini
-async function rollbackQuota(supabase: import("@supabase/supabase-js").SupabaseClient, userId: string): Promise<void> {
+async function rollbackQuota(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  userId: string,
+): Promise<void> {
   try {
     await supabase.rpc("rollback_ai_credit", {
       p_user_id: userId,
@@ -704,4 +728,3 @@ function checkRateLimit(
 
   return { allowed: true, retryAfter: 0 };
 }
-

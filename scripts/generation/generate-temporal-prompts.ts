@@ -15,7 +15,7 @@ interface TemporalIntent {
   readonly id: string;
   readonly description: string[];
   readonly temporalHints: string[];
-  readonly recurrence: ("ponctuel" | "recurrent");
+  readonly recurrence: "ponctuel" | "recurrent";
 }
 
 interface ConstraintTemplate {
@@ -101,7 +101,7 @@ const scenarioContexts: readonly ScenarioContext[] = [
       "avec les élèves volontaires",
     ],
     tone: ["neutre", "formel"],
-      impliesProfessional: false,
+    impliesProfessional: false,
   },
   {
     id: "association",
@@ -334,7 +334,7 @@ const constraintTemplates: readonly ConstraintTemplate[] = [
       "avec rappel automatique la veille",
       "avec replanification automatique si conflit",
       "avec un résumé à envoyer après",
-      "en laissant la possibilité de répondre \"préférences\"",
+      'en laissant la possibilité de répondre "préférences"',
     ],
   },
   {
@@ -445,7 +445,12 @@ const linguisticTwists: readonly LinguisticTwist[] = [
   },
 ];
 
-const patternTemplates: readonly ((scenario: ScenarioContext, intent: TemporalIntent, constraint: ConstraintTemplate, twist: LinguisticTwist) => string)[] = [
+const patternTemplates: readonly ((
+  scenario: ScenarioContext,
+  intent: TemporalIntent,
+  constraint: ConstraintTemplate,
+  twist: LinguisticTwist,
+) => string)[] = [
   (scenario, intent, constraint, twist) =>
     `${pick(twist.prefaces)} ${pick(scenario.subject)} ${pick(scenario.participants)} ` +
     `${pick(intent.description)} ${pick(intent.temporalHints)} ${pick(constraint.exclusions)} ` +
@@ -564,7 +569,9 @@ function ensureDirectoryExists(targetPath: PathLike) {
 function writeOutputFile(options: GenerationOptions, sentences: string[]) {
   ensureDirectoryExists(options.output);
   const header = `# Dataset généré automatiquement le ${new Date().toISOString()}`;
-  const content = [header, "# Usage : tests de compréhension temporelle", ""].concat(sentences).join("\n");
+  const content = [header, "# Usage : tests de compréhension temporelle", ""]
+    .concat(sentences)
+    .join("\n");
   fs.writeFileSync(options.output, content, { encoding: "utf-8" });
 }
 

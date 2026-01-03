@@ -30,17 +30,17 @@
 
 //   test('Dashboard loads without crashing', async ({ page, browserName }) => {
 //     const timeouts = getTimeouts(browserName);
-    
+
 //     // Test that dashboard page loads
 //     await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
-    
+
 //     // Navigate to dashboard
 //     await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
-    
+
 //     // Verify dashboard-specific elements are present
 //     const dashboardElement = await waitForElementReady(page, 'h1, [role="heading"], button, [data-testid]', { browserName, timeout: timeouts.element }).catch(async () => {
 //       // Fallback: at least body should be visible
@@ -50,12 +50,12 @@
 //     if (dashboardElement) {
 //       await expect(dashboardElement).toBeVisible({ timeout: timeouts.element });
 //     }
-    
+
 //     // Test navigation to create
 //     await page.goto('/DooDates/create', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });
 //     await expect(page.locator('body')).toBeVisible();
-    
+
 //     // Navigate back home
 //     await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
 //     await waitForNetworkIdle(page, { browserName });

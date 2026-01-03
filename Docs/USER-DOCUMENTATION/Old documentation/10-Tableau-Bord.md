@@ -25,11 +25,13 @@ Le **Dashboard** est votre centre de contrôle pour gérer tous vos sondages et 
 ### Accès au Dashboard
 
 **Bouton principal :**
+
 ```
 En-tête de l'application → [📊 Dashboard]
 ```
 
 **Ou raccourci clavier :**
+
 ```
 Ctrl + D (Windows/Linux)
 Cmd + D (Mac)
@@ -80,6 +82,7 @@ Cmd + D (Mac)
 Le dashboard inclut une barre de recherche puissante pour trouver rapidement vos conversations.
 
 **Utilisation :**
+
 ```
 1. Cliquez dans la barre de recherche
 2. Tapez le titre ou le contenu d'une conversation
@@ -87,6 +90,7 @@ Le dashboard inclut une barre de recherche puissante pour trouver rapidement vos
 ```
 
 **Recherche automatique :**
+
 - ✅ Recherche dans les titres de conversations
 - ✅ Recherche dans le contenu des premiers messages
 - ✅ Recherche insensible à la casse
@@ -99,6 +103,7 @@ Le dashboard inclut une barre de recherche puissante pour trouver rapidement vos
 Filtrez vos conversations selon leur statut :
 
 **Filtres disponibles :**
+
 - **Tous** : Affiche toutes les conversations
 - **Brouillons** : Conversations avec polls en brouillon
 - **Actifs** : Conversations avec polls actifs
@@ -106,6 +111,7 @@ Filtrez vos conversations selon leur statut :
 - **Archivés** : Conversations archivées
 
 **Utilisation :**
+
 ```
 1. Cliquez sur le filtre souhaité dans la barre de filtres
 2. Le filtre est mis en surbrillance (bleu)
@@ -119,6 +125,7 @@ Filtrez vos conversations selon leur statut :
 Filtrez vos conversations en sélectionnant un ou plusieurs tags.
 
 **Sélectionner des tags :**
+
 ```
 1. Cliquez sur le bouton "Tags"
 2. Cochez les tags souhaités dans le menu déroulant
@@ -126,6 +133,7 @@ Filtrez vos conversations en sélectionnant un ou plusieurs tags.
 ```
 
 **Créer un tag depuis les filtres :**
+
 ```
 1. Cliquez sur "Tags"
 2. Dans le champ "Nouveau tag...", tapez le nom
@@ -134,6 +142,7 @@ Filtrez vos conversations en sélectionnant un ou plusieurs tags.
 ```
 
 **Retirer un tag du filtre :**
+
 - Cliquez sur le X d'un badge de tag sous les filtres
 - Ou décochez le tag dans le menu
 
@@ -144,6 +153,7 @@ Filtrez vos conversations en sélectionnant un ou plusieurs tags.
 Filtrez vos conversations en sélectionnant un dossier.
 
 **Sélectionner un dossier :**
+
 ```
 1. Cliquez sur "Tous les dossiers"
 2. Sélectionnez le dossier souhaité
@@ -151,6 +161,7 @@ Filtrez vos conversations en sélectionnant un dossier.
 ```
 
 **Créer un dossier depuis les filtres :**
+
 ```
 1. Cliquez sur "Tous les dossiers"
 2. Dans le champ "Nouveau dossier...", tapez le nom
@@ -159,6 +170,7 @@ Filtrez vos conversations en sélectionnant un dossier.
 ```
 
 **Réinitialiser le filtre :**
+
 - Cliquez sur "Tous les dossiers" pour afficher toutes les conversations
 
 ---
@@ -168,12 +180,14 @@ Filtrez vos conversations en sélectionnant un dossier.
 Vous pouvez combiner plusieurs filtres simultanément :
 
 **Exemples :**
+
 - Recherche + Statut : "Rechercher 'réunion' dans les sondages actifs"
 - Statut + Tags : "Sondages actifs avec le tag 'Prioritaire'"
 - Tags + Dossier : "Conversations avec tag 'Client' dans le dossier 'Projets'"
 - Tous les filtres : Recherche + Statut + Tags + Dossier
 
 **Comportement :**
+
 - Tous les critères doivent être respectés (ET logique)
 - Les filtres sont cumulatifs
 - La pagination se réinitialise à la page 1 lors d'un changement de filtre
@@ -187,17 +201,20 @@ Le dashboard propose deux modes d'affichage adaptés à différents besoins.
 ### Vue Grille (Défaut)
 
 **Avantages :**
+
 - ✅ Visuel et intuitif
 - ✅ Aperçu rapide avec toutes les informations
 - ✅ Adapté aux mobiles et tablettes
 - ✅ Affichage des tags et dossiers bien visible
 
 **Utilisation :**
+
 ```
 Barre de filtres → Cliquez sur l'icône [⊞ Grille]
 ```
 
 **Affichage :**
+
 - 1 colonne sur mobile
 - 2 colonnes sur tablette
 - 3 colonnes sur desktop
@@ -208,23 +225,27 @@ Barre de filtres → Cliquez sur l'icône [⊞ Grille]
 ### Vue Tableau
 
 **Avantages :**
+
 - ✅ Compact et dense
 - ✅ Plus d'items visibles simultanément
 - ✅ Meilleure densité d'information
 - ✅ Colonnes triables (future version)
 
 **Utilisation :**
+
 ```
 Barre de filtres → Cliquez sur l'icône [☰ Table]
 ```
 
 **Affichage :**
+
 - Colonnes : Titre, Type, Statut, Participants, Votes, Date, Actions
 - Lignes alternées pour faciliter la lecture
 - Clic sur une ligne pour ouvrir la conversation
 - Sélection multiple avec cases à cocher
 
 **Calcul automatique :**
+
 - Plus d'items par page qu'en vue grille
 - Adaptation selon la taille d'écran
 
@@ -249,11 +270,13 @@ Le dashboard permet de sélectionner plusieurs conversations pour effectuer des 
 ### Activer la Sélection
 
 **Étape 1 : Activer le mode sélection**
+
 ```
 Cliquez sur le bouton "Sélectionner" en haut à droite
 ```
 
 **Résultat :**
+
 - Des checkboxes apparaissent sur chaque carte
 - Le bouton change en "X sélectionné(s)"
 
@@ -262,11 +285,13 @@ Cliquez sur le bouton "Sélectionner" en haut à droite
 ### Sélectionner des Conversations
 
 **Méthodes :**
+
 1. **Sélection individuelle** : Cochez les conversations une par une
 2. **Sélectionner tout** : Cliquez sur "Sélectionner" (qui devient "X sélectionné(s)")
    - Sélectionne uniquement les conversations de la page courante
 
 **Indicateurs :**
+
 - Checkbox cochée = conversation sélectionnée
 - Compteur en haut : "X sélectionné(s)"
 - Barre d'actions flottante en bas (si sélection active)
@@ -285,6 +310,7 @@ Quand vous sélectionnez une ou plusieurs conversations, une barre d'actions app
 ```
 
 **Actions disponibles :**
+
 - **Supprimer** : Supprime toutes les conversations sélectionnées
 - **Annuler** : Désélectionne toutes les conversations
 
@@ -293,6 +319,7 @@ Quand vous sélectionnez une ou plusieurs conversations, une barre d'actions app
 ### Suppression en Masse
 
 **Étapes :**
+
 ```
 1. Sélectionnez plusieurs conversations
 2. Cliquez sur "Supprimer" dans la barre flottante
@@ -300,11 +327,13 @@ Quand vous sélectionnez une ou plusieurs conversations, une barre d'actions app
 ```
 
 **Résultat :**
+
 - Toast de confirmation avec le nombre d'éléments supprimés
 - Les conversations et leurs polls associés sont supprimés
 - Le dashboard se rafraîchit automatiquement
 
 **Note importante :**
+
 - ⚠️ La suppression est définitive
 - ⚠️ Les polls liés sont également supprimés
 - ⚠️ Cette action ne peut pas être annulée
@@ -314,12 +343,14 @@ Quand vous sélectionnez une ou plusieurs conversations, une barre d'actions app
 ### Désélectionner
 
 **Méthodes :**
+
 1. **Désélection individuelle** : Décochez une conversation
 2. **Désélectionner tout** :
    - Cliquez sur "Annuler" dans la barre flottante
    - Ou cliquez sur "Désélectionner tout" en haut
 
 **Résultat :**
+
 - Toutes les sélections sont annulées
 - Les checkboxes disparaissent
 - Le bouton redevient "Sélectionner"
@@ -333,11 +364,13 @@ Quand vous avez beaucoup de conversations, le dashboard les affiche par pages po
 ### Navigation entre Pages
 
 **Boutons disponibles :**
+
 - **Précédent** : Aller à la page précédente
 - **Suivant** : Aller à la page suivante
 - **Numéros de page** : Aller directement à une page spécifique
 
 **Info de pagination :**
+
 ```
 Page 1 sur 5 (48 éléments)
 ```
@@ -349,11 +382,13 @@ Page 1 sur 5 (48 éléments)
 Le nombre d'items par page s'adapte automatiquement à :
 
 **Facteurs :**
+
 - 📱 **Taille d'écran** : Mobile, tablette, desktop
 - 🎯 **Mode de vue** : Grille (moins d'items) ou Tableau (plus d'items)
 - 📏 **Hauteur de fenêtre** : Ajustement dynamique
 
 **Exemples :**
+
 - 📱 Mobile + Grille : ~6-8 items/page
 - 💻 Desktop + Grille : ~12-18 items/page
 - 💻 Desktop + Table : ~18-24 items/page
@@ -363,11 +398,13 @@ Le nombre d'items par page s'adapte automatiquement à :
 ### Comportement
 
 **Réinitialisation automatique :**
+
 - ✅ La pagination revient à la page 1 lors d'un changement de filtre
 - ✅ La pagination revient à la page 1 lors d'une nouvelle recherche
 - ✅ La pagination revient à la page 1 lors d'un changement de vue
 
 **Ellipsis pour beaucoup de pages :**
+
 ```
 Page 1 [2] 3 ... 10
 Page 1 2 [3] 4 ... 10
@@ -383,6 +420,7 @@ Page 1 ... 7 [8] 9 10
 ### Scroll Automatique
 
 Quand vous changez de page :
+
 - ✅ Le scroll remonte automatiquement en haut de la page
 - ✅ Animation fluide (smooth scroll)
 
@@ -393,12 +431,14 @@ Quand vous changez de page :
 ### Sections Principales
 
 **1. Tous les Sondages (Défaut)**
+
 ```
 📊 Tous les sondages
 → Vue complète de tous vos sondages
 ```
 
 **2. Sondages Actifs**
+
 ```
 ✅ Actifs
 → Sondages en cours de collecte
@@ -406,6 +446,7 @@ Quand vous changez de page :
 ```
 
 **3. Brouillons**
+
 ```
 📝 Brouillons
 → Sondages non publiés
@@ -413,6 +454,7 @@ Quand vous changez de page :
 ```
 
 **4. Clôturés**
+
 ```
 🔒 Clôturés
 → Sondages terminés
@@ -420,6 +462,7 @@ Quand vous changez de page :
 ```
 
 **5. Archivés**
+
 ```
 🗂️ Archivés
 → Sondages masqués du dashboard principal
@@ -431,6 +474,7 @@ Quand vous changez de page :
 ### Vues Disponibles
 
 #### Vue Grille (Défaut)
+
 ```
 ┌─────────┐ ┌─────────┐ ┌─────────┐
 │ Sondage │ │ Sondage │ │ Sondage │
@@ -441,14 +485,17 @@ Quand vous changez de page :
 │    4    │ │    5    │ │    6    │
 └─────────┘ └─────────┘ └─────────┘
 ```
+
 **Avantage :** Visuel, aperçu rapide, adapté mobile
 
 **Changer de vue :**
+
 ```
 Barre de filtres → [⊞ Grille] [☰ Table]
 ```
 
 #### Vue Table (Compacte)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ ☑ │ Titre              │ Statut │ Stats │ Date  │ Actions │
@@ -458,9 +505,11 @@ Barre de filtres → [⊞ Grille] [☰ Table]
 │ ☐ │ Sondage Déjeuner  │ Clôturé│ 5/8   │ 10j   │ [•••]   │
 └─────────────────────────────────────────────────────────────┘
 ```
+
 **Avantage :** Compact, plus d'items visibles simultanément, meilleure densité d'information
 
 **Fonctionnalités :**
+
 - ✅ Toutes les informations essentielles en un coup d'œil
 - ✅ Plus d'items par page (calcul automatique selon votre écran)
 - ✅ Lignes alternées pour faciliter la lecture
@@ -468,6 +517,7 @@ Barre de filtres → [⊞ Grille] [☰ Table]
 - ✅ Sélection multiple avec cases à cocher
 
 **Changer de vue :**
+
 ```
 Barre de filtres → [⊞ Grille] [☰ Table]
 → Votre préférence est sauvegardée automatiquement
@@ -484,6 +534,7 @@ Chaque carte de conversation propose plusieurs actions selon son type.
 Si la conversation n'a pas de poll associé :
 
 **Actions disponibles :**
+
 - **Reprendre** : Ouvrir le workspace pour continuer la conversation
 - **Menu (⋯)** :
   - Gérer les tags/dossier
@@ -496,6 +547,7 @@ Si la conversation n'a pas de poll associé :
 Si la conversation a un poll associé :
 
 **Actions disponibles :**
+
 - **Résultats** : Voir les résultats du sondage
 - **Voter** : Ouvrir la page de vote
 - **Menu (⋯)** :
@@ -519,6 +571,7 @@ Le dashboard affiche en haut un indicateur de votre quota de conversations.
 ```
 
 **Informations affichées :**
+
 - Nombre de conversations utilisées / Limite totale
 - Barre de progression visuelle
 - Couleur selon le niveau (bleu = normal, orange = proche de la limite)
@@ -529,6 +582,7 @@ Le dashboard affiche en haut un indicateur de votre quota de conversations.
 ### Compteur Utilisateurs Invités
 
 Pour les utilisateurs non connectés :
+
 ```
 12/50 conversations utilisées
 • Créez un compte pour synchroniser vos données
@@ -539,10 +593,12 @@ Pour les utilisateurs non connectés :
 ### Limites
 
 **Utilisateurs invités :**
+
 - Limite : 50 conversations
 - Données stockées localement (navigateur)
 
 **Utilisateurs connectés :**
+
 - Limite selon votre plan (voir [Tarification](/pricing))
 - Données synchronisées dans le cloud
 
@@ -557,6 +613,7 @@ En haut à droite du dashboard, un bouton permet de fermer et retourner à l'acc
 ```
 
 **Action :**
+
 - Retour à la page d'accueil (`/`)
 - Nettoyage de l'état du poll en cours
 
@@ -569,6 +626,7 @@ En haut à droite du dashboard, un bouton permet de fermer et retourner à l'acc
 ### Carte de Sondage (Vue Grille)
 
 **Informations affichées :**
+
 ```
 ┌─────────────────────────────────────────────────┐
 │ 📅 [Icône Type]                        [•••]    │ ← Menu actions
@@ -588,35 +646,37 @@ En haut à droite du dashboard, un bouton permet de fermer et retourner à l'acc
 
 ### Icônes par Type
 
-| Icône | Type | Couleur |
-|-------|------|---------|
-| 📅 | Sondage de dates | Bleu |
-| 📝 | Formulaire | Vert |
-| 📊 | Questionnaire | Violet |
+| Icône | Type             | Couleur |
+| ----- | ---------------- | ------- |
+| 📅    | Sondage de dates | Bleu    |
+| 📝    | Formulaire       | Vert    |
+| 📊    | Questionnaire    | Violet  |
 
 ---
 
 ### Badges de Statut
 
-| Badge | Signification | Couleur |
-|-------|---------------|---------|
-| ✅ **Actif** | En cours de collecte | Vert |
-| 📝 **Brouillon** | Non publié | Gris |
-| 🔒 **Clôturé** | Terminé | Rouge |
-| 🗂️ **Archivé** | Masqué du dashboard | Gris clair |
-| ⏰ **Deadline proche** | Fermeture < 24h | Orange |
+| Badge                  | Signification        | Couleur    |
+| ---------------------- | -------------------- | ---------- |
+| ✅ **Actif**           | En cours de collecte | Vert       |
+| 📝 **Brouillon**       | Non publié           | Gris       |
+| 🔒 **Clôturé**         | Terminé              | Rouge      |
+| 🗂️ **Archivé**         | Masqué du dashboard  | Gris clair |
+| ⏰ **Deadline proche** | Fermeture < 24h      | Orange     |
 
 ---
 
 ### Barre de Progression
 
 **Visualisation :**
+
 ```
 8/10 réponses
 ████████░░░░░░░░░░ 80%
 ```
 
 **Codes couleurs :**
+
 - 🟢 **Vert (> 70%)** : Bonne participation
 - 🟡 **Orange (30-70%)** : Participation moyenne
 - 🔴 **Rouge (< 30%)** : Participation faible
@@ -628,6 +688,7 @@ En haut à droite du dashboard, un bouton permet de fermer et retourner à l'acc
 ### Changement de Vue (Grid/Table)
 
 **Bouton de vue :**
+
 ```
 Barre de filtres → [⊞] [☰]
   ├─ ⊞ = Vue Grille (cartes)
@@ -635,10 +696,12 @@ Barre de filtres → [⊞] [☰]
 ```
 
 **Utilisation :**
+
 1. Cliquez sur l'icône **⊞** pour la vue grille (cartes visuelles)
 2. Cliquez sur l'icône **☰** pour la vue table (liste compacte)
 
 **Caractéristiques :**
+
 - ✅ Votre préférence est **sauvegardée automatiquement**
 - ✅ Vous retrouvez votre vue préférée à chaque visite
 - ✅ Accessible à **tous les utilisateurs** (gratuit, pro, premium)
@@ -647,12 +710,14 @@ Barre de filtres → [⊞] [☰]
 **Quand utiliser chaque vue :**
 
 **Vue Grille (⊞) - Recommandée pour :**
+
 - 👀 Aperçu visuel rapide
 - 📱 Consultation sur mobile
 - 🎨 Présentation à des clients
 - 🆕 Découverte de nouveaux sondages
 
 **Vue Table (☰) - Recommandée pour :**
+
 - 📊 Beaucoup de sondages à gérer (centaines)
 - ⚡ Navigation rapide entre items
 - 📈 Comparaison de statistiques
@@ -663,6 +728,7 @@ Barre de filtres → [⊞] [☰]
 ### Barre de Recherche
 
 **Recherche intelligente :**
+
 ```
 🔍 [Rechercher par titre, description, tags...]
 
@@ -673,6 +739,7 @@ Exemples :
 ```
 
 **Recherche avancée :**
+
 ```
 • titre:réunion        → Cherche dans le titre uniquement
 • créé:cette-semaine   → Sondages de cette semaine
@@ -685,6 +752,7 @@ Exemples :
 ### Filtres Rapides
 
 **Bouton "Filtres" :**
+
 ```
 ┌─────────────────────────────────────┐
 │  Filtres                            │
@@ -720,6 +788,7 @@ Exemples :
 ### Tri
 
 **Options de tri :**
+
 ```
 Trier par : [Date de création ▼]
 
@@ -740,6 +809,7 @@ Options :
 ### Menu Actions (•••)
 
 **Clic sur •••** dans une carte :
+
 ```
 ┌─────────────────────────────┐
 │  📊 Voir les résultats       │
@@ -759,36 +829,42 @@ Options :
 ### Actions Détaillées
 
 #### 📊 Voir les Résultats
+
 ```
 → Ouvre la page de résultats
 → Graphiques, statistiques, Analytics IA
 ```
 
 #### ✏️ Modifier
+
 ```
 → Éditer le sondage
 → Avertissement si déjà des réponses
 ```
 
 #### 🔗 Copier le Lien
+
 ```
 → Copie le lien de vote dans le presse-papier
 → Notification : "✓ Lien copié !"
 ```
 
 #### 📤 Partager
+
 ```
 → Ouvre le modal de partage
 → Email, WhatsApp, réseaux sociaux, QR Code
 ```
 
 #### 📥 Exporter
+
 ```
 → Choix du format : CSV, PDF, JSON, Markdown
 → Téléchargement immédiat
 ```
 
 #### 📋 Dupliquer
+
 ```
 → Crée une copie du sondage
 → Nom : "[Original] (Copie)"
@@ -796,6 +872,7 @@ Options :
 ```
 
 #### 🔒 Clôturer
+
 ```
 → Ferme le sondage aux nouveaux votes
 → Confirmation requise
@@ -803,6 +880,7 @@ Options :
 ```
 
 #### 🗂️ Archiver
+
 ```
 → Masque du dashboard principal
 → Toujours accessible via "Archivés"
@@ -810,6 +888,7 @@ Options :
 ```
 
 #### 🗑️ Supprimer
+
 ```
 → Suppression définitive après 30 jours
 → Confirmation + saisie du titre requise
@@ -838,7 +917,6 @@ Options :
 
 ---
 
-
 ## 🗂️ Organisation
 
 DooDates vous permet d'organiser vos conversations et sondages avec des **tags** et des **dossiers** pour une meilleure gestion.
@@ -850,6 +928,7 @@ Les tags permettent de catégoriser vos conversations avec des libellés coloré
 #### Comment assigner des tags
 
 1. **Ouvrir le menu de gestion** :
+
    ```
    Carte de conversation → [⋯ Menu] → "Gérer les tags/dossier"
    ```
@@ -866,6 +945,7 @@ Les tags permettent de catégoriser vos conversations avec des libellés coloré
 #### Affichage des tags
 
 Les tags apparaissent sur chaque carte sous forme de badges colorés :
+
 ```
 ┌─────────────────────────────────────┐
 │ 📅 Réunion Sprint Planning  [⋯]   │
@@ -875,6 +955,7 @@ Les tags apparaissent sur chaque carte sous forme de badges colorés :
 ```
 
 **Caractéristiques** :
+
 - ✅ Couleurs personnalisables par tag
 - ✅ Multiples tags par conversation
 - ✅ Filtrage par tag dans le dashboard
@@ -888,6 +969,7 @@ Les dossiers permettent d'organiser vos conversations en groupes thématiques av
 #### Comment assigner un dossier
 
 1. **Ouvrir le menu de gestion** :
+
    ```
    Carte de conversation → [⋯ Menu] → "Gérer les tags/dossier"
    ```
@@ -904,6 +986,7 @@ Les dossiers permettent d'organiser vos conversations en groupes thématiques av
 #### Affichage des dossiers
 
 Les dossiers apparaissent sur chaque carte avec leur icône et nom :
+
 ```
 ┌─────────────────────────────────────┐
 │ 📅 Réunion Sprint Planning  [⋯]   │
@@ -914,6 +997,7 @@ Les dossiers apparaissent sur chaque carte avec leur icône et nom :
 ```
 
 **Caractéristiques** :
+
 - ✅ Icônes personnalisables (emoji ou texte)
 - ✅ Couleurs personnalisables
 - ✅ Un seul dossier par conversation
@@ -955,16 +1039,19 @@ Dashboard
 Vous pouvez filtrer vos conversations par tags et/ou dossiers dans le dashboard :
 
 **Filtrage par tag** :
+
 1. Ouvrez les filtres du dashboard
 2. Sélectionnez un ou plusieurs tags
 3. Seules les conversations avec ces tags sont affichées
 
 **Filtrage par dossier** :
+
 1. Ouvrez les filtres du dashboard
 2. Sélectionnez un dossier
 3. Seules les conversations dans ce dossier sont affichées
 
 **Filtrage combiné** :
+
 - Vous pouvez combiner les filtres par tag ET dossier
 - Les conversations doivent correspondre à tous les critères sélectionnés
 
@@ -973,12 +1060,14 @@ Vous pouvez filtrer vos conversations par tags et/ou dossiers dans le dashboard 
 ### Bonnes Pratiques
 
 **Organisation efficace** :
+
 - ✅ Utilisez des tags pour les catégories transversales (Prioritaire, Client, Interne)
 - ✅ Utilisez des dossiers pour les groupes thématiques (Projets, Clients, RH)
 - ✅ Limitez le nombre de tags par conversation (3-5 maximum pour la lisibilité)
 - ✅ Créez des dossiers cohérents avec votre structure organisationnelle
 
 **Création de tags et dossiers** :
+
 - Les tags et dossiers peuvent être créés depuis les filtres du dashboard
 - Choisissez des couleurs contrastées pour faciliter l'identification
 - Utilisez des noms courts et descriptifs
@@ -988,6 +1077,7 @@ Vous pouvez filtrer vos conversations par tags et/ou dossiers dans le dashboard 
 ### Sauvegardes Automatiques
 
 **Fonctionnalité actuelle :**
+
 ```
 ✅ Sauvegarde automatique des brouillons
 ✅ Sauvegarde lors de la modification (debounce ~500-800ms)
@@ -1017,6 +1107,7 @@ Vous pouvez filtrer vos conversations par tags et/ou dossiers dans le dashboard 
 ### v1.2 (Janvier 2025)
 
 **Nouvelles fonctionnalités :**
+
 - ✅ **Tags et Dossiers** : Organisation complète avec tags colorés et dossiers
 - ✅ **Sélection Multiple** : Sélection et suppression en masse
 - ✅ **Recherche Avancée** : Recherche en temps réel dans les conversations
@@ -1027,13 +1118,14 @@ Vous pouvez filtrer vos conversations par tags et/ou dossiers dans le dashboard 
 ### v1.1 (Novembre 2025)
 
 **Fonctionnalités :**
+
 - ✅ **Pagination automatique** : Gestion optimale de grandes quantités de sondages
 - ✅ **Vue Table compacte** : Affichage dense avec plus d'items visibles
 - ✅ **Calcul dynamique** : Adaptation automatique selon votre écran
 - ✅ **Sauvegarde de préférences** : Votre vue préférée est mémorisée
 
 **Améliorations :**
+
 - ⚡ Performance améliorée avec beaucoup de sondages
 - 🎯 Navigation plus efficace
 - 📱 Meilleure expérience sur tous les appareils
-

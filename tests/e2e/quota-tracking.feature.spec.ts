@@ -7,7 +7,10 @@ import { getTimeouts } from "./config/timeouts";
 // Tests API + UI pour le système de quota IA (quota-tracking)
 
 test.describe("Quota Tracking (Edge Function & UI)", () => {
-  test.skip(({ browserName }) => browserName !== "chromium", "Optimisé pour Chromium (workspace IA)");
+  test.skip(
+    ({ browserName }) => browserName !== "chromium",
+    "Optimisé pour Chromium (workspace IA)",
+  );
 
   test("API quota-tracking répond et applique le contrat minimal", async ({ request }) => {
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -30,7 +33,10 @@ test.describe("Quota Tracking (Edge Function & UI)", () => {
       },
     });
 
-    expect(response.status(), "quota-tracking devrait répondre HTTP 200 ou 4xx métier").toBeGreaterThanOrEqual(200);
+    expect(
+      response.status(),
+      "quota-tracking devrait répondre HTTP 200 ou 4xx métier",
+    ).toBeGreaterThanOrEqual(200);
     expect(response.status()).toBeLessThan(500);
 
     const text = await response.text();
@@ -50,7 +56,10 @@ test.describe("Quota Tracking (Edge Function & UI)", () => {
     }
   });
 
-  test("UI met à jour l'indicateur de quotas après un message IA", async ({ page, browserName }) => {
+  test("UI met à jour l'indicateur de quotas après un message IA", async ({
+    page,
+    browserName,
+  }) => {
     const timeouts = getTimeouts(browserName);
 
     await setupGeminiMock(page);
@@ -66,7 +75,9 @@ test.describe("Quota Tracking (Edge Function & UI)", () => {
 
     await waitForReactStable(page, { browserName });
 
-    const quotaIndicator = page.locator('[data-testid="quota-indicator"], .quota-indicator').first();
+    const quotaIndicator = page
+      .locator('[data-testid="quota-indicator"], .quota-indicator')
+      .first();
     const count = await quotaIndicator.count();
 
     // Si l'indicateur est présent, on vérifie son format. Sinon, on log seulement sans faire échouer le test.

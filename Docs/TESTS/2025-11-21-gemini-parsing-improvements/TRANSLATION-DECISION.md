@@ -11,27 +11,28 @@
 
 ### Taux de réussite
 
-| Approche | Succès | Taux | Score total |
-|----------|--------|------|-------------|
-| **Baseline (chrono.fr)** | 8/20 | 40% | 76.0% |
-| **🟢 Traduction manuelle** | **19/20** | **95%** | **98.0%** |
-| Gemini | 19/20 | 95% | 83.0% |
-| Hybride | 19/20 | 95% | 91.5% |
+| Approche                   | Succès    | Taux    | Score total |
+| -------------------------- | --------- | ------- | ----------- |
+| **Baseline (chrono.fr)**   | 8/20      | 40%     | 76.0%       |
+| **🟢 Traduction manuelle** | **19/20** | **95%** | **98.0%**   |
+| Gemini                     | 19/20     | 95%     | 83.0%       |
+| Hybride                    | 19/20     | 95%     | 91.5%       |
 
 ### Performance
 
-| Approche | Temps moyen | Latence |
-|----------|-------------|---------|
-| Baseline | 1ms | 0ms |
-| **🟢 Manuelle** | **3ms** | **0ms** |
-| Gemini | 219ms | ~200ms |
-| Hybride | 0ms* | 0ms* |
+| Approche        | Temps moyen | Latence |
+| --------------- | ----------- | ------- |
+| Baseline        | 1ms         | 0ms     |
+| **🟢 Manuelle** | **3ms**     | **0ms** |
+| Gemini          | 219ms       | ~200ms  |
+| Hybride         | 0ms\*       | 0ms\*   |
 
-*Hybride utilise principalement la manuelle, donc très rapide
+\*Hybride utilise principalement la manuelle, donc très rapide
 
 ### Détails du score
 
 #### Traduction manuelle (🏆 Gagnant)
+
 - **Précision** : 95.0% (poids: 40%) → 38.0 points
 - **Performance** : 99.9% (poids: 20%) → 20.0 points
 - **Fiabilité** : 100.0% (poids: 30%) → 30.0 points
@@ -39,6 +40,7 @@
 - **Total** : **98.0%**
 
 #### Gemini
+
 - **Précision** : 95.0% → 38.0 points
 - **Performance** : 95.0% → 19.0 points
 - **Fiabilité** : 70.0% (dépend API) → 21.0 points
@@ -46,6 +48,7 @@
 - **Total** : 83.0%
 
 #### Hybride
+
 - **Précision** : 95.0% → 38.0 points
 - **Performance** : 100.0% → 20.0 points
 - **Fiabilité** : 85.0% → 25.5 points
@@ -73,6 +76,7 @@
 ✅ **Utiliser la traduction manuelle** (déjà implémentée dans `temporalTranslator.ts`)
 
 ### Avantages
+
 - ✅ Meilleur score global (98.0%)
 - ✅ Performance optimale (3ms)
 - ✅ Aucun coût
@@ -112,10 +116,10 @@ Avec la traduction manuelle (95% de réussite sur les cas testés) :
 ## Conclusion
 
 La **traduction manuelle est la meilleure solution** pour notre cas d'usage :
+
 - Performance optimale
 - Coût zéro
 - Fiabilité maximale
 - Facile à maintenir
 
 Pas besoin de librairie externe ou de Gemini pour la traduction - la solution manuelle est suffisante et performante.
-

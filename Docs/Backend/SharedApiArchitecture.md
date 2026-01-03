@@ -5,21 +5,24 @@
 The current application handles Authentication, Quotas, and Conversations using a mix of client-side logic, local storage, and server-side Edge Functions.
 
 ### 1. Authentication
+
 - **Source of Truth**: `AuthContext.tsx`
 - **Mechanism**: Supabase Auth (GoTrue)
 - **State**: `user`, `profile`, `session`
-- **Persistence**: `localStorage` (sb-*) + Supabase Session
+- **Persistence**: `localStorage` (sb-\*) + Supabase Session
 
 ### 2. Quotas
+
 - **Fragmented Implementation**:
-    - **Guests**: `useFreemiumQuota` -> `guestQuotaService` -> Supabase (`user_quotas`) OR `QuotaService` -> `localStorage` (Fallback).
-    - **Authenticated**: `useFreemiumQuota` -> `quotaTracking` -> Edge Function (`quota-tracking`).
+  - **Guests**: `useFreemiumQuota` -> `guestQuotaService` -> Supabase (`user_quotas`) OR `QuotaService` -> `localStorage` (Fallback).
+  - **Authenticated**: `useFreemiumQuota` -> `quotaTracking` -> Edge Function (`quota-tracking`).
 - **Duplication**: Limits defined in `QuotaService.ts`, `useFreemiumQuota.ts`, and `quota-tracking/index.ts`.
 
 ### 3. Conversations
+
 - **Storage Split**:
-    - **Guests**: `localStorage` (`doodates_conversations`).
-    - **Authenticated**: Supabase (`conversations` table).
+  - **Guests**: `localStorage` (`doodates_conversations`).
+  - **Authenticated**: Supabase (`conversations` table).
 - **Bridge**: `ConversationService.ts` attempts to unify loading but logic is complex and scattered.
 
 ## Proposed Shared API
@@ -60,6 +63,7 @@ interface ISharedApi {
     - Expose these services via a React Context (`SharedApiContext`) or a singleton.
 
 ## Benefits
+
 - **Consistency**: Single source of truth for limits and logic.
 - **Maintainability**: Easier to update limits or add new quota types.
 - **Security**: Centralized enforcement points.

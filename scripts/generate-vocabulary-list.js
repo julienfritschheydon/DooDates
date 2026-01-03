@@ -1,20 +1,20 @@
 /**
  * Script pour générer une liste exhaustive de vocabulaire français
  * utilisé dans les sondages et événements, afin d'enrichir la traduction manuelle
- * 
+ *
  * Usage: node scripts/generate-vocabulary-list.js
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { readFileSync, writeFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Lire tous les prompts de test
-const testFile = join(__dirname, '../src/test/gemini-comprehensive.test.ts');
-const testContent = readFileSync(testFile, 'utf-8');
+const testFile = join(__dirname, "../src/test/gemini-comprehensive.test.ts");
+const testContent = readFileSync(testFile, "utf-8");
 
 // Extraire tous les inputs
 const inputRegex = /input:\s*"([^"]+)"/g;
@@ -42,12 +42,12 @@ const nounPatterns = [
 ];
 
 // Extraire les mots français
-inputs.forEach(input => {
+inputs.forEach((input) => {
   // Extraire les verbes
-  verbPatterns.forEach(pattern => {
+  verbPatterns.forEach((pattern) => {
     const matches = input.match(pattern);
     if (matches) {
-      matches.forEach(m => {
+      matches.forEach((m) => {
         frenchVerbs.add(m.toLowerCase());
         frenchWords.add(m.toLowerCase());
       });
@@ -55,10 +55,10 @@ inputs.forEach(input => {
   });
 
   // Extraire les noms
-  nounPatterns.forEach(pattern => {
+  nounPatterns.forEach((pattern) => {
     const matches = input.match(pattern);
     if (matches) {
-      matches.forEach(m => {
+      matches.forEach((m) => {
         frenchNouns.add(m.toLowerCase());
         frenchWords.add(m.toLowerCase());
       });
@@ -66,9 +66,11 @@ inputs.forEach(input => {
   });
 
   // Extraire les expressions temporelles
-  const temporalExpressions = input.match(/\b(début|fin|en|courant|semaine prochaine|cette semaine|semaine dernière|demain|aujourd'hui|hier|dans|deux semaines|trois semaines|quatre semaines|quinze jours|quatorze jours|matin|midi|après-midi|d'après-midi|soir|soirée|nuit|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/gi);
+  const temporalExpressions = input.match(
+    /\b(début|fin|en|courant|semaine prochaine|cette semaine|semaine dernière|demain|aujourd'hui|hier|dans|deux semaines|trois semaines|quatre semaines|quinze jours|quatorze jours|matin|midi|après-midi|d'après-midi|soir|soirée|nuit|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/gi,
+  );
   if (temporalExpressions) {
-    temporalExpressions.forEach(expr => {
+    temporalExpressions.forEach((expr) => {
       frenchExpressions.add(expr.toLowerCase());
       frenchWords.add(expr.toLowerCase());
     });
@@ -79,7 +81,10 @@ inputs.forEach(input => {
 const geminiPrompt = `Tu es un expert en vocabulaire français pour les sondages, événements et réunions professionnelles.
 
 À partir de cette liste de ${inputs.length} prompts réels extraits de tests :
-${inputs.slice(0, 10).map((inp, i) => `${i + 1}. "${inp}"`).join('\n')}
+${inputs
+  .slice(0, 10)
+  .map((inp, i) => `${i + 1}. "${inp}"`)
+  .join("\n")}
 ... et ${inputs.length - 10} autres prompts similaires.
 
 Génère une liste EXHAUSTIVE de vocabulaire français qui pourrait apparaître dans des prompts de sondages/événements, organisée par catégories :
@@ -125,10 +130,13 @@ const output = {
   },
 };
 
-const outputFile = join(__dirname, '../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-extraction.json');
-writeFileSync(outputFile, JSON.stringify(output, null, 2), 'utf-8');
+const outputFile = join(
+  __dirname,
+  "../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-extraction.json",
+);
+writeFileSync(outputFile, JSON.stringify(output, null, 2), "utf-8");
 
-console.log('\n✅ Analyse terminée !');
+console.log("\n✅ Analyse terminée !");
 console.log(`📊 Statistiques :`);
 console.log(`   - Verbes uniques : ${frenchVerbs.size}`);
 console.log(`   - Noms uniques : ${frenchNouns.size}`);
@@ -136,4 +144,3 @@ console.log(`   - Expressions temporelles : ${frenchExpressions.size}`);
 console.log(`   - Total mots uniques : ${frenchWords.size}`);
 console.log(`\n📝 Fichier généré : ${outputFile}`);
 console.log(`\n💡 Prochaine étape : Utiliser le prompt Gemini pour générer une liste exhaustive.`);
-

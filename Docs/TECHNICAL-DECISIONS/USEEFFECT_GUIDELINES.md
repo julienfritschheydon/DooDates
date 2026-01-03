@@ -12,10 +12,11 @@
 ### ✅ **Patterns recommandés**
 
 #### 1. **Initialisation avec cleanup**
+
 ```typescript
 useEffect(() => {
   let isMounted = true;
-  
+
   const initialize = async () => {
     try {
       const data = await fetchData();
@@ -38,21 +39,23 @@ useEffect(() => {
 ```
 
 #### 2. **Listeners avec cleanup**
+
 ```typescript
 useEffect(() => {
   const handleResize = () => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   };
 
-  window.addEventListener('resize', handleResize);
-  
+  window.addEventListener("resize", handleResize);
+
   return () => {
-    window.removeEventListener('resize', handleResize);
+    window.removeEventListener("resize", handleResize);
   };
 }, []);
 ```
 
 #### 3. **Timers avec cleanup**
+
 ```typescript
 useEffect(() => {
   const timer = setTimeout(() => {
@@ -66,15 +69,16 @@ useEffect(() => {
 ```
 
 #### 4. **Conditions de garde**
+
 ```typescript
 useEffect(() => {
   if (!user || !data) return;
-  
+
   const processData = async () => {
     try {
       await processUserData(user, data);
     } catch (error) {
-      console.error('Processing failed:', error);
+      console.error("Processing failed:", error);
     }
   };
 
@@ -83,10 +87,11 @@ useEffect(() => {
 ```
 
 #### 5. **Dépendances avec useCallback**
+
 ```typescript
 const fetchData = useCallback(async () => {
   if (!id) return;
-  
+
   try {
     setLoading(true);
     const result = await api.getData(id);
@@ -106,6 +111,7 @@ useEffect(() => {
 ### ❌ **Anti-patterns à éviter**
 
 #### 1. **Dépendances manquantes**
+
 ```typescript
 // ❌ Mauvais
 useEffect(() => {
@@ -119,6 +125,7 @@ useEffect(() => {
 ```
 
 #### 2. **Pas de cleanup**
+
 ```typescript
 // ❌ Mauvais
 useEffect(() => {
@@ -132,12 +139,13 @@ useEffect(() => {
   const timer = setInterval(() => {
     fetchUpdates();
   }, 1000);
-  
+
   return () => clearInterval(timer);
 }, []);
 ```
 
 #### 3. **useEffect trop complexe**
+
 ```typescript
 // ❌ Mauvais - trop de responsabilités
 useEffect(() => {
@@ -148,22 +156,31 @@ useEffect(() => {
 }, []);
 
 // ✅ Correct - séparé
-useEffect(() => { fetchUser(); }, []);
-useEffect(() => { setupWebSocket(); }, []);
-useEffect(() => { trackAnalytics(); }, []);
-useEffect(() => { validateForm(); }, []);
+useEffect(() => {
+  fetchUser();
+}, []);
+useEffect(() => {
+  setupWebSocket();
+}, []);
+useEffect(() => {
+  trackAnalytics();
+}, []);
+useEffect(() => {
+  validateForm();
+}, []);
 ```
 
 ### 🔧 **Patterns spécifiques DooDates**
 
 #### 1. **Storage operations**
+
 ```typescript
 useEffect(() => {
   const saveToStorage = async () => {
     try {
       await storage.save(data);
     } catch (error) {
-      console.error('Storage save failed:', error);
+      console.error("Storage save failed:", error);
     }
   };
 
@@ -174,12 +191,13 @@ useEffect(() => {
 ```
 
 #### 2. **Conversation management**
+
 ```typescript
 useEffect(() => {
   if (!conversationId) return;
-  
+
   let isMounted = true;
-  
+
   const loadConversation = async () => {
     try {
       const conversation = await conversationStorage.getConversation(conversationId);
@@ -194,7 +212,7 @@ useEffect(() => {
   };
 
   loadConversation();
-  
+
   return () => {
     isMounted = false;
   };
@@ -202,16 +220,17 @@ useEffect(() => {
 ```
 
 #### 3. **Auto-save with debounce**
+
 ```typescript
 useEffect(() => {
   if (!isDirty) return;
-  
+
   const timer = setTimeout(async () => {
     try {
       await autoSave.save();
       setIsDirty(false);
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error("Auto-save failed:", error);
     }
   }, 1000);
 
@@ -222,11 +241,15 @@ useEffect(() => {
 ### 🚀 **Optimisations**
 
 #### 1. **Memoization des dépendances**
+
 ```typescript
-const config = useMemo(() => ({
-  apiKey: process.env.API_KEY,
-  timeout: 5000
-}), []);
+const config = useMemo(
+  () => ({
+    apiKey: process.env.API_KEY,
+    timeout: 5000,
+  }),
+  [],
+);
 
 useEffect(() => {
   initializeService(config);
@@ -234,10 +257,11 @@ useEffect(() => {
 ```
 
 #### 2. **Conditional effects**
+
 ```typescript
 useEffect(() => {
   if (!shouldRun) return;
-  
+
   const cleanup = setupFeature();
   return cleanup;
 }, [shouldRun, dependency]);
@@ -246,16 +270,17 @@ useEffect(() => {
 ### 📊 **Debugging useEffect**
 
 #### 1. **Logging des dépendances**
+
 ```typescript
 useEffect(() => {
-  console.log('Effect triggered with:', { user, data, timestamp: Date.now() });
-  
+  console.log("Effect triggered with:", { user, data, timestamp: Date.now() });
+
   // Effect logic here
-  
 }, [user, data]);
 ```
 
 #### 2. **Tracking des re-renders**
+
 ```typescript
 const renderCount = useRef(0);
 renderCount.current++;

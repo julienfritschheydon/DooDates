@@ -42,12 +42,13 @@ function generateDatePollEmailHTML(data: {
         month: "long",
         day: "numeric",
       })}</strong>
-      ${item.slots && item.slots.length > 0
+      ${
+        item.slots && item.slots.length > 0
           ? `<br/><span style="color: #666; font-size: 14px;">Créneaux: ${item.slots.join(", ")}</span>`
           : ""
-        }
+      }
     </li>
-  `
+  `,
     )
     .join("");
 
@@ -79,10 +80,11 @@ function generateDatePollEmailHTML(data: {
                 ${data.pollTitle}
               </h2>
               
-              ${data.respondentName
-      ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
-      : ""
-    }
+              ${
+                data.respondentName
+                  ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
+                  : ""
+              }
               
               <p style="margin: 0 0 24px; color: #666; font-size: 16px;">
                 Merci d'avoir voté ! Voici un récapitulatif de vos disponibilités :
@@ -138,7 +140,7 @@ function generateFormPollEmailHTML(data: {
         ${item.answer}
       </p>
     </div>
-  `
+  `,
     )
     .join("");
 
@@ -170,10 +172,11 @@ function generateFormPollEmailHTML(data: {
                 ${data.pollTitle}
               </h2>
               
-              ${data.respondentName
-      ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
-      : ""
-    }
+              ${
+                data.respondentName
+                  ? `<p style="margin: 0 0 24px; color: #666; font-size: 16px;">Bonjour ${data.respondentName},</p>`
+                  : ""
+              }
               
               <p style="margin: 0 0 24px; color: #666; font-size: 16px;">
                 Merci d'avoir répondu au formulaire ! Voici un récapitulatif de vos réponses :
@@ -228,13 +231,10 @@ serve(async (req: Request) => {
     // Vérifier que Resend est configuré
     if (!RESEND_API_KEY) {
       console.error("RESEND_API_KEY not configured");
-      return new Response(
-        JSON.stringify({ error: "Email service not configured" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Email service not configured" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Générer le HTML selon le type de poll
@@ -256,13 +256,10 @@ serve(async (req: Request) => {
         respondentName: responseData.respondentName,
       });
     } else {
-      return new Response(
-        JSON.stringify({ error: "Unsupported poll type" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Unsupported poll type" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Envoyer l'email via Resend
@@ -283,36 +280,33 @@ serve(async (req: Request) => {
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
       console.error("Resend API error:", errorText);
-      return new Response(
-        JSON.stringify({ error: "Failed to send email", details: errorText }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Failed to send email", details: errorText }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const resendData = await resendResponse.json();
     console.log("Email sent successfully:", resendData);
 
-    return new Response(
-      JSON.stringify({ success: true, emailId: resendData.id }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return new Response(JSON.stringify({ success: true, emailId: resendData.id }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   } catch (error) {
     console.error("Error sending email:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });

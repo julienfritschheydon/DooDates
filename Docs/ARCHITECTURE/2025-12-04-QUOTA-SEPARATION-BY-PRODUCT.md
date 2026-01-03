@@ -19,6 +19,7 @@ Ce document décrit l'architecture de la séparation complète des quotas de con
 ### Table `quota_tracking`
 
 Colonnes ajoutées :
+
 - `date_polls_created INTEGER DEFAULT 0 NOT NULL`
 - `form_polls_created INTEGER DEFAULT 0 NOT NULL`
 - `quizz_created INTEGER DEFAULT 0 NOT NULL`
@@ -54,11 +55,13 @@ consumeCredits(userId, 1, "poll_created", { pollId, pollType })
 ### 2. Vérification des limites
 
 **Utilisateurs authentifiés :**
+
 - Edge Function extrait `pollType` depuis `metadata`
 - Fonction SQL `consume_quota_credits` vérifie la limite par type
 - Incrémente le compteur spécifique
 
 **Utilisateurs guests :**
+
 - `guestQuotaService.ts` vérifie la limite par type
 - Incrémente le compteur spécifique dans localStorage/Supabase
 
@@ -101,7 +104,7 @@ interface CreditJournalEntry {
   timestamp: string;
   metadata?: {
     pollId?: string;
-    pollType?: "date" | "form" | "quizz" | "availability";  // Obligatoire pour poll_created
+    pollType?: "date" | "form" | "quizz" | "availability"; // Obligatoire pour poll_created
   };
 }
 ```
@@ -114,7 +117,7 @@ interface CreditJournalEntry {
 export async function incrementPollCreated(
   userId: string | null | undefined,
   pollId: string | undefined,
-  pollType: "date" | "form" | "quizz" | "availability",  // OBLIGATOIRE
+  pollType: "date" | "form" | "quizz" | "availability", // OBLIGATOIRE
 ): Promise<void> {
   if (!pollType || !["date", "form", "quizz", "availability"].includes(pollType)) {
     throw ErrorFactory.validation(
@@ -123,7 +126,7 @@ export async function incrementPollCreated(
       { pollType, pollId, userId },
     );
   }
-  
+
   await consumeCredits(userId, 1, "poll_created", { pollId, pollType });
 }
 ```
@@ -135,15 +138,15 @@ export async function incrementPollCreated(
 ```typescript
 export const POLL_TYPE_QUOTAS = {
   ANONYMOUS: {
-    DATE_POLLS: 5,           // ⚠️ À définir dans planning décembre
-    FORM_POLLS: 5,          // ⚠️ À définir dans planning décembre
-    QUIZZ: 5,               // ⚠️ À définir dans planning décembre
-    AVAILABILITY_POLLS: 5,  // ⚠️ À définir dans planning décembre
+    DATE_POLLS: 5, // ⚠️ À définir dans planning décembre
+    FORM_POLLS: 5, // ⚠️ À définir dans planning décembre
+    QUIZZ: 5, // ⚠️ À définir dans planning décembre
+    AVAILABILITY_POLLS: 5, // ⚠️ À définir dans planning décembre
   },
   AUTHENTICATED: {
-    DATE_POLLS: 50,         // ⚠️ À définir dans planning décembre
-    FORM_POLLS: 50,         // ⚠️ À définir dans planning décembre
-    QUIZZ: 50,              // ⚠️ À définir dans planning décembre
+    DATE_POLLS: 50, // ⚠️ À définir dans planning décembre
+    FORM_POLLS: 50, // ⚠️ À définir dans planning décembre
+    QUIZZ: 50, // ⚠️ À définir dans planning décembre
     AVAILABILITY_POLLS: 50, // ⚠️ À définir dans planning décembre
   },
 } as const;
@@ -158,6 +161,7 @@ export const POLL_TYPE_QUOTAS = {
 ### Script SQL
 
 `sql-scripts/migrate-quota-separation.sql` :
+
 - Répartit `polls_created` existants selon le type depuis `doodates_polls`
 - Fallback vers `date_polls_created` si type indéterminable
 - Met à jour `polls_created` = somme des 4 compteurs
@@ -177,10 +181,10 @@ if (userData.availabilityPollsCreated === undefined) userData.availabilityPollsC
 ### Consommer des crédits pour un poll
 
 ```typescript
-import { incrementPollCreated } from '@/lib/quotaTracking';
+import { incrementPollCreated } from "@/lib/quotaTracking";
 
 // ✅ CORRECT
-await incrementPollCreated(userId, pollId, 'date');
+await incrementPollCreated(userId, pollId, "date");
 
 // ❌ INCORRECT - pollType manquant
 await incrementPollCreated(userId, pollId); // Erreur de validation
@@ -189,10 +193,10 @@ await incrementPollCreated(userId, pollId); // Erreur de validation
 ### Vérifier les limites
 
 ```typescript
-import { canConsumeCredits } from '@/lib/quotaTracking';
+import { canConsumeCredits } from "@/lib/quotaTracking";
 
-const canCreate = await canConsumeCredits(userId, 1, 'poll_created', {
-  pollType: 'date'  // Obligatoire
+const canCreate = await canConsumeCredits(userId, 1, "poll_created", {
+  pollType: "date", // Obligatoire
 });
 
 if (!canCreate.allowed) {
@@ -203,15 +207,15 @@ if (!canCreate.allowed) {
 ### Lire les quotas
 
 ```typescript
-import { getQuotaConsumed } from '@/lib/quotaTracking';
+import { getQuotaConsumed } from "@/lib/quotaTracking";
 
 const quota = await getQuotaConsumed(userId);
 
-console.log(quota.datePollsCreated);      // 3
-console.log(quota.formPollsCreated);      // 2
-console.log(quota.quizzCreated);          // 1
+console.log(quota.datePollsCreated); // 3
+console.log(quota.formPollsCreated); // 2
+console.log(quota.quizzCreated); // 1
 console.log(quota.availabilityPollsCreated); // 0
-console.log(quota.pollsCreated);          // 6 (somme, pour affichage)
+console.log(quota.pollsCreated); // 6 (somme, pour affichage)
 ```
 
 ## EOL (End of Life) - ✅ EN COURS (Branche `feature/eol-remove-polls-created`)
@@ -221,6 +225,7 @@ console.log(quota.pollsCreated);          // 6 (somme, pour affichage)
 L'ancienne expérience où les produits partageaient un quota global `polls_created` est en cours de suppression :
 
 **✅ Terminé:**
+
 1. ✅ Nettoyage des interfaces TypeScript (retirer `pollsCreated`)
 2. ✅ Mise à jour Edge Functions pour ne plus retourner `pollsCreated`
 3. ✅ Remplacement par calcul à la volée dans les composants UI
@@ -229,6 +234,7 @@ L'ancienne expérience où les produits partageaient un quota global `polls_crea
 6. ✅ Création du script SQL de suppression (`sql-scripts/eol-remove-polls-created.sql`)
 
 **⏳ À faire:**
+
 1. ⏳ **EXÉCUTER** le script SQL `sql-scripts/eol-remove-polls-created.sql` en production/testing
 2. ⏳ Vérifier que tous les tests passent après suppression SQL
 3. ⏳ Merger la branche `feature/eol-remove-polls-created` dans `testing`
@@ -238,29 +244,34 @@ Voir `Docs/2. Planning - Decembre.md` (section EOL) pour plus de détails.
 ## Fichiers concernés
 
 ### Base de données
+
 - `sql-scripts/create-quota-tracking-table.sql`
 - `sql-scripts/create-guest-quotas-table.sql`
 - `sql-scripts/migrate-quota-separation.sql`
 
 ### Code TypeScript
+
 - `src/lib/quotaTracking.ts`
 - `src/lib/pollStorage.ts`
 - `src/lib/guestQuotaService.ts`
 - `supabase/functions/quota-tracking/index.ts`
 
 ### Hooks et UI
+
 - `src/hooks/useFreemiumQuota.ts`
 - `src/hooks/useQuota.ts`
 - `src/components/ui/QuotaIndicator.tsx`
 - `src/constants/quotas.ts`
 
 ### Scripts et monitoring
+
 - `sql-scripts/view-user-quotas.sql`
 - `sql-scripts/monitor-guest-quotas.sql`
 - `scripts/view-quotas.ps1`
 - `scripts/view-quotas.sh`
 
 ### Tests
+
 - `tests/e2e/quota-tracking-complete.spec.ts`
 - `tests/load/quota-tracking-load-test.js`
 

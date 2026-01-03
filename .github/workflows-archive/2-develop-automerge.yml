@@ -43,7 +43,7 @@ jobs:
               - 'tsconfig.json'
               - 'playwright.config.ts'
               - '.github/workflows/**'
-            
+
             # Changements nécessitant E2E (toujours tester)
             e2e-required:
               - 'src/**/!(*.test.ts|*.test.tsx|__tests__)'
@@ -55,18 +55,18 @@ jobs:
               - 'vite.config.ts'
               - 'playwright.config.ts'
               - 'tests/e2e/**'
-            
+
             # Changements tests unitaires uniquement (skip E2E safe)
             tests-only:
               - 'src/**/__tests__/**'
               - 'src/**/*.test.ts'
               - 'src/**/*.test.tsx'
               - 'vitest.config.ts'
-            
+
             # Code source (hors tests)
             src:
               - 'src/**/!(*.test.ts|*.test.tsx)'
-            
+
             docs:
               - 'Docs/**/*.md'
               - 'README.md'
@@ -105,8 +105,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Cache dependencies
         uses: actions/cache@v4
@@ -168,8 +168,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Cache dependencies
         uses: actions/cache@v4
@@ -260,8 +260,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Cache dependencies
         uses: actions/cache@v4
@@ -327,16 +327,16 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-      
+
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: 🔧 Install dependencies
         run: npm ci
-      
+
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke
         uses: actions/cache@v4
@@ -346,13 +346,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-chromium-
             ${{ runner.os }}-playwright-
-      
+
       - name: 🧭 Install Playwright (Chromium only)
         if: steps.cache-playwright-smoke.outputs.cache-hit != 'true'
         run: |
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium
-      
+
       - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
         env:
@@ -361,21 +361,21 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      
+
       - name: 🚀 Start preview server
         run: |
           npm run preview &
           echo $! > preview.pid
-      
+
       - name: ⏳ Wait for server to be ready
         run: npx wait-on http://localhost:4173/ --timeout 60000
-      
+
       - name: 🔥 Run production smoke tests
         run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
           BASE_URL: http://localhost:4173/
           CI: true
-      
+
       - name: 🛑 Stop preview server
         if: always()
         run: |
@@ -383,7 +383,7 @@ jobs:
             kill $(cat preview.pid) || true
             rm preview.pid
           fi
-      
+
       - name: 📊 Upload Playwright report (if failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -391,7 +391,7 @@ jobs:
           name: playwright-report-production-smoke-pre-merge
           path: playwright-report
           retention-days: 7
-      
+
       - name: 📤 Upload test results (if failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -455,8 +455,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -507,18 +507,18 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             const unitStatus = '${{ needs.tests-unit.result }}';
             const e2eStatus = '${{ needs.tests-e2e.result }}';
             const buildStatus = '${{ needs.build-validation.result }}';
             const prodSmokeStatus = '${{ needs.production-smoke-pre-merge.result }}';
-            
+
             let failedComponents = [];
             if (unitStatus === 'failure') failedComponents.push('Tests Unitaires');
             if (e2eStatus === 'failure') failedComponents.push('Tests E2E');
             if (buildStatus === 'failure') failedComponents.push('Build & Validation');
             if (prodSmokeStatus === 'failure') failedComponents.push('🔥 Production Smoke (PRE-MERGE)');
-            
+
             let issueBody = `## ❌ Validation échouée sur develop - Auto-merge bloqué\n\n`;
             issueBody += `**Composants en échec:** ${failedComponents.join(', ')}\n\n`;
             issueBody += `**Détails:**\n`;
@@ -532,7 +532,7 @@ jobs:
             issueBody += `- Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n\n`;
             issueBody += `⚠️ **Le merge automatique vers main a été bloqué.**\n\n`;
             issueBody += `Corrigez les erreurs et re-pushez sur develop.\n\n`;
-            
+
             // Ajouter le résumé E2E détaillé si disponible
             if (e2eStatus === 'failure') {
               const summaryPath = path.join(process.cwd(), 'regression-summary.md');
@@ -543,7 +543,7 @@ jobs:
                 issueBody += `---\n\n📋 **Rapports E2E détaillés disponibles dans les artefacts GitHub Actions**\n`;
               }
             }
-            
+
             // Ajouter le résumé Production Smoke détaillé si disponible
             if (prodSmokeStatus === 'failure') {
               const summaryPath = path.join(process.cwd(), 'regression-summary.md');
@@ -554,7 +554,7 @@ jobs:
                 issueBody += `---\n\n📋 **Rapports Production Smoke détaillés disponibles dans les artefacts GitHub Actions**\n`;
               }
             }
-            
+
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -562,4 +562,3 @@ jobs:
               body: issueBody,
               labels: ['bug', 'develop-branch', 'automated', 'ci-failure', 'urgent']
             });
-

@@ -1,7 +1,7 @@
 name: 5️⃣ Production Smoke Tests
 
 # 🔥 CE WORKFLOW EST CRITIQUE - Il détecte si l'application déployée est cassée
-# 
+#
 # Déclenché APRÈS le déploiement sur GitHub Pages
 # Teste la VRAIE application en production, PAS DE MOCKS
 #
@@ -15,12 +15,12 @@ on:
   workflow_run:
     workflows: ["4️⃣ Main Deploy to GitHub Pages"]
     types: [completed]
-  
+
   # Permet de lancer manuellement pour tester
   workflow_dispatch:
     inputs:
       production_url:
-        description: 'URL de production à tester (laisser vide pour utiliser GitHub Pages)'
+        description: "URL de production à tester (laisser vide pour utiliser GitHub Pages)"
         required: false
         type: string
 
@@ -33,10 +33,10 @@ jobs:
   smoke-tests-production:
     name: 🔥 Tests de Smoke en Production
     runs-on: ubuntu-latest
-    
+
     # N'exécuter que si le déploiement a réussi
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -44,8 +44,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci --prefer-offline --no-audit
@@ -110,7 +110,7 @@ jobs:
         with:
           name: playwright-report-production-smoke
           path: playwright-report
-          retention-days: 30  # Garder plus longtemps pour les tests de production
+          retention-days: 30 # Garder plus longtemps pour les tests de production
 
       - name: 📤 Upload test results JSON
         if: always()
@@ -139,11 +139,11 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             // Lire les résultats des tests si disponibles
             let failedTests = [];
             let testDetails = '';
-            
+
             try {
               const resultsPath = path.join(process.cwd(), 'test-results');
               if (fs.existsSync(resultsPath)) {
@@ -153,11 +153,11 @@ jobs:
             } catch (error) {
               console.log('Could not read test results:', error);
             }
-            
+
             const prodUrl = '${{ steps.production-url.outputs.url }}';
             const workflowUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
             const commitSha = context.sha.substring(0, 7);
-            
+
             const issueBody = [
               '## 🚨 ALERTE CRITIQUE: APPLICATION EN PRODUCTION NON FONCTIONNELLE',
               '',
@@ -228,9 +228,9 @@ jobs:
               labels: ['critical', 'production', 'bug', 'incident', 'automated', 'urgent', 'smoke-tests'],
               assignees: [context.actor]
             });
-            
+
             console.log(`🚨 Issue critique créée: #${issue.data.number}`);
-            
+
             // Ajouter un commentaire avec le lien vers les artefacts
             await github.rest.issues.createComment({
               owner: context.repo.owner,

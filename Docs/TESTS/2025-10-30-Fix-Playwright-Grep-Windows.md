@@ -5,6 +5,7 @@
 Les tests E2E Playwright avec tags (`@smoke`, `@critical`, etc.) n'étaient pas détectés lors de l'exécution via `npm run test:e2e:smoke` sur Windows/PowerShell.
 
 **Symptôme :**
+
 ```bash
 npm run test:e2e:smoke
 # Error: No tests found
@@ -18,6 +19,7 @@ Les guillemets simples dans les scripts npm ne sont pas correctement interprét�
 Supprimer les guillemets autour des patterns grep dans `package.json`.
 
 ### Avant (❌ Ne fonctionne pas sur Windows)
+
 ```json
 {
   "scripts": {
@@ -28,6 +30,7 @@ Supprimer les guillemets autour des patterns grep dans `package.json`.
 ```
 
 ### Après (✅ Fonctionne cross-platform)
+
 ```json
 {
   "scripts": {

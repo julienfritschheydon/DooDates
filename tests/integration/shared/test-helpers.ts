@@ -5,14 +5,14 @@
  * pour éviter la duplication entre tests d'intégration et E2E.
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { v4 as uuidv4 } from 'uuid';
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { v4 as uuidv4 } from "uuid";
 
 // Configuration
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
-const TEST_PASSWORD = process.env.INTEGRATION_TEST_PASSWORD || 'TestPassword123!';
-const TEST_EMAIL = 'test-integration@doodates.com';
+const TEST_PASSWORD = process.env.INTEGRATION_TEST_PASSWORD || "TestPassword123!";
+const TEST_EMAIL = "test-integration@doodates.com";
 
 // Types
 export interface TestUser {
@@ -40,13 +40,13 @@ export interface TestConversation {
 export function validateSupabaseCredentials(): { isValid: boolean; missing: string[] } {
   const missing: string[] = [];
 
-  if (!SUPABASE_URL) missing.push('VITE_SUPABASE_URL');
-  if (!SUPABASE_ANON_KEY) missing.push('VITE_SUPABASE_ANON_KEY');
-  if (!process.env.INTEGRATION_TEST_PASSWORD) missing.push('INTEGRATION_TEST_PASSWORD');
+  if (!SUPABASE_URL) missing.push("VITE_SUPABASE_URL");
+  if (!SUPABASE_ANON_KEY) missing.push("VITE_SUPABASE_ANON_KEY");
+  if (!process.env.INTEGRATION_TEST_PASSWORD) missing.push("INTEGRATION_TEST_PASSWORD");
 
   return {
     isValid: missing.length === 0,
-    missing
+    missing,
   };
 }
 
@@ -57,7 +57,7 @@ export function createTestSupabaseClient(): SupabaseClient {
   const { isValid, missing } = validateSupabaseCredentials();
 
   if (!isValid) {
-    throw new Error(`Credentials Supabase manquants: ${missing.join(', ')}`);
+    throw new Error(`Credentials Supabase manquants: ${missing.join(", ")}`);
   }
 
   return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
@@ -77,7 +77,7 @@ export async function authenticateTestUser(supabase: SupabaseClient): Promise<Te
   }
 
   if (!data.user) {
-    throw new Error('Utilisateur test non trouvé');
+    throw new Error("Utilisateur test non trouvé");
   }
 
   return {
@@ -105,30 +105,28 @@ export async function ensureTestUser(supabase: SupabaseClient): Promise<TestUser
  */
 export async function ensureTestProfile(supabase: SupabaseClient, userId: string): Promise<void> {
   const { data: existingProfile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', userId)
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
     .single();
 
   if (!existingProfile) {
-    console.log('⚠️ Profile manquant, création automatique...');
+    console.log("⚠️ Profile manquant, création automatique...");
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
-        email: TEST_EMAIL,
-        full_name: 'Test Integration User',
-        timezone: 'Europe/Paris',
-        preferences: {},
-        plan_type: 'free',
-      });
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: userId,
+      email: TEST_EMAIL,
+      full_name: "Test Integration User",
+      timezone: "Europe/Paris",
+      preferences: {},
+      plan_type: "free",
+    });
 
-    if (profileError && !profileError.message?.toLowerCase().includes('duplicate')) {
+    if (profileError && !profileError.message?.toLowerCase().includes("duplicate")) {
       throw new Error(`❌ Impossible de créer le profile test: ${profileError.message}`);
     }
 
-    console.log('✅ Profile créé avec succès');
+    console.log("✅ Profile créé avec succès");
   }
 }
 
@@ -137,14 +135,14 @@ export async function ensureTestProfile(supabase: SupabaseClient, userId: string
  */
 export function createTestConversationData(
   userId: string,
-  overrides: Partial<TestConversation> = {}
-): Omit<TestConversation, 'id'> {
+  overrides: Partial<TestConversation> = {},
+): Omit<TestConversation, "id"> {
   const now = new Date().toISOString();
 
   return {
     user_id: userId,
-    title: 'Test Conversation',
-    status: 'active',
+    title: "Test Conversation",
+    status: "active",
     message_count: 1,
     messages: [],
     context: {
@@ -164,13 +162,13 @@ export function createTestConversationData(
 export async function createTestConversation(
   supabase: SupabaseClient,
   userId: string,
-  title: string = 'Test Conversation'
+  title: string = "Test Conversation",
 ): Promise<TestConversation> {
   const conversationId = uuidv4();
   const conversationData = createTestConversationData(userId, { title });
 
   const { data, error } = await supabase
-    .from('conversations')
+    .from("conversations")
     .insert({
       id: conversationId,
       ...conversationData,
@@ -192,25 +190,25 @@ export async function cleanupTestData(supabase: SupabaseClient, userId: string):
   try {
     // Supprimer les conversations de test
     const { error: convError } = await supabase
-      .from('conversations')
+      .from("conversations")
       .delete()
-      .eq('user_id', userId)
-      .contains('context', { integrationTest: true });
+      .eq("user_id", userId)
+      .contains("context", { integrationTest: true });
 
     if (convError) {
-      console.warn('⚠️ Erreur nettoyage conversations:', convError.message);
+      console.warn("⚠️ Erreur nettoyage conversations:", convError.message);
     }
 
     console.log(`🧹 Nettoyage effectué pour user ${userId.substring(0, 8)}...`);
   } catch (error: any) {
-    console.error('❌ Erreur lors du nettoyage:', error.message);
+    console.error("❌ Erreur lors du nettoyage:", error.message);
   }
 }
 
 /**
  * Génère un email de test unique
  */
-export function generateTestEmail(prefix: string = 'test'): string {
+export function generateTestEmail(prefix: string = "test"): string {
   return `${prefix}-${Date.now()}@doodates.com`;
 }
 
@@ -219,7 +217,7 @@ export function generateTestEmail(prefix: string = 'test'): string {
  */
 export async function measureExecutionTime<T>(
   operation: () => Promise<T>,
-  label: string
+  label: string,
 ): Promise<{ result: T; duration: number }> {
   const startTime = Date.now();
   const result = await operation();
@@ -235,14 +233,12 @@ export async function measureExecutionTime<T>(
 export async function verifyRLSEnabled(
   supabase: SupabaseClient,
   userId: string,
-  expectedMinConversationCount: number = 0
+  expectedMinConversationCount: number = 0,
 ): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('conversations')
-    .select('*');
+  const { data, error } = await supabase.from("conversations").select("*");
 
   if (error) {
-    console.error('❌ Erreur RLS:', error.message);
+    console.error("❌ Erreur RLS:", error.message);
     return false;
   }
 

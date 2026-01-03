@@ -51,6 +51,7 @@ Le workflow se déclenche automatiquement et déploie sur :
 ### Option 2 : Lien direct
 
 Envoyer le lien par SMS/WhatsApp :
+
 ```
 https://julienfritschheydon.github.io/DooDates/
 ```
@@ -58,6 +59,7 @@ https://julienfritschheydon.github.io/DooDates/
 ### Option 3 : Raccourci
 
 Créer un raccourci sur l'écran d'accueil :
+
 1. Ouvrir le lien sur mobile
 2. Menu navigateur → "Ajouter à l'écran d'accueil"
 3. L'app s'ouvre comme une app native !
@@ -83,6 +85,7 @@ https://github.com/julienfritschheydon/DooDates/actions
 Si tu veux arrêter les déploiements automatiques :
 
 1. Renommer le fichier :
+
    ```bash
    mv .github/workflows/deploy-github-pages.yml .github/workflows/deploy-github-pages.yml.disabled
    ```
@@ -121,6 +124,7 @@ NODE_ENV=production npm run dev
 ```
 
 Ou modifier temporairement `vite.config.ts` :
+
 ```typescript
 base: '/DooDates/',  // Au lieu de la condition
 ```

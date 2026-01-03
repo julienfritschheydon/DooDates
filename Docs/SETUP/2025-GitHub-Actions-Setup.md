@@ -57,6 +57,7 @@ Branch name pattern: develop
 ## 🚀 **Workflow Automatique Résultant**
 
 ### **Feature → Develop**
+
 ```bash
 git push origin feature/ma-fonctionnalité
 # ✅ Tests automatiques
@@ -65,6 +66,7 @@ git push origin feature/ma-fonctionnalité
 ```
 
 ### **Develop → Main**
+
 ```bash
 # PR automatique develop → main
 # ✅ Quality Gates stricts
@@ -75,7 +77,8 @@ git push origin feature/ma-fonctionnalité
 ## 🎯 **Résultat**
 
 **Vous développez tranquillement, GitHub s'occupe de tout !**
+
 - ✅ Tests automatiques à chaque commit
 - ✅ Protection production garantie
 - ✅ Déploiement automatique sécurisé
-- ✅ Rollback automatique si problème 
+- ✅ Rollback automatique si problème

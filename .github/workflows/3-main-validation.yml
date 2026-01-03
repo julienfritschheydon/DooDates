@@ -44,7 +44,7 @@ jobs:
               - 'tsconfig.json'
               - 'playwright.config.ts'
               - '.github/workflows/**'
-            
+
             # Changements nécessitant E2E (toujours tester sur main)
             e2e-required:
               - 'src/**/!(*.test.ts|*.test.tsx|__tests__)'
@@ -56,7 +56,7 @@ jobs:
               - 'vite.config.ts'
               - 'playwright.config.ts'
               - 'tests/e2e/**'
-            
+
             # Code source (hors tests)
             src:
               - 'src/**/!(*.test.ts|*.test.tsx)'
@@ -77,8 +77,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Cache dependencies (optimisé)
         uses: actions/cache@v4
@@ -110,8 +110,6 @@ jobs:
             ${{ runner.os }}-main-build-cache-
             ${{ runner.os }}-build-cache-
 
-
-
   # ========================================
   # TESTS COMPLETS (main - PARALLÈLE)
   # ========================================
@@ -141,7 +139,7 @@ jobs:
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: 🧪 Tests unitaires complets
         run: npm run test:unit
@@ -177,7 +175,7 @@ jobs:
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: 🔧 Cache ESLint
         uses: actions/cache@v4
@@ -224,7 +222,7 @@ jobs:
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: 🚀 E2E Smoke Tests (main)
         run: npm run test:e2e:smoke -- --reporter=html,json
@@ -260,7 +258,7 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-      
+
       - name: 🔧 Restore dependencies
         uses: actions/cache@v4
         with:
@@ -271,12 +269,12 @@ jobs:
           key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-main-deps-
-      
+
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: "20"
+
       - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
         env:
@@ -285,22 +283,22 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      
+
       - name: 🚀 Start preview server
         run: |
           npm run preview -- --port 4173 --host &
           echo $! > preview.pid
           sleep 5
-      
+
       - name: ⏳ Wait for server to be ready
         run: npx wait-on http://localhost:4173/ --timeout 60000
-      
+
       - name: 🔥 Run production smoke tests (main)
         run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
           BASE_URL: http://localhost:4173/
           CI: true
-      
+
       - name: 🛑 Stop preview server
         if: always()
         run: |
@@ -308,7 +306,7 @@ jobs:
             kill $(cat preview.pid) || true
             rm preview.pid
           fi
-      
+
       - name: 📊 Upload Playwright report (if failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -316,7 +314,7 @@ jobs:
           name: playwright-report-production-smoke-main
           path: playwright-report
           retention-days: 7
-      
+
       - name: 📤 Upload test results (if failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -365,12 +363,12 @@ jobs:
             const testStatus = '${{ needs.tests-complete.result }}';
             const buildStatus = '${{ needs.build-validation.result }}';
             const prodSmokeStatus = '${{ needs.production-smoke-main.result }}';
-            
+
             let failedComponents = [];
             if (testStatus === 'failure') failedComponents.push('Tests Complets');
             if (buildStatus === 'failure') failedComponents.push('Build Validation');
             if (prodSmokeStatus === 'failure') failedComponents.push('🔥 Production Smoke');
-            
+
             const issueBody = `## 🚨 CRITICAL: Main Regression Detected\n\n` +
               `**🔥 PRODUCTION PROTECTION ACTIVATED**\n\n` +
               `**Failed Components:** ${failedComponents.join(', ')}\n\n` +
@@ -389,7 +387,7 @@ jobs:
               `4. Delete rollback branch after resolution\n\n` +
               `**Commit:** \`${{ github.sha }}\`\n` +
               `**Run ID:** \`${{ github.run_id }}\``;
-            
+
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -409,16 +407,15 @@ jobs:
       needs.build-validation.result == 'success' &&
       needs.production-smoke-main.result == 'success'
     runs-on: ubuntu-latest
-    
     permissions:
       contents: read
       pages: write
       id-token: write
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -426,8 +423,8 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 📦 Install dependencies
         run: npm ci

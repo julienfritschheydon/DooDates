@@ -16,6 +16,7 @@
 **🎯 UNE CONVERSATION = UN PROJET**
 
 Chaque projet (création d'un sondage ou formulaire) est représenté par une conversation, qu'il soit créé :
+
 - Via l'assistant IA conversationnel 🤖
 - Via le formulaire de création manuelle 📝
 
@@ -83,32 +84,32 @@ CREATE TABLE conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,  -- NULL pour invités
   session_id TEXT NOT NULL,
-  
+
   -- Métadonnées conversation
   title TEXT,
   first_message TEXT,  -- Aperçu (100 premiers caractères)
   message_count INTEGER DEFAULT 0,
-  
+
   -- Contenu conversationnel
   messages JSONB NOT NULL DEFAULT '[]',  -- Historique complet des messages
   context JSONB DEFAULT '{}',            -- Contexte de la conversation
-  
+
   -- Données du sondage/formulaire (NOUVEAU - Architecture V2)
   poll_data JSONB,  -- Contient TOUTES les données du poll/form
   poll_type TEXT CHECK (poll_type IN ('date', 'form')),
   poll_status TEXT DEFAULT 'draft' CHECK (poll_status IN ('draft', 'active', 'closed', 'archived')),
   poll_slug TEXT UNIQUE,  -- Slug pour partage public
-  
+
   -- Anciens champs (compatibilité)
   poll_id UUID,  -- Obsolète, conservé pour migration
   related_poll_id UUID,  -- Obsolète
-  
+
   -- État et organisation
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'completed', 'abandoned', 'archived')),
   is_favorite BOOLEAN DEFAULT FALSE,
   tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   metadata JSONB DEFAULT '{}'::jsonb,
-  
+
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -127,8 +128,8 @@ CREATE TABLE conversations (
   "dates": ["2024-11-15", "2024-11-16", "2024-11-17"],
   "timeSlots": {
     "2024-11-15": [
-      {"start": "14:00", "end": "15:00"},
-      {"start": "15:00", "end": "16:00"}
+      { "start": "14:00", "end": "15:00" },
+      { "start": "15:00", "end": "16:00" }
     ]
   },
   "settings": {
@@ -184,7 +185,7 @@ Historique complet de la conversation avec l'IA :
   },
   {
     "id": "msg-2",
-    "role": "assistant", 
+    "role": "assistant",
     "content": "Parfait ! Pour quelle semaine souhaitez-vous organiser cette réunion ?",
     "timestamp": "2025-11-07T14:30:02Z",
     "metadata": {
@@ -221,25 +222,25 @@ CREATE INDEX idx_conversations_tags ON conversations USING GIN(tags);
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 
 -- Lecture : utilisateur peut voir ses conversations
-CREATE POLICY "Users can view own conversations" ON conversations 
+CREATE POLICY "Users can view own conversations" ON conversations
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Insertion : utilisateur peut créer ses conversations
-CREATE POLICY "Users can insert own conversations" ON conversations 
+CREATE POLICY "Users can insert own conversations" ON conversations
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Mise à jour : utilisateur peut modifier ses conversations
-CREATE POLICY "Users can update own conversations" ON conversations 
+CREATE POLICY "Users can update own conversations" ON conversations
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Suppression : utilisateur peut supprimer ses conversations
-CREATE POLICY "Users can delete own conversations" ON conversations 
+CREATE POLICY "Users can delete own conversations" ON conversations
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Lecture publique : tout le monde peut voir les polls actifs via slug
 CREATE POLICY "Anyone can view active polls by slug" ON conversations
   FOR SELECT USING (
-    poll_status = 'active' 
+    poll_status = 'active'
     AND poll_slug IS NOT NULL
   );
 ```
@@ -296,13 +297,13 @@ CREATE INDEX idx_profiles_plan ON profiles(plan_type);
 -- RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own profile" ON profiles 
+CREATE POLICY "Users can view own profile" ON profiles
   FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile" ON profiles 
+CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile" ON profiles 
+CREATE POLICY "Users can insert own profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 ```
 
@@ -374,28 +375,28 @@ CREATE INDEX idx_votes_created_at ON votes(created_at DESC);
 ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
 
 -- Voter peut gérer ses propres votes
-CREATE POLICY "Voters can manage own votes" ON votes 
+CREATE POLICY "Voters can manage own votes" ON votes
   FOR ALL USING (
-    voter_email = auth.email() 
+    voter_email = auth.email()
     OR voter_id = auth.uid()
   );
 
 -- Créateur du sondage peut voir tous les votes
-CREATE POLICY "Poll creators can view all votes" ON votes 
+CREATE POLICY "Poll creators can view all votes" ON votes
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM conversations 
-      WHERE conversations.id = conversation_id 
+      SELECT 1 FROM conversations
+      WHERE conversations.id = conversation_id
       AND conversations.user_id = auth.uid()
     )
   );
 
 -- Tout le monde peut voir les votes des polls actifs
-CREATE POLICY "Anyone can view active poll votes" ON votes 
+CREATE POLICY "Anyone can view active poll votes" ON votes
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM conversations 
-      WHERE conversations.id = conversation_id 
+      SELECT 1 FROM conversations
+      WHERE conversations.id = conversation_id
       AND conversations.poll_status = 'active'
     )
   );
@@ -450,11 +451,11 @@ CREATE INDEX idx_analytics_created_at ON analytics_events(created_at DESC);
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
 -- Tout le monde peut insérer des événements
-CREATE POLICY "Anyone can insert analytics" ON analytics_events 
+CREATE POLICY "Anyone can insert analytics" ON analytics_events
   FOR INSERT WITH CHECK (true);
 
 -- Seul le propriétaire peut voir ses analytics
-CREATE POLICY "Users can view own analytics" ON analytics_events 
+CREATE POLICY "Users can view own analytics" ON analytics_events
   FOR SELECT USING (auth.uid() = user_id);
 ```
 
@@ -467,6 +468,7 @@ CREATE POLICY "Users can view own analytics" ON analytics_events
 Cette table existe encore pour compatibilité avec l'ancien code mais **NE DOIT PLUS ÊTRE UTILISÉE**.
 
 **Pourquoi obsolète** :
+
 - Architecture V1 qui séparait polls et conversations
 - Manque de colonnes nécessaires (`poll_type`, `questions`, etc.)
 - Génère des erreurs 400 si utilisée
@@ -474,6 +476,7 @@ Cette table existe encore pour compatibilité avec l'ancien code mais **NE DOIT 
 **Migration** : Toutes les données doivent être dans `conversations.poll_data`
 
 **État actuel** :
+
 - ✅ Code mis à jour pour ne plus l'utiliser
 - ⚠️ Table conservée temporairement pour migration
 - 📅 Suppression prévue après vérification complète
@@ -485,7 +488,7 @@ Cette table existe encore pour compatibilité avec l'ancien code mais **NE DOIT 
 ### Récupérer les Sondages d'un Utilisateur
 
 ```sql
-SELECT 
+SELECT
   id,
   title,
   poll_type,
@@ -505,7 +508,7 @@ ORDER BY updated_at DESC;
 ### Récupérer un Sondage par Slug (Accès Public)
 
 ```sql
-SELECT 
+SELECT
   id,
   title,
   poll_type,
@@ -520,7 +523,7 @@ WHERE poll_slug = 'mon-sondage-a1b2c3'
 ### Récupérer les Votes d'un Sondage
 
 ```sql
-SELECT 
+SELECT
   v.id,
   v.voter_name,
   v.voter_email,
@@ -536,7 +539,7 @@ ORDER BY v.created_at DESC;
 ### Récupérer l'Historique de Conversation
 
 ```sql
-SELECT 
+SELECT
   id,
   title,
   first_message,
@@ -555,7 +558,7 @@ LIMIT 10;
 ### Statistiques d'un Sondage
 
 ```sql
-SELECT 
+SELECT
   c.id,
   c.title,
   c.poll_slug,
@@ -579,10 +582,7 @@ ORDER BY c.created_at DESC;
 
 ```typescript
 // Charger depuis table polls (OBSOLÈTE)
-const response = await fetch(
-  `${SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}`,
-  { headers }
-);
+const response = await fetch(`${SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}`, { headers });
 ```
 
 ### ✅ Nouveau Code (Table `conversations`)
@@ -591,7 +591,7 @@ const response = await fetch(
 // Charger depuis conversations
 const response = await fetch(
   `${SUPABASE_URL}/rest/v1/conversations?user_id=eq.${user.id}&poll_data=not.is.null`,
-  { headers }
+  { headers },
 );
 ```
 
@@ -606,8 +606,8 @@ Utiliser `session_id` pour les identifier.
 
 ```sql
 -- Conversations d'un invité
-SELECT * FROM conversations 
-WHERE user_id IS NULL 
+SELECT * FROM conversations
+WHERE user_id IS NULL
   AND session_id = 'guest-session-123';
 ```
 
@@ -620,7 +620,7 @@ Index critiques pour les performances :
 CREATE INDEX idx_conversations_poll_slug ON conversations(poll_slug);
 
 -- Index pour requêtes utilisateur
-CREATE INDEX idx_conversations_user_polls ON conversations(user_id) 
+CREATE INDEX idx_conversations_user_polls ON conversations(user_id)
   WHERE poll_data IS NOT NULL;
 
 -- Index GIN pour recherches JSON
@@ -667,8 +667,8 @@ BEGIN
     NEW.id,
     NEW.email,
     COALESCE(
-      NEW.raw_user_meta_data->>'full_name', 
-      NEW.raw_user_meta_data->>'name', 
+      NEW.raw_user_meta_data->>'full_name',
+      NEW.raw_user_meta_data->>'name',
       split_part(NEW.email, '@', 1)
     ),
     NEW.raw_user_meta_data->>'avatar_url',
@@ -698,10 +698,10 @@ BEGIN
   base_slug := regexp_replace(base_slug, '\s+', '-', 'g');
   base_slug := trim(both '-' from base_slug);
   base_slug := left(base_slug, 50);
-  
+
   -- Ajouter suffixe aléatoire unique
   final_slug := base_slug || '-' || substr(md5(random()::text), 1, 6);
-  
+
   RETURN final_slug;
 END;
 $$ LANGUAGE plpgsql;
@@ -729,7 +729,7 @@ INSERT INTO conversations (
   created_at,
   updated_at
 )
-SELECT 
+SELECT
   p.id,
   p.creator_id,
   'migrated-' || p.id,  -- Session ID temporaire
@@ -764,7 +764,7 @@ WHERE v.poll_id = p.id
 - **Backup manuel** : Avant chaque déploiement majeur
 - **Rétention** :
   - Dev : 30 jours
-  - Staging : 60 jours  
+  - Staging : 60 jours
   - Prod : 90 jours
 - **Test de restore** : Mensuel sur environnement de test
 
@@ -799,12 +799,14 @@ WHERE v.poll_id = p.id
 ## 🎯 Checklist de Migration
 
 ### Phase 1 : Préparation
+
 - [x] Documenter nouvelle architecture
 - [x] Créer script SQL d'upgrade (`upgrade-conversations-for-polls.sql`)
 - [x] Désactiver chargement depuis table `polls`
 - [x] Mettre à jour documentation
 
 ### Phase 2 : Implémentation
+
 - [ ] Exécuter script SQL sur Supabase
 - [ ] Activer chargement depuis `conversations` dans code
 - [ ] Tester création de sondages
@@ -812,11 +814,13 @@ WHERE v.poll_id = p.id
 - [ ] Tester historique conversations
 
 ### Phase 3 : Migration Données
+
 - [ ] Migrer données existantes de `polls` → `conversations`
 - [ ] Vérifier intégrité des données
 - [ ] Mettre à jour références dans `votes`
 
 ### Phase 4 : Nettoyage
+
 - [ ] Supprimer références à `polls` dans le code
 - [ ] Archiver table `polls` (ou supprimer après validation)
 - [ ] Mettre à jour types TypeScript
@@ -826,14 +830,17 @@ WHERE v.poll_id = p.id
 ## 📚 Ressources Complémentaires
 
 ### Documentation
+
 - **Guide de test** : [`GUIDE_TEST_SAUVEGARDE.md`](../GUIDE_TEST_SAUVEGARDE.md)
 - **Corrections erreur 400** : [`CORRECTIONS-ERREUR-400.md`](../CORRECTIONS-ERREUR-400.md)
 
 ### Scripts SQL
+
 - **Script d'upgrade** : [`upgrade-conversations-for-polls.sql`](../../sql-scripts/upgrade-conversations-for-polls.sql)
 - **Script d'initialisation** : [`00-INIT-DATABASE-COMPLETE.sql`](../../sql-scripts/00-INIT-DATABASE-COMPLETE.sql)
 
 ### Archives
+
 - **Ancien schéma (obsolète)** : `Archive/5. Database-Schema-OBSOLETE.md` - Pour référence historique uniquement
 
 ---
@@ -842,4 +849,3 @@ WHERE v.poll_id = p.id
 **Date** : 7 Novembre 2025  
 **Status** : ✅ Production Ready (après migration)  
 **Audience** : Développeurs, DBA, DevOps
-

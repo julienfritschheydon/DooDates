@@ -23,11 +23,13 @@ Le **Dashboard** est votre centre de contrôle pour gérer tous vos sondages et 
 ### Accès au Dashboard
 
 **Bouton principal :**
+
 ```
 En-tête de l'application → [📊 Dashboard]
 ```
 
 **Ou raccourci clavier :**
+
 ```
 Ctrl + D (Windows/Linux)
 Cmd + D (Mac)
@@ -46,12 +48,14 @@ Cmd + D (Mac)
 ### Sections Principales
 
 **1. Tous les Sondages (Défaut)**
+
 ```
 📊 Tous les sondages
 → Vue complète de tous vos sondages
 ```
 
 **2. Sondages Actifs**
+
 ```
 ✅ Actifs
 → Sondages en cours de collecte
@@ -59,6 +63,7 @@ Cmd + D (Mac)
 ```
 
 **3. Brouillons**
+
 ```
 📝 Brouillons
 → Sondages non publiés
@@ -66,6 +71,7 @@ Cmd + D (Mac)
 ```
 
 **4. Terminés**
+
 ```
 🔒 Terminés
 → Sondages terminés
@@ -73,6 +79,7 @@ Cmd + D (Mac)
 ```
 
 **5. Archivés**
+
 ```
 🗂️ Archivés
 → Sondages masqués du dashboard principal
@@ -84,6 +91,7 @@ Cmd + D (Mac)
 ### Vues Disponibles
 
 #### Vue Grille (Défaut)
+
 ```
 ┌─────────┐ ┌─────────┐ ┌─────────┐
 │ Sondage │ │ Sondage │ │ Sondage │
@@ -94,22 +102,27 @@ Cmd + D (Mac)
 │    4    │ │    5    │ │    6    │
 └─────────┘ └─────────┘ └─────────┘
 ```
+
 **Avantage :** Visuel, aperçu rapide, adapté mobile
 
 #### Vue Tableau (Desktop uniquement)
+
 ```
 ☰ Réunion Sprint Planning | 8/10 | Actif | 2j | [Actions]
 ☰ Satisfaction Client Q4 | 47/100 | Actif | 5j | [Actions]
 ☰ Sondage Déjeuner      | 5/8 | Terminé | 10j | [Actions]
 ```
+
 **Avantage :** Compact, plus d'infos visibles, tri facile
 
 **Disponibilité :**
+
 - ✅ **Desktop** (> 1024px) : Vue complète avec toutes les colonnes
 - ✅ **Tablette** (768-1024px) : Vue optimisée (colonnes principales uniquement)
 - ❌ **Mobile** (< 768px) : Vue grille uniquement (tableau masqué)
 
 **Colonnes visibles :**
+
 - **Desktop** : Sélection | Titre (2 lignes max) | Statut | Statistiques | Date | Actions
 - **Tablette** : Sélection | Titre (2 lignes max) | Statut | Actions
 
@@ -122,6 +135,7 @@ Cmd + D (Mac)
 ![Vue Liste des Sondages](./images/availability-polls.png)
 
 **Informations affichées :**
+
 ```
 ┌─────────────────────────────────────────────────┐
 │ 📅 [Icône Type]                        [•••]    │ ← Menu actions
@@ -141,23 +155,23 @@ Cmd + D (Mac)
 
 ### Icônes par Type
 
-| Icône | Type | Couleur |
-|-------|------|---------|
-| 📅 | Sondage de dates | Bleu |
-| 📝 | Formulaire | Vert |
-| 📊 | Questionnaire | Violet |
+| Icône | Type             | Couleur |
+| ----- | ---------------- | ------- |
+| 📅    | Sondage de dates | Bleu    |
+| 📝    | Formulaire       | Vert    |
+| 📊    | Questionnaire    | Violet  |
 
 ---
 
 ### Badges de Statut
 
-| Badge | Signification | Couleur |
-|-------|---------------|---------|
-| ✅ **Actif** | En cours de collecte | Vert |
-| 📝 **Brouillon** | Non publié (avec sondage uniquement) | Gris |
-| 🔒 **Terminé** | Terminé | Rouge |
-| 🗂️ **Archivé** | Masqué du dashboard | Gris clair |
-| ⏰ **Deadline proche** | Fermeture < 24h | Orange |
+| Badge                  | Signification                        | Couleur    |
+| ---------------------- | ------------------------------------ | ---------- |
+| ✅ **Actif**           | En cours de collecte                 | Vert       |
+| 📝 **Brouillon**       | Non publié (avec sondage uniquement) | Gris       |
+| 🔒 **Terminé**         | Terminé                              | Rouge      |
+| 🗂️ **Archivé**         | Masqué du dashboard                  | Gris clair |
+| ⏰ **Deadline proche** | Fermeture < 24h                      | Orange     |
 
 **Note :** Le filtre "Brouillons" affiche uniquement les conversations avec un sondage en brouillon. Les conversations sans sondage ne sont pas incluses.
 
@@ -166,12 +180,14 @@ Cmd + D (Mac)
 ### Barre de Progression
 
 **Visualisation :**
+
 ```
 8/10 réponses
 ████████░░░░░░░░░░ 80%
 ```
 
 **Codes couleurs :**
+
 - 🟢 **Vert (> 70%)** : Bonne participation
 - 🟡 **Orange (30-70%)** : Participation moyenne
 - 🔴 **Rouge (< 30%)** : Participation faible
@@ -183,6 +199,7 @@ Cmd + D (Mac)
 ### Barre de Recherche
 
 **Recherche intelligente :**
+
 ```
 🔍 [Rechercher par titre, description, tags...] [X]
 
@@ -197,6 +214,7 @@ Exemples :
 ```
 
 **Recherche avancée :**
+
 ```
 • titre:réunion        → Cherche dans le titre uniquement
 • créé:cette-semaine   → Sondages de cette semaine
@@ -209,6 +227,7 @@ Exemples :
 ### Filtres Rapides
 
 **Bouton "Filtres" :**
+
 ```
 ┌─────────────────────────────────────┐
 │  Filtres                            │
@@ -244,6 +263,7 @@ Exemples :
 ### Tri
 
 **Options de tri :**
+
 ```
 Trier par : [Date de création ▼]
 
@@ -264,10 +284,12 @@ Options :
 ### Menu Actions
 
 **Actions principales visibles** (boutons directs) :
+
 - **Sondages** : 📊 Résultats | 🗳️ Voter
 - **Conversations** : 💬 Reprendre
 
 **Menu "..." (Plus d'actions)** :
+
 ```
 ┌─────────────────────────────┐
 │  ⚙️ Gérer les tags/dossier  │
@@ -288,6 +310,7 @@ Options :
 ```
 
 **Pour les conversations sans sondage :**
+
 ```
 ┌─────────────────────────────┐
 │  ⚙️ Gérer les tags/dossier  │
@@ -301,36 +324,42 @@ Options :
 ### Actions Détaillées
 
 #### 📊 Voir les Résultats
+
 ```
 → Ouvre la page de résultats
 → Graphiques, statistiques, Analytics IA
 ```
 
 #### ✏️ Modifier
+
 ```
 → Éditer le sondage
 → Avertissement si déjà des réponses
 ```
 
 #### 🔗 Copier le Lien
+
 ```
 → Copie le lien de vote dans le presse-papier
 → Notification : "✓ Lien copié !"
 ```
 
 #### 📤 Partager
+
 ```
 → Ouvre le modal de partage
 → Email, WhatsApp, réseaux sociaux, QR Code
 ```
 
 #### 📥 Exporter
+
 ```
 → Choix du format : CSV, PDF, JSON, Markdown
 → Téléchargement immédiat
 ```
 
 #### 📋 Dupliquer
+
 ```
 → Crée une copie du sondage
 → Nom : "[Original] (Copie)"
@@ -338,6 +367,7 @@ Options :
 ```
 
 #### 🔒 Terminer
+
 ```
 → Ferme le sondage aux nouveaux votes
 → Confirmation requise
@@ -345,6 +375,7 @@ Options :
 ```
 
 #### 🗂️ Archiver
+
 ```
 → Masque du dashboard principal
 → Toujours accessible via "Archivés"
@@ -352,6 +383,7 @@ Options :
 ```
 
 #### 🗑️ Supprimer
+
 ```
 → Suppression définitive après 30 jours
 → Confirmation + saisie du titre requise
@@ -380,14 +412,12 @@ Options :
 
 ---
 
-
-
-
 ## 🗂️ Organisation
 
 ### Tags et Libellés
 
 **Ajouter des tags :**
+
 ```
 Sondage → Menu ••• → "Gérer les tags"
 
@@ -402,6 +432,7 @@ Tags disponibles :
 ```
 
 **Filtrer par tags :**
+
 ```
 Filtres → Tags → ☑ Prioritaire
 → Affiche uniquement sondages "Prioritaire"
@@ -416,6 +447,7 @@ Filtres → Tags → ☑ Prioritaire
 ### Dossiers (Feature Pro)
 
 **Organiser en dossiers :**
+
 ```
 Dashboard
 ├── 📁 Satisfaction Client
@@ -432,6 +464,7 @@ Dashboard
 ```
 
 **Créer un dossier :**
+
 ```
 Dashboard → [+ Nouveau dossier]
 Nom : "Satisfaction Client"
@@ -444,6 +477,7 @@ Icône : 😊
 ### Sauvegardes Automatiques
 
 **Feature automatique :**
+
 ```
 ✅ Sauvegarde automatique toutes les 30 secondes
 ✅ Historique des versions (10 dernières)
@@ -451,6 +485,7 @@ Icône : 😊
 ```
 
 **Accéder à l'historique :**
+
 ```
 Sondage → Menu ••• → "Historique des versions"
 
@@ -474,18 +509,18 @@ Sondage → Menu ••• → "Historique des versions"
 
 ### Dashboard
 
-| Raccourci | Action |
-|-----------|--------|
-| `Ctrl/Cmd + D` | Ouvrir Dashboard |
-| `Ctrl/Cmd + N` | Nouveau sondage |
-| `Ctrl/Cmd + F` | Focus recherche |
-| `Ctrl/Cmd + K` | Ouvrir Assistant IA |
-| `↑` `↓` | Naviguer entre sondages |
-| `Entrée` | Ouvrir sondage sélectionné |
-| `E` | Éditer le sondage |
-| `R` | Voir résultats |
-| `S` | Partager |
-| `Del` | Supprimer (avec confirmation) |
+| Raccourci      | Action                        |
+| -------------- | ----------------------------- |
+| `Ctrl/Cmd + D` | Ouvrir Dashboard              |
+| `Ctrl/Cmd + N` | Nouveau sondage               |
+| `Ctrl/Cmd + F` | Focus recherche               |
+| `Ctrl/Cmd + K` | Ouvrir Assistant IA           |
+| `↑` `↓`        | Naviguer entre sondages       |
+| `Entrée`       | Ouvrir sondage sélectionné    |
+| `E`            | Éditer le sondage             |
+| `R`            | Voir résultats                |
+| `S`            | Partager                      |
+| `Del`          | Supprimer (avec confirmation) |
 
 ---
 
@@ -494,6 +529,7 @@ Sondage → Menu ••• → "Historique des versions"
 ### 1. Utilisez les Filtres Intelligents
 
 **Créez des vues personnalisées :**
+
 ```
 "Sondages à relancer"
 → Filtre : Actifs + Réponses < 30% + Créés > 3 jours
@@ -510,6 +546,7 @@ Sondage → Menu ••• → "Historique des versions"
 ### 2. Archivez Régulièrement
 
 **Nettoyez votre dashboard :**
+
 ```
 Tous les mois :
 • Archivez les sondages terminés il y a > 30 jours
@@ -524,6 +561,7 @@ Tous les mois :
 ### 3. Dupliquez pour Gagner du Temps
 
 **Sondages récurrents :**
+
 ```
 Enquête mensuelle → Dupliquer → Changer les dates → Partager
 (Gain : 5 minutes par création)
@@ -552,6 +590,7 @@ Enquête mensuelle → Dupliquer → Changer les dates → Partager
 Actuellement : 1 dashboard = 1 compte
 
 **Plan pour Q1 2026 :**
+
 - Équipes avec dashboards partagés
 - Permissions granulaires (Éditeur, Viewer, Admin)
 
@@ -570,4 +609,3 @@ Actuellement : 1 dashboard = 1 compte
 ---
 
 **© 2025 DooDates - Dashboard v1.0**
-

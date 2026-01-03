@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Page } from "@playwright/test";
 
 export type ConsoleGuard = {
   assertClean: () => Promise<void>;
@@ -32,12 +32,12 @@ export function getDefaultConsoleGuardAllowlist(): RegExp[] {
 /**
  * Wrapper pour exécuter du code avec console guard automatique
  * Le guard.assertClean() et guard.stop() sont appelés automatiquement dans un finally
- * 
+ *
  * @param page - La page Playwright
  * @param fn - Fonction à exécuter avec le guard
  * @param options - Options pour le console guard
  * @returns Le résultat de la fonction
- * 
+ *
  * @example
  * ```typescript
  * await withConsoleGuard(page, async (guard) => {
@@ -51,13 +51,10 @@ export function getDefaultConsoleGuardAllowlist(): RegExp[] {
 export async function withConsoleGuard<T>(
   page: Page,
   fn: (guard: ConsoleGuard) => Promise<T>,
-  options?: { allowlist?: RegExp[] }
+  options?: { allowlist?: RegExp[] },
 ): Promise<T> {
   const guard = attachConsoleGuard(page, {
-    allowlist: [
-      ...getDefaultConsoleGuardAllowlist(),
-      ...(options?.allowlist || []),
-    ],
+    allowlist: [...getDefaultConsoleGuardAllowlist(), ...(options?.allowlist || [])],
   });
 
   try {
@@ -77,7 +74,7 @@ export function attachConsoleGuard(
   page: Page,
   options?: {
     allowlist?: RegExp[];
-  }
+  },
 ): ConsoleGuard {
   const errors: string[] = [];
   // Base: ignorer les erreurs clipboard fréquentes en headless
@@ -133,7 +130,8 @@ export function attachConsoleGuard(
     /❌ 💳 Error in getGuestEmail.*Failed to fetch/i, // Erreurs Supabase en CI
     /❌ 💳 Error in.*supabaseApi.*Failed to fetch/i, // Erreurs Supabase génériques
   ];
-  const defaultAllow = process.env.E2E_DEV_NOISE === '1' ? [...baseAllow, ...devNoiseAllow] : baseAllow;
+  const defaultAllow =
+    process.env.E2E_DEV_NOISE === "1" ? [...baseAllow, ...devNoiseAllow] : baseAllow;
   const allow = options?.allowlist ? [...defaultAllow, ...options.allowlist] : defaultAllow;
 
   const isAllowed = (text: string) => allow.some((r) => r.test(text));
@@ -142,26 +140,26 @@ export function attachConsoleGuard(
     try {
       const type = msg.type();
       const text = msg.text();
-      if ((type === 'error' || type === 'assert') && !isAllowed(text)) {
+      if ((type === "error" || type === "assert") && !isAllowed(text)) {
         errors.push(`[console.${type}] ${text}`);
       }
-    } catch { }
+    } catch {}
   };
   const onPageError = (err: Error) => {
     const text = String(err?.message || err);
     if (!isAllowed(text)) errors.push(`[pageerror] ${text}`);
   };
 
-  page.on('console', onConsole);
-  page.on('pageerror', onPageError);
+  page.on("console", onConsole);
+  page.on("pageerror", onPageError);
 
   return {
     async assertClean() {
-      await expect(errors, errors.join('\n')).toHaveLength(0);
+      await expect(errors, errors.join("\n")).toHaveLength(0);
     },
     stop() {
-      page.off('console', onConsole);
-      page.off('pageerror', onPageError);
+      page.off("console", onConsole);
+      page.off("pageerror", onPageError);
     },
   };
 }
@@ -175,21 +173,21 @@ export async function enableE2ELocalMode(page: Page) {
     try {
       (window as any).__E2E__ = true;
       (window as any).__IS_E2E_TESTING__ = true;
-      localStorage.setItem('e2e', '1');
-      localStorage.setItem('dev-local-mode', '1');
-      localStorage.setItem('dd-device-id', 'test-device-id');
+      localStorage.setItem("e2e", "1");
+      localStorage.setItem("dev-local-mode", "1");
+      localStorage.setItem("dd-device-id", "test-device-id");
       // ✅ FIX: getDeviceId() cherche 'doodates_device_id', pas 'dd-device-id'
-      localStorage.setItem('doodates_device_id', 'test-device-id');
-    } catch { }
+      localStorage.setItem("doodates_device_id", "test-device-id");
+    } catch {}
   });
 
   // S'assurer que l'URL comporte le flag pour les détections basées sur location.search
   // Ne naviguer que si on est déjà sur une page valide (pas about:blank)
-  if (page.url() && !page.url().startsWith('about:blank')) {
+  if (page.url() && !page.url().startsWith("about:blank")) {
     const url = new URL(page.url());
-    if (!url.searchParams.has('e2e-test')) {
-      url.searchParams.set('e2e-test', 'true');
-      await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => { });
+    if (!url.searchParams.has("e2e-test")) {
+      url.searchParams.set("e2e-test", "true");
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded" }).catch(() => {});
     }
   }
 }
@@ -200,29 +198,29 @@ export async function enableE2ELocalMode(page: Page) {
  */
 export async function waitForCopySuccess(
   page: Page,
-  testId: string = 'copy-success',
-  timeoutMs: number = 5000
+  testId: string = "copy-success",
+  timeoutMs: number = 5000,
 ) {
   const indicator = page.getByTestId(testId);
-  await indicator.waitFor({ state: 'visible', timeout: timeoutMs });
+  await indicator.waitFor({ state: "visible", timeout: timeoutMs });
 }
 
 /**
  * Clique robuste: scroll-into-view si nécessaire et force le clic si l'élément peut être masqué
  */
-export async function robustClick(locator: ReturnType<Page['locator']>) {
+export async function robustClick(locator: ReturnType<Page["locator"]>) {
   // S'assurer que le noeud existe
   try {
-    await locator.waitFor({ state: 'attached', timeout: 5000 });
-  } catch { }
+    await locator.waitFor({ state: "attached", timeout: 5000 });
+  } catch {}
   // Tenter de le rendre visible
   try {
     await locator.scrollIntoViewIfNeeded();
-  } catch { }
+  } catch {}
   try {
     await locator.click({ timeout: 5000 });
     return;
-  } catch { }
+  } catch {}
   // Fallback: petit délai puis clic forcé
   await new Promise((res) => setTimeout(res, 200));
   await locator.click({ force: true, timeout: 5000 });
@@ -230,109 +228,109 @@ export async function robustClick(locator: ReturnType<Page['locator']>) {
 
 /**
  * Fill robuste pour inputs/textareas: gère race conditions, overlays, et re-rendering
- * 
+ *
  * Vérifie les 5 hypothèses de l'IA:
  * 1. Race Condition - Attend que l'élément soit complètement chargé
  * 2. Element Overlap - Scroll et vérifie la visibilité
  * 3. Dynamic Re-rendering - Attend la stabilité du composant
  * 4. user-select: none - Force la visibilité si nécessaire
  * 5. Incorrect Selector - Vérifie enabled/editable
- * 
+ *
  * @param locator - Le locator Playwright de l'input/textarea
  * @param text - Le texte à remplir
  * @param options - Options de timeout et debug
  */
 export async function robustFill(
-  locator: ReturnType<Page['locator']>,
+  locator: ReturnType<Page["locator"]>,
   text: string,
   options?: {
     timeout?: number;
     debug?: boolean;
     waitForStability?: boolean; // Attendre que le composant soit stable (useEffect, etc.)
-  }
+  },
 ) {
   const timeout = options?.timeout ?? 20000;
   const debug = options?.debug ?? false;
   const waitForStability = options?.waitForStability ?? true;
 
   const log = (...args: any[]) => {
-    if (debug) console.log('[robustFill]', ...args);
+    if (debug) console.log("[robustFill]", ...args);
   };
 
   try {
     // 1. Attendre que l'élément soit attaché au DOM
-    log('1. Waiting for element to be attached...');
-    await locator.waitFor({ state: 'attached', timeout });
-    log('✅ Element attached');
+    log("1. Waiting for element to be attached...");
+    await locator.waitFor({ state: "attached", timeout });
+    log("✅ Element attached");
 
     // 2. Attendre la stabilité du composant (race condition + re-rendering)
     if (waitForStability) {
-      log('2. Waiting for component stability (polling up to 500ms)...');
+      log("2. Waiting for component stability (polling up to 500ms)...");
       const stabilityStart = Date.now();
       while (Date.now() - stabilityStart < 500) {
         try {
           // Vérifier que l'élément est toujours attaché pour détecter un re-render
-          await locator.waitFor({ state: 'attached', timeout: 50 });
+          await locator.waitFor({ state: "attached", timeout: 50 });
           break;
         } catch {
           // Ignorer et réessayer jusqu'au timeout global de stabilité
         }
       }
-      log('✅ Component should be stable');
+      log("✅ Component should be stable");
     }
 
     // 3. Scroll into view (éviter overlaps)
-    log('3. Scrolling into view...');
+    log("3. Scrolling into view...");
     try {
       await locator.scrollIntoViewIfNeeded({ timeout: 2000 });
-      log('✅ Scrolled into view');
+      log("✅ Scrolled into view");
     } catch (e) {
-      log('⚠️ Scroll failed, continuing anyway');
+      log("⚠️ Scroll failed, continuing anyway");
     }
 
     // 4. Vérifier que l'élément n'est pas disabled (avec timeout)
-    log('4. Checking if element is enabled...');
+    log("4. Checking if element is enabled...");
     try {
       const isDisabled = await locator.isDisabled({ timeout: 5000 });
       if (isDisabled) {
-        throw new Error('Element is disabled, cannot fill');
+        throw new Error("Element is disabled, cannot fill");
       }
-      log('✅ Element enabled');
+      log("✅ Element enabled");
     } catch (e: any) {
       // Si isDisabled échoue (timeout), essayer quand même de remplir
-      if (e.message?.includes('timeout') || e.message?.includes('Timeout')) {
-        log('⚠️ isDisabled timeout, continuing anyway...');
+      if (e.message?.includes("timeout") || e.message?.includes("Timeout")) {
+        log("⚠️ isDisabled timeout, continuing anyway...");
       } else {
         throw e;
       }
     }
 
     // 5. Vérifier que l'élément est editable
-    log('5. Checking if element is editable...');
+    log("5. Checking if element is editable...");
     const isEditable = await locator.isEditable();
     if (!isEditable) {
-      log('⚠️ Element not editable, trying to force visibility...');
+      log("⚠️ Element not editable, trying to force visibility...");
       // Force visibility (hypothèse #4: user-select: none ou visibility: hidden)
       await locator.evaluate((el: HTMLElement) => {
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-        el.style.pointerEvents = 'auto';
+        el.style.visibility = "visible";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
         if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
           el.readOnly = false;
           el.disabled = false;
         }
       });
-      log('✅ Forced visibility');
+      log("✅ Forced visibility");
     } else {
-      log('✅ Element editable');
+      log("✅ Element editable");
     }
 
     // 6. Vérifier si l'élément est visible (non bloquant sur mobile)
-    log('6. Checking if element is visible...');
+    log("6. Checking if element is visible...");
     const isVisible = await locator.isVisible();
     if (!isVisible) {
-      log('⚠️ Element not visible according to Playwright (z-index issue)');
-      log('⚠️ Using evaluate() to bypass z-index and fill directly');
+      log("⚠️ Element not visible according to Playwright (z-index issue)");
+      log("⚠️ Using evaluate() to bypass z-index and fill directly");
 
       // Sur mobile, le textarea est visuellement visible mais Playwright ne peut pas
       // interagir avec à cause du z-index. Solution : evaluate() complet.
@@ -342,18 +340,20 @@ export async function robustFill(
         el.click();
         el.focus();
       });
-      log('✅ Clicked + focused via evaluate()');
+      log("✅ Clicked + focused via evaluate()");
 
       // Étape 2 : Attendre React + auto-focus du composant via petit polling
       const focusStart = Date.now();
       while (Date.now() - focusStart < 800) {
         try {
-          const isFocused = await locator.evaluate((el: HTMLElement) => document.activeElement === el);
+          const isFocused = await locator.evaluate(
+            (el: HTMLElement) => document.activeElement === el,
+          );
           if (isFocused) break;
         } catch {
           // Ignorer et réessayer
         }
-        await locator.page().waitForLoadState('domcontentloaded');
+        await locator.page().waitForLoadState("domcontentloaded");
       }
 
       // Étape 3 : Remplir avec synthetic events React
@@ -361,7 +361,7 @@ export async function robustFill(
         // Utiliser le setter natif pour déclencher React
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
           window.HTMLTextAreaElement.prototype,
-          'value'
+          "value",
         )?.set;
 
         if (nativeInputValueSetter) {
@@ -371,11 +371,11 @@ export async function robustFill(
         }
 
         // Déclencher les événements React
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
         el.focus();
       }, text);
-      log('✅ Text filled via evaluate() with React events');
+      log("✅ Text filled via evaluate() with React events");
 
       // Attendre que React traite via vérification de la valeur
       const reactStart = Date.now();
@@ -389,13 +389,13 @@ export async function robustFill(
       if (value !== text) {
         throw new Error(`Fill verification failed: expected "${text}", got "${value}"`);
       }
-      log('✅ Fill verified');
+      log("✅ Fill verified");
       return;
     }
-    log('✅ Element visible');
+    log("✅ Element visible");
 
     // 7. Attendre un peu pour que les animations se terminent via polling visibilité
-    log('7. Waiting for animations to complete (polling up to 300ms)...');
+    log("7. Waiting for animations to complete (polling up to 300ms)...");
     const animStart = Date.now();
     while (Date.now() - animStart < 300) {
       const visible = await locator.isVisible().catch(() => false);
@@ -403,35 +403,35 @@ export async function robustFill(
     }
 
     // 8. Tenter le fill normal
-    log('8. Attempting normal fill...');
+    log("8. Attempting normal fill...");
     try {
       await locator.fill(text, { timeout: 3000 });
-      log('✅ Fill successful (normal)');
+      log("✅ Fill successful (normal)");
     } catch (e) {
-      log('⚠️ Normal fill failed, trying evaluate() fallback...');
+      log("⚠️ Normal fill failed, trying evaluate() fallback...");
 
       // Fallback: Utiliser evaluate() pour forcer la valeur (mobile, hidden inputs)
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
         el.value = value;
         // Déclencher les événements React
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
         // Focus pour activer les handlers
         el.focus();
       }, text);
-      log('✅ Fill successful (evaluate fallback)');
+      log("✅ Fill successful (evaluate fallback)");
     }
 
     // 9. Vérifier que le texte a bien été rempli
-    log('9. Verifying fill...');
+    log("9. Verifying fill...");
     const value = await locator.inputValue();
     if (value !== text) {
       log(`⚠️ Value mismatch: expected "${text}", got "${value}"`);
       // Réessayer une fois
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
         el.value = value;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
       }, text);
 
       const finalValue = await locator.inputValue();
@@ -439,10 +439,9 @@ export async function robustFill(
         throw new Error(`Fill verification failed: expected "${text}", got "${finalValue}"`);
       }
     }
-    log('✅ Fill verified');
-
+    log("✅ Fill verified");
   } catch (error) {
-    log('❌ robustFill failed:', error);
+    log("❌ robustFill failed:", error);
     throw error;
   }
 }
@@ -452,11 +451,14 @@ export async function robustFill(
  * Utilise addInitScript pour que l'état soit présent dès le premier document.
  */
 export async function seedLocalStorage(page: Page, polls: any[]) {
-  await page.addInitScript(({ polls }) => {
-    try {
-      localStorage.setItem('dev-polls', JSON.stringify(polls));
-    } catch { }
-  }, { polls });
+  await page.addInitScript(
+    ({ polls }) => {
+      try {
+        localStorage.setItem("dev-polls", JSON.stringify(polls));
+      } catch {}
+    },
+    { polls },
+  );
 }
 
 /**
@@ -465,9 +467,9 @@ export async function seedLocalStorage(page: Page, polls: any[]) {
  */
 export async function assertToast(page: Page, text: string, timeoutMs: number = 5000) {
   const candidates = [
-    page.getByRole('status'),
-    page.getByRole('alert'),
-    page.getByTestId('toast-root'),
+    page.getByRole("status"),
+    page.getByRole("alert"),
+    page.getByTestId("toast-root"),
     page.getByText(text, { exact: false }),
   ];
   const start = Date.now();
@@ -478,10 +480,10 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
           const has = await loc.first().getByText(text, { exact: false }).count();
           if (has || (await loc.first().textContent())?.includes(text)) return;
         }
-      } catch { }
+      } catch {}
     }
     // Utiliser un petit polling basé sur Date.now() sans attendre un timeout fixe élevé
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState("domcontentloaded");
   }
   await expect(page.getByText(text, { exact: false })).toBeVisible();
 }
@@ -490,40 +492,49 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 export async function warmup(page: Page) {
   // Warmup workspace (route principale pour les tests)
   // Warmup workspace (route principale pour les tests)
-  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
+  await page.reload({ waitUntil: "domcontentloaded" });
 }
 
 /**
  * Ouvre le dialogue de gestion tags/dossiers depuis une carte de conversation.
  * Helper réutilisable pour éviter la duplication de code dans les tests tags-folders.
- * 
+ *
  * @param page - La page Playwright
  * @param conversationCard - Le locator de la carte de conversation (optionnel, utilise la première si non fourni)
  * @returns Le locator du dialogue ouvert
  */
 export async function openTagsFolderDialog(
   page: Page,
-  conversationCard?: ReturnType<Page['locator']>
+  conversationCard?: ReturnType<Page["locator"]>,
 ) {
   // Utiliser la carte fournie ou prendre la première
-  const card = conversationCard || page.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .poll-item, .conversation-item').first();
+  const card =
+    conversationCard ||
+    page
+      .locator(
+        '[data-testid="poll-item"], [data-testid="conversation-item"], .poll-item, .conversation-item',
+      )
+      .first();
 
   // Attendre que la carte soit attachée
-  await card.waitFor({ state: 'attached', timeout: 20000 });
+  await card.waitFor({ state: "attached", timeout: 20000 });
 
   // Trouver le bouton menu : chercher le bouton contenant l'icône MoreVertical (SVG)
   // Le menu est généralement le dernier bouton visible dans la carte
-  const menuButton = card.locator('button').filter({ has: card.locator('svg') }).last();
+  const menuButton = card
+    .locator("button")
+    .filter({ has: card.locator("svg") })
+    .last();
 
   // Fallback : si pas trouvé par SVG, prendre le dernier bouton visible
-  const menuButtonCount = await card.locator('button').count();
+  const menuButtonCount = await card.locator("button").count();
   let finalMenuButton = menuButton;
   if (menuButtonCount > 0) {
     const isMenuButtonVisible = await menuButton.isVisible().catch(() => false);
     if (!isMenuButtonVisible) {
       // Prendre le dernier bouton visible
-      const buttons = card.locator('button');
+      const buttons = card.locator("button");
       for (let i = menuButtonCount - 1; i >= 0; i--) {
         const btn = buttons.nth(i);
         const isVisible = await btn.isVisible().catch(() => false);
@@ -536,20 +547,22 @@ export async function openTagsFolderDialog(
   }
 
   // Attendre et cliquer sur le bouton menu
-  await finalMenuButton.waitFor({ state: 'visible', timeout: 5000 });
+  await finalMenuButton.waitFor({ state: "visible", timeout: 5000 });
   await finalMenuButton.click();
 
   // Attendre que le menu dropdown s'ouvre
-  const manageMenuItem = page.getByText('Gérer les tags/dossier');
+  const manageMenuItem = page.getByText("Gérer les tags/dossier");
   await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
 
   // Cliquer sur "Gérer les tags/dossier"
   await manageMenuItem.click();
 
   // Attendre que le dialogue s'ouvre
-  const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+  const dialog = page
+    .locator('[role="dialog"]')
+    .filter({ hasText: "Gérer les tags et le dossier" });
   await expect(dialog).toBeVisible({ timeout: 5000 });
-  await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: 5000 });
 
   return dialog;
 }
@@ -560,21 +573,21 @@ export async function openTagsFolderDialog(
  */
 export async function verifyTagsFoldersLoaded(page: Page) {
   const tags = await page.evaluate(() => {
-    const stored = localStorage.getItem('doodates_tags');
+    const stored = localStorage.getItem("doodates_tags");
     return stored ? JSON.parse(stored) : null;
   });
 
   const folders = await page.evaluate(() => {
-    const stored = localStorage.getItem('doodates_folders');
+    const stored = localStorage.getItem("doodates_folders");
     return stored ? JSON.parse(stored) : null;
   });
 
   if (!tags || !Array.isArray(tags) || tags.length === 0) {
-    throw new Error('Tags not loaded in localStorage');
+    throw new Error("Tags not loaded in localStorage");
   }
 
   if (!folders || !Array.isArray(folders) || folders.length === 0) {
-    throw new Error('Folders not loaded in localStorage');
+    throw new Error("Folders not loaded in localStorage");
   }
 
   return { tags, folders };
@@ -583,7 +596,7 @@ export async function verifyTagsFoldersLoaded(page: Page) {
 /**
  * Authentifie un utilisateur réel dans le navigateur avec Supabase.
  * Utilise signInWithPassword pour une authentification complète qui sera détectée par AuthContext.
- * 
+ *
  * @param page - La page Playwright
  * @param options - Email et mot de passe pour l'authentification
  * @returns Les données de session et l'utilisateur
@@ -593,22 +606,26 @@ export async function authenticateWithSupabase(
   options: {
     email: string;
     password: string;
-  }
+  },
 ) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL_TEST ||
+    process.env.VITE_SUPABASE_URL ||
+    "https://outmbbisrrdiumlweira.supabase.co";
 
   // Récupérer la clé API depuis les variables d'environnement ou depuis le fichier .env.local
-  let supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY;
+  let supabaseAnonKey =
+    process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY;
 
   // Si la clé n'est pas disponible, essayer de la récupérer depuis l'application
   if (!supabaseAnonKey) {
     try {
       // Lire depuis .env.local si disponible
-      const fs = require('fs');
-      const path = require('path');
-      const envPath = path.join(process.cwd(), '.env.local');
+      const fs = require("fs");
+      const path = require("path");
+      const envPath = path.join(process.cwd(), ".env.local");
       if (fs.existsSync(envPath)) {
-        const envContent = fs.readFileSync(envPath, 'utf-8');
+        const envContent = fs.readFileSync(envPath, "utf-8");
         const match = envContent.match(/VITE_SUPABASE_ANON_KEY[=_](.+)/);
         if (match) {
           supabaseAnonKey = match[1].trim();
@@ -620,7 +637,9 @@ export async function authenticateWithSupabase(
   }
 
   if (!supabaseAnonKey) {
-    throw new Error('VITE_SUPABASE_ANON_KEY not found. Please set VITE_SUPABASE_ANON_KEY_TEST or VITE_SUPABASE_ANON_KEY in environment variables or .env.local');
+    throw new Error(
+      "VITE_SUPABASE_ANON_KEY not found. Please set VITE_SUPABASE_ANON_KEY_TEST or VITE_SUPABASE_ANON_KEY in environment variables or .env.local",
+    );
   }
 
   const result = await page.evaluate(
@@ -636,7 +655,9 @@ export async function authenticateWithSupabase(
         // Créer un nouveau client Supabase avec le CDN
         // Utiliser le module ES6 depuis CDN
         // @ts-ignore - Dynamic import from CDN is valid in browser context
-        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm' as any);
+        const { createClient } = await import(
+          "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" as any
+        );
         supabase = createClient(supabaseUrl, supabaseAnonKey, {
           auth: {
             autoRefreshToken: true,
@@ -657,7 +678,7 @@ export async function authenticateWithSupabase(
       }
 
       // Attendre un peu pour que la session soit bien stockée
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Vérifier que la session est bien stockée
       const { data: sessionData } = await supabase.auth.getSession();
@@ -672,7 +693,7 @@ export async function authenticateWithSupabase(
         },
       };
     },
-    { email: options.email, password: options.password, supabaseUrl, supabaseAnonKey }
+    { email: options.email, password: options.password, supabaseUrl, supabaseAnonKey },
   );
 
   if (result.error) {
@@ -685,9 +706,9 @@ export async function authenticateWithSupabase(
 /**
  * Mock l'authentification Supabase dans localStorage pour les tests E2E.
  * Si un vrai token Supabase est fourni, l'utilise. Sinon, crée un token mock.
- * 
+ *
  * @deprecated Préférer utiliser authenticateWithSupabase() pour une authentification réelle
- * 
+ *
  * @param page - La page Playwright
  * @param options - Options pour personnaliser l'authentification mockée
  */
@@ -699,34 +720,40 @@ export async function mockSupabaseAuth(
     accessToken?: string;
     expiresAt?: number;
     realSupabaseToken?: string; // Token JWT réel créé par Supabase
-  }
+  },
 ) {
-  const userId = options?.userId || 'test-user-id';
-  const email = options?.email || 'test@example.com';
+  const userId = options?.userId || "test-user-id";
+  const email = options?.email || "test@example.com";
 
   // Si un vrai token Supabase est fourni, l'utiliser
-  const accessToken = options?.realSupabaseToken || options?.accessToken || 'mock-token-12345';
+  const accessToken = options?.realSupabaseToken || options?.accessToken || "mock-token-12345";
   const expiresAt = options?.expiresAt || Date.now() + 3600000; // 1h dans le futur
 
   // Obtenir l'URL Supabase depuis les variables d'environnement
-  const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL_TEST ||
+    process.env.VITE_SUPABASE_URL ||
+    "https://outmbbisrrdiumlweira.supabase.co";
 
   // Extraire le projectId depuis l'URL Supabase
-  const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'outmbbisrrdiumlweira';
+  const projectId = supabaseUrl.split("//")[1]?.split(".")[0] || "outmbbisrrdiumlweira";
 
   await page.evaluate(
     ({ userId, email, accessToken, expiresAt, projectId }) => {
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: {
-          id: userId,
-          email: email,
-          aud: 'authenticated',
-        },
-        access_token: accessToken,
-        expires_at: expiresAt,
-      }));
+      localStorage.setItem(
+        `sb-${projectId}-auth-token`,
+        JSON.stringify({
+          user: {
+            id: userId,
+            email: email,
+            aud: "authenticated",
+          },
+          access_token: accessToken,
+          expires_at: expiresAt,
+        }),
+      );
     },
-    { userId, email, accessToken, expiresAt, projectId }
+    { userId, email, accessToken, expiresAt, projectId },
   );
 }
 
@@ -734,18 +761,18 @@ export async function mockSupabaseAuth(
  * Attend que la page soit complètement chargée, avec gestion spéciale pour Firefox.
  * Firefox peut avoir des problèmes avec `networkidle` qui ne se produit jamais,
  * donc on utilise 'load' + attente d'éléments spécifiques au lieu de 'networkidle'.
- * 
+ *
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur (pour adapter le comportement)
  * @param timeout - Timeout en ms (défaut: 20000 pour Firefox, pas de timeout pour les autres)
  */
 export async function waitForPageLoad(page: Page, browserName: string, timeout?: number) {
-  if (browserName === 'firefox') {
+  if (browserName === "firefox") {
     const firefoxTimeout = timeout || 20000; // Réduit à 20s au lieu de 30s
     // Essayer d'abord avec 'load' qui est plus rapide que 'networkidle'
-    await page.waitForLoadState('load', { timeout: firefoxTimeout }).catch(async () => {
+    await page.waitForLoadState("load", { timeout: firefoxTimeout }).catch(async () => {
       // Fallback: attendre un élément spécifique si load échoue
-      await page.waitForSelector('body', { timeout: 5000 });
+      await page.waitForSelector("body", { timeout: 5000 });
     });
 
     // Attendre un élément clé de l'app au lieu de networkidle
@@ -755,8 +782,8 @@ export async function waitForPageLoad(page: Page, browserName: string, timeout?:
         '[data-testid="chat-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
         {
           timeout: 20000,
-          state: 'attached' // 'attached' est plus rapide que 'visible'
-        }
+          state: "attached", // 'attached' est plus rapide que 'visible'
+        },
       );
     } catch {
       // Si aucun élément spécifique n'est trouvé, continuer quand même
@@ -764,16 +791,16 @@ export async function waitForPageLoad(page: Page, browserName: string, timeout?:
     }
   } else {
     if (timeout) {
-      await page.waitForLoadState('networkidle', { timeout });
+      await page.waitForLoadState("networkidle", { timeout });
     } else {
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState("networkidle");
     }
   }
 }
 
 /**
  * Nettoie le localStorage avec gestion d'erreurs de sécurité
- * 
+ *
  * @param page - La page Playwright
  * @param options - Options de nettoyage
  */
@@ -785,7 +812,7 @@ export interface ClearLocalStorageOptions {
 
 export async function clearLocalStorage(
   page: Page,
-  options?: ClearLocalStorageOptions
+  options?: ClearLocalStorageOptions,
 ): Promise<void> {
   const beforeNavigation = options?.beforeNavigation ?? false;
   const afterNavigation = options?.afterNavigation ?? true;
@@ -800,14 +827,14 @@ export async function clearLocalStorage(
   }
 
   if (afterNavigation) {
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
     try {
       await page.evaluate(() => localStorage.clear());
       if (waitAfterClear > 0) {
         const start = Date.now();
         while (Date.now() - start < waitAfterClear) {
           // Petit yield pour laisser la boucle d'événements avancer sans utiliser waitForTimeout direct
-          await page.waitForLoadState('domcontentloaded').catch(() => { });
+          await page.waitForLoadState("domcontentloaded").catch(() => {});
         }
       }
     } catch (e) {
@@ -818,7 +845,7 @@ export async function clearLocalStorage(
 
 /**
  * Navigue vers une URL et attend que la page soit prête
- * 
+ *
  * @param page - La page Playwright
  * @param url - L'URL vers laquelle naviguer
  * @param browserName - Le nom du navigateur
@@ -834,9 +861,9 @@ export async function navigateAndWait(
   page: Page,
   url: string,
   browserName: string,
-  options?: NavigateAndWaitOptions
+  options?: NavigateAndWaitOptions,
 ): Promise<void> {
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
   await waitForPageLoad(page, browserName);
 
   if (options?.waitForAppReady) {
@@ -852,15 +879,12 @@ export async function navigateAndWait(
 
 /**
  * Attend que l'application soit prête selon le type de page
- * 
+ *
  * @param page - La page Playwright
  * @param path - Le chemin de la page (défaut: '/workspace')
  */
-export async function waitForAppReady(
-  page: Page,
-  path: string = '/workspace'
-): Promise<void> {
-  if (path.includes('/workspace') || path.includes('/create/ai')) {
+export async function waitForAppReady(page: Page, path: string = "/workspace"): Promise<void> {
+  if (path.includes("/workspace") || path.includes("/create/ai")) {
     // Ne pas forcer un composant précis ici : simplement vérifier que
     // l'application n'est plus sur un écran blanc en attendant qu'au
     // moins un élément interactif soit visible. Les tests qui ont
@@ -868,18 +892,18 @@ export async function waitForAppReady(
 
     // Essayer plusieurs sélecteurs en ordre de préférence
     const selectors = [
-      'input, button, [role="button"]',  // Éléments interactifs
-      '[data-testid="chat-input"]',      // Champ de chat spécifique
-      'textarea',                        // Textareas
-      'a[href]',                         // Liens cliquables
-      'body',                            // Fallback : body visible
+      'input, button, [role="button"]', // Éléments interactifs
+      '[data-testid="chat-input"]', // Champ de chat spécifique
+      "textarea", // Textareas
+      "a[href]", // Liens cliquables
+      "body", // Fallback : body visible
     ];
 
     let elementFound = false;
     for (const selector of selectors) {
       try {
         await page.waitForSelector(selector, {
-          state: 'visible',
+          state: "visible",
           timeout: 5000, // Timeout plus court par sélecteur
         });
         elementFound = true;
@@ -893,7 +917,7 @@ export async function waitForAppReady(
     if (!elementFound) {
       // Si aucun élément trouvé, vérifier que la page n'est pas complètement blanche
       // et ajouter du diagnostic
-      console.log('⚠️ Aucun élément interactif trouvé, diagnostic de la page...');
+      console.log("⚠️ Aucun élément interactif trouvé, diagnostic de la page...");
 
       try {
         // Vérifier l'URL actuelle
@@ -901,7 +925,7 @@ export async function waitForAppReady(
         console.log(`URL actuelle: ${currentUrl}`);
 
         // Vérifier le contenu de la page
-        const bodyText = await page.locator('body').textContent() || '';
+        const bodyText = (await page.locator("body").textContent()) || "";
         console.log(`Contenu body (premiers 200 chars): ${bodyText.substring(0, 200)}`);
 
         // Vérifier s'il y a des erreurs console
@@ -909,36 +933,37 @@ export async function waitForAppReady(
           const errors: string[] = [];
           const originalError = console.error;
           console.error = (...args) => {
-            errors.push(args.join(' '));
+            errors.push(args.join(" "));
             originalError.apply(console, args);
           };
           return errors;
         });
 
         if (logs.length > 0) {
-          console.log('Erreurs console détectées:', logs);
+          console.log("Erreurs console détectées:", logs);
         }
 
         // Vérifier si l'application est en état de chargement
-        const loadingElements = await page.locator('[class*="loading"], [class*="spinner"], [data-testid*="loading"]').count();
+        const loadingElements = await page
+          .locator('[class*="loading"], [class*="spinner"], [data-testid*="loading"]')
+          .count();
         if (loadingElements > 0) {
           console.log(`Éléments de chargement trouvés: ${loadingElements}`);
         }
-
       } catch (diagError) {
-        console.log('Erreur pendant le diagnostic:', diagError);
+        console.log("Erreur pendant le diagnostic:", diagError);
       }
 
       // Finalement, vérifier que le body est visible
-      await expect(page.locator('body')).toBeVisible({ timeout: 20000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: 20000 });
     }
-  } else if (path.includes('/dashboard')) {
+  } else if (path.includes("/dashboard")) {
     await page.waitForSelector('[data-testid="dashboard-ready"]', {
-      state: 'visible',
+      state: "visible",
       timeout: 20000,
     });
     await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
-  } else if (path.includes('/poll/') && path.includes('/results')) {
+  } else if (path.includes("/poll/") && path.includes("/results")) {
     await expect(page.getByText(/Résultats/i).first()).toBeVisible({
       timeout: 15000,
     });
@@ -947,10 +972,10 @@ export async function waitForAppReady(
 
 /**
  * Logger conditionnel basé sur DEBUG_E2E
- * 
+ *
  * @param scope - Le scope du logger (ex: 'TestName')
  * @returns Une fonction de log qui ne log que si DEBUG_E2E=1
- * 
+ *
  * @example
  * ```typescript
  * const log = createLogger('MyTest');
@@ -958,7 +983,7 @@ export async function waitForAppReady(
  * ```
  */
 export function createLogger(scope: string) {
-  const debug = process.env.DEBUG_E2E === '1';
+  const debug = process.env.DEBUG_E2E === "1";
   return (...parts: any[]) => {
     if (debug) console.log(`[${scope}]`, ...parts);
   };
@@ -966,11 +991,11 @@ export function createLogger(scope: string) {
 
 /**
  * Screenshot conditionnel basé sur DEBUG_E2E
- * 
+ *
  * @param page - La page Playwright
  * @param name - Le nom du screenshot
  * @param options - Options pour le screenshot
- * 
+ *
  * @example
  * ```typescript
  * await debugScreenshot(page, 'before-action');
@@ -979,9 +1004,9 @@ export function createLogger(scope: string) {
 export async function debugScreenshot(
   page: Page,
   name: string,
-  options?: { fullPage?: boolean }
+  options?: { fullPage?: boolean },
 ): Promise<void> {
-  if (process.env.DEBUG_E2E === '1') {
+  if (process.env.DEBUG_E2E === "1") {
     await page.screenshot({
       path: `test-results/DEBUG-${name}.png`,
       fullPage: options?.fullPage ?? true,
@@ -992,39 +1017,39 @@ export async function debugScreenshot(
 /**
  * Product-specific route constants for E2E tests
  * Centralized route management for the 3 separate products
- * 
+ *
  * ⚠️ IMPORTANT: All routes MUST include /DooDates/ prefix!
  * This matches Vite's base="/DooDates/" configuration
  * Do NOT remove the prefix or tests will fail on GitHub Pages deployment
  */
 export const PRODUCT_ROUTES = {
   datePoll: {
-    landing: '/DooDates/date-polls',
-    workspace: '/DooDates/date-polls/workspace/date',
-    dashboard: '/DooDates/date-polls/dashboard',
-    docs: '/DooDates/date-polls/docs',
-    pricing: '/DooDates/date-polls/pricing',
+    landing: "/DooDates/date-polls",
+    workspace: "/DooDates/date-polls/workspace/date",
+    dashboard: "/DooDates/date-polls/dashboard",
+    docs: "/DooDates/date-polls/docs",
+    pricing: "/DooDates/date-polls/pricing",
   },
   formPoll: {
-    landing: '/DooDates/form-polls',
-    workspace: '/DooDates/form-polls/workspace/form',
-    dashboard: '/DooDates/form-polls/dashboard',
-    docs: '/DooDates/form-polls/docs',
-    pricing: '/DooDates/form-polls/pricing',
+    landing: "/DooDates/form-polls",
+    workspace: "/DooDates/form-polls/workspace/form",
+    dashboard: "/DooDates/form-polls/dashboard",
+    docs: "/DooDates/form-polls/docs",
+    pricing: "/DooDates/form-polls/pricing",
   },
   availabilityPoll: {
-    landing: '/DooDates/availability-polls',
-    workspace: '/DooDates/availability-polls/workspace/availability',
-    dashboard: '/DooDates/availability-polls/dashboard',
-    docs: '/DooDates/availability-polls/docs',
-    pricing: '/DooDates/availability-polls/pricing',
+    landing: "/DooDates/availability-polls",
+    workspace: "/DooDates/availability-polls/workspace/availability",
+    dashboard: "/DooDates/availability-polls/dashboard",
+    docs: "/DooDates/availability-polls/docs",
+    pricing: "/DooDates/availability-polls/pricing",
   },
   quizz: {
-    landing: '/DooDates/quizz',
-    workspace: '/DooDates/quizz/workspace',
-    dashboard: '/DooDates/quizz/dashboard',
-    docs: '/DooDates/quizz/docs',
-    pricing: '/DooDates/quizz/pricing',
+    landing: "/DooDates/quizz",
+    workspace: "/DooDates/quizz/workspace",
+    dashboard: "/DooDates/quizz/dashboard",
+    docs: "/DooDates/quizz/docs",
+    pricing: "/DooDates/quizz/pricing",
   },
 } as const;
 
@@ -1033,9 +1058,9 @@ export const PRODUCT_ROUTES = {
  * These are kept for backwards compatibility testing
  */
 export const LEGACY_ROUTES = {
-  createDate: '/create/date',
-  createForm: '/create/form',
-  createAvailability: '/create/availability',
-  createAI: '/create/ai',
-  dashboard: '/dashboard',
+  createDate: "/create/date",
+  createForm: "/create/form",
+  createAvailability: "/create/availability",
+  createAI: "/create/ai",
+  dashboard: "/dashboard",
 } as const;

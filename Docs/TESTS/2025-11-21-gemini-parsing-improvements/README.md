@@ -6,6 +6,7 @@
 ## Fichiers de test
 
 ### Scripts de test
+
 - `test-chrono-weaknesses.js` : Test des faiblesses de chrono-node
 - `test-chrono-translation.js` : Test de la traduction français → anglais
 - `test-translation-comparison.js` : Comparaison des approches de traduction
@@ -13,6 +14,7 @@
 - `test-translation-libraries.js` : Test des librairies de traduction
 
 ### Rapports générés
+
 - `chrono-weaknesses-report.md` : Faiblesses identifiées de chrono-node
 - `chrono-translation-report.md` : Résultats de la traduction
 - `translation-comparison-report.md` : Comparaison détaillée des approches
@@ -24,17 +26,20 @@
 ## Résultats clés
 
 ### Faiblesses chrono-node
+
 - **Taux de réussite FR** : 33% (6/18 tests)
 - **Taux de réussite EN** : 100% (10/10 tests avec traduction)
 - **Amélioration** : +67% avec traduction
 
 ### Comparaison des approches
+
 - **Baseline** : 40% réussite, score 76.0%
 - **Traduction manuelle** : 95% réussite, score 98.0% 🏆
 - **Gemini** : 95% réussite, score 83.0%
 - **Hybride** : 95% réussite, score 91.5%
 
 ### Décision
+
 ✅ **Traduction manuelle** choisie (meilleur compromis performance/coût/fiabilité)
 
 ## Améliorations implémentées
@@ -60,4 +65,3 @@
 - `src/lib/temporalTranslator.ts` : Module de traduction dédié
 - `src/test/gemini-comprehensive.test.ts` : Validations améliorées
 - `src/lib/gemini.ts` : Prompts améliorés + extraction mots-clés
-

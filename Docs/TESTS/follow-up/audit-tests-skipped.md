@@ -1,11 +1,13 @@
 # Audit des Tests Skippés - 13 novembre 2025
 
 ## Objectif
+
 Vérifier que tous les tests sont robustes et identifier les tests skippés qui doivent être réactivés ou documentés.
 
 ## 📊 Résumé
 
 ### Tests E2E Skippés
+
 - **Total** : ~35 tests skippés dans 12 fichiers
 - **Catégories** :
   - Tests conditionnels (production, mobile) : ~5 tests
@@ -15,6 +17,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
   - Tests désactivés intentionnellement : ~8 tests
 
 ### Tests Unitaires Skippés
+
 - **Total** : ~35 tests skippés dans 5 fichiers
 - **Catégories** :
   - Suite complète désactivée : `useAiMessageQuota` (22 tests)
@@ -25,11 +28,13 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ### Tests E2E
 
 #### 1. `quota-tracking-complete.spec.ts` - 8 tests skipés
+
 - **Lignes** : 495, 1707, 1732, 1760, 1799, 1817, 1911, 1942
 - **Raison** : À vérifier (probablement tests conditionnels ou en développement)
 - **Action** : Vérifier si ces tests doivent être réactivés
 
 #### 2. `beta-key-activation.spec.ts` - 6 tests skipés
+
 - **4 tests** : Skipés sur WebKit uniquement (lignes 86, 140, 193, 246)
   - **Raison** : `page.route()` non fiable sur Safari/WebKit
   - **Statut** : ✅ Documenté et justifié
@@ -38,12 +43,14 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
   - **Statut** : ✅ Documenté (tests optionnels)
 
 #### 3. `mobile-voting.spec.ts` - 1 test skipé
+
 - **Ligne** : 32
 - **Raison** : Skipé sur tous les navigateurs sauf Chromium
   - **Note** : Optimisation pour Chrome uniquement (décision utilisateur)
 - **Statut** : ✅ Documenté
 
 #### 4. `analytics-ai.spec.ts` - 1 test + 5 describe.skip
+
 - **Test skipé** : "2. Quick Queries" (ligne 442)
   - **Raison** : Tag `@flaky` - même problème que `analytics-ai-optimized.spec.ts`
   - **Statut** : ✅ Documenté dans le guide
@@ -52,11 +59,13 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
   - **Statut** : ✅ Intentionnel (version optimisée utilisée à la place)
 
 #### 5. `console-errors.spec.ts` - 1 test skipé
+
 - **Ligne** : 182
 - **Raison** : Skipé sur WebKit uniquement (mocks Edge Function non fiables)
 - **Statut** : ✅ Documenté
 
 #### 6. `form-poll-regression.spec.ts` - 3 tests skipés
+
 - **1 test** : Skipé sur Firefox/Safari (ligne 52)
   - **Raison** : Shared context non supporté
   - **Statut** : ✅ Documenté
@@ -65,11 +74,13 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
   - **Statut** : ✅ Documenté
 
 #### 7. `supabase-integration-manual.spec.ts` - 7 tests skipés
+
 - **Lignes** : 202, 497, 669, 751, 840, 927, 1066
 - **Raison** : À vérifier (probablement tests conditionnels ou en développement)
 - **Action** : Vérifier si ces tests doivent être réactivés
 
 #### 8. `analytics-ai-optimized.spec.ts` - 3 tests skipés
+
 - **1 test** : Skipé sur Firefox/Safari (ligne 195)
   - **Raison** : Shared context non supporté
   - **Statut** : ✅ Documenté
@@ -78,21 +89,25 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
   - **Statut** : ✅ Documenté dans le guide (section dédiée)
 
 #### 9. `production-smoke.spec.ts` - 2 tests skipés
+
 - **Lignes** : 445, 516
 - **Raison** : Tests exécutés uniquement en production GitHub Pages (`!isProd`)
 - **Statut** : ✅ Intentionnel (tests conditionnels)
 
 #### 10. `dashboard-complete.spec.ts` - 1 test skipé
+
 - **Ligne** : 350
 - **Raison** : Table view non disponible sur mobile
 - **Statut** : ✅ Documenté
 
 #### 11. `supabase-integration.spec.ts` - 1 describe.skip complet
+
 - **Ligne** : 17
 - **Raison** : À vérifier (probablement remplacé par `supabase-integration-manual.spec.ts`)
 - **Action** : Vérifier si ce fichier doit être supprimé ou réactivé
 
 #### 12. `docs-production.spec.ts` - 1 test skipé
+
 - **Ligne** : 22
 - **Raison** : À vérifier
 - **Action** : Vérifier si ce test doit être réactivé
@@ -100,27 +115,32 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ### Tests Unitaires
 
 #### 1. `useAiMessageQuota.test.ts` - 1 describe.skip complet (22 tests)
+
 - **Ligne** : 73
 - **Raison** : Problèmes de timers (`vi.useFakeTimers()`) et React DOM
 - **Statut** : ✅ Documenté dans le guide (section dédiée)
 - **Action** : Corriger les problèmes de timers (priorité moyenne)
 
 #### 2. `MultiStepFormVote.test.tsx` - 5 tests skipés
+
 - **Lignes** : 193, 219, 366, 391, 432
 - **Raison** : À vérifier
 - **Action** : Vérifier si ces tests doivent être réactivés
 
 #### 3. `usePollConversationLink.test.ts` - 1 test skipé
+
 - **Ligne** : 260
 - **Raison** : À vérifier
 - **Action** : Vérifier si ce test doit être réactivé
 
 #### 4. `ConversationCard.test.tsx` - 4 tests skipés
+
 - **Lignes** : 239, 262, 290, 322
 - **Raison** : Tests de renommage (rename mode)
 - **Action** : Vérifier si ces tests doivent être réactivés
 
 #### 5. `ConversationActions.test.tsx` - 3 tests skipés
+
 - **Lignes** : 163, 262, 350
 - **Raison** : Tests d'actions (unarchive, delete, copy link)
 - **Action** : Vérifier si ces tests doivent être réactivés
@@ -128,6 +148,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ## ✅ Tests Robustes et Actifs
 
 ### Tests E2E Récemment Corrigés
+
 - ✅ `tags-folders.spec.ts` - 6/6 tests passent
 - ✅ `form-poll-regression.spec.ts` - 4/4 tests passent (corrigé sharding)
 - ✅ `form-poll-results-access.spec.ts` - 5/5 tests passent
@@ -144,6 +165,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 - ✅ `production-smoke.spec.ts` - 10/10 tests passent (2 skipés conditionnels)
 
 ### Tests Unitaires Récemment Corrigés
+
 - ✅ `useAutoSave.test.ts` - 13/13 tests passent
 - ✅ `titleGeneration.useAutoSave.test.ts` - 9/9 tests passent
 - ✅ `useAutoSave.titleGeneration.test.ts` - 1/1 test passe
@@ -154,6 +176,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ### Priorité 1 : Tests à Réactiver (Fonctionnalités Critiques)
 
 #### Tests E2E
+
 1. **`quota-tracking-complete.spec.ts`** - 8 tests skipés
    - **Action** : Vérifier pourquoi ces tests sont skipés et les réactiver si nécessaire
    - **Impact** : Tests de tracking de quotas (fonctionnalité critique)
@@ -163,6 +186,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
    - **Impact** : Tests d'intégration Supabase (fonctionnalité critique)
 
 #### Tests Unitaires
+
 1. **`useAiMessageQuota.test.ts`** - 22 tests skipés
    - **Action** : Corriger les problèmes de timers et React DOM
    - **Impact** : Tests de quota de messages IA (fonctionnalité critique)
@@ -192,6 +216,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ## 📋 Checklist de Vérification
 
 ### Tests E2E
+
 - [x] `tags-folders.spec.ts` - ✅ Tous robustes
 - [x] `form-poll-regression.spec.ts` - ✅ Tous robustes (corrigé sharding)
 - [x] `form-poll-results-access.spec.ts` - ✅ Tous robustes
@@ -213,6 +238,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 - [ ] `dashboard-complete.spec.ts` - ✅ Robustes (skipé mobile documenté)
 
 ### Tests Unitaires
+
 - [x] `useAutoSave.test.ts` - ✅ Tous robustes
 - [x] `titleGeneration.useAutoSave.test.ts` - ✅ Tous robustes
 - [x] `useAutoSave.titleGeneration.test.ts` - ✅ Tous robustes
@@ -226,6 +252,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ## 🎯 Recommandations
 
 ### Actions Immédiates
+
 1. **Vérifier les tests skipés dans `quota-tracking-complete.spec.ts`** (8 tests)
    - Ces tests semblent être des tests conditionnels ou en développement
    - Vérifier s'ils doivent être réactivés ou supprimés
@@ -238,6 +265,7 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
    - Vérifier si ce fichier doit être supprimé (remplacé par `supabase-integration-manual.spec.ts`)
 
 ### Actions à Planifier
+
 1. **Corriger `useAiMessageQuota.test.ts`** (22 tests)
    - Problèmes de timers et React DOM
    - Documenté dans le guide, correction planifiée
@@ -251,18 +279,20 @@ Vérifier que tous les tests sont robustes et identifier les tests skippés qui 
 ## 📊 Statistiques Finales
 
 ### Tests E2E
+
 - **Total fichiers** : 25 fichiers
 - **Tests actifs** : ~81 tests
 - **Tests skipés** : ~35 tests
 - **Tests robustes** : ✅ 81/81 tests actifs sont robustes
 
 ### Tests Unitaires
+
 - **Total fichiers** : 62 fichiers
 - **Tests actifs** : ~850 tests
 - **Tests skipés** : ~35 tests
 - **Tests robustes** : ✅ 850/850 tests actifs sont robustes
 
 ### Conclusion
+
 ✅ **Tous les tests actifs sont robustes**  
 ⚠️ **~70 tests skipés nécessitent une vérification ou documentation**
-

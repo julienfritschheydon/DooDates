@@ -1,7 +1,7 @@
 # Utilisateurs (Praticien) - Documentation
 
-*Documentation pour les professionnels utilisant DooDates*  
-*Date : Décembre 2025*
+_Documentation pour les professionnels utilisant DooDates_  
+_Date : Décembre 2025_
 
 ---
 
@@ -16,11 +16,13 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 ### 1. Création de sondages
 
 #### Sondages de dates classiques
+
 - Créer un sondage avec plusieurs dates/heures proposées
 - Les clients votent pour leurs créneaux préférés
 - Vous sélectionnez le créneau final
 
 #### Sondages de disponibilités (Agenda Intelligent)
+
 - Créer un sondage "inversé" où les clients indiquent leurs disponibilités
 - Le système propose automatiquement les créneaux optimaux depuis votre calendrier
 - Les clients valident directement → événement créé automatiquement
@@ -28,11 +30,13 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 ### 2. Intégration calendrier
 
 #### Connexion Google Calendar
+
 - Connecter votre compte Google Calendar
 - Le système lit automatiquement vos créneaux occupés/libres
 - Création automatique des événements après validation client
 
 #### Configuration
+
 - Activer l'intégration dans les paramètres
 - Autoriser l'accès à votre calendrier
 - Les événements sont créés dans votre calendrier principal
@@ -40,6 +44,7 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 ### 3. Règles d'optimisation intelligentes
 
 #### Configuration des règles
+
 - **Durée standard** : Durée par défaut d'un créneau (ex: 60 min)
 - **Temps entre séances** : Minimiser les gaps dans votre agenda
 - **Prioriser créneaux proches** : Planifier rapidement les rendez-vous
@@ -47,6 +52,7 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 - **Heures préférées** : Définir vos horaires préférés par jour
 
 #### Optimisation automatique
+
 - Le système analyse votre calendrier
 - Propose les créneaux qui minimisent les gaps
 - Priorise les créneaux proches dans le temps
@@ -85,6 +91,7 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 **Problème** : Votre agenda est fragmenté avec de nombreux petits créneaux libres.
 
 **Solution** :
+
 - Activer "Groupement demi-journées" dans les règles
 - Activer "Minimiser les gaps" (temps minimum entre séances)
 - Le système proposera des créneaux qui remplissent les gaps existants
@@ -94,6 +101,7 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 **Problème** : Vous voulez planifier les rendez-vous rapidement.
 
 **Solution** :
+
 - Activer "Prioriser les créneaux proches" dans les règles
 - Le système proposera d'abord les créneaux dans les 7 prochains jours
 
@@ -102,6 +110,7 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 **Problème** : Vous ne travaillez que certains jours/heures.
 
 **Solution** :
+
 - Configurer "Heures préférées par jour" dans les règles
 - Le système ne proposera que les créneaux dans ces plages horaires
 
@@ -110,14 +119,17 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 ## ⚠️ Limitations connues
 
 ### Calendrier
+
 - **Phase 1** : Support Google Calendar uniquement
 - **Phase 2** : Outlook et iCloud si demandés
 
 ### Clients anonymes
+
 - Les clients n'ont pas besoin de compte pour voter/valider
 - Pas de suivi individuel des préférences clients
 
 ### Gestion conflits
+
 - Réservation temporaire de 15 minutes lors de la sélection
 - Vérification avant validation finale
 
@@ -126,10 +138,10 @@ Cette documentation s'adresse aux **professionnels libéraux** (thérapeutes, co
 ## 📞 Support
 
 Pour toute question ou problème :
+
 - Consulter la documentation complète : `Docs/FEEDBACK-AGENDA-INTELLIGENT.md`
 - Vérifier les tests E2E : `tests/e2e/availability-poll-workflow.spec.ts`
 
 ---
 
-*Document créé : Décembre 2025*
-
+_Document créé : Décembre 2025_

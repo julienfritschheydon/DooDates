@@ -2,7 +2,7 @@
  * Utilitaires pour gérer les différences entre navigateurs dans les tests.
  */
 
-export type BrowserName = 'chromium' | 'firefox' | 'webkit';
+export type BrowserName = "chromium" | "firefox" | "webkit";
 
 /**
  * Retourne les timeouts adaptés au navigateur
@@ -23,13 +23,13 @@ export function getTimeouts(browserName: BrowserName) {
 
   // Ajustements spécifiques au navigateur
   switch (browserName) {
-    case 'webkit': // Safari
+    case "webkit": // Safari
       return {
         ...timeouts,
         navigation: 45000, // 45 secondes pour WebKit
         element: 20000, // 20 secondes
       };
-    case 'firefox':
+    case "firefox":
       return {
         ...timeouts,
         navigation: 35000, // 35 secondes pour Firefox
@@ -46,19 +46,19 @@ export function getTimeouts(browserName: BrowserName) {
 export async function waitForStableElement(
   locator: any,
   timeout = 1000,
-  stabilityDelay = 500
+  stabilityDelay = 500,
 ): Promise<void> {
   const startTime = Date.now();
   let lastChange = Date.now();
   let lastRect = await locator.boundingBox();
-  
+
   // Vérifier les changements pendant le timeout
   while (Date.now() - startTime < timeout) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const currentRect = await locator.boundingBox();
     const hasChanged = !rectsEqual(lastRect, currentRect);
-    
+
     if (hasChanged) {
       lastChange = Date.now();
       lastRect = currentRect;
@@ -67,9 +67,9 @@ export async function waitForStableElement(
       return;
     }
   }
-  
+
   // Si on arrive ici, le timeout a été atteint
-  console.warn('waitForStableElement: timeout atteint sans stabilité détectée');
+  console.warn("waitForStableElement: timeout atteint sans stabilité détectée");
 }
 
 /**
@@ -77,12 +77,7 @@ export async function waitForStableElement(
  */
 function rectsEqual(a: any, b: any): boolean {
   if (!a || !b) return false;
-  return (
-    a.x === b.x &&
-    a.y === b.y &&
-    a.width === b.width &&
-    a.height === b.height
-  );
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
 /**
@@ -91,16 +86,16 @@ function rectsEqual(a: any, b: any): boolean {
 export async function waitForCondition(
   condition: () => Promise<boolean>,
   timeout = 10000,
-  interval = 200
+  interval = 200,
 ): Promise<boolean> {
   const startTime = Date.now();
-  
+
   while (Date.now() - startTime < timeout) {
     if (await condition()) {
       return true;
     }
-    await new Promise(resolve => setTimeout(resolve, interval));
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
-  
+
   return false;
 }

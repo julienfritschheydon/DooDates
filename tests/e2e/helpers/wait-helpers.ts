@@ -3,24 +3,24 @@
  * Ces fonctions attendent des conditions réelles plutôt que des délais arbitraires
  */
 
-import { Page, expect } from '@playwright/test';
-import { getTimeouts } from '../config/timeouts';
+import { Page, expect } from "@playwright/test";
+import { getTimeouts } from "../config/timeouts";
 
 /**
  * Attend qu'un élément soit prêt (visible + stable)
  * Remplace les waitForTimeout() après des actions sur des éléments
- * 
+ *
  * @param page - La page Playwright
  * @param selector - Sélecteur de l'élément
  * @param options - Options d'attente
  * @returns Le locator de l'élément prêt
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await button.click();
  * await page.waitForTimeout(500);
- * 
+ *
  * // ✅ APRÈS
  * await button.click();
  * await waitForElementReady(page, '[data-testid="dialog"]');
@@ -31,17 +31,17 @@ export async function waitForElementReady(
   selector: string,
   options?: {
     timeout?: number;
-    state?: 'visible' | 'attached' | 'hidden';
+    state?: "visible" | "attached" | "hidden";
     browserName?: string;
     first?: boolean; // Si true, utilise .first() pour éviter strict mode violation
-  }
-): Promise<ReturnType<Page['locator']>> {
+  },
+): Promise<ReturnType<Page["locator"]>> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const timeout = options?.timeout ?? timeouts.element;
-  const state = options?.state ?? 'visible';
+  const state = options?.state ?? "visible";
   const useFirst = options?.first ?? true; // Par défaut, utiliser .first()
 
   const locator = useFirst ? page.locator(selector).first() : page.locator(selector);
@@ -72,16 +72,16 @@ export async function waitForElementReady(
 /**
  * Attend que le réseau soit inactif (plus de requêtes en cours)
  * Plus intelligent que waitForTimeout() car attend une condition réelle
- * 
+ *
  * @param page - La page Playwright
  * @param options - Options d'attente
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await page.goto('/DooDates/dashboard');
  * await page.waitForTimeout(2000);
- * 
+ *
  * // ✅ APRÈS
  * await page.goto('/DooDates/dashboard');
  * await waitForNetworkIdle(page, { browserName });
@@ -93,11 +93,11 @@ export async function waitForNetworkIdle(
     timeout?: number;
     browserName?: string;
     idleTime?: number; // Temps d'inactivité requis (ms)
-  }
+  },
 ): Promise<void> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const timeout = options?.timeout ?? timeouts.network;
   const idleTime = options?.idleTime ?? 500;
@@ -108,38 +108,40 @@ export async function waitForNetworkIdle(
   // une courte période d'inactivité.
 
   const isProblematicBrowser =
-    options?.browserName === 'firefox' ||
-    options?.browserName === 'webkit' ||
-    options?.browserName === 'Mobile Safari';
+    options?.browserName === "firefox" ||
+    options?.browserName === "webkit" ||
+    options?.browserName === "Mobile Safari";
 
   if (isProblematicBrowser) {
-    await page.waitForLoadState('domcontentloaded', { timeout });
+    await page.waitForLoadState("domcontentloaded", { timeout });
     const start = Date.now();
     let lastRequestCount = 0;
     while (Date.now() - start < idleTime) {
       // Utiliser une évaluation légère pour détecter l'activité réseau approximative via performance API
-      const entries = await page.evaluate(() => performance.getEntriesByType('resource').length).catch(() => 0);
+      const entries = await page
+        .evaluate(() => performance.getEntriesByType("resource").length)
+        .catch(() => 0);
       if (entries === lastRequestCount) break;
       lastRequestCount = entries;
     }
   } else {
-    await page.waitForLoadState('networkidle', { timeout });
+    await page.waitForLoadState("networkidle", { timeout });
   }
 }
 
 /**
  * Attend que React ait fini de rendre (stabilité du DOM)
  * Détecte quand les composants React sont stables après un re-render
- * 
+ *
  * @param page - La page Playwright
  * @param options - Options d'attente
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await input.fill('text');
  * await page.waitForTimeout(500);
- * 
+ *
  * // ✅ APRÈS
  * await input.fill('text');
  * await waitForReactStable(page);
@@ -151,11 +153,11 @@ export async function waitForReactStable(
     timeout?: number;
     browserName?: string;
     maxWaitTime?: number; // Temps maximum d'attente (ms)
-  }
+  },
 ): Promise<void> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const maxWaitTime = options?.maxWaitTime ?? timeouts.stability;
 
@@ -179,24 +181,24 @@ export async function waitForReactStable(
     }
 
     // Laisser la boucle d'événements avancer via un petit yield basé sur l'état de chargement
-    await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => { });
+    await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
   }
 }
 
 /**
  * Attend que les animations CSS soient terminées
  * Détecte quand les transitions/animation CSS sont complètes
- * 
+ *
  * @param page - La page Playwright
  * @param selector - Sélecteur de l'élément animé (optionnel, vérifie tout le body si non fourni)
  * @param options - Options d'attente
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await dialog.click();
  * await page.waitForTimeout(300);
- * 
+ *
  * // ✅ APRÈS
  * await dialog.click();
  * await waitForAnimationComplete(page, '[role="dialog"]');
@@ -208,11 +210,11 @@ export async function waitForAnimationComplete(
   options?: {
     timeout?: number;
     browserName?: string;
-  }
+  },
 ): Promise<void> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const timeout = options?.timeout ?? timeouts.animation;
 
@@ -232,7 +234,7 @@ export async function waitForAnimationComplete(
           const animations = element.getAnimations();
           const transitions = window.getComputedStyle(element).transition;
 
-          if (animations.length === 0 && (!transitions || transitions === 'none')) {
+          if (animations.length === 0 && (!transitions || transitions === "none")) {
             resolve();
             return;
           }
@@ -249,24 +251,24 @@ export async function waitForAnimationComplete(
         checkAnimations();
       });
     },
-    { selector, timeout }
+    { selector, timeout },
   );
 }
 
 /**
  * Attend qu'une condition soit vraie avec polling
  * Plus flexible que waitForTimeout() car vérifie une condition réelle
- * 
+ *
  * @param page - La page Playwright
  * @param condition - Fonction qui retourne true quand la condition est remplie
  * @param options - Options d'attente
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await action();
  * await page.waitForTimeout(1000);
- * 
+ *
  * // ✅ APRÈS
  * await action();
  * await waitForCondition(page, () => {
@@ -281,11 +283,11 @@ export async function waitForCondition(
     timeout?: number;
     interval?: number;
     browserName?: string;
-  }
+  },
 ): Promise<void> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const timeout = options?.timeout ?? timeouts.element;
   const interval = options?.interval ?? 100;
@@ -298,7 +300,7 @@ export async function waitForCondition(
       return;
     }
     // Utiliser un yield léger au lieu d'un timeout fixe direct
-    await page.waitForLoadState('domcontentloaded').catch(() => { });
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
     const now = Date.now();
     if (now - startTime + interval > timeout) break;
   }
@@ -309,32 +311,32 @@ export async function waitForCondition(
 /**
  * Attend qu'un élément soit visible ET stable (pas de changement récent)
  * Combine visibilité + stabilité pour éviter les race conditions
- * 
+ *
  * @param locator - Le locator Playwright
  * @param options - Options d'attente
- * 
+ *
  * @example
  * ```typescript
  * // ❌ AVANT
  * await page.goto('/DooDates/dashboard');
  * await page.waitForTimeout(1000);
- * 
+ *
  * // ✅ APRÈS
  * await page.goto('/DooDates/dashboard');
  * await waitForVisibleAndStable(page.locator('[data-testid="poll-item"]'), { browserName });
  * ```
  */
 export async function waitForVisibleAndStable(
-  locator: ReturnType<Page['locator']>,
+  locator: ReturnType<Page["locator"]>,
   options?: {
     timeout?: number;
     browserName?: string;
     stabilityTime?: number;
-  }
+  },
 ): Promise<void> {
   const timeouts = options?.browserName
     ? getTimeouts(options.browserName)
-    : getTimeouts('chromium');
+    : getTimeouts("chromium");
 
   const timeout = options?.timeout ?? timeouts.element;
   const stabilityTime = options?.stabilityTime ?? timeouts.stability;
@@ -373,7 +375,7 @@ export async function waitForChatInputReady(
   page: Page,
   browserName: string,
   options?: { timeout?: number },
-): Promise<ReturnType<Page['locator']>> {
+): Promise<ReturnType<Page["locator"]>> {
   // Timeout augmenté pour CI : 30000ms au lieu de 15000ms
   const timeout = options?.timeout ?? 30000;
 
@@ -382,25 +384,30 @@ export async function waitForChatInputReady(
   // Simplifié : le chat input est toujours [data-testid="chat-input"]
   // Inutile de passer par les fallbacks complexes
   const chatInput = page.locator('[data-testid="chat-input"]').first();
-  
+
   try {
-    await chatInput.waitFor({ state: 'visible', timeout });
+    await chatInput.waitFor({ state: "visible", timeout });
     console.log('✅ Chat input [data-testid="chat-input"] trouvé');
     return chatInput;
   } catch (error) {
     // Debug simple en cas d'échec
-    const bodyVisible = await page.locator('body').isVisible().catch(() => false);
-    const pageTitle = await page.title().catch(() => 'No title');
-    
+    const bodyVisible = await page
+      .locator("body")
+      .isVisible()
+      .catch(() => false);
+    const pageTitle = await page.title().catch(() => "No title");
+
     console.log(`🔍 Debug CI - Body visible: ${bodyVisible}, Title: ${pageTitle}`);
-    
+
     // Si la page est chargée mais pas de chat input, retourner un élément neutre
-    if (bodyVisible && pageTitle.includes('DooDates')) {
-      console.log('⚠️ Page chargée mais chat input absent - mode CI différent');
-      console.log('⏭️ Retour du body comme fallback (mode CI acceptable)');
-      return page.locator('body').first();
+    if (bodyVisible && pageTitle.includes("DooDates")) {
+      console.log("⚠️ Page chargée mais chat input absent - mode CI différent");
+      console.log("⏭️ Retour du body comme fallback (mode CI acceptable)");
+      return page.locator("body").first();
     }
-    
-    throw new Error(`Chat input [data-testid="chat-input"] non trouvé après ${timeout}ms. Body visible mais input indisponible.`);
+
+    throw new Error(
+      `Chat input [data-testid="chat-input"] non trouvé après ${timeout}ms. Body visible mais input indisponible.`,
+    );
   }
 }

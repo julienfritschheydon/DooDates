@@ -9,6 +9,7 @@ Guide technique pour intégrer la documentation utilisateur dans l'application D
 Cette documentation est conçue pour être affichée comme des pages web dans la section **Settings** de l'application DooDates.
 
 **Technologies :**
+
 - React 18+ / TypeScript
 - Markdown → HTML (via react-markdown)
 - Routing React Router
@@ -51,6 +52,7 @@ npm install react-markdown remark-gfm rehype-raw rehype-sanitize
 ```
 
 **Packages :**
+
 - `react-markdown` : Rendu Markdown → React
 - `remark-gfm` : Support GitHub Flavored Markdown (tableaux, listes)
 - `rehype-raw` : Support HTML dans Markdown
@@ -86,7 +88,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
         // Import du fichier Markdown
         const response = await fetch(`/docs/${docPath}`);
         if (!response.ok) throw new Error('Document non trouvé');
-        
+
         const text = await response.text();
         setContent(text);
         setError(null);
@@ -151,14 +153,14 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
               </a>
             );
           },
-          
+
           // Tableaux stylés
           table: ({ node, ...props }) => (
             <div className="overflow-x-auto my-6">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" {...props} />
             </div>
           ),
-          
+
           // Code blocks
           code: ({ node, inline, className, children, ...props }) => {
             if (inline) {
@@ -222,7 +224,8 @@ Créez `src/styles/docs.css` :
   @apply mb-4 leading-relaxed;
 }
 
-.docs-content ul, .docs-content ol {
+.docs-content ul,
+.docs-content ol {
   @apply mb-4 ml-6 space-y-2;
 }
 
@@ -273,11 +276,11 @@ Créez `src/styles/docs.css` :
   .docs-content h1 {
     @apply text-3xl;
   }
-  
+
   .docs-content h2 {
     @apply text-2xl;
   }
-  
+
   .docs-content table {
     @apply text-sm;
   }
@@ -406,7 +409,7 @@ const DocsHome: React.FC = () => {
       <p className="text-lg text-gray-600 dark:text-gray-400">
         Bienvenue dans la documentation complète de DooDates.
       </p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
         <Link
           to="/settings/docs/01-Guide-Demarrage-Rapide"
@@ -442,15 +445,15 @@ Ajoutez dans `vite.config.ts` :
 ```typescript
 export default defineConfig({
   // ... autres configs
-  
+
   // Copier les fichiers Markdown dans public
-  publicDir: 'public',
-  
+  publicDir: "public",
+
   build: {
     rollupOptions: {
       input: {
         // Inclure les fichiers Markdown
-        docs: 'Docs/USER-DOCUMENTATION/*.md',
+        docs: "Docs/USER-DOCUMENTATION/*.md",
       },
     },
   },
@@ -564,9 +567,9 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#3B82F6', // Bleu DooDates
-          light: '#60A5FA',
-          dark: '#2563EB',
+          DEFAULT: "#3B82F6", // Bleu DooDates
+          light: "#60A5FA",
+          dark: "#2563EB",
         },
       },
     },
@@ -601,11 +604,11 @@ Les pages sont déjà responsive, mais ajustements possibles :
     transition: left 0.3s ease;
     z-index: 40;
   }
-  
+
   aside.open {
     left: 0;
   }
-  
+
   /* Bouton hamburger */
   .mobile-menu-button {
     display: block;
@@ -636,11 +639,11 @@ const loadDoc = async (docPath: string) => {
   if (docsCache.has(docPath)) {
     return docsCache.get(docPath);
   }
-  
+
   const response = await fetch(`/docs/${docPath}`);
   const text = await response.text();
   docsCache.set(docPath, text);
-  
+
   return text;
 };
 ```
@@ -654,14 +657,14 @@ Tracker les pages vues :
 ```typescript
 useEffect(() => {
   // Google Analytics
-  gtag('event', 'page_view', {
+  gtag("event", "page_view", {
     page_title: docTitle,
     page_location: window.location.href,
     page_path: `/docs/${docId}`,
   });
-  
+
   // Plausible Analytics
-  plausible('pageview', {
+  plausible("pageview", {
     props: { doc: docId },
   });
 }, [docId]);
@@ -682,4 +685,3 @@ useEffect(() => {
 ---
 
 **© 2025 DooDates - Guide d'Intégration**
-

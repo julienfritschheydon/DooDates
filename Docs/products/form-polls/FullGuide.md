@@ -38,6 +38,7 @@ Les **formulaires DooDates** vous permettent de créer des enquêtes, questionna
 **Usage :** Sélectionner **une seule** option
 
 **Exemple :**
+
 ```
 Question : Quelle est votre boisson préférée ?
 ⚫ Café
@@ -47,6 +48,7 @@ Question : Quelle est votre boisson préférée ?
 ```
 
 **Configuration :**
+
 ```
 Type : Choix unique
 Options : Café, Thé, Jus de fruits, Eau
@@ -55,6 +57,7 @@ Options : Café, Thé, Jus de fruits, Eau
 ```
 
 **Quand l'utiliser :**
+
 - Préférences exclusives
 - Classification (âge, catégorie)
 - Oui/Non/Peut-être
@@ -67,6 +70,7 @@ Options : Café, Thé, Jus de fruits, Eau
 **Usage :** Sélectionner **plusieurs options**
 
 **Exemple :**
+
 ```
 Question : Quels langages de programmation maîtrisez-vous ?
 ☑ JavaScript
@@ -78,6 +82,7 @@ Question : Quels langages de programmation maîtrisez-vous ?
 ```
 
 **Configuration :**
+
 ```
 Type : Choix multiples
 Options : JavaScript, Python, Java, TypeScript, Go, Rust
@@ -87,6 +92,7 @@ Maximum sélections : Illimité (ou 3 max)
 ```
 
 **Quand l'utiliser :**
+
 - Compétences multiples
 - Intérêts variés
 - Sélection de features souhaitées
@@ -99,12 +105,14 @@ Maximum sélections : Illimité (ou 3 max)
 **Usage :** Réponse courte sur une seule ligne
 
 **Exemple :**
+
 ```
 Question : Quelle est votre ville ?
 [_____________________]
 ```
 
 **Configuration :**
+
 ```
 Type : Texte court
 Longueur max : 300 caractères (par défaut)
@@ -112,6 +120,7 @@ Validation : Aucune / Email / Téléphone / URL / Nombre / Date
 ```
 
 **Quand l'utiliser :**
+
 - Nom, prénom
 - Email, téléphone
 - Ville, code postal
@@ -125,6 +134,7 @@ Validation : Aucune / Email / Téléphone / URL / Nombre / Date
 **Usage :** Réponse ouverte détaillée sur plusieurs lignes
 
 **Exemple :**
+
 ```
 Question : Que pourrions-nous améliorer ?
 ┌─────────────────────────────┐
@@ -138,6 +148,7 @@ Question : Que pourrions-nous améliorer ?
 ```
 
 **Configuration :**
+
 ```
 Type : Texte long
 Lignes affichées : 6
@@ -147,6 +158,7 @@ Validation : Optionnelle (Email / URL / etc.)
 ```
 
 **Quand l'utiliser :**
+
 - Commentaires libres
 - Suggestions détaillées
 - Descriptions
@@ -161,6 +173,7 @@ Validation : Optionnelle (Email / URL / etc.)
 **Usage :** Évaluer plusieurs items selon les mêmes critères
 
 **Exemple :**
+
 ```
 Question : Évaluez notre service :
 
@@ -172,6 +185,7 @@ Livraison                ○           ⚫        ○      ○       ○
 ```
 
 **Configuration :**
+
 ```
 Type : Matrix
 Lignes (items à évaluer) :
@@ -189,6 +203,7 @@ Colonnes (échelle) :
 ```
 
 **Quand l'utiliser :**
+
 - Satisfaction multi-critères
 - Évaluation de performance
 - Échelles de Likert classiques
@@ -201,17 +216,20 @@ Colonnes (échelle) :
 **Usage :** Évaluation sur une échelle de 1 à 5
 
 **Exemple :**
+
 ```
 Question : Notez votre expérience globale
 ★★★★☆ (4/5)
 ```
 
 **Rendu visuel :**
+
 ```
 ☆☆☆☆☆ → Cliquez sur la 4ème étoile → ★★★★☆
 ```
 
 **Configuration :**
+
 ```
 Type : Rating
 Échelle : 1-5 étoiles (fixe)
@@ -221,6 +239,7 @@ Texte aide :
 ```
 
 **Quand l'utiliser :**
+
 - Satisfaction globale
 - Qualité d'un service/produit
 - Note d'une expérience
@@ -233,6 +252,7 @@ Texte aide :
 **Usage :** Mesurer la fidélité client (échelle 0-10)
 
 **Exemple :**
+
 ```
 Question : Recommanderiez-vous DooDates à un ami ?
 
@@ -242,6 +262,7 @@ Pas du tout                                    Absolument
 ```
 
 **Calcul NPS :**
+
 ```
 Promoteurs (9-10) : 50%
 Passifs (7-8) : 30%
@@ -251,6 +272,7 @@ NPS = 50% - 20% = +30
 ```
 
 **Configuration :**
+
 ```
 Type : NPS
 Échelle : 0-10 (fixe)
@@ -260,6 +282,7 @@ Labels :
 ```
 
 **Quand l'utiliser :**
+
 - Mesure de fidélité stratégique
 - Benchmark industrie
 - Suivi dans le temps (trimestriel)
@@ -272,6 +295,7 @@ Labels :
 **Usage :** Permettre aux répondants de sélectionner des dates et horaires disponibles
 
 **Exemple :**
+
 ```
 Question : Quand seriez-vous disponible pour une réunion ?
 
@@ -296,6 +320,7 @@ Heure    │ Lun 13/01 │ Mar 14/01 │ Mer 15/01 │
 ```
 
 **Configuration :**
+
 ```
 Type : Date
 Dates sélectionnées : [Calendrier interactif]
@@ -306,6 +331,7 @@ Horaires par date : [Configuration visuelle]
 ```
 
 **Fonctionnalités :**
+
 - **Calendrier interactif** : Sélection de plusieurs dates
 - **Configuration d'horaires** : Définir les créneaux disponibles pour chaque date
 - **Granularité** : Choisir la précision (15 min, 30 min, 1 h)
@@ -313,6 +339,7 @@ Horaires par date : [Configuration visuelle]
 - **Votes anonymes** : Permettre les réponses sans nom
 
 **Quand l'utiliser :**
+
 - Planification de réunions d'équipe
 - Organisation d'événements
 - Prise de rendez-vous
@@ -328,6 +355,7 @@ Horaires par date : [Configuration visuelle]
 ### Méthode 1 : Avec l'Assistant IA
 
 **Exemple :**
+
 ```
 Vous : "Crée une enquête de satisfaction pour mon restaurant"
 
@@ -358,15 +386,17 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
 **Étapes :**
 
 1. **Dashboard → Nouveau formulaire**
+
    ```
    Titre : "Enquête Satisfaction Client"
    Description : "Aidez-nous à améliorer nos services"
    ```
 
 2. **Ajouter des questions**
+
    ```
    [+ Ajouter une question]
-   
+
    → Sélectionnez le type
    → Rédigez la question
    → Configurez les options
@@ -374,6 +404,7 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
    ```
 
 3. **Réorganiser (Drag & Drop)**
+
    ```
    Q1. Note globale         ☰ [Glisser pour réordonner]
    Q2. NPS                  ☰
@@ -381,12 +412,13 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
    ```
 
 4. **Paramètres globaux**
+
    ```
    Mode : ○ Classique  ⚫ Multi-étapes
    Thème : Nature / Minimaliste / Par défaut
    ☑ Afficher la progression
    ☑ Sauvegarder automatiquement
-   
+
    Visibilité des résultats :
    ⚫ Moi uniquement (par défaut)
    ○ Personnes ayant voté (recommandé)
@@ -404,6 +436,7 @@ La **logique conditionnelle** permet d'afficher ou masquer des questions selon l
 ### Cas d'Usage
 
 **Exemple : Satisfaction Client**
+
 ```
 Q1. Êtes-vous satisfait de notre service ?
     ○ Oui
@@ -426,6 +459,7 @@ Q3. [Visible si Q1 = Oui]
 ### Créer une Règle Conditionnelle
 
 **Interface de configuration :**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Règle conditionnelle pour Q2               │
@@ -448,6 +482,7 @@ Q3. [Visible si Q1 = Oui]
 ### Règles Multiples (ET / OU)
 
 **Exemple complexe :**
+
 ```
 Afficher Q5 si :
   (Q1 = "Non" ET Q2 contient "Prix")
@@ -462,11 +497,13 @@ Afficher Q5 si :
 ### Bonnes Pratiques
 
 ✅ **À Faire :**
+
 - Testez toutes les branches avec la simulation
 - Maximum 3 niveaux de profondeur
 - Questions conditionnelles = optionnelles (pas obligatoires)
 
 ❌ **À Éviter :**
+
 - Boucles infinies (Q2 dépend de Q1, Q1 dépend de Q2)
 - Plus de 5 règles par question (trop complexe)
 - Conditions sur questions texte (imprécis)
@@ -480,6 +517,7 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Différences Visuelles
 
 **Mode Classique :**
+
 ```
 ┌─────────────────────────────────┐
 │ Q1. Question 1                  │
@@ -496,6 +534,7 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ```
 
 **Mode Multi-Étapes :**
+
 ```
 ┌─────────────────────────────────┐
 │  ████░░░░░░░░░░ 25%             │ ← Progression
@@ -517,17 +556,20 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Avantages du Multi-Étapes
 
 **Statistiques DooDates :**
+
 - 📊 **Taux de complétion** : +15% vs mode classique
 - ⏱️ **Temps par question** : -20% (meilleur focus)
 - 📱 **UX mobile** : 90% préfèrent vs 60% classique
 
 **Quand l'utiliser :**
+
 - ✅ Formulaires longs (10+ questions)
 - ✅ Public mobile-first
 - ✅ Questions nécessitant de la réflexion
 - ✅ Expérience conversationnelle souhaitée
 
 **Quand éviter :**
+
 - ❌ Formulaires courts (< 5 questions)
 - ❌ Besoin de vue d'ensemble
 - ❌ Questions interdépendantes à comparer
@@ -537,16 +579,19 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Navigation Multi-Étapes
 
 **Boutons :**
+
 ```
 [← Précédent]  [Suivant →]  [Passer]
 ```
 
 **Raccourcis clavier :**
+
 - `Entrée` : Question suivante
 - `Tab` : Entre les options
 - `Espace` : Sélectionner une option
 
 **Barre de progression :**
+
 ```
 ████████░░░░░░░░░░░░░░ 40%
 Question 4 sur 10
@@ -565,6 +610,7 @@ Question 4 sur 10
 ### Prévisualisation
 
 **Bouton "Aperçu" dans l'éditeur :**
+
 ```
 → Ouvre le formulaire en mode lecture
 → Testez toutes les questions
@@ -581,6 +627,7 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 #### Pourquoi Simuler ?
 
 **Avant de partager, vérifiez :**
+
 - ✅ **Logique conditionnelle** : Les questions s'affichent correctement
 - ✅ **Graphiques** : Les visualisations sont claires
 - ✅ **Durée** : Temps de complétion réaliste
@@ -588,6 +635,7 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 - ✅ **Clarté** : Pas de questions ambiguës
 
 **Bénéfices :**
+
 - 🎯 **Confiance** : Publiez sans crainte
 - 📊 **Aperçu** : Visualisez les résultats futurs
 - 🐛 **Bugs** : Détectez les problèmes avant
@@ -596,16 +644,19 @@ La **simulation de réponses** utilise l'IA pour générer des réponses fictive
 #### Lancer une Simulation
 
 **Depuis l'éditeur :**
+
 ```
 Formulaire Éditeur → [🧪 Simuler des réponses]
 ```
 
 **Paramètres :**
+
 - **Nombre de réponses** : 20 (rapide), 50 (recommandé), 100 (complet)
 - **Profil des répondants** (optionnel) : "Clients restaurant, 30-60 ans"
 - **Objectif du formulaire** (optionnel) : "Mesurer la satisfaction client"
 
 **Processus :**
+
 ```
 🔄 Analyse du formulaire... (5s)
 🤖 Génération des réponses... (45s)
@@ -616,6 +667,7 @@ Formulaire Éditeur → [🧪 Simuler des réponses]
 #### Analyser les Résultats Simulés
 
 Après simulation, vous accédez aux résultats avec :
+
 - 📊 Graphiques standards (choix, NPS, Rating, Matrix)
 - 📝 Commentaires texte libres réalistes
 - ✅ Vérification de la logique conditionnelle
@@ -627,6 +679,7 @@ Après simulation, vous accédez aux résultats avec :
 L'IA analyse si votre formulaire atteint votre objectif :
 
 **Exemple :**
+
 ```
 Objectif : "Mesurer la satisfaction client"
 
@@ -652,6 +705,7 @@ Objectif : "Mesurer la satisfaction client"
 ### Vue d'Ensemble
 
 Analytics IA est un système d'analyse automatique qui :
+
 - 🔍 **Détecte les tendances** dans vos réponses
 - 💡 **Génère des insights** pertinents automatiquement
 - ❓ **Répond à vos questions** sur les données
@@ -665,6 +719,7 @@ Analytics IA est un système d'analyse automatique qui :
 ### Accéder aux Analytics IA
 
 **Étapes :**
+
 ```
 1. Ouvrez votre formulaire dans le Dashboard
 2. Cliquez sur "Voir les résultats"
@@ -672,6 +727,7 @@ Analytics IA est un système d'analyse automatique qui :
 ```
 
 **Interface :**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  📊 Résultats : Satisfaction Client 2025    │
@@ -694,6 +750,7 @@ Un **insight** est une observation pertinente détectée automatiquement par l'I
 #### Types d'Insights
 
 **1. Tendances Générales 📈**
+
 ```
 💡 Tendance forte détectée
 "78% des répondants sont satisfaits ou très satisfaits.
@@ -701,29 +758,33 @@ Un **insight** est une observation pertinente détectée automatiquement par l'I
 ```
 
 **2. Corrélations 🔗**
+
 ```
 💡 Corrélation identifiée
-"Les personnes donnant une note NPS ≥ 9 mentionnent 
+"Les personnes donnant une note NPS ≥ 9 mentionnent
  systématiquement 'rapidité' dans leurs commentaires positifs.
  Corrélation : 0.87 (très forte)"
 ```
 
 **3. Anomalies 🚨**
+
 ```
 ⚠️ Anomalie détectée
-"Les réponses du 15 novembre montrent un taux de satisfaction 
+"Les réponses du 15 novembre montrent un taux de satisfaction
  de 32%, significativement inférieur à la moyenne de 76%.
  18 réponses concernées."
 ```
 
 **4. Segmentation 👥**
+
 ```
 💡 Différence de segment
-"Les utilisateurs de 25-34 ans sont 2x plus susceptibles 
+"Les utilisateurs de 25-34 ans sont 2x plus susceptibles
  de recommander le produit (NPS moyen: 8.2) que les 55+ (NPS: 4.1)"
 ```
 
 **5. Points d'Amélioration 🎯**
+
 ```
 🎯 Axe d'amélioration prioritaire
 "'Délai de livraison' mentionné dans 64% des commentaires négatifs.
@@ -741,6 +802,7 @@ Des **questions prédéfinies** pour analyse rapide sans rédiger de prompt.
 #### Exemples de Quick Queries
 
 **Métriques Générales :**
+
 ```
 ❓ Combien de personnes ont répondu ?
    → "127 réponses reçues entre le 1er et le 15 novembre"
@@ -753,6 +815,7 @@ Des **questions prédéfinies** pour analyse rapide sans rédiger de prompt.
 ```
 
 **Satisfaction & NPS :**
+
 ```
 ❓ Quel est le score NPS global ?
    → "NPS = +42 (Excellent)
@@ -763,6 +826,7 @@ Des **questions prédéfinies** pour analyse rapide sans rédiger de prompt.
 ```
 
 **Top Réponses :**
+
 ```
 ❓ Quels sont les 3 points forts ?
    → "1. Rapidité (mentionnée 45x)
@@ -789,7 +853,7 @@ Vous pouvez poser **n'importe quelle question** sur vos données.
 "Quelle est la corrélation entre l'âge et la satisfaction ?"
 → Analyse statistique précise
 
-"Les personnes ayant choisi 'Prix' comme point fort 
+"Les personnes ayant choisi 'Prix' comme point fort
  ont-elles un NPS plus élevé ?"
 → Segmentation croisée
 
@@ -814,17 +878,20 @@ Vous pouvez poser **n'importe quelle question** sur vos données.
 ### Quotas et Limites
 
 Une **"conversation IA"** consomme 1 crédit pour :
+
 - 1 insight généré automatiquement
 - 1 quick query exécutée
 - 1 question libre posée
 
 **Quotas par plan :**
+
 - 🆓 **Mode Invité** : 5 conversations IA (création de sondages)
 - 👤 **Compte Gratuit** : 1000 conversations IA
 - 💼 **Pro** : Illimité
 - 🚀 **Premium** : Illimité + fonctionnalités avancées
 
 **Optimiser votre quota :**
+
 1. Désactiver les insights automatiques (si non nécessaires)
 2. Utiliser les graphiques natifs d'abord
 3. Poser des questions groupées (au lieu de plusieurs séparées)
@@ -837,15 +904,17 @@ Une **"conversation IA"** consomme 1 crédit pour :
 ### Bonnes Pratiques Analytics IA
 
 **1. Attendez un minimum de réponses**
+
 - ⚠️ **< 10 réponses** : Insights peu fiables
 - ✅ **10-30 réponses** : Tendances générales OK
 - 🎯 **30-100 réponses** : Analyses fiables
 - 🚀 **100+ réponses** : Insights très précis
 
 **2. Contextualisez vos questions**
+
 ```
 ❌ "Les résultats sont bons ?"
-✅ "Le NPS de +38 est-il bon pour une entreprise SaaS B2B 
+✅ "Le NPS de +38 est-il bon pour une entreprise SaaS B2B
     comparé aux benchmarks du secteur ?"
 ```
 
@@ -859,6 +928,7 @@ L'IA détecte les patterns statistiques, vous apportez le contexte métier et le
 #### "Quota IA épuisé"
 
 **Solutions :**
+
 1. Attendez le reset (1er du mois pour comptes gratuits)
 2. Passez en Pro (conversations illimitées)
 3. Optimisez votre usage (désactivez insights auto, utilisez graphiques natifs d'abord)
@@ -866,6 +936,7 @@ L'IA détecte les patterns statistiques, vous apportez le contexte métier et le
 #### Insights IA peu pertinents
 
 **Causes :**
+
 1. Trop peu de réponses (< 10)
 2. Questions mal formulées (ambiguës)
 3. Données incohérentes (erreurs de saisie)
@@ -875,6 +946,7 @@ L'IA détecte les patterns statistiques, vous apportez le contexte métier et le
 #### Quick Query ne répond pas
 
 **Solutions :**
+
 1. Rafraîchir la page (F5)
 2. Vérifier le quota IA
 3. Vérifier la connexion internet
@@ -902,6 +974,7 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 **Avant de partager votre formulaire :**
 
 ### Contenu
+
 - [ ] Titre clair et engageant
 - [ ] Description avec durée estimée
 - [ ] Toutes les questions ont un libellé clair
@@ -909,18 +982,21 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 - [ ] Pas de fautes d'orthographe
 
 ### Structure
+
 - [ ] Ordre logique (facile → difficile)
 - [ ] Maximum 15 questions
 - [ ] Logique conditionnelle testée
 - [ ] Questions obligatoires ≤ 30%
 
 ### Technique
+
 - [ ] Simulation effectuée (30+ réponses)
 - [ ] Prévisualisation mobile testée
 - [ ] Tous les types de questions fonctionnent
 - [ ] Temps de complétion < 5 minutes
 
 ### Diffusion
+
 - [ ] Lien de partage testé
 - [ ] Message d'accompagnement rédigé
 - [ ] Deadline configurée
@@ -937,6 +1013,7 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 **Solutions :**
 
 1. **Vote légitime à modifier**
+
    ```
    → Cliquez sur "Modifier mon vote"
    → Changez vos réponses
@@ -944,6 +1021,7 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
    ```
 
 2. **Voter depuis un autre appareil**
+
    ```
    → Normal : 1 vote par appareil en mode invité
    → Solution : Utilisez un autre appareil/navigateur
@@ -965,11 +1043,12 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 **Vérifications :**
 
 1. **Réponse attendue**
+
    ```
    Exemple :
    Q1 : "Êtes-vous satisfait ?" → Réponse : "Non"
    Q2 (si Q1 = "Non") : "Pourquoi ?" → Devrait s'afficher
-   
+
    Si Q2 ne s'affiche pas :
    → Vérifiez que la condition est bien "Q1 = Non"
    → Pas "Q1 ≠ Oui" (différent si option "Neutre" existe)
@@ -990,12 +1069,14 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 **Causes possibles :**
 
 1. **Sondage supprimé**
+
    ```
    → Le créateur a supprimé le sondage
    → Contactez-le pour vérification
    ```
 
 2. **Sondage clôturé avec deadline**
+
    ```
    → Date de clôture dépassée
    → Demandez au créateur de le rouvrir
@@ -1024,6 +1105,7 @@ Après avoir voté sur un formulaire, vous pouvez recevoir une copie de vos rép
 5. Soumettez le formulaire
 
 **Exemple :**
+
 ```
 ┌─────────────────────────────────────────┐
 │  Vos réponses                           │
@@ -1044,12 +1126,14 @@ Après avoir voté sur un formulaire, vous pouvez recevoir une copie de vos rép
 ### Contenu de l'Email
 
 L'email reçu contient :
+
 - ✅ **Titre du formulaire**
 - ✅ **Votre nom** (si renseigné)
 - ✅ **Toutes vos réponses** formatées par question
 - ✅ **Lien vers les résultats** (si vous y avez accès)
 
 **Format :**
+
 ```
 Sujet : Vos réponses : [Titre du formulaire]
 
@@ -1074,17 +1158,20 @@ Vos réponses :
 ### Validation Email
 
 **Règles :**
+
 - ✅ Email requis si la case est cochée
 - ✅ Format email valide (ex: `nom@domaine.com`)
 - ✅ Message d'erreur si email invalide ou manquant
 
 **Erreurs possibles :**
+
 - ❌ "Veuillez entrer votre email pour recevoir une copie" (si case cochée mais email vide)
 - ❌ "Veuillez entrer une adresse email valide" (si format incorrect)
 
 ### Disponibilité
 
 **Mode actuel (MVP) :**
+
 - ✅ Email généré et logué dans la console (pour développement)
 - ⏸️ Envoi réel par email (prévu pour Phase 2 avec Resend API)
 
@@ -1115,14 +1202,17 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 #### 1. Moi Uniquement (Creator-Only)
 
 **Qui peut voir :**
+
 - ✅ Seulement le créateur du formulaire
 
 **Comportement :**
+
 - Après avoir voté, le bouton "Voir les résultats" **n'apparaît pas**
 - Accès direct à `/poll/{slug}/results` → Message "Accès restreint"
 - Seul le créateur peut voir les résultats depuis son Dashboard
 
 **Cas d'usage :**
+
 - Enquêtes RH sensibles
 - Feedback confidentiel
 - Études de marché compétitives
@@ -1133,16 +1223,19 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 #### 2. Personnes Ayant Voté (Voters)
 
 **Qui peut voir :**
+
 - ✅ Le créateur
 - ✅ Toute personne ayant voté
 
 **Comportement :**
+
 - Après avoir voté, le bouton **"Voir les résultats"** apparaît
 - Cliquer sur le bouton → Accès aux résultats
 - Accès direct à `/poll/{slug}/results` → Résultats visibles (si vous avez voté)
 - Si vous n'avez pas voté → Message "Accès restreint" + "💡 Votez pour voir les résultats !"
 
 **Cas d'usage :**
+
 - Sondages de groupe (date de réunion)
 - Décisions d'équipe collaboratives
 - Votes communautaires
@@ -1153,14 +1246,17 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 #### 3. Public (Public)
 
 **Qui peut voir :**
+
 - ✅ Tout le monde (même sans voter)
 
 **Comportement :**
+
 - Accès direct à `/poll/{slug}/results` → Résultats visibles immédiatement
 - Pas besoin de voter pour voir les résultats
 - Partage facile des résultats
 
 **Cas d'usage :**
+
 - Sondages d'opinion publics
 - Études de marché transparentes
 - Votes ouverts
@@ -1173,6 +1269,7 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 ### Changer la Visibilité
 
 **Après publication :**
+
 1. Dashboard → Votre formulaire → "Modifier"
 2. Section "Visibilité des résultats"
 3. Sélectionnez le nouveau mode
@@ -1185,6 +1282,7 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 ## 📚 Ressources Complémentaires
 
 **Guides connexes :**
+
 - [Assistant IA](./05-Assistant-IA.md) - Créer avec l'IA
 - [Gestion des Résultats](./06-Gestion-Resultats.md) - Visualiser et exporter
 
@@ -1195,4 +1293,3 @@ Lors de la création d'un formulaire, vous pouvez définir qui peut voir les ré
 ---
 
 **© 2025 DooDates - Formulaires v1.0**
-

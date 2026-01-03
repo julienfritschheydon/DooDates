@@ -5,6 +5,7 @@ Bienvenue dans la documentation du système de monitoring des performances de Do
 ## 🎯 Objectif
 
 Ce système permet de :
+
 - **Tracker** les performances en temps réel (Web Vitals)
 - **Collecter** les métriques des workflows CI/CD (Lighthouse, E2E)
 - **Détecter** automatiquement les régressions de performance
@@ -51,6 +52,7 @@ npm run dev
 ### 3. Voir les Métriques
 
 Le dashboard affiche :
+
 - ✅ **Alertes actives** (régressions détectées)
 - 📊 **Métriques E2E** (temps de chargement)
 - 🚀 **Métriques Lighthouse** (Core Web Vitals)
@@ -60,31 +62,31 @@ Le dashboard affiche :
 
 ### 🎯 Core Web Vitals (Production)
 
-| Métrique | Seuil | Description |
-|----------|-------|-------------|
-| **LCP** | < 2.5s | Largest Contentful Paint |
-| **FID** | < 100ms | First Input Delay |
-| **CLS** | < 0.1 | Cumulative Layout Shift |
-| **FCP** | < 1.8s | First Contentful Paint |
-| **TTFB** | < 600ms | Time to First Byte |
+| Métrique | Seuil   | Description              |
+| -------- | ------- | ------------------------ |
+| **LCP**  | < 2.5s  | Largest Contentful Paint |
+| **FID**  | < 100ms | First Input Delay        |
+| **CLS**  | < 0.1   | Cumulative Layout Shift  |
+| **FCP**  | < 1.8s  | First Contentful Paint   |
+| **TTFB** | < 600ms | Time to First Byte       |
 
 ### 🧪 Tests E2E
 
-| Métrique | Seuil | Description |
-|----------|-------|-------------|
-| **Dashboard 50** | < 3.0s | Chargement avec 50 conversations |
-| **Dashboard 200** | < 5.0s | Chargement avec 200 conversations |
-| **Menu Tags** | < 500ms | Ouverture du menu tags |
-| **Menu Dossiers** | < 500ms | Ouverture du menu dossiers |
+| Métrique          | Seuil   | Description                       |
+| ----------------- | ------- | --------------------------------- |
+| **Dashboard 50**  | < 3.0s  | Chargement avec 50 conversations  |
+| **Dashboard 200** | < 5.0s  | Chargement avec 200 conversations |
+| **Menu Tags**     | < 500ms | Ouverture du menu tags            |
+| **Menu Dossiers** | < 500ms | Ouverture du menu dossiers        |
 
 ### 🚦 Lighthouse CI
 
-| Métrique | Seuil | Description |
-|----------|-------|-------------|
-| **Performance Score** | ≥ 90 | Score global de performance |
-| **LCP** | < 2.5s | Largest Contentful Paint |
-| **TBT** | < 200ms | Total Blocking Time |
-| **CLS** | < 0.1 | Cumulative Layout Shift |
+| Métrique              | Seuil   | Description                 |
+| --------------------- | ------- | --------------------------- |
+| **Performance Score** | ≥ 90    | Score global de performance |
+| **LCP**               | < 2.5s  | Largest Contentful Paint    |
+| **TBT**               | < 200ms | Total Blocking Time         |
+| **CLS**               | < 0.1   | Cumulative Layout Shift     |
 
 ## 🔔 Système d'Alertes
 
@@ -96,6 +98,7 @@ Le dashboard affiche :
 ### Notifications
 
 Les alertes apparaissent :
+
 1. **Dashboard Web** : `/performance` (en haut de page)
 2. **GitHub Issues** : Création automatique pour régressions Lighthouse
 3. **Base de données** : Table `performance_alerts`
@@ -119,12 +122,12 @@ git push
 
 ```sql
 -- Supprimer les métriques > 90 jours
-DELETE FROM performance_metrics 
+DELETE FROM performance_metrics
 WHERE timestamp < NOW() - INTERVAL '90 days';
 
 -- Supprimer les alertes résolues > 30 jours
-DELETE FROM performance_alerts 
-WHERE resolved = true 
+DELETE FROM performance_alerts
+WHERE resolved = true
 AND resolved_at < NOW() - INTERVAL '30 days';
 ```
 
@@ -200,12 +203,12 @@ node scripts/send-performance-metrics.js \
 
 ### Problèmes Courants
 
-| Problème | Solution |
-|----------|----------|
-| Dashboard vide | Vérifier `public/performance-baseline.json` |
-| Métriques non envoyées | Vérifier `SUPABASE_SERVICE_KEY` |
-| Alertes non créées | Vérifier les RLS policies Supabase |
-| Web Vitals non trackés | Vérifier `npm list web-vitals` |
+| Problème               | Solution                                    |
+| ---------------------- | ------------------------------------------- |
+| Dashboard vide         | Vérifier `public/performance-baseline.json` |
+| Métriques non envoyées | Vérifier `SUPABASE_SERVICE_KEY`             |
+| Alertes non créées     | Vérifier les RLS policies Supabase          |
+| Web Vitals non trackés | Vérifier `npm list web-vitals`              |
 
 Voir le [Guide d'Installation](./INSTALLATION-GUIDE.md#-dépannage) pour plus de détails.
 

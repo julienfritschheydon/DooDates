@@ -15,11 +15,13 @@ Intégration de la validation d'objectifs dans le système de simulation existan
 ## 🎯 Cas d'usage
 
 **Utilisateurs concernés :**
+
 - Créateurs de formulaires **manuels** (via GUI, pas IA)
 - Besoin de valider que leur questionnaire atteint leur objectif business
 - Safety net pour les créations sans guidance IA initiale
 
 **Workflow :**
+
 1. Utilisateur crée formulaire manuellement
 2. Lance simulation avec objectif optionnel ("Mesurer satisfaction client")
 3. IA simule réponses + analyse adéquation questionnaire ↔ objectif
@@ -32,6 +34,7 @@ Intégration de la validation d'objectifs dans le système de simulation existan
 ### 1. **`src/types/simulation.ts`**
 
 **Ajouts :**
+
 ```typescript
 // Dans SimulationConfig
 objective?: string; // Objectif du questionnaire (optionnel - pour validation)
@@ -54,6 +57,7 @@ objectiveValidation?: ObjectiveValidation;
 ### 2. **`src/lib/simulation/SimulationAnalyzer.ts`**
 
 **Ajouts :**
+
 - Import de `GoogleGenerativeAI` et `logger`
 - Configuration `GEMINI_MODEL` et `API_KEY`
 - Fonction `validateObjective()` (100 lignes)
@@ -61,6 +65,7 @@ objectiveValidation?: ObjectiveValidation;
 - Appel `validateObjective()` si `config.objective` fourni
 
 **Fonction validateObjective :**
+
 ```typescript
 async function validateObjective(
   objective: string,
@@ -70,6 +75,7 @@ async function validateObjective(
 ```
 
 **Prompt Gemini :**
+
 - Analyse l'alignement objectif ↔ questionnaire
 - Utilise les métriques de simulation (taux complétion, temps, abandon)
 - Retourne JSON structuré : score, strengths, weaknesses, suggestions
@@ -80,6 +86,7 @@ async function validateObjective(
 ### 3. **`src/components/simulation/SimulationModal.tsx`**
 
 **Ajouts :**
+
 - State `objective` (string)
 - Champ textarea "Objectif du questionnaire (optionnel)"
 - Placeholder : "Ex: Mesurer la satisfaction client et identifier les points d'amélioration"
@@ -87,6 +94,7 @@ async function validateObjective(
 - Passage `objective` dans `SimulationConfig`
 
 **UI :**
+
 ```tsx
 <textarea
   value={objective}
@@ -102,11 +110,13 @@ async function validateObjective(
 ### 4. **`src/components/simulation/SimulationReport.tsx`**
 
 **Ajouts :**
+
 - Import icônes : `Target`, `ThumbsUp`, `ThumbsDown`, `Lightbulb`
 - Extraction `objectiveValidation` depuis `result`
 - Section "Validation d'objectif" (conditionnelle)
 
 **Section UI :**
+
 - **Header** : Icône Target + "Validation d'objectif"
 - **Objectif défini** : Citation de l'objectif utilisateur
 - **Score d'alignement** : Barre de progression colorée (vert ≥70%, jaune ≥50%, rouge <50%)
@@ -115,6 +125,7 @@ async function validateObjective(
 - **Suggestions** : Liste avec icône 💡 jaune
 
 **Design :**
+
 - Background : `bg-purple-900/20 border border-purple-700/50`
 - Cohérent avec le design dark mode existant
 
@@ -123,6 +134,7 @@ async function validateObjective(
 ### 5. **`src/lib/simulation/SimulationService.ts`**
 
 **Modification :**
+
 ```typescript
 // Avant
 return analyzeSimulation(initialResult, questions);
@@ -136,9 +148,11 @@ return await analyzeSimulation(initialResult, questions);
 ## 🎨 Exemple de validation
 
 **Objectif utilisateur :**
+
 > "Mesurer la satisfaction client et identifier les points d'amélioration"
 
 **Résultat IA :**
+
 ```json
 {
   "alignmentScore": 75,
@@ -212,16 +226,19 @@ return await analyzeSimulation(initialResult, questions);
 ## 🚀 Prochaines étapes
 
 **Validation utilisateur (Post-Bêta) :**
+
 - Tester avec 5-10 utilisateurs créant des formulaires manuellement
 - Mesurer taux d'utilisation du champ "Objectif"
 - Collecter feedback sur la pertinence des suggestions IA
 
 **Métriques de succès :**
+
 - 20%+ des simulations incluent un objectif
 - Score moyen d'alignement ≥60%
 - 3+ feedbacks positifs sur la pertinence des suggestions
 
 **Évolution possible (si validation positive) :**
+
 - Suggestions cliquables → Modification automatique du questionnaire
 - Historique des validations d'objectifs
 - Comparaison objectif initial vs objectif atteint (après collecte réponses réelles)
@@ -231,12 +248,15 @@ return await analyzeSimulation(initialResult, questions);
 ## 📝 Documentation utilisateur
 
 **Message dans l'interface :**
+
 > "L'IA analysera si votre questionnaire permet d'atteindre cet objectif"
 
 **Tooltip (à ajouter) :**
+
 > "Définissez votre objectif business (ex: 'Mesurer satisfaction client'). L'IA vérifiera que vos questions permettent de l'atteindre et vous donnera des suggestions d'amélioration."
 
 **Exemples d'objectifs :**
+
 - "Mesurer la satisfaction client"
 - "Identifier les points d'amélioration du produit"
 - "Évaluer l'intérêt pour une nouvelle fonctionnalité"
@@ -262,9 +282,10 @@ return await analyzeSimulation(initialResult, questions);
 
 ## 🎬 Conclusion
 
-La validation d'objectifs est maintenant **opérationnelle** avec une approche minimaliste et efficace. 
+La validation d'objectifs est maintenant **opérationnelle** avec une approche minimaliste et efficace.
 
 **Différence vs approche initiale :**
+
 - ❌ Version standalone (25-30h) : Nouvelle page, workflow complexe, simulation dédiée
 - ✅ Version intégrée (1h) : Champ optionnel, enrichissement simulation existante
 

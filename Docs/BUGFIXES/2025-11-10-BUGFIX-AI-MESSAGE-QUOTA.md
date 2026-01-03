@@ -37,11 +37,13 @@ Mais quota conversations : 1/5 seulement !
 ### Option 2 : Limite totale de messages IA (RECOMMANDÉE)
 
 **Quota guests :**
+
 - ✅ **5 conversations** max
 - ✅ **20 messages IA** max (TOTAL, toutes conversations confondues)
 - ✅ **50 crédits** max au total
 
 **Exemple d'utilisation :**
+
 ```
 Conversation 1 : 15 messages IA → Reste 5 crédits
 Conversation 2 : 5 messages IA → Reste 0 crédits
@@ -67,6 +69,7 @@ CREATE TABLE guest_quotas (
 ### 2. **quotaTracking.ts** ✅
 
 **Avant (Fire-and-forget) :**
+
 ```typescript
 export function consumeAiMessageCredits(...): void {
   consumeCredits(...).catch((error) => {
@@ -76,6 +79,7 @@ export function consumeAiMessageCredits(...): void {
 ```
 
 **Après (Bloquant) :**
+
 ```typescript
 export async function consumeAiMessageCredits(...): Promise<void> {
   await consumeCredits(userId, 1, "ai_message", { conversationId });
@@ -105,6 +109,7 @@ if (!quotaCheck.canProceed) {
 ```
 
 **✅ Correction finale :**
+
 ```typescript
 // 1. Supprimer la vérification en cache (non fiable)
 // 2. Utiliser user?.id || null pour les guests
@@ -128,6 +133,7 @@ const pollResponse = await geminiAPI.generatePoll(trimmedInput);
 ```
 
 **Bug critique corrigé :**
+
 - `getCurrentUserId()` retournait un `deviceId` (ex: `'dev-mhtf9miz-re89ci'`)
 - Cela empêchait le passage par le système Supabase de quotas guests
 - Maintenant : `user?.id || null` → `null` pour guests → quotas Supabase ✅
@@ -166,7 +172,7 @@ Limites déjà définies :
 const GUEST_LIMITS = {
   CONVERSATIONS: 5,
   POLLS: 5,
-  AI_MESSAGES: 20,  // ← Limite messages IA
+  AI_MESSAGES: 20, // ← Limite messages IA
   ANALYTICS_QUERIES: 10,
   SIMULATIONS: 2,
   TOTAL_CREDITS: 50,
@@ -228,11 +234,11 @@ location.reload();
 
 ## 📊 Résumé des fichiers modifiés
 
-| Fichier | Lignes | Changement |
-|---------|--------|-----------|
+| Fichier                         | Lignes               | Changement                                                                               |
+| ------------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
 | `src/hooks/useMessageSender.ts` | 37, 97, 155-156, 281 | ✅ Import `useAuth` + appel hook + suppression vérification cache + `user?.id \|\| null` |
-| `src/lib/quotaTracking.ts` | 387-392 | ✅ Rendre `consumeAiMessageCredits` bloquant |
-| `src/hooks/useFreemiumQuota.ts` | 26-61, 105-180 | ✅ Ajout `aiMessages` dans types et logique |
+| `src/lib/quotaTracking.ts`      | 387-392              | ✅ Rendre `consumeAiMessageCredits` bloquant                                             |
+| `src/hooks/useFreemiumQuota.ts` | 26-61, 105-180       | ✅ Ajout `aiMessages` dans types et logique                                              |
 
 **Total :** 3 fichiers modifiés, ~15 lignes critiques
 
@@ -243,11 +249,13 @@ location.reload();
 **🎯 2 BUGS CORRIGÉS - PRÊT POUR TESTS**
 
 ### Corrections appliquées :
+
 1. ✅ **Bug userId** : Utilisation de `user?.id || null` au lieu de `getCurrentUserId()`
 2. ✅ **Bug cache** : Suppression de la vérification préalable en cache non rafraîchie
 3. ✅ **Blocage Supabase** : `consumeAiMessageCredits` maintenant bloquant avec vérification temps réel
 
 ### Comportement attendu :
+
 - ✅ Quota messages IA vérifié en temps réel dans Supabase
 - ✅ Blocage après 20 messages IA (toutes conversations confondues)
 - ✅ Toast + message d'erreur dans le chat

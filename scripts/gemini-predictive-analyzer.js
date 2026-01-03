@@ -4,26 +4,26 @@
  * Intègre l'intelligence artificielle pour la prédiction des risques CI/CD
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Charger les variables d'environnement depuis .env.local si disponible
 async function loadEnvironment() {
-  const envLocalPath = path.join(process.cwd(), '.env.local');
+  const envLocalPath = path.join(process.cwd(), ".env.local");
   if (fs.existsSync(envLocalPath)) {
-    const dotenv = await import('dotenv');
+    const dotenv = await import("dotenv");
     dotenv.config({ path: envLocalPath });
   }
 }
 
 // Configuration Gemini
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-const MODEL_NAME = 'gemini-1.5-flash'; // Modèle rapide pour les analyses temps réel
+const MODEL_NAME = "gemini-1.5-flash"; // Modèle rapide pour les analyses temps réel
 
 /**
  * Service d'analyse prédictive avec Gemini
@@ -47,7 +47,7 @@ class GeminiPredictiveAnalyzer {
     const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      console.warn('⚠️ GEMINI_API_KEY non configuré - analyse prédictive désactivée');
+      console.warn("⚠️ GEMINI_API_KEY non configuré - analyse prédictive désactivée");
       return;
     }
 
@@ -55,9 +55,9 @@ class GeminiPredictiveAnalyzer {
       this.genAI = new GoogleGenerativeAI(apiKey);
       this.model = this.genAI.getGenerativeModel({ model: MODEL_NAME });
       this.isAvailable = true;
-      console.log('✅ Service Gemini initialisé pour l\'analyse prédictive');
+      console.log("✅ Service Gemini initialisé pour l'analyse prédictive");
     } catch (error) {
-      console.error('❌ Erreur d\'initialisation Gemini:', error.message);
+      console.error("❌ Erreur d'initialisation Gemini:", error.message);
     }
   }
 
@@ -71,7 +71,7 @@ class GeminiPredictiveAnalyzer {
     if (!this.isAvailable) {
       return {
         available: false,
-        message: 'Service Gemini non disponible'
+        message: "Service Gemini non disponible",
       };
     }
 
@@ -86,15 +86,15 @@ class GeminiPredictiveAnalyzer {
         available: true,
         ...analysis,
         timestamp: new Date().toISOString(),
-        model: MODEL_NAME
+        model: MODEL_NAME,
       };
     } catch (error) {
-      console.error('❌ Erreur analyse prédictive:', error.message);
+      console.error("❌ Erreur analyse prédictive:", error.message);
       return {
         available: true,
         error: true,
         message: `Erreur d'analyse: ${error.message}`,
-        riskLevel: 'unknown'
+        riskLevel: "unknown",
       };
     }
   }
@@ -119,14 +119,14 @@ class GeminiPredictiveAnalyzer {
       return {
         available: true,
         ...analysis,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('❌ Erreur analyse tendances:', error.message);
+      console.error("❌ Erreur analyse tendances:", error.message);
       return {
         available: true,
         error: true,
-        message: `Erreur d'analyse: ${error.message}`
+        message: `Erreur d'analyse: ${error.message}`,
       };
     }
   }
@@ -151,14 +151,14 @@ class GeminiPredictiveAnalyzer {
       return {
         available: true,
         ...recommendations,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('❌ Erreur recommandations proactives:', error.message);
+      console.error("❌ Erreur recommandations proactives:", error.message);
       return {
         available: true,
         error: true,
-        message: `Erreur génération: ${error.message}`
+        message: `Erreur génération: ${error.message}`,
       };
     }
   }
@@ -167,20 +167,21 @@ class GeminiPredictiveAnalyzer {
    * Construit le prompt pour l'analyse de risque
    */
   buildRiskAnalysisPrompt(commitData, recentFailures) {
-    const failuresContext = recentFailures.length > 0
-      ? `Échecs récents: ${recentFailures.map(f => `${f.name} (${f.error})`).join(', ')}`
-      : 'Aucun échec récent';
+    const failuresContext =
+      recentFailures.length > 0
+        ? `Échecs récents: ${recentFailures.map((f) => `${f.name} (${f.error})`).join(", ")}`
+        : "Aucun échec récent";
 
     return `Tu es un expert DevOps spécialisé dans l'analyse prédictive des risques CI/CD.
 
 Analyse ce commit et prédis le risque d'échec des workflows GitHub Actions :
 
 **Informations du commit :**
-- SHA: ${commitData.sha || 'unknown'}
-- Branche: ${commitData.branch || 'unknown'}
-- Auteur: ${commitData.author || 'unknown'}
-- Message: ${commitData.message || 'no message'}
-- Fichiers modifiés: ${commitData.files?.join(', ') || 'unknown'}
+- SHA: ${commitData.sha || "unknown"}
+- Branche: ${commitData.branch || "unknown"}
+- Auteur: ${commitData.author || "unknown"}
+- Message: ${commitData.message || "no message"}
+- Fichiers modifiés: ${commitData.files?.join(", ") || "unknown"}
 
 **Contexte des échecs récents :**
 ${failuresContext}
@@ -208,9 +209,10 @@ ${failuresContext}
    * Construit le prompt pour l'analyse des tendances
    */
   buildTrendAnalysisPrompt(failureHistory) {
-    const historyText = failureHistory.length > 0
-      ? failureHistory.map(f => `- ${f.timestamp}: ${f.workflow} - ${f.error}`).join('\n')
-      : 'Aucun historique disponible';
+    const historyText =
+      failureHistory.length > 0
+        ? failureHistory.map((f) => `- ${f.timestamp}: ${f.workflow} - ${f.error}`).join("\n")
+        : "Aucun historique disponible";
 
     return `Analyse les tendances d'échec CI/CD suivantes et prédis les risques futurs :
 
@@ -240,10 +242,10 @@ Réponds en JSON :
     return `En tant qu'expert DevOps, génère des recommandations proactives pour améliorer la stabilité CI/CD :
 
 **Contexte actuel :**
-- Dernier succès: ${context.lastSuccess || 'unknown'}
-- Fréquence d'échec: ${context.failureRate || 'unknown'}
-- Workflows critiques: ${context.criticalWorkflows?.join(', ') || 'unknown'}
-- Technologies: ${context.technologies?.join(', ') || 'unknown'}
+- Dernier succès: ${context.lastSuccess || "unknown"}
+- Fréquence d'échec: ${context.failureRate || "unknown"}
+- Workflows critiques: ${context.criticalWorkflows?.join(", ") || "unknown"}
+- Technologies: ${context.technologies?.join(", ") || "unknown"}
 
 Génère 5-10 recommandations concrètes et actionnables pour :
 1. Réduire les risques d'échec
@@ -276,28 +278,28 @@ Réponds en JSON :
       // Nettoie la réponse et extrait le JSON
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('Aucun JSON trouvé dans la réponse');
+        throw new Error("Aucun JSON trouvé dans la réponse");
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
 
       // Validation et valeurs par défaut
       return {
-        riskLevel: parsed.riskLevel || 'unknown',
+        riskLevel: parsed.riskLevel || "unknown",
         confidence: parsed.confidence || 50,
         reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
         riskyWorkflows: Array.isArray(parsed.riskyWorkflows) ? parsed.riskyWorkflows : [],
         recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
-        estimatedTimeToFailure: parsed.estimatedTimeToFailure || 'unknown',
-        preventiveActions: Array.isArray(parsed.preventiveActions) ? parsed.preventiveActions : []
+        estimatedTimeToFailure: parsed.estimatedTimeToFailure || "unknown",
+        preventiveActions: Array.isArray(parsed.preventiveActions) ? parsed.preventiveActions : [],
       };
     } catch (error) {
-      console.error('❌ Erreur parsing réponse Gemini:', error.message);
+      console.error("❌ Erreur parsing réponse Gemini:", error.message);
       return {
-        riskLevel: 'unknown',
+        riskLevel: "unknown",
         confidence: 0,
-        reasons: ['Erreur d\'analyse'],
-        error: true
+        reasons: ["Erreur d'analyse"],
+        error: true,
       };
     }
   }
@@ -315,15 +317,15 @@ Réponds en JSON :
         emergingRisks: Array.isArray(parsed.emergingRisks) ? parsed.emergingRisks : [],
         predictions: Array.isArray(parsed.predictions) ? parsed.predictions : [],
         preventiveActions: Array.isArray(parsed.preventiveActions) ? parsed.preventiveActions : [],
-        riskScore: parsed.riskScore || 50
+        riskScore: parsed.riskScore || 50,
       };
     } catch (error) {
       return {
         trends: [],
         emergingRisks: [],
-        predictions: ['Analyse des tendances indisponible'],
+        predictions: ["Analyse des tendances indisponible"],
         riskScore: 50,
-        error: true
+        error: true,
       };
     }
   }
@@ -339,14 +341,14 @@ Réponds en JSON :
       return {
         recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
         quickWins: Array.isArray(parsed.quickWins) ? parsed.quickWins : [],
-        longTerm: Array.isArray(parsed.longTerm) ? parsed.longTerm : []
+        longTerm: Array.isArray(parsed.longTerm) ? parsed.longTerm : [],
       };
     } catch (error) {
       return {
         recommendations: [],
-        quickWins: ['Recommandations indisponibles'],
+        quickWins: ["Recommandations indisponibles"],
         longTerm: [],
-        error: true
+        error: true,
       };
     }
   }
@@ -356,8 +358,8 @@ Réponds en JSON :
 const geminiPredictorInstance = new GeminiPredictiveAnalyzer();
 
 // Initialiser l'instance de manière asynchrone
-geminiPredictorInstance.initialize().catch(error => {
-  console.error('❌ Erreur lors de l\'initialisation du service Gemini:', error);
+geminiPredictorInstance.initialize().catch((error) => {
+  console.error("❌ Erreur lors de l'initialisation du service Gemini:", error);
 });
 
 // Exporter l'instance initialisée
@@ -378,32 +380,32 @@ export async function generateProactiveRecommendations(context) {
 
 // Test du service si appelé directement
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log('🧪 Test du service Gemini prédictif...');
+  console.log("🧪 Test du service Gemini prédictif...");
 
   // Attendre l'initialisation
   setTimeout(async () => {
-    console.log('Service disponible:', geminiPredictor.isAvailable ? '✅' : '❌');
+    console.log("Service disponible:", geminiPredictor.isAvailable ? "✅" : "❌");
 
     if (geminiPredictor.isAvailable) {
       // Test d'analyse de risque
       const testCommit = {
-        sha: 'abc123',
-        branch: 'main',
-        author: 'test-user',
-        message: 'Fix critical bug in authentication',
-        files: ['src/auth.js', 'package.json']
+        sha: "abc123",
+        branch: "main",
+        author: "test-user",
+        message: "Fix critical bug in authentication",
+        files: ["src/auth.js", "package.json"],
       };
 
-      console.log('Test analyse de risque...');
+      console.log("Test analyse de risque...");
       try {
         const riskAnalysis = await geminiPredictor.analyzeCommitRisk(testCommit);
-        console.log('✅ Analyse de risque réussie');
-        console.log('Résultat:', JSON.stringify(riskAnalysis, null, 2));
+        console.log("✅ Analyse de risque réussie");
+        console.log("Résultat:", JSON.stringify(riskAnalysis, null, 2));
       } catch (error) {
-        console.log('❌ Erreur analyse de risque:', error.message);
+        console.log("❌ Erreur analyse de risque:", error.message);
       }
     } else {
-      console.log('⚠️ Service non disponible - vérifiez VITE_GEMINI_API_KEY');
+      console.log("⚠️ Service non disponible - vérifiez VITE_GEMINI_API_KEY");
     }
   }, 1000); // Attendre 1 seconde pour l'initialisation
 }
