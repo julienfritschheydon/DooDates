@@ -119,11 +119,12 @@ if [ "$BRANCH" = "pre-prod" ]; then
   echo "🔄  GitHub Actions: Tests E2E complets (~56s)"
   echo ""
   
-  # 1. Lint léger
-  echo "🔍 ESLint léger..."
-  npx eslint . --max-warnings 50 --quiet
+  # 1. Lint strict (0 warnings, pas de any)
+  echo "🔍 ESLint (Strict - 0 warnings autorisées)..."
+  npm run lint -- --max-warnings=0
   if [ $? -ne 0 ]; then
-    echo "❌ Erreurs lint critiques - Commit bloqué"
+    echo "❌ Erreurs ou warnings lint - Commit bloqué"
+    echo "💡 Corrigez avec: npm run lint:fix"
     exit 1
   fi
   
