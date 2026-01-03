@@ -88,7 +88,7 @@ function startVite() {
   const viteProcess = exec(`npx vite --mode development --port ${PORT}`, {
     env: {
       ...process.env,
-      NODE_ENV: 'test',
+      NODE_ENV: 'development',  // FORCER development pour avoir l'interface complète
       VITE_HMR: 'false',
       VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
       FORCE_COLOR: '1',
