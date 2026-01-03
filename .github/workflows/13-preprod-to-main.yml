@@ -41,6 +41,26 @@ jobs:
         run: npm run build
         timeout-minutes: 5
         
+      - name: 🔍 CI Debug - Chat Input Analysis (FIRST E2E TEST)
+        run: |
+          echo "🔍 DÉBUT DE L'ANALYSE CI DEBUG - Chat Input"
+          echo "Ce test s'exécute en premier pour identifier les problèmes CI"
+          echo "Si ce test échoue, tous les autres tests E2E échoueront aussi"
+          echo ""
+          CI=true NODE_ENV=production BASE_URL=http://localhost:8080/DooDates VITE_GEMINI_API_KEY=TEST_MODE npx playwright test tests/e2e/ci-debug-chat-input.spec.ts --project=chromium --reporter=list
+        timeout-minutes: 5
+        continue-on-error: false
+        
+      - name: 📸 Upload CI Debug Screenshots (if failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-debug-screenshots-${{ github.run_number }}
+          path: |
+            test-results/**/*.png
+            ci-debug-*.png
+          retention-days: 7
+        
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
         uses: actions/cache@v4
