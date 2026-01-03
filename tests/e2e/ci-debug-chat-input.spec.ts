@@ -228,7 +228,19 @@ test.describe('🔍 CI Debug - Chat Input Analysis', () => {
     log('📋 Rapport de debug généré:');
     log(JSON.stringify(debugReport, null, 2));
     
-    // 9. Si pas de chat input mais page chargée, continuer en mode CI
+    // 9. Vérifier que NODE_ENV est correct pour éviter les régressions
+    const nodeEnv = await page.evaluate(() => process.env.NODE_ENV);
+    log(`🔍 NODE_ENV détecté: "${nodeEnv}"`);
+    
+    if (nodeEnv !== 'development') {
+      log(`🚨 RÉGRESSION DÉTECTÉE: NODE_ENV="${nodeEnv}" au lieu de "development"`);
+      log(`⚠️ Ceci va casser tous les tests E2E en CI !`);
+      log(`📝 Vérifier scripts/start-e2e-server.cjs ligne 96`);
+    } else {
+      log(`✅ NODE_ENV correct: "development" - Tests E2E vont fonctionner`);
+    }
+    
+    // 10. Si pas de chat input mais page chargée, continuer en mode CI
     if (chatInputCount === 0 && bodyVisible && pageTitle.includes('DooDates')) {
       log('🎯 CONCLUSION CI: Mode E2E simplifié détecté');
       log('📝 La page est chargée mais sans interface React complète');
