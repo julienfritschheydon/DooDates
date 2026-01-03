@@ -66,8 +66,8 @@ jobs:
         timeout-minutes: 5
         continue-on-error: false
         
-      - name: 📸 Upload CI Debug Screenshots (if failed)
-        if: failure()
+      - name: 📸 Upload CI Debug Screenshots (always)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-debug-screenshots-${{ github.run_number }}
