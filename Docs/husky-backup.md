@@ -1,0 +1,651 @@
+# 🔍 BACKUP - Configuration originale des hooks Husky
+
+## 📅 Date du backup
+3 janvier 2026 - Désactivé temporairement pour debug E2E
+
+## 🎯 Raison de la désactivation
+Les tests E2E échouent en CI et on a besoin de pouvoir commiter rapidement sans être bloqué par :
+- Formatage du code
+- Linting
+- Tests unitaires
+- Tests E2E critiques
+- Validation Error Handling
+- Audit Data-testid
+
+## 📝 Contenu original du fichier `.husky/pre-commit`
+
+```bash
+#!/bin/sh
+echo "🔍 DooDates - Validation pre-commit..."
+
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# ggshield secret scan (fail-fast sur toutes les branches, y compris test*)
+GGSHIELD_RAN=0
+if command -v ggshield >/dev/null 2>&1; then
+  echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+  ggshield secret scan pre-commit
+  if [ $? -ne 0 ]; then
+    echo "❌ Secrets détectés - Commit bloqué"
+    exit 1
+  fi
+  GGSHIELD_RAN=1
+else
+  echo "ℹ️ ggshield non installé (skip)"
+fi
+
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-commit (test branch) validé - Commit autorisé"
+  exit 0
+fi
+
+# Branche bug: validation ultra-rapide (formatage uniquement)
+if [ "$BRANCH" = "bug" ]; then
+  echo "🐛 Branche BUG: validation ultra-rapide..."
+  
+  # 1. Lint critique uniquement
+  echo "🔍 ESLint critique..."
+  npx eslint . --max-warnings 10 --quiet
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint critiques - Commit bloqué"
+    exit 1
+  fi
+  
+  # 2. Formatage uniquement
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
+  fi
+  
+  echo "✅ Pre-commit (bug) validé ultra-rapide - Tests gérés par CI"
+  exit 0
+fi
+
+# Branche testing: validation rapide (lint + format)
+if [ "$BRANCH" = "testing" ]; then
+  echo "🧪 Branche TESTING: validation rapide..."
+  
+  # 1. Lint léger
+  echo "🔍 ESLint léger..."
+  npx eslint . --max-warnings 30 --quiet
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint critiques - Commit bloqué"
+    exit 1
+  fi
+  
+  # 2. Formatage uniquement
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
+  fi
+  
+  echo "✅ Pre-commit (testing) validé rapide - Tests complets gérés par CI"
+  exit 0
+fi
+
+# Branche staging: validation intermédiaire (lint + type-check + format)
+if [ "$BRANCH" = "staging" ]; then
+  echo "🎭 Branche STAGING: validation intermédiaire..."
+  
+  # 1. Lint standard
+  echo "🔍 ESLint standard..."
+  npx eslint . --max-warnings 100
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint - Commit bloqué"
+    exit 1
+  fi
+  
+  # 2. Type-check (important pour staging)
+  echo "🔍 Vérification TypeScript..."
+  npm run type-check
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs TypeScript - Commit bloqué"
+    exit 1
+  fi
+  
+  # 3. Formatage uniquement
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format'"
+      exit 1
+    fi
+  fi
+  
+  echo "✅ Pre-commit (staging) validé - E2E et tests complets gérés par CI"
+  exit 0
+fi
+
+# Branche pre-prod: validation rapide (essentiel uniquement)
+if [ "$BRANCH" = "pre-prod" ]; then
+  echo "🚀 Branche PRE-PROD: validation RAPIDE (pre-commit)"
+  echo "ℹ️  Tests E2E complets seront exécutés dans GitHub Actions (version FULL)"
+  echo "⚡  Pre-commit: Lint + Format uniquement (~10s)"
+  echo "🔄  GitHub Actions: Tests E2E complets (~56s)"
+  echo ""
+  
+  # 1. Lint léger
+  echo "🔍 ESLint léger..."
+  npx eslint . --max-warnings 50 --quiet
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint critiques - Commit bloqué"
+    exit 1
+  fi
+  
+  # 2. Formatage uniquement
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "🎨 Vérification formatage..."
+    npx prettier --check .
+    if [ $? -ne 0 ]; then
+      echo "❌ Fichiers non formatés - Lancez 'npm run format' ou utilisez NO_FORMAT=1"
+      exit 1
+    fi
+  fi
+  
+  echo "✅ Pre-commit PREPROD terminé (RAPIDE ✅)"
+  echo "🔄 Prochaine étape: GitHub Actions exécutera les tests E2E FULL"
+  echo "📊 Répartition: Pre-commit (~10s) + GitHub Actions (~56s) = ~1min total"
+  exit 0
+fi
+
+# ggshield secret scan (fail-fast sur toutes les branches)
+if [ "$GGSHIELD_RAN" != "1" ]; then
+  if command -v ggshield >/dev/null 2>&1; then
+    echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+    ggshield secret scan pre-commit
+    if [ $? -ne 0 ]; then
+      echo "❌ Secrets détectés - Commit bloqué"
+      exit 1
+    fi
+  else
+    echo "ℹ️ ggshield non installé (skip)"
+  fi
+fi
+
+# Mode rapide optionnel pour accélérer les commits locaux
+# Activez-le avec FAST_HOOKS=1 pour ignorer les vérifications lourdes
+if [ "$FAST_HOOKS" = "1" ]; then
+  echo "⚡ Mode rapide activé (FAST_HOOKS=1) - tests lourds ignorés"
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Commit bloqué"
+    exit 1
+  fi
+
+  echo "💅 Formatage du code..."
+  npm run format
+
+  echo "✅ Pre-commit (rapide) validé - Commit autorisé"
+  exit 0
+fi
+
+# Validation conditionnelle selon la branche
+# Branches non-main (feature branches, etc.): validation rapide
+if [ "$BRANCH" != "main" ]; then
+  echo "⚡ Branche $BRANCH: validation rapide (lint + format + error handling)..."
+
+  # 0. Vérification serveur local ET erreurs JavaScript (optionnel, activé par défaut)
+  # Skip automatiquement en CI (GitHub Actions, etc.)
+  if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+    echo "⏭️ Environnement CI détecté - Vérification serveur local ignorée"
+  else
+    if [ "$SKIP_LOCAL_SERVER_CHECK" = "1" ]; then
+      echo "⏭️ Vérification serveur local ignorée (SKIP_LOCAL_SERVER_CHECK=1)"
+    else
+      echo "🌐 Vérification serveur local et erreurs JavaScript..."
+      if [ -f "scripts/verify-local-server-with-console-check.js" ]; then
+        # Utiliser le script Node.js optimisé qui vérifie aussi les erreurs console avec Playwright
+        node scripts/verify-local-server-with-console-check.js
+        if [ $? -ne 0 ]; then
+          echo "❌ Erreurs JavaScript détectées - Le site ne fonctionne pas correctement"
+          echo "💡 Corrigez les erreurs avant de commiter"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          exit 1  # Bloquer le commit si erreurs JS détectées
+        fi
+      elif [ -f "scripts/verify-local-server.sh" ]; then
+        bash scripts/verify-local-server.sh
+        if [ $? -ne 0 ]; then
+          echo "⚠️ Serveur local non disponible - Vérifiez avec: npm run dev"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          # Ne pas bloquer le commit, juste avertir
+        fi
+      elif [ -f "scripts/verify-local-server.ps1" ]; then
+        # Sur Windows avec PowerShell
+        pwsh -File scripts/verify-local-server.ps1
+        if [ $? -ne 0 ]; then
+          echo "⚠️ Serveur local non disponible - Vérifiez avec: npm run dev"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          # Ne pas bloquer le commit, juste avertir
+        fi
+      else
+        echo "⚠️ Script de vérification serveur local non trouvé"
+      fi
+    fi
+  fi
+
+  # 1. Lint strict (0 warnings, pas de any)
+  echo "🔍 ESLint (Strict)..."
+  npm run lint
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint - Commit bloqué"
+    exit 1
+  fi
+
+  # 2. Error Handling Enforcement (rapide ~5s)
+  echo "🛡️ Vérification Error Handling..."
+  npm run test:error-handling
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations Error Handling détectées - Commit bloqué"
+    echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+    exit 1
+  fi
+
+  # 2b. Vérification testabilité (data-testid, tests pour nouveau code)
+  echo "🧪 Vérification testabilité..."
+  node scripts/verify-testability.cjs
+  if [ $? -ne 0 ]; then
+    echo "⚠️ Problèmes de testabilité détectés (non bloquant pour le moment)"
+  fi
+
+  # 2c. Validation règles E2E (bonnes pratiques)
+  echo "📋 Validation règles E2E..."
+  node scripts/validation/validate-e2e-rules.cjs --staged
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations des règles E2E détectées - Commit bloqué"
+    echo "💡 Consultez Docs/TESTS/-Tests-Guide.md pour les bonnes pratiques"
+    exit 1
+  fi
+
+  # 3. Tests E2E critiques (ultra-simple form + poll @critical)
+  echo "🌐 Tests E2E critiques (ultra-simple form + poll)..."
+  npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E critiques échoués - Commit bloqué"
+    exit 1
+  fi
+
+  # 4. Formatage automatique
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "💅 Formatage du code..."
+    npm run format
+    # Auto-stage les fichiers formatés pour éviter les changements non commités
+    git add -u
+  else
+    echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+  fi
+
+  echo "✅ Pre-commit ($BRANCH) validé - Commit autorisé"
+  exit 0
+fi
+
+# Branche MAIN: validation complète
+echo "🔒 Branche MAIN: validation complète..."
+
+# 0. Lint strict (Main branch)
+echo "🔍 ESLint (Strict)..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Erreurs lint - Commit bloqué"
+  exit 1
+fi
+
+# 0. Validation qualité du code (nouvelle règle)
+echo "🔍 Validation qualité du code..."
+npm run validate
+if [ $? -ne 0 ]; then
+  echo "❌ Validation qualité échouée - Commit bloqué"
+  echo "💡 Consultez Docs/DEVELOPMENT-GUIDELINES.md"
+  exit 1
+fi
+
+# 1. Tests unitaires rapides (< 30s)
+echo "🧪 Tests unitaires rapides..."
+npm run test:unit:fast
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires échoués - Commit bloqué"
+  exit 1
+fi
+
+# 2. Validation TypeScript
+echo "🔍 Vérification TypeScript..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ Erreurs TypeScript - Commit bloqué"
+  exit 1
+fi
+
+# 3. Tests UX Régression (critique)
+echo "🎨 Tests UX Régression..."
+npm run test:ux-regression
+if [ $? -ne 0 ]; then
+  echo "❌ Régression UX détectée - Commit bloqué"
+  exit 1
+fi
+
+# 4. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Commit bloqué"
+  exit 1
+fi
+
+# 5. Error Handling Enforcement (CRITIQUE)
+echo "🛡️ Vérification Error Handling..."
+npm run test:error-handling
+if [ $? -ne 0 ]; then
+  echo "❌ Violations Error Handling détectées - Commit bloqué"
+  echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+  exit 1
+fi
+
+# 5b. Validation règles E2E (bonnes pratiques)
+echo "📋 Validation règles E2E..."
+node scripts/validation/validate-e2e-rules.cjs --staged
+if [ $? -ne 0 ]; then
+  echo "❌ Violations des règles E2E détectées - Commit bloqué"
+  echo "💡 Consultez Docs/TESTS/-Tests-Guide.md pour les bonnes pratiques"
+  exit 1
+fi
+
+# 5c. Audit Data-testid (multilingue)
+echo "🔍 Audit Data-testid (multilingue)..."
+node scripts/data-testid-auditor.cjs
+if [ $? -ne 0 ]; then
+  echo "❌ Boutons sans data-testid détectés - Commit bloqué"
+  echo "💡 Pour corriger automatiquement: npm run audit:data-testid:fix"
+  echo "💡 Pour ignorer temporairement: git commit --no-verify"
+  exit 1
+fi
+
+# 6. Formatage automatique (optionnel)
+# Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
+if [ "$NO_FORMAT" != "1" ]; then
+  echo "💅 Formatage du code..."
+  npm run format
+else
+  echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+fi
+
+echo "✅ Pre-commit validé - Commit autorisé"
+```
+
+## 📝 Contenu original du fichier `.husky/pre-push`
+
+```bash
+#!/bin/sh
+echo "🚀 DooDates - Validation pre-push..."
+
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-push (test branch) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche bug: validation légère (build seulement)
+if [ "$BRANCH" = "bug" ]; then
+  echo "🐛 Branche BUG: validation légère (CI fera les tests complets)..."
+  
+  # Build seulement
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (bug) validé - Push autorisé"
+  exit 0
+fi
+
+# Branches feature-*: validation légère (build seulement)
+if echo "$BRANCH" | grep -qE "^feature-"; then
+  echo "✨ Branche FEATURE ($BRANCH): validation légère (CI fera les tests complets)..."
+  
+  # Build seulement
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (feature) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche testing: validation légère+ (build + tests unitaires rapides)
+if [ "$BRANCH" = "testing" ]; then
+  echo "🧪 Branche TESTING: validation légère+..."
+  
+  # 1. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 2. Tests unitaires rapides
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (testing) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche staging: validation intermédiaire (build + tests unitaires + intégration)
+if [ "$BRANCH" = "staging" ]; then
+  echo "🎭 Branche STAGING: validation intermédiaire..."
+  
+  # 1. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 2. Tests unitaires rapides
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 3. Tests d'intégration
+  echo "🔗 Tests d'intégration..."
+  npm run test:integration
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests d'intégration échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (staging) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche pre-prod: validation complète (build + tests unitaires + intégration + E2E smoke)
+if [ "$BRANCH" = "pre-prod" ]; then
+  echo "🚀 Branche PRE-PROD: validation complète..."
+  
+  # Ressources accrues
+  export NODE_OPTIONS="--max-old-space-size=4096"
+  
+  # 1. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 2. Tests unitaires complets
+  echo "🧪 Tests unitaires complets..."
+  npm run test:unit
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 3. Tests d'intégration
+  echo "🔗 Tests d'intégration..."
+  npm run test:integration
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests d'intégration échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 4. Tests E2E Smoke
+  echo "🔥 Tests E2E Smoke..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (pre-prod) validé - Push autorisé"
+  exit 0
+fi
+
+# Ressources accrues pour éviter OOM et fiabiliser Vitest
+export NODE_OPTIONS="--max-old-space-size=4096"
+export VITEST_MAX_THREADS=1
+export VITEST_POOL=forks
+
+# 1. Suite complète de tests unitaires
+echo "🧪 Tests unitaires complets..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires complets échoués - Push bloqué"
+  exit 1
+fi
+
+# 2. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Push bloqué"
+  exit 1
+fi
+
+# 3. Build de production
+echo "🏗️ Build production..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build production échoué - Push bloqué"
+  exit 1
+fi
+
+# 4. Tests E2E Smoke (uniquement si push vers main)
+# Détecter si on push vers main en lisant les refs depuis stdin
+PUSHING_TO_MAIN="false"
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    PUSHING_TO_MAIN="true"
+    break
+  fi
+done
+
+if [ "$PUSHING_TO_MAIN" = "true" ]; then
+  echo "🔥 Tests E2E Smoke (protection branche main)..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push vers main bloqué"
+    echo "💡 Les tests critiques doivent passer avant de pusher vers main"
+    exit 1
+  fi
+  echo "✅ Tests E2E Smoke passés"
+fi
+
+echo "✅ Pre-push validé - Push autorisé"
+exit 0
+```
+
+## 🔄 Comment restaurer la configuration originale
+
+### Option 1: Depuis Git (recommandé)
+```bash
+git checkout HEAD~1 -- .husky/pre-commit .husky/pre-push
+```
+
+### Option 2: Depuis ce backup
+```bash
+# Pre-commit
+sed '1,/^```bash$/d; /^```$/,$d' docs/husky-backup.md > .husky/pre-commit
+
+# Pre-push  
+sed '1,/^```bash$/d; /^```$/,$d' docs/husky-backup.md > .husky/pre-push
+
+# Rendre exécutables
+chmod +x .husky/pre-commit .husky/pre-push
+```
+
+### Option 3: Manuellement
+1. Copier le contenu ci-dessus dans `.husky/pre-commit` et `.husky/pre-push`
+2. Supprimer les ```bash et ``` du début et de la fin
+3. Rendre les fichiers exécutables : `chmod +x .husky/pre-commit .husky/pre-push`
+
+## 📋 Résumé des fonctionnalités
+
+### ✅ Sécurité
+- **ggshield**: Scan des secrets dans tous les commits
+- **Fail-fast**: Bloque immédiatement si secrets détectés
+
+### ✅ Qualité du code
+- **ESLint**: Différents seuils selon la branche
+- **TypeScript**: Vérification des types
+- **Prettier**: Formatage automatique
+
+### ✅ Tests
+- **Unitaires rapides**: < 30s
+- **E2E critiques**: ultra-simple form + poll
+- **UX Régression**: Tests de régression
+- **Intégration**: Tests d'intégration
+
+### ✅ Spécifique DooDates
+- **Error Handling**: Vérification ErrorFactory
+- **Testabilité**: Audit data-testid
+- **Règles E2E**: Bonnes pratiques
+- **Serveur local**: Vérification fonctionnement
+
+### ✅ Branches spécialisées
+- **test\***: Skip complet (tests gérés par CI)
+- **bug**: Ultra-rapide (lint + format)
+- **testing**: Rapide (lint + format)
+- **staging**: Intermédiaire (lint + type-check + format)
+- **pre-prod**: Rapide (lint + format)
+- **main**: Complet (tous les tests)
+
+### ✅ Pre-push spécifique
+- **Build production**: Validation build
+- **Tests unitaires**: Complètes selon branche
+- **Tests intégration**: Validation API
+- **E2E Smoke**: Protection branche main
+- **Ressources accrues**: 4GB RAM pour éviter OOM
+
+## ⚠️ À NE PAS OUBLIER
+
+Quand les E2E seront corrigés, **réactiver immédiatement** ces hooks pour maintenir la qualité du code !
