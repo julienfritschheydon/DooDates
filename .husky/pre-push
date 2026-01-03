@@ -106,7 +106,16 @@ if [ "$BRANCH" = "pre-prod" ]; then
   # Ressources accrues
   export NODE_OPTIONS="--max-old-space-size=4096"
   
-  # 1. Build production
+  # 1. Lint strict (0 warnings, pas de any)
+  echo "🔍 ESLint (Strict - 0 warnings autorisées)..."
+  npm run lint -- --max-warnings=0
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs ou warnings lint - Push bloqué"
+    echo "💡 Corrigez avec: npm run lint:fix"
+    exit 1
+  fi
+  
+  # 2. Build production
   echo "🏗️ Build production..."
   npm run build
   if [ $? -ne 0 ]; then
@@ -114,7 +123,7 @@ if [ "$BRANCH" = "pre-prod" ]; then
     exit 1
   fi
   
-  # 2. Tests unitaires complets
+  # 3. Tests unitaires complets
   echo "🧪 Tests unitaires complets..."
   npm run test:unit
   if [ $? -ne 0 ]; then
@@ -122,7 +131,7 @@ if [ "$BRANCH" = "pre-prod" ]; then
     exit 1
   fi
   
-  # 3. Tests d'intégration
+  # 4. Tests d'intégration
   echo "🔗 Tests d'intégration..."
   npm run test:integration
   if [ $? -ne 0 ]; then
@@ -130,7 +139,7 @@ if [ "$BRANCH" = "pre-prod" ]; then
     exit 1
   fi
   
-  # 4. Tests E2E Smoke
+  # 5. Tests E2E Smoke
   echo "🔥 Tests E2E Smoke..."
   E2E_FORCE_MOCKS=true npm run test:e2e:smoke
   if [ $? -ne 0 ]; then

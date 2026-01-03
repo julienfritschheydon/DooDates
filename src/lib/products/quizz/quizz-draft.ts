@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // Quizz Draft Service
 // Auto-save functionality for quiz creation
 // DooDates - Quizz Product
@@ -84,7 +83,7 @@ export function loadQuizzDraft(): QuizzDraft | null {
 
     try {
       const draft = JSON.parse(raw);
-      
+
       // Basic validation
       if (!draft || !draft.id || typeof draft.title !== "string") {
         logger.warn("Invalid quiz draft format, clearing...", "general");
@@ -163,7 +162,7 @@ export function clearQuizzDraft(): void {
  */
 export function hasDraftWithContent(): boolean {
   const metadata = getDraftMetadata();
-  return !!(metadata?.hasContent);
+  return !!metadata?.hasContent;
 }
 
 /**
@@ -176,7 +175,7 @@ export function getDraftAge(): number {
   const lastActivity = new Date(metadata.lastActivity).getTime();
   const now = new Date().getTime();
   const ageMs = now - lastActivity;
-  
+
   return ageMs / (1000 * 60 * 60); // Convert to hours
 }
 
@@ -190,7 +189,9 @@ export function isDraftOld(): boolean {
 /**
  * Convert draft to full quiz object
  */
-export function draftToQuizz(draft: QuizzDraft): Omit<Quizz, "id" | "slug" | "status" | "created_at" | "updated_at" | "creator_id" | "type"> {
+export function draftToQuizz(
+  draft: QuizzDraft,
+): Omit<Quizz, "id" | "slug" | "status" | "created_at" | "updated_at" | "creator_id" | "type"> {
   const maxPoints = draft.questions.reduce((sum, q) => sum + (q.points || 1), 0);
 
   return {

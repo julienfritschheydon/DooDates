@@ -15,14 +15,14 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { addQuizz, type Quizz, type QuizzQuestion } from "@/lib/products/quizz/quizz-service";
-import { 
-  saveQuizzDraft, 
-  loadQuizzDraft, 
-  clearQuizzDraft, 
-  hasDraftWithContent, 
+import {
+  saveQuizzDraft,
+  loadQuizzDraft,
+  clearQuizzDraft,
+  hasDraftWithContent,
   isDraftOld,
   draftToQuizz,
-  type QuizzDraft 
+  type QuizzDraft,
 } from "@/lib/products/quizz/quizz-draft";
 import { quizzVisionService } from "@/services/QuizzVisionService";
 import { useToast } from "@/hooks/use-toast";
@@ -88,7 +88,7 @@ export const QuizzCreate: React.FC = () => {
   const [published, setPublished] = useState(false);
   const [publishedQuiz, setPublishedQuiz] = useState<Quizz | null>(null);
   const [advancedSettingsOpen, setAdvancedSettingsOpen] = useState(false);
-  
+
   // Auto-save draft state
   const [draftId, setDraftId] = useState<string | null>(null);
   const [draftCreatedAt, setDraftCreatedAt] = useState<string | null>(null);
@@ -103,7 +103,7 @@ export const QuizzCreate: React.FC = () => {
       const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
       setIsEmailFieldDismissed(dismissed);
     }
-    
+
     // Vérifier s'il y a un draft à charger
     const draft = loadQuizzDraft();
     if (draft && hasDraftWithContent()) {
@@ -111,12 +111,13 @@ export const QuizzCreate: React.FC = () => {
       if (isDraftOld()) {
         toast({
           title: "Ancien brouillon trouvé",
-          description: "Un brouillon de plus de 24h est disponible. Vous pouvez le continuer ou commencer un nouveau quiz.",
+          description:
+            "Un brouillon de plus de 24h est disponible. Vous pouvez le continuer ou commencer un nouveau quiz.",
           duration: 5000,
         });
       }
     }
-  }, [user]);
+  }, [user, toast]);
 
   // Auto-save après chaque modification
   React.useEffect(() => {
@@ -130,9 +131,9 @@ export const QuizzCreate: React.FC = () => {
         createdAt: draftCreatedAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+
       saveQuizzDraft(draft);
-      
+
       // Mettre à jour l'ID du draft si nouveau
       if (!draftId) {
         setDraftId(draft.id);
@@ -152,7 +153,7 @@ export const QuizzCreate: React.FC = () => {
       setDraftId(draft.id);
       setDraftCreatedAt(draft.createdAt);
       setShowDraftBanner(false);
-      
+
       toast({
         title: "Brouillon chargé",
         description: "Votre travail a été restauré.",
@@ -167,6 +168,11 @@ export const QuizzCreate: React.FC = () => {
       title: "Nouveau quiz",
       description: "Vous pouvez commencer un nouveau quiz.",
     });
+  };
+
+  const handleDismissEmailField = () => {
+    setIsEmailFieldDismissed(true);
+    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
   };
 
   // Toggle question expansion
@@ -394,12 +400,12 @@ export const QuizzCreate: React.FC = () => {
   // Valider qu'une question est complète
   const isQuestionComplete = (question: QuizzQuestion): boolean => {
     if (!question.question?.trim()) return false;
-    
+
     if (question.type === "single" || question.type === "multiple") {
       if (!question.options || question.options.length < 2) return false;
-      return question.options.every(opt => opt.trim() !== "");
+      return question.options.every((opt) => opt.trim() !== "");
     }
-    
+
     // Pour les autres types (text, text-ai, true-false), juste vérifier que la question est remplie
     return true;
   };
@@ -442,7 +448,16 @@ export const QuizzCreate: React.FC = () => {
       await addQuizz(quiz);
       setPublishedQuiz(quiz);
       setPublished(true);
+
+      // Nettoyer le draft après création réussie
+      clearQuizzDraft();
+
       toast({ title: "Quiz créé avec succès !" });
+
+      // Rediriger vers le dashboard après un court délai
+      setTimeout(() => {
+        navigate("/DooDates/quizz/dashboard");
+      }, 2000);
     } catch (error) {
       toast({ title: "Erreur lors de la création", variant: "destructive" });
     }
@@ -454,7 +469,10 @@ export const QuizzCreate: React.FC = () => {
       <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
           <div className="max-w-2xl mx-auto p-4 sm:p-6">
-            <div className="bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-xl border border-amber-700/30 p-8 text-center space-y-6" data-testid="quiz-success-screen">
+            <div
+              className="bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-xl border border-amber-700/30 p-8 text-center space-y-6"
+              data-testid="quiz-success-screen"
+            >
               {/* Icône de succès */}
               <div className="flex justify-center">
                 <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center">
@@ -468,7 +486,8 @@ export const QuizzCreate: React.FC = () => {
                   Quiz publié !
                 </h1>
                 <p className="text-gray-300">
-                  Votre quiz "{publishedQuiz.title}" est maintenant actif et prêt à recevoir des réponses.
+                  Votre quiz "{publishedQuiz.title}" est maintenant actif et prêt à recevoir des
+                  réponses.
                 </p>
               </div>
 
@@ -485,7 +504,19 @@ export const QuizzCreate: React.FC = () => {
                   <span className="text-sm font-medium">Information bêta</span>
                 </div>
                 <p className="text-sm text-blue-300 mt-1">
-                  Pour finaliser et partager votre quiz, après la bêta, vous devrez vous connecter ou créer un compte.
+                  Pour finaliser et partager votre quiz, après la bêta, vous devrez vous connecter
+                  ou créer un compte.
+                </p>
+              </div>
+
+              {/* Indicateur de redirection */}
+              <div className="p-4 bg-amber-500/10 border border-amber-600/30 rounded-lg">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent animate-spin rounded-full"></div>
+                  <span className="text-sm font-medium">Redirection vers le dashboard...</span>
+                </div>
+                <p className="text-sm text-amber-300 mt-1">
+                  Vous serez redirigé automatiquement dans 3 secondes.
                 </p>
               </div>
 
@@ -513,7 +544,10 @@ export const QuizzCreate: React.FC = () => {
               <div className="pt-4 border-t border-amber-700/50">
                 <p className="text-sm text-gray-400 mb-3">Lien de partage :</p>
                 <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
-                  <code className="px-4 py-2 bg-[#1e1e1e] border border-amber-700/50 rounded text-sm font-mono text-gray-300 break-all" data-testid="quiz-share-link">
+                  <code
+                    className="px-4 py-2 bg-[#1e1e1e] border border-amber-700/50 rounded text-sm font-mono text-gray-300 break-all"
+                    data-testid="quiz-share-link"
+                  >
                     {window.location.origin}/quizz/{publishedQuiz.slug || publishedQuiz.id}/vote
                   </code>
                   <button
@@ -542,6 +576,33 @@ export const QuizzCreate: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-6 sm:py-8 px-3 sm:px-4">
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+        {/* Banner de brouillon */}
+        {showDraftBanner && (
+          <div className="bg-amber-900/30 border border-amber-700/50 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+              <div>
+                <p className="text-amber-300 font-medium">Brouillon disponible</p>
+                <p className="text-amber-400 text-sm">Continuer votre travail précédent ?</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleContinueDraft}
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Continuer
+              </button>
+              <button
+                onClick={handleDismissDraft}
+                className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+              >
+                Ignorer
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center sm:text-left">
           <h1 className="text-xl sm:text-2xl font-bold text-white">Créer un Quiz</h1>
@@ -821,19 +882,21 @@ export const QuizzCreate: React.FC = () => {
                 <Settings className="w-5 h-5 text-gray-400" />
                 <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
               </div>
-              <ChevronDown 
+              <ChevronDown
                 className={`w-5 h-5 text-gray-400 transition-transform ${
-                  advancedSettingsOpen ? 'rotate-180' : ''
+                  advancedSettingsOpen ? "rotate-180" : ""
                 }`}
               />
             </button>
-            
+
             {/* Contenu des paramètres - affiché seulement si ouvert */}
             {advancedSettingsOpen && (
               <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-700">
                 <PollSettingsForm
                   settings={advancedSettings}
-                  onSettingsChange={(newSettings) => setAdvancedSettings(newSettings as QuizzSettings)}
+                  onSettingsChange={(newSettings) =>
+                    setAdvancedSettings(newSettings as QuizzSettings)
+                  }
                   pollType="date"
                 />
               </div>

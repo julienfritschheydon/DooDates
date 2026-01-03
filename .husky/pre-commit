@@ -220,10 +220,11 @@ if [ "$BRANCH" != "main" ]; then
   fi
 
   # 1. Lint strict (0 warnings, pas de any)
-  echo "🔍 ESLint (Strict)..."
-  npm run lint
+  echo "🔍 ESLint (Strict - 0 warnings autorisées)..."
+  npm run lint -- --max-warnings=0
   if [ $? -ne 0 ]; then
-    echo "❌ Erreurs lint - Commit bloqué"
+    echo "❌ Erreurs ou warnings lint - Commit bloqué"
+    echo "💡 Corrigez avec: npm run lint:fix"
     exit 1
   fi
 
