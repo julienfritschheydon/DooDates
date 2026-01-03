@@ -41,6 +41,21 @@ jobs:
         run: npm run build
         timeout-minutes: 5
         
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+        
+      - name: 🧭 Install Playwright (for debug test)
+        run: |
+          echo "🔧 Installation de Playwright pour le test de debug CI"
+          npx playwright install --with-deps
+        timeout-minutes: 3
+        
       - name: 🔍 CI Debug - Chat Input Analysis (FIRST E2E TEST)
         run: |
           echo "🔍 DÉBUT DE L'ANALYSE CI DEBUG - Chat Input"
@@ -60,15 +75,6 @@ jobs:
             test-results/**/*.png
             ci-debug-*.png
           retention-days: 7
-        
-      - name: 🎭 Cache Playwright browsers
-        id: cache-playwright
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
         
       - name: 🧭 Install Playwright (only if tests pass)
         run: |
