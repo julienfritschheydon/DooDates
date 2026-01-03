@@ -7,9 +7,9 @@ import AvailabilityPollsDashboard from "./Dashboard";
 import AvailabilityPollsPricing from "./Pricing";
 import AvailabilityPollsDocumentation from "./Documentation";
 
-// Placeholder components - à remplacer par les vrais composants
-const AvailabilityPollCreate = () => <div>Créer un sondage de disponibilités</div>;
-const AvailabilityPollView = () => <div>Voir un sondage de disponibilités</div>;
+// Vrais composants de création
+import { AvailabilityPollCreatorContent } from "../../pages/AvailabilityPollCreatorContent";
+import { AvailabilityPollsLayout } from "../../components/layout/products/AvailabilityPollsLayout";
 
 const AvailabilityPollsApp: React.FC = () => {
   return (
@@ -18,8 +18,12 @@ const AvailabilityPollsApp: React.FC = () => {
       <Route path="/dashboard" element={<AvailabilityPollsDashboard />} />
       <Route path="/pricing" element={<AvailabilityPollsPricing />} />
       <Route path="/documentation" element={<AvailabilityPollsDocumentation />} />
-      <Route path="/create" element={<AvailabilityPollCreate />} />
-      <Route path="/:id" element={<AvailabilityPollView />} />
+      <Route path="/workspace/availability" element={
+          <AvailabilityPollsLayout>
+            <AvailabilityPollCreatorContent />
+          </AvailabilityPollsLayout>
+        } />
+      <Route path="/:id" element={<div>Voir un sondage de disponibilités</div>} />
     </Routes>
   );
 };

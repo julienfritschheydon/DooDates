@@ -69,7 +69,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
 
         // 1. Navigation workspace Form
         log("🛠️ Navigation vers le workspace Form");
-        await page.goto(PRODUCT_ROUTES.formPoll.workspace, { waitUntil: "domcontentloaded" });
+        await page.goto("/DooDates/form-polls/workspace/form", { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
         await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");
@@ -147,8 +147,8 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           // Étape 5 — Test vote
           log("🗳️ Test vote sur formulaire");
 
-          // Navigation simple vers le dashboard
-          await page.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded", timeout: 30000 });
+          // Navigation simple vers le dashboard form polls
+          await page.goto("/DooDates/form-polls/dashboard", { waitUntil: "domcontentloaded", timeout: 30000 });
           await page.waitForTimeout(2000);
 
           log("✅ Navigation vers le dashboard réussie");

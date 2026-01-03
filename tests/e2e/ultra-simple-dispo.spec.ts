@@ -65,25 +65,29 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
 
         // 1. Naviguer vers le workspace Availability
         log("🛠️ Navigation vers le workspace Availability");
-        await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, {
-          waitUntil: "domcontentloaded",
-        });
+        await page.goto("/DooDates/availability-polls/workspace/availability", { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
         await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");
 
         // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
         const chatInput = page.locator('[data-testid="chat-input"]');
-        const pollTitle = page.locator('[data-testid="poll-title"]').first();
+        const formTitle = page.locator('[data-testid="availability-title"]').first();
 
         const hasChatInput = await chatInput.isVisible({ timeout: 3000 }).catch(() => false);
-        const hasPollTitle = await pollTitle.isVisible({ timeout: 3000 }).catch(() => false);
+        const hasFormTitle = await formTitle.isVisible({ timeout: 3000 }).catch(() => false);
 
-        if (hasPollTitle) {
+        if (hasFormTitle) {
           // Mode Formulaire manuel (attendu pour Availability Polls)
           log("📝 Mode Formulaire manuel détecté");
-          await fillFormTitle(page, "Réunion Équipe - Test E2E Dispo");
+          
+          // Remplir directement le champ titre avec le bon data-testid
+          await formTitle.fill("Réunion Équipe - Test E2E Dispo");
           log("✅ Titre rempli");
+
+          // Vérifier que le titre est bien rempli
+          const titleValue = await formTitle.inputValue();
+          log(`🔍 Titre actuel: "${titleValue}"`);
 
           // Description (optionnel)
           const descInput = page.locator('[data-testid="poll-description"]').first();
@@ -95,6 +99,9 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
           }
 
           await waitForReactStable(page, { browserName });
+
+          // Attendre un peu plus pour que le champ titre soit bien pris en compte
+          await page.waitForTimeout(1000);
 
           // 3. Publier le sondage
           log("🚀 Publication du sondage");

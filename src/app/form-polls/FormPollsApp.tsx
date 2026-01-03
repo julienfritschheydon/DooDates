@@ -7,9 +7,9 @@ import FormPollsDashboard from "./Dashboard";
 import FormPollsPricing from "./Pricing";
 import FormPollsDocumentation from "./DocumentationAdvanced";
 
-// Placeholder components - à remplacer par les vrais composants
-const FormPollCreate = () => <div>Créer un formulaire</div>;
-const FormPollView = () => <div>Voir un formulaire</div>;
+// Vrais composants de création
+import FormPollCreator from "../../components/polls/FormPollCreator";
+import { FormPollsLayout } from "../../components/layout/products/FormPollsLayout";
 
 const FormPollsApp: React.FC = () => {
   return (
@@ -18,8 +18,12 @@ const FormPollsApp: React.FC = () => {
       <Route path="/dashboard" element={<FormPollsDashboard />} />
       <Route path="/pricing" element={<FormPollsPricing />} />
       <Route path="/documentation" element={<FormPollsDocumentation />} />
-      <Route path="/create" element={<FormPollCreate />} />
-      <Route path="/:id" element={<FormPollView />} />
+      <Route path="/workspace/form" element={
+          <FormPollsLayout>
+            <FormPollCreator />
+          </FormPollsLayout>
+        } />
+      <Route path="/:id" element={<div>Voir un formulaire</div>} />
     </Routes>
   );
 };

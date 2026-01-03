@@ -12,16 +12,124 @@ function generateMockPollResponse(prompt: string): any {
 
   console.log("🤖 generateMockPollResponse - Prompt:", lowerPrompt.substring(0, 100) + "...");
 
-  // Detect if it's a form poll or date poll request
+  // Detect if it's a form poll, date poll, or quiz request
   const isFormPoll =
     lowerPrompt.includes("questionnaire") ||
     lowerPrompt.includes("formulaire") ||
     lowerPrompt.includes("form") ||
     lowerPrompt.includes("question");
 
-  console.log("🤖 generateMockPollResponse - isFormPoll:", isFormPoll);
+  const isQuiz =
+    lowerPrompt.includes("quiz") ||
+    lowerPrompt.includes("quizz") ||
+    lowerPrompt.includes("test") ||
+    lowerPrompt.includes("examen") ||
+    lowerPrompt.includes("évaluation");
 
-  if (isFormPoll) {
+  console.log("🤖 generateMockPollResponse - isFormPoll:", isFormPoll, "isQuiz:", isQuiz);
+
+  if (isQuiz) {
+    // 🎯 Génération de quiz pour les tests E2E
+    let numQuestions = 3; // Par défaut
+    let subject = "Général"; // Matière par défaut
+
+    // Détection du nombre de questions
+    if (lowerPrompt.includes("e2e-test-1-question") || lowerPrompt.includes("1 seule question")) {
+      numQuestions = 1;
+    } else if (lowerPrompt.includes("e2e-test-2-questions")) {
+      numQuestions = 2;
+    } else {
+      const questionMatch = lowerPrompt.match(/(\d+)\s*(question|q)/);
+      numQuestions = questionMatch ? parseInt(questionMatch[1]) : 3;
+    }
+
+    // Détection de la matière
+    if (lowerPrompt.includes("math") || lowerPrompt.includes("calcul") || lowerPrompt.includes("addition")) {
+      subject = "Mathématiques";
+    } else if (lowerPrompt.includes("français") || lowerPrompt.includes("grammaire") || lowerPrompt.includes("orthographe")) {
+      subject = "Français";
+    } else if (lowerPrompt.includes("histoire") || lowerPrompt.includes("révolution") || lowerPrompt.includes("napoléon")) {
+      subject = "Histoire";
+    } else if (lowerPrompt.includes("science") || lowerPrompt.includes("physique") || lowerPrompt.includes("chimie")) {
+      subject = "Sciences";
+    }
+
+    // Génération du titre du quiz
+    let quizTitle = `Quiz ${subject} - Test E2E`;
+    
+    // Extraire un titre personnalisé si présent
+    const titleMatch = prompt.match(/(?:titre|title)\s+[«"]([^»"]+)[»"]|(?:titre|title)\s+"([^"]+)"/i);
+    if (titleMatch) {
+      quizTitle = titleMatch[1] || titleMatch[2];
+    }
+
+    // Generate quiz questions
+    const questions: any[] = [];
+    for (let i = 1; i <= numQuestions; i++) {
+      if (subject === "Mathématiques") {
+        questions.push({
+          id: `q${i}`,
+          question: `Combien font ${10 * i} + ${5 * i} ?`,
+          type: "text",
+          options: [],
+          correctAnswer: `${15 * i}`,
+          points: 1,
+          explanation: `La réponse est ${15 * i}. On additionne ${10 * i} + ${5 * i}.`
+        });
+      } else if (subject === "Français") {
+        questions.push({
+          id: `q${i}`,
+          question: `Quelle est la nature du mot "test" ?`,
+          type: "single",
+          options: ["Nom", "Verbe", "Adjectif", "Adverbe"],
+          correctAnswer: "Nom",
+          points: 1,
+          explanation: "Test est un nom qui désigne une évaluation."
+        });
+      } else if (subject === "Histoire") {
+        questions.push({
+          id: `q${i}`,
+          question: `En quelle année a eu lieu la Révolution française ?`,
+          type: "text", 
+          options: [],
+          correctAnswer: "1789",
+          points: 1,
+          explanation: "La Révolution française a commencé en 1789."
+        });
+      } else {
+        // Quiz général
+        questions.push({
+          id: `q${i}`,
+          question: `Question ${i} générée par mock`,
+          type: i === 1 ? "single" : i === 2 ? "multiple" : "text",
+          options: i <= 2 ? ["Option A", "Option B", "Option C"] : [],
+          correctAnswer: i <= 2 ? "Option A" : `Réponse ${i}`,
+          points: 1,
+          explanation: `Explication pour la question ${i}`
+        });
+      }
+    }
+
+    const quizData = {
+      title: quizTitle,
+      subject: subject,
+      questions: questions,
+      confidence: 90
+    };
+
+    console.log("🤖 generateMockPollResponse - quizData généré:", JSON.stringify(quizData));
+
+    return {
+      candidates: [
+        {
+          content: {
+            parts: [{ text: JSON.stringify(quizData) }],
+          },
+          finishReason: "STOP",
+        },
+      ],
+    };
+  } else if (isFormPoll) {
     // 🎯 Détection de mots-clés spéciaux pour les tests E2E
     let numQuestions = 3; // Par défaut
     let simpleTextOnly = false; // Pour générer uniquement des questions texte simples

@@ -6,6 +6,7 @@ import { LandingPage } from "./LandingPage";
 
 // Lazy load pour optimiser le bundle
 const QuizzDashboard = lazy(() => import("./Dashboard"));
+const QuizzVote = lazy(() => import("@/components/polls/QuizzVote"));
 const QuizzResults = lazy(() => import("@/components/polls/QuizzResults"));
 const QuizzDocumentation = lazy(() => import("./Documentation"));
 const QuizzPricing = lazy(() => import("./Pricing"));
@@ -38,6 +39,7 @@ const QuizzApp: React.FC = () => {
           <Route path="/docs" element={<QuizzDocumentation />} />
           <Route path="/documentation" element={<QuizzDocumentation />} />
           <Route path="/pricing" element={<QuizzPricing />} />
+          <Route path="/:slug/vote" element={<QuizzVote />} />
           <Route path="/:slug/results" element={<QuizzResults />} />
         </Routes>
       </Suspense>

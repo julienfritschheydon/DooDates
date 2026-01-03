@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Quizz Route</title>
+</head>
+<body>
+    <h1>Test de création de quizz</h1>
+    <button onclick="createTestQuizz()">Créer un quizz de test</button>
+    <button onclick="testQuizzRoute()">Tester la route</button>
+    
+    <script>
+        function createTestQuizz() {
+            const testQuizz = {
+                id: "test-quizz-id",
+                slug: "testssqs-mjyvqbxo",
+                title: "Quizz de test",
+                description: "Quizz créé pour tester la route",
+                type: "quizz",
+                questions: [
+                    {
+                        id: "q1",
+                        question: "Combien font 2+2 ?",
+                        type: "single",
+                        options: ["3", "4", "5"],
+                        correctAnswer: "4",
+                        points: 10
+                    }
+                ],
+                createdAt: new Date().toISOString(),
+                settings: {
+                    allowAnonymous: true,
+                    showResults: true
+                }
+            };
+            
+            localStorage.setItem("doodates_quizz", JSON.stringify([testQuizz]));
+            console.log("Quizz de test créé :", testQuizz);
+            alert("Quizz de test créé avec slug: testssqs-mjyvqbxo");
+        }
+        
+        function testQuizzRoute() {
+            window.open("http://localhost:5173/quizz/testssqs-mjyvqbxo/vote", "_blank");
+        }
+    </script>
+</body>
+</html>

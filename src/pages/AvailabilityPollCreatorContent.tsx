@@ -305,7 +305,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </Label>
               <Input
                 id="title"
-                data-testid="poll-title"
+                data-testid="availability-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Planification rendez-vous - Novembre 2025"

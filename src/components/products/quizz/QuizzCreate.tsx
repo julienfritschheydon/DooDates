@@ -213,12 +213,21 @@ export const QuizzCreate: React.FC = () => {
     toast({ title: "Génération en cours...", description: "Gemini analyse votre demande" });
 
     try {
-      console.log("[QuizzCreate] Génération depuis texte:", textPrompt);
-      const result = await quizzVisionService.generateFromText(textPrompt);
+      // Construire le contexte complet pour la génération
+      let fullPrompt = textPrompt;
+      if (title.trim()) {
+        fullPrompt = `CONTEXTE DÉJÀ SAISI:\nTitre: "${title}"\n\nDEMANDE COMPLÉMENTAIRE: ${textPrompt}`;
+      }
+      
+      console.log("[QuizzCreate] Génération avec contexte complet:", fullPrompt);
+      const result = await quizzVisionService.generateFromText(fullPrompt);
       console.log("[QuizzCreate] Résultat:", result);
 
       if (result.success && result.data) {
-        setTitle(result.data.title);
+        // Mettre à jour le titre seulement si non déjà saisi manuellement
+        if (!title.trim()) {
+          setTitle(result.data.title);
+        }
         setQuestions(result.data.questions);
         toast({ title: `✅ ${result.data.questions.length} questions générées !` });
       } else {
@@ -324,7 +333,10 @@ export const QuizzCreate: React.FC = () => {
       console.log("[QuizzCreate] Résultat:", result);
 
       if (result.success && result.data) {
-        setTitle(result.data.title);
+        // Mettre à jour le titre seulement si non déjà saisi manuellement
+        if (!title.trim()) {
+          setTitle(result.data.title);
+        }
         setQuestions(result.data.questions);
         if (result.data.questions.length === 0) {
           toast({
@@ -383,6 +395,8 @@ export const QuizzCreate: React.FC = () => {
       points: 1,
     };
     setQuestions([...questions, newQ]);
+    // Déplier automatiquement la nouvelle question
+    setExpandedQuestions(prev => new Set([...prev, newQ.id]));
   };
 
   // Mettre à jour une question
@@ -415,10 +429,6 @@ export const QuizzCreate: React.FC = () => {
 
   // Sauvegarder le quiz
   const handleSave = async () => {
-    if (!title.trim()) {
-      toast({ title: "Veuillez entrer un titre", variant: "destructive" });
-      return;
-    }
     if (questions.length === 0) {
       toast({ title: "Ajoutez au moins une question", variant: "destructive" });
       return;
@@ -428,12 +438,32 @@ export const QuizzCreate: React.FC = () => {
       return;
     }
 
+    // Générer automatiquement un titre si non saisi
+    let finalTitle = title.trim();
+    if (!finalTitle) {
+      // Générer un titre basé sur les questions ou le contenu
+      const firstQuestion = questions[0]?.question || "";
+      const subject = questions[0]?.explanation?.includes("math") ? "Mathématiques" : 
+                      questions[0]?.explanation?.includes("français") ? "Français" : 
+                      questions[0]?.explanation?.includes("histoire") ? "Histoire" : 
+                      "Quiz";
+      finalTitle = `Quiz ${subject} - ${new Date().toLocaleDateString('fr-FR')}`;
+      
+      // Mettre à jour le titre généré
+      setTitle(finalTitle);
+      toast({ 
+        title: "Titre généré automatiquement", 
+        description: `Titre : "${finalTitle}"`,
+        duration: 3000 
+      });
+    }
+
     const maxPoints = questions.reduce((sum, q) => sum + (q.points || 1), 0);
     const quiz: Quizz = {
       id: `quiz_${Date.now()}`,
-      slug: generateSlug(title),
-      title,
-      description,
+      slug: generateSlug(finalTitle),
+      title: finalTitle,
+      description: "", // Description retirée
       type: "quizz",
       questions,
       status: "active",
@@ -454,10 +484,7 @@ export const QuizzCreate: React.FC = () => {
 
       toast({ title: "Quiz créé avec succès !" });
 
-      // Rediriger vers le dashboard après un court délai
-      setTimeout(() => {
-        navigate("/DooDates/quizz/dashboard");
-      }, 2000);
+      // Note: L'écran de succès s'affiche via le return ci-dessous
     } catch (error) {
       toast({ title: "Erreur lors de la création", variant: "destructive" });
     }
@@ -509,21 +536,10 @@ export const QuizzCreate: React.FC = () => {
                 </p>
               </div>
 
-              {/* Indicateur de redirection */}
-              <div className="p-4 bg-amber-500/10 border border-amber-600/30 rounded-lg">
-                <div className="flex items-center gap-2 text-amber-400">
-                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent animate-spin rounded-full"></div>
-                  <span className="text-sm font-medium">Redirection vers le dashboard...</span>
-                </div>
-                <p className="text-sm text-amber-300 mt-1">
-                  Vous serez redirigé automatiquement dans 3 secondes.
-                </p>
-              </div>
-
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
-                  to="/quizz"
+                  to="/DooDates/quizz/dashboard"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg font-semibold transition-all shadow-lg"
                   data-testid="quiz-go-to-dashboard"
                 >
@@ -531,7 +547,7 @@ export const QuizzCreate: React.FC = () => {
                   Aller au Tableau de bord
                 </Link>
                 <Link
-                  to={`/quizz/${publishedQuiz.slug || publishedQuiz.id}/vote`}
+                  to={`/DooDates/quizz/${publishedQuiz.slug || publishedQuiz.id}/vote`}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-amber-300 border-2 border-amber-600/50 rounded-lg font-semibold hover:bg-amber-900/30 transition-colors"
                   data-testid="quiz-view-quiz"
                 >
@@ -660,58 +676,31 @@ export const QuizzCreate: React.FC = () => {
                 </span>
               </Button>
             </div>
-          </div>
-
-          {/* Option 2: Texte */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              type="text"
-              value={textPrompt}
-              onChange={(e) => setTextPrompt(e.target.value)}
-              placeholder="Décrivez le quiz à générer (ex: maths CE2 sur les fractions)"
-              className="flex-1 px-3 sm:px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              disabled={isGenerating}
-            />
-            <Button
-              onClick={handleGenerateFromText}
-              disabled={isGenerating || !textPrompt.trim()}
-              size="lg"
-              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 flex items-center justify-center gap-2 text-sm font-medium flex-shrink-0"
-            >
-              {isGenerating ? (
-                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-              )}
-              <span>Générer</span>
-            </Button>
+            <p className="text-xs text-gray-400 mt-2 text-center">
+              L'IA générera automatiquement le titre et les questions
+            </p>
           </div>
         </div>
 
-        {/* Infos de base */}
+        {/* Infos de base - toujours visible */}
         <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-700 space-y-3 sm:space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Titre du quiz *</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Titre du quiz *
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Quiz Mathématiques - Les fractions"
+              placeholder="Ex: Quiz Mathématiques - CE2"
               className="w-full px-3 sm:px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               data-testid="quiz-title-input"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Description (optionnel)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Décrivez le quiz..."
-              rows={2}
-              className="w-full px-3 sm:px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-            />
+            {!title.trim() && (
+              <p className="text-xs text-amber-400 mt-1">
+                💡 Laissez vide pour que l'IA génère automatiquement un titre
+              </p>
+            )}
           </div>
         </div>
 

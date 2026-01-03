@@ -750,7 +750,6 @@ const App = () => {
 
                                 {/* Quizz - Aide aux Devoirs */}
                                 <Route path="/quizz/*" element={<QuizzApp />} />
-                                <Route path="/quizz/:slug/vote" element={<QuizzVote />} />
 
                                 {/* Old /create/* routes - Redirect to product-specific routes */}
                                 <Route
