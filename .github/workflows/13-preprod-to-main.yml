@@ -25,7 +25,38 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
         
-      - name: 🔍 CI Debug Test - SEUL TEST NÉCESSAIRE
+      - name: 🧪 Tests Unitaires Complets
+        run: npm run test:unit:fast
+        timeout-minutes: 5
+        
+      - name: 📝 TypeScript Check
+        run: npm run type-check
+        timeout-minutes: 3
+        
+      - name: 🧹 Linting & Formatage
+        run: npm run lint -- --max-warnings=0
+        timeout-minutes: 3
+        
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 5
+        
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+        
+      - name: 🧭 Install Playwright (for debug test)
+        run: |
+          echo "🔧 Installation de Playwright pour le test de debug CI"
+          npx playwright install --with-deps
+        timeout-minutes: 3
+        
+      - name: 🔍 CI Debug - Chat Input Analysis (FIRST E2E TEST)
         run: |
           echo "🔍 DÉBUT DE L'ANALYSE CI DEBUG - Chat Input"
           echo "Ce test s'exécute en premier pour identifier les problèmes CI"
@@ -47,6 +78,32 @@ jobs:
             ci-debug-*.png
           retention-days: 7
         
+      # ⚡ ÉTAPES SUIVANTES DÉSACTIVÉES POUR DEBUG
+      # On remettra après résolution du problème
+      
+      # - name: 🧭 Install Playwright (only if tests pass)
+      #   run: |
+      #     if [ "${{ job.status }}" == "success" ]; then
+      #       echo "✅ Tests passés, installation Playwright pour E2E..."
+      #       npx playwright install --with-deps
+      #     else
+      #       echo "❌ Tests échoués, skip Playwright installation"
+      #       exit 1
+      #     fi
+      #   timeout-minutes: 3
+        
+      # - name: 🎭 Tests E2E Smoke
+      #   run: npm run test:e2e:smoke
+      #   timeout-minutes: 10
+      #   continue-on-error: false
+        
+      # - name: 🎭 Tests E2E Functional
+      #   run: npm run test:e2e:functional
+      #   timeout-minutes: 20  # Augmenté de 15 à 20min
+      #   continue-on-error: false
+        
+      # 🔍 FIN DES ÉTAPES DÉSACTIVÉES
+      
       - name: 📊 CI Debug Summary
         if: always()
         run: |

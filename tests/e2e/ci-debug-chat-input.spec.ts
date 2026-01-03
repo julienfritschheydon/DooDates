@@ -289,5 +289,15 @@ test.describe('🔍 CI Debug - Chat Input Analysis', () => {
     }
     
     log('🎉 Analyse CI debug terminée');
+    
+    // 11. Assertion finale pour faire réussir le test
+    if (chatInputCount > 0) {
+      log('✅ Chat input trouvé - Test CI debug RÉUSSI');
+      expect(chatInputCount).toBeGreaterThan(0);
+      expect(pageTitle).toContain('DooDates');
+    } else {
+      log('❌ Chat input non trouvé - Test CI debug ÉCHOUÉ');
+      expect(chatInputCount).toBeGreaterThan(0);
+    }
   });
 });
