@@ -93,7 +93,7 @@ function startVite() {
       // to render the complete interface with data-testid elements
       // Without this, E2E tests fail because React renders minimal UI in test mode
       // DO NOT CHANGE THIS unless you update all E2E tests accordingly
-      NODE_ENV: 'development',  
+      NODE_ENV: 'development',  // FORCE this after spreading process.env
       VITE_HMR: 'false',
       VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
       FORCE_COLOR: '1',
