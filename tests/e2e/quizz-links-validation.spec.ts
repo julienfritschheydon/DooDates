@@ -60,10 +60,16 @@ test.describe("DooDates - Test Validation Liens Quiz", () => {
         log("🛠️ Création d'un quiz pour tester les liens");
         await page.goto("/DooDates/quizz/create", { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
+        await expect(page).toHaveTitle(/DooDates/);
+        log("✅ App chargée");
 
-        // Détecter le type d'interface
+        // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
         const chatInput = page.locator('[data-testid="chat-input"]');
-        const formTitle = page.locator('[data-testid="quiz-title-input"]');
+        const formTitle = page
+          .locator(
+            'input[placeholder*="titre" i], input[name*="title"], [data-testid="quiz-title-input"]',
+          )
+          .first();
 
         const hasChatInput = await chatInput.isVisible({ timeout: 3000 }).catch(() => false);
         const hasFormTitle = await formTitle.isVisible({ timeout: 3000 }).catch(() => false);
