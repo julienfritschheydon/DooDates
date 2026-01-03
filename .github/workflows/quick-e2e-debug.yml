@@ -1,0 +1,84 @@
+name: 🚀 Quick E2E Debug Test
+
+on:
+  workflow_dispatch:  # Permet de lancer manuellement
+  push:
+    branches: [debug-e2e]  # Optionnel: déclencher sur cette branche
+
+jobs:
+  quick-e2e-debug:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: 📦 Install Dependencies
+        run: npm ci
+        
+      - name: 🧪 Tests Unitaires Rapides
+        run: npm run test:unit:fast
+        timeout-minutes: 2
+        
+      - name: 📝 TypeScript Check
+        run: npm run type-check
+        timeout-minutes: 2
+        
+      - name: 🧹 Linting & Formatage
+        run: npm run lint -- --max-warnings=0
+        timeout-minutes: 2
+        
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 3
+        
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json', 'playwright.config*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+        
+      - name: 🧭 Install Playwright
+        run: |
+          echo "🔧 Installation de Playwright pour le test de debug CI"
+          npx playwright install --with-deps
+        timeout-minutes: 3
+        
+      - name: 🚀 Quick E2E Debug Test
+        run: |
+          echo "🔍 DÉBUT DU TEST RAPIDE E2E DEBUG"
+          echo "🔧 NODE_ENV=development pour interface React complète"
+          echo "⚡ Test rapide pour diagnostiquer les problèmes CI"
+          echo ""
+          CI=true NODE_ENV=development BASE_URL=http://localhost:8080/DooDates VITE_GEMINI_API_KEY=TEST_MODE npx playwright test tests/e2e/ci-debug-chat-input.spec.ts --project=chromium --reporter=list
+        timeout-minutes: 5
+        
+      - name: 📸 Upload Debug Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quick-e2e-debug-screenshots-${{ github.run_number }}
+          path: |
+            test-results/**/*.png
+            ci-debug-*.png
+          retention-days: 3
+          
+      - name: 📊 Quick Debug Summary
+        if: always()
+        run: |
+          echo "## Quick E2E Debug Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test**: CI Debug Chat Input Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: NODE_ENV=development" >> $GITHUB_STEP_SUMMARY
+          echo "- **Purpose**: Diagnose React initialization issues" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📸 Screenshots uploaded in artifacts" >> $GITHUB_STEP_SUMMARY

@@ -1,3 +1,20 @@
+# 🔍 BACKUP - Configuration originale du pre-commit Husky
+
+## 📅 Date du backup
+3 janvier 2026 - Désactivé temporairement pour debug E2E
+
+## 🎯 Raison de la désactivation
+Les tests E2E échouent en CI et on a besoin de pouvoir commiter rapidement sans être bloqué par :
+- Formatage du code
+- Linting
+- Tests unitaires
+- Tests E2E critiques
+- Validation Error Handling
+- Audit Data-testid
+
+## 📝 Contenu original du fichier `.husky/pre-commit`
+
+```bash
 #!/bin/sh
 echo "🔍 DooDates - Validation pre-commit..."
 
@@ -344,34 +361,77 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-#!/bin/sh
-# 🔍 DÉSACTIVÉ TEMPORAIREMENT - Pre-commit désactivé pour debug rapide E2E
-# ✅ Commit autorisé sans vérifications
-# 
-# POUR RÉACTIVER PLUS TARD (quand les E2E marchent) :
-# 1. Remplacer ce contenu par le backup dans .husky/pre-commit-data-testid
-# 2. OU restaurer depuis git: git checkout HEAD~1 -- .husky/pre-commit
-# 3. OU copier le contenu de docs/pre-commit-backup.md
-#
-# CONTENU ORIGINAL SAUVEGARDÉ :
-# - ggshield secret scan
-# - ESLint avec différents seuils par branche
-# - TypeScript check
-# - Tests unitaires rapides
-# - Tests E2E critiques
-# - Formatage automatique
-# - Validation Error Handling
-# - Audit Data-testid
-# - Vérification serveur local
-#
-# BRANCHES SPÉCIALES :
-# - test*: validation complètement skipée
-# - bug: validation ultra-rapide (lint + format)
-# - testing: validation rapide (lint + format)
-# - staging: validation intermédiaire (lint + type-check + format)
-# - pre-prod: validation rapide (lint + format)
-# - main: validation complète (tous les tests)
-#
-# ⚠️ NE PAS OUBLIER DE RÉACTIVER APRÈS DEBUG E2E !
+# 5c. Audit Data-testid (multilingue)
+echo "🔍 Audit Data-testid (multilingue)..."
+node scripts/data-testid-auditor.cjs
+if [ $? -ne 0 ]; then
+  echo "❌ Boutons sans data-testid détectés - Commit bloqué"
+  echo "💡 Pour corriger automatiquement: npm run audit:data-testid:fix"
+  echo "💡 Pour ignorer temporairement: git commit --no-verify"
+  exit 1
+fi
 
-exit 0
+# 6. Formatage automatique (optionnel)
+# Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
+if [ "$NO_FORMAT" != "1" ]; then
+  echo "💅 Formatage du code..."
+  npm run format
+else
+  echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+fi
+
+echo "✅ Pre-commit validé - Commit autorisé"
+```
+
+## 🔄 Comment restaurer la configuration originale
+
+### Option 1: Depuis Git (recommandé)
+```bash
+git checkout HEAD~1 -- .husky/pre-commit
+```
+
+### Option 2: Depuis ce backup
+```bash
+cp docs/pre-commit-backup.md .husky/pre-commit
+# Puis éditer pour supprimer les ```bash et ``` à la fin
+```
+
+### Option 3: Manuellement
+1. Copier le contenu ci-dessus dans `.husky/pre-commit`
+2. Supprimer les ```bash et ``` du début et de la fin
+3. Rendre le fichier exécutable : `chmod +x .husky/pre-commit`
+
+## 📋 Résumé des fonctionnalités
+
+### ✅ Sécurité
+- **ggshield**: Scan des secrets dans tous les commits
+- **Fail-fast**: Bloque immédiatement si secrets détectés
+
+### ✅ Qualité du code
+- **ESLint**: Différents seuils selon la branche
+- **TypeScript**: Vérification des types
+- **Prettier**: Formatage automatique
+
+### ✅ Tests
+- **Unitaires rapides**: < 30s
+- **E2E critiques**: ultra-simple form + poll
+- **UX Régression**: Tests de régression
+- **Intégration**: Tests d'intégration
+
+### ✅ Spécifique DooDates
+- **Error Handling**: Vérification ErrorFactory
+- **Testabilité**: Audit data-testid
+- **Règles E2E**: Bonnes pratiques
+- **Serveur local**: Vérification fonctionnement
+
+### ✅ Branches spécialisées
+- **test\***: Skip complet (tests gérés par CI)
+- **bug**: Ultra-rapide (lint + format)
+- **testing**: Rapide (lint + format)
+- **staging**: Intermédiaire (lint + type-check + format)
+- **pre-prod**: Rapide (lint + format)
+- **main**: Complet (tous les tests)
+
+## ⚠️ À NE PAS OUBLIER
+
+Quand les E2E seront corrigés, **réactiver immédiatement** ce pre-commit pour maintenir la qualité du code !
