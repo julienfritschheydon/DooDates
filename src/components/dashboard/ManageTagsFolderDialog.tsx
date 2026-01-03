@@ -225,10 +225,10 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} data-testid="managetagsfolderdialog-button">
             Annuler
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving} data-testid="save-manage-tags">
             {isSaving ? "Enregistrement..." : "Enregistrer"}
           </Button>
         </DialogFooter>

@@ -345,7 +345,7 @@ export function ConversationSearch({
                     >
                       {text.cancel}
                     </Button>
-                    <Button size="sm" onClick={handleDateRangeApply}>
+                    <Button size="sm" onClick={handleDateRangeApply} data-testid="conversationsearch-button">
                       {text.apply}
                     </Button>
                   </div>

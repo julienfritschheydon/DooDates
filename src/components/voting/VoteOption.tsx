@@ -95,6 +95,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
               ? "bg-blue-500/30 border-blue-500 ring-1 ring-blue-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535]"
           }`}
+          data-testid={`vote-option-yes-${option.id}`}
         >
           <div className="flex flex-col items-center gap-0.5 relative z-10">
             <Check
@@ -146,6 +147,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
               ? "bg-orange-500/30 border-orange-500 ring-1 ring-orange-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535]"
           }`}
+          data-testid={`vote-option-maybe-${option.id}`}
         >
           <div className="flex flex-col items-center gap-0.5 relative z-10">
             <HelpCircle
@@ -201,6 +203,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
               ? "bg-red-500/30 border-red-500 ring-1 ring-red-400"
               : "bg-[#2a2a2a] border-gray-700 hover:bg-[#353535]"
           }`}
+          data-testid={`vote-option-no-${option.id}`}
         >
           <div className="flex flex-col items-center gap-0.5 relative z-10">
             <X

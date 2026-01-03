@@ -499,11 +499,11 @@ export function ConversationPreview({
               : "Use Ctrl+↑/↓ to navigate, Esc to close"}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} data-testid="conversationpreview-button">
               {text.close}
             </Button>
             {conversation.status !== "archived" && (
-              <Button onClick={handleResume} className="flex items-center gap-1">
+              <Button onClick={handleResume} className="flex items-center gap-1" data-testid="conversationpreview-button">
                 <Play className="h-3 w-3" />
                 {language === "fr" ? "Reprendre" : "Resume"}
               </Button>

@@ -31,6 +31,7 @@ const Vote = () => {
               <button
                 onClick={() => navigate("/")}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                data-testid="vote-back-home"
               >
                 Retour à l'accueil
               </button>
@@ -74,6 +75,7 @@ const Vote = () => {
               size="icon"
               className="fixed top-4 right-4 z-50 p-2 bg-[#1e1e1e]/80 hover:bg-[#2a2a2a] text-gray-400 hover:text-white rounded-lg transition-colors border border-gray-700/50 backdrop-blur-sm"
               aria-label="Retour"
+              data-testid="vote-back"
             >
               <X className="w-5 h-5" />
             </Button>

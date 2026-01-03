@@ -379,6 +379,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                       handleCreateTag();
                     }}
                     className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
+                    data-testid="create-tag-button"
                   >
                     <Plus className="w-3 h-3" />
                     Créer
@@ -458,6 +459,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                       handleCreateFolder();
                     }}
                     className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
+                    data-testid="create-folder-button"
                   >
                     <Plus className="w-3 h-3" />
                     Créer

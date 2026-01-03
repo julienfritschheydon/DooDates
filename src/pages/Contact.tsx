@@ -50,7 +50,7 @@ const Contact = () => {
 
         <div className="flex justify-center gap-4">
           <Link to="/">
-            <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white">
+            <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white" data-testid="contact-back-home">
               Retour à l'accueil
             </Button>
           </Link>

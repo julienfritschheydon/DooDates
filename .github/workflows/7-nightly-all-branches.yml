@@ -41,34 +41,18 @@ jobs:
       - name: 🔍 List active branches
         id: list
         run: |
-          # Configuration
-          MAX_BRANCHES="${{ github.event.inputs.max_branches || '10' }}"
-          DAYS_THRESHOLD=30  # Branches actives depuis < 30 jours
+          # Configuration - Branches spécifiques à tester
+          BRANCHES_TO_TEST='["main", "staging", "pre-prod", "testing", "bug"]'
           
-          echo "🔍 Recherche des branches actives (< ${DAYS_THRESHOLD} jours, max: ${MAX_BRANCHES})"
-          
-          # Lister les branches actives (exclure main, pre-prod, staging qui ont déjà leurs workflows)
-          branches=$(git for-each-ref --sort=-committerdate \
-            --format="%(refname:short)|%(committerdate)" \
-            refs/remotes/origin/ \
-            | grep -v "origin/main$" \
-            | grep -v "origin/pre-prod$" \
-            | grep -v "origin/staging$" \
-            | grep -v "origin/HEAD$" \
-            | head -${MAX_BRANCHES} \
-            | cut -d'|' -f1 \
-            | sed 's|^origin/||' \
-            | jq -R . | jq -s .)
-          
-          branch_count=$(echo "$branches" | jq '. | length')
-          
-          echo "branches=$branches" >> $GITHUB_OUTPUT
-          echo "count=$branch_count" >> $GITHUB_OUTPUT
-          
-          echo "📊 Branches trouvées: $branch_count"
-          echo "$branches" | jq -r '.[]' | while read branch; do
+          echo "🔍 Branches spécifiées pour les tests:"
+          echo "$BRANCHES_TO_TEST" | jq -r '.[]' | while read branch; do
             echo "  - $branch"
           done
+          
+          branch_count=$(echo "$BRANCHES_TO_TEST" | jq '. | length')
+          
+          echo "branches=$BRANCHES_TO_TEST" >> $GITHUB_OUTPUT
+          echo "count=$branch_count" >> $GITHUB_OUTPUT
       
       - name: 📝 Generate execution metadata
         id: meta
@@ -169,32 +153,21 @@ jobs:
         continue-on-error: false
       
       # ========================================
-      # E2E MULTI-BROWSERS
+      # E2E COMPLETE SUITE (TOUS NAVIGATEURS)
       # ========================================
-      - name: 🎭 E2E Tests - Chromium
-        run: npx playwright test --project=chromium --reporter=html,json --grep-invert "RGPD|RGPD-"
-        timeout-minutes: 15
+      - name:  Run Full E2E Suite (45 min - 5 navigateurs)
+        run: |
+          npx playwright test \
+            --config=playwright.config.full.ts \
+            --reporter=html,json \
+            --grep-invert "RGPD|RGPD-"
+        timeout-minutes: 45
         continue-on-error: false
-      
-      - name: 🎭 E2E Tests - Firefox
-        run: npx playwright test --project=firefox --reporter=html,json --grep-invert "RGPD|RGPD-"
-        timeout-minutes: 15
-        continue-on-error: false
-      
-      - name: 🎭 E2E Tests - Webkit
-        run: npx playwright test --project=webkit --reporter=html,json --grep-invert "RGPD|RGPD-"
-        timeout-minutes: 15
-        continue-on-error: false
-      
-      - name: 📱 E2E Tests - Mobile Chrome
-        run: npx playwright test --project="Mobile Chrome" --reporter=html,json --grep-invert "RGPD|RGPD-"
-        timeout-minutes: 10
-        continue-on-error: false
-      
-      - name: 📱 E2E Tests - Mobile Safari
-        run: npx playwright test --project="Mobile Safari" --reporter=html,json --grep-invert "RGPD|RGPD-"
-        timeout-minutes: 10
-        continue-on-error: false
+        env:
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
       
       # ========================================
       # UPLOAD RÉSULTATS

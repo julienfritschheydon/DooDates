@@ -216,7 +216,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <Link
-                    to="/dashboard"
+                    to="/date-polls/dashboard"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Tableau de bord

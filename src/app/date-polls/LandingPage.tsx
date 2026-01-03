@@ -137,6 +137,7 @@ export const LandingPage: React.FC = () => {
                   size="lg"
                   onClick={() => navigate("/create/date")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
+                  data-testid="create-date-poll-button"
                 >
                   <span className="flex items-center gap-2">
                     Créer un sondage

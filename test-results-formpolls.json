@@ -1,0 +1,719 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\playwright.config.ts",
+    "rootDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 6
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+        "testIgnore": [
+          "**/OLD/**",
+          "temporal-prompts-validation.test.ts"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "e2e/**/*.test.ts",
+          "integration/**/*.test.ts",
+          "debug-*.test.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+        "testIgnore": [
+          "**/OLD/**",
+          "temporal-prompts-validation.test.ts"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "e2e/**/*.test.ts",
+          "integration/**/*.test.ts",
+          "debug-*.test.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+        "testIgnore": [
+          "**/OLD/**",
+          "temporal-prompts-validation.test.ts"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "e2e/**/*.test.ts",
+          "integration/**/*.test.ts",
+          "debug-*.test.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+        "testIgnore": [
+          "**/OLD/**",
+          "temporal-prompts-validation.test.ts"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "e2e/**/*.test.ts",
+          "integration/**/*.test.ts",
+          "debug-*.test.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
+        "testIgnore": [
+          "**/OLD/**",
+          "temporal-prompts-validation.test.ts"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "e2e/**/*.test.ts",
+          "integration/**/*.test.ts",
+          "debug-*.test.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 9,
+    "webServer": {
+      "command": "npm run dev:e2e",
+      "port": 8080,
+      "reuseExistingServer": true,
+      "timeout": 60000,
+      "stdout": "pipe",
+      "stderr": "pipe",
+      "env": {
+        "NODE_ENV": "test",
+        "VITE_SUPABASE_URL": "https://outmbbisrrdiumlweira.supabase.co",
+        "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dG1iYmlzcnJkaXVtbHdlaXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTg1MDUsImV4cCI6MjA3Nzk5NDUwNX0.xeD_7_klSNzfX_5OU2p_vxFSwhrhQvqzi1b6RM-N-Ts",
+        "VITE_HMR": "false",
+        "VITE_DEV_SERVER_OPTIMIZE_DEPS": "false"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "e2e\\formpolls.feature.spec.ts",
+      "file": "e2e/formpolls.feature.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FormPolls - API Contract",
+          "file": "e2e/formpolls.feature.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "API - Création et récupération FormPoll via localStorage",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 38376,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:32:55",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 55,
+                          "line": 32
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 30 |\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[90m// 3. Vérifier que le formulaire est créé\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-poll-preview]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 33 |\u001b[39m     \n \u001b[90m 34 |\u001b[39m     \u001b[90m// 4. Finaliser le formulaire pour le sauvegarder\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[36mconst\u001b[39m finalizeButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"publish-button\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 55,
+                            "line": 32
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n\n\n  30 |\n  31 |     // 3. Vérifier que le formulaire est créé\n> 32 |     await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 15000 });\n     |                                                       ^\n  33 |     \n  34 |     // 4. Finaliser le formulaire pour le sauvegarder\n  35 |     const finalizeButton = page.locator('[data-testid=\"publish-button\"]');\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:32:55"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:11:58.356Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-e83ca-n-FormPoll-via-localStorage-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-e83ca-n-FormPoll-via-localStorage-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-e83ca-n-FormPoll-via-localStorage-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 55,
+                        "line": 32
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-8c9a293364ca28be4aa8",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 18,
+              "column": 3
+            },
+            {
+              "title": "API - Vote et résultats FormPoll via localStorage",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 32419,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:66:64",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 64,
+                          "line": 66
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m\n \u001b[90m 65 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"ai-response\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-preview\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m\n \u001b[90m 68 |\u001b[39m     \u001b[90m// 2. Finaliser le formulaire\u001b[39m\n \u001b[90m 69 |\u001b[39m     \u001b[36mconst\u001b[39m finalizeButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"publish-button\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 64,
+                            "line": 66
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n\n  64 |\n  65 |     await page.waitForSelector('[data-testid=\"ai-response\"]', { timeout: 30000 });\n> 66 |     await expect(page.locator('[data-testid=\"poll-preview\"]')).toBeVisible({ timeout: 15000 });\n     |                                                                ^\n  67 |\n  68 |     // 2. Finaliser le formulaire\n  69 |     const finalizeButton = page.locator('[data-testid=\"publish-button\"]');\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:66:64"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:11:58.409Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c3d16-s-FormPoll-via-localStorage-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c3d16-s-FormPoll-via-localStorage-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c3d16-s-FormPoll-via-localStorage-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 64,
+                        "line": 66
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-de98139babb22a8b7c27",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "API - Exports FormPolls via localStorage",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 32610,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:112:64",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 64,
+                          "line": 112
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 110 |\u001b[39m\n \u001b[90m 111 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"ai-response\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 112 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-preview\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 113 |\u001b[39m\n \u001b[90m 114 |\u001b[39m     \u001b[36mconst\u001b[39m finalizeButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"publish-button\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 115 |\u001b[39m     \u001b[36mawait\u001b[39m finalizeButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 64,
+                            "line": 112
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n\n  110 |\n  111 |     await page.waitForSelector('[data-testid=\"ai-response\"]', { timeout: 30000 });\n> 112 |     await expect(page.locator('[data-testid=\"poll-preview\"]')).toBeVisible({ timeout: 15000 });\n      |                                                                ^\n  113 |\n  114 |     const finalizeButton = page.locator('[data-testid=\"publish-button\"]');\n  115 |     await finalizeButton.click();\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:112:64"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:11:59.000Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-06379--FormPolls-via-localStorage-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-06379--FormPolls-via-localStorage-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-06379--FormPolls-via-localStorage-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 64,
+                        "line": 112
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-8a4bcd6236af82e7186f",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 102,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "FormPolls - UI Mirror",
+          "file": "e2e/formpolls.feature.spec.ts",
+          "line": 161,
+          "column": 6,
+          "specs": [
+            {
+              "title": "UI - Création et vote FormPoll",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 34045,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:176:55",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 55,
+                          "line": 176
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 174 |\u001b[39m\n \u001b[90m 175 |\u001b[39m     \u001b[90m// 3. Vérifier que le formulaire est créé\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 176 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-poll-preview]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 177 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"café\"'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 178 |\u001b[39m\n \u001b[90m 179 |\u001b[39m     \u001b[90m// 4. Finaliser le formulaire\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 55,
+                            "line": 176
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-poll-preview]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-poll-preview]')\u001b[22m\n\n\n  174 |\n  175 |     // 3. Vérifier que le formulaire est créé\n> 176 |     await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 15000 });\n      |                                                       ^\n  177 |     await expect(page.locator('text=\"café\"')).toBeVisible({ timeout: 10000 });\n  178 |\n  179 |     // 4. Finaliser le formulaire\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:176:55"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:11:58.496Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c9adb---Création-et-vote-FormPoll-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c9adb---Création-et-vote-FormPoll-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-c9adb---Création-et-vote-FormPoll-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 55,
+                        "line": 176
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-9d43c6bd3c42adf61a4b",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 162,
+              "column": 3
+            },
+            {
+              "title": "UI - Questions conditionnelles et matrices",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 24306,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:244:64",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 64,
+                          "line": 244
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 242 |\u001b[39m\n \u001b[90m 243 |\u001b[39m     \u001b[90m// 3. Vérifier la présence des différents types de questions\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 244 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-preview\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 245 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"chocolat\"'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 246 |\u001b[39m\n \u001b[90m 247 |\u001b[39m     \u001b[90m// 4. Finaliser et tester le vote\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 64,
+                            "line": 244
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-preview\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-preview\"]')\u001b[22m\n\n\n  242 |\n  243 |     // 3. Vérifier la présence des différents types de questions\n> 244 |     await expect(page.locator('[data-testid=\"poll-preview\"]')).toBeVisible();\n      |                                                                ^\n  245 |     await expect(page.locator('text=\"chocolat\"')).toBeVisible();\n  246 |\n  247 |     // 4. Finaliser et tester le vote\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:244:64"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:12:00.351Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-ba40f-conditionnelles-et-matrices-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-ba40f-conditionnelles-et-matrices-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-ba40f-conditionnelles-et-matrices-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 64,
+                        "line": 244
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-99750b3f9b8f21cbec44",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 223,
+              "column": 3
+            },
+            {
+              "title": "UI - Résultats et exports",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "failed",
+                      "duration": 35681,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"publish-button\"]')\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"publish-button\"]')\u001b[22m\n\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:325:28",
+                        "location": {
+                          "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                          "column": 28,
+                          "line": 325
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 323 |\u001b[39m       \n \u001b[90m 324 |\u001b[39m       \u001b[36mconst\u001b[39m finalizeButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"publish-button\"]'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 325 |\u001b[39m       \u001b[36mawait\u001b[39m finalizeButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 326 |\u001b[39m       \n \u001b[90m 327 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'text=\"Formulaire publié !\"'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 328 |\u001b[39m       \u001b[36mconst\u001b[39m dashboardButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"Aller au Tableau de bord\"'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                            "column": 28,
+                            "line": 325
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"publish-button\"]')\u001b[22m\n\n\n  323 |       \n  324 |       const finalizeButton = page.locator('[data-testid=\"publish-button\"]');\n> 325 |       await finalizeButton.click();\n      |                            ^\n  326 |       \n  327 |       await page.waitForSelector('text=\"Formulaire publié !\"', { timeout: 10000 });\n  328 |       const dashboardButton = page.locator('text=\"Aller au Tableau de bord\"');\n    at C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts:325:28"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        },
+                        {
+                          "text": "🔍 waitForChatInput: Recherche du chat input...\n"
+                        },
+                        {
+                          "text": "✅ waitForChatInput: Chat input trouvé et visible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-02T15:11:59.016Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-cda84-r-UI---Résultats-et-exports-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-cda84-r-UI---Résultats-et-exports-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\test-results\\e2e-formpolls.feature-Form-cda84-r-UI---Résultats-et-exports-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Julien Fritsch\\Documents\\GitHub\\DooDates-staging\\tests\\e2e\\formpolls.feature.spec.ts",
+                        "column": 28,
+                        "line": 325
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9198cab33fe5a8b2801f-195a2e1a4a8fc7e240d9",
+              "file": "e2e/formpolls.feature.spec.ts",
+              "line": 303,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-02T15:11:29.016Z",
+    "duration": 71040.227,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

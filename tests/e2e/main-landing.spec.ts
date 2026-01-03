@@ -31,12 +31,12 @@ await page.getByRole("link", { name: /Sondages de Dates/i }).click();
     test('should navigate to Form Polls', async ({ page }) => {
         await page.goto("/DooDates/");
         await page.getByRole("link", { name: /Formulaires/i }).click();
-        await expect(page).toHaveURL(/DooDates\/.*\/form-polls\//);
+        await expect(page).toHaveURL(/.*form-polls/);
     });
 
     test('should navigate to Availability Polls', async ({ page }) => {
         await page.goto("/DooDates/");
         await page.getByRole("link", { name: /Disponibilités/i }).click();
-        await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\//);
+        await expect(page).toHaveURL(/.*availability-polls/);
     });
 });

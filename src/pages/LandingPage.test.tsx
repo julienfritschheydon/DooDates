@@ -205,7 +205,7 @@ describe("LandingPage", () => {
       const pricingLink = screen.getByText("Tarifs");
       const docsLink = screen.getByText("Documentation");
 
-      expect(dashboardLink.closest("a")).toHaveAttribute("href", "/dashboard");
+      expect(dashboardLink.closest("a")).toHaveAttribute("href", "/date-polls/dashboard");
       expect(pricingLink.closest("a")).toHaveAttribute("href", "/pricing");
       expect(docsLink.closest("a")).toHaveAttribute("href", "/docs");
     });
@@ -229,7 +229,7 @@ describe("LandingPage", () => {
       const footerPricingLink = screen.getAllByText("Tarifs")[1];
       const footerDocsLink = screen.getAllByText("Documentation")[1];
 
-      expect(footerDashboardLink.closest("a")).toHaveAttribute("href", "/dashboard");
+      expect(footerDashboardLink.closest("a")).toHaveAttribute("href", "/date-polls/dashboard");
       expect(footerPricingLink.closest("a")).toHaveAttribute("href", "/pricing");
       expect(footerDocsLink.closest("a")).toHaveAttribute("href", "/docs");
     });

@@ -21,8 +21,8 @@ test.describe("Auth (Supabase API + UI)", () => {
     // 1. Test de connexion à l'API Supabase (session)
     const sessionResponse = await request.get(`${supabaseUrl}/auth/v1/user`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey || ''}`,
+        apikey: supabaseAnonKey || '',
       },
     });
 
@@ -33,8 +33,8 @@ test.describe("Auth (Supabase API + UI)", () => {
     // 2. Test d'inscription (signup)
     const signupResponse = await request.post(`${supabaseUrl}/auth/v1/signup`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey || ''}`,
+        apikey: supabaseAnonKey || '',
         "Content-Type": "application/json",
       },
       data: {
@@ -48,13 +48,21 @@ test.describe("Auth (Supabase API + UI)", () => {
     expect(signupResponse.status()).toBeLessThan(500);
 
     const signupJson = await signupResponse.json();
-    expect(signupJson).toHaveProperty("email");
+    
+    // Accepter soit un succès avec email, soit une erreur 422 (user déjà existant)
+    if (signupResponse.status() === 422 && signupJson.error_code === "user_already_exists") {
+      // L'utilisateur existe déjà - c'est acceptable pour le test
+      console.log("User already exists, continuing with login test");
+    } else {
+      // Succès normal - vérifier qu'on a l'email
+      expect(signupJson).toHaveProperty("email");
+    }
 
     // 3. Test de login (signin)
     const loginResponse = await request.post(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
       headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey || ''}`,
+        apikey: supabaseAnonKey || '',
         "Content-Type": "application/json",
       },
       data: {

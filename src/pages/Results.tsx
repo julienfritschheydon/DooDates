@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
 import CloseButton from "@/components/ui/CloseButton";
 import PollActions from "@/components/polls/PollActions";
-import { Poll, getPollBySlugOrId, getVoterId, getAllPolls } from "@/lib/pollStorage";
+import { Poll, getPollBySlugOrId, getCurrentUserId, getVoterId, getAllPolls } from "@/lib/pollStorage";
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
@@ -74,11 +74,11 @@ const Results: React.FC = () => {
       setVotes(pollVotes);
 
       // Vérifier si l'utilisateur actuel a voté
-      const voterId = getVoterId();
+      const currentUserId = getCurrentUserId();
       const userHasVoted = pollVotes.some((vote: VoteData) => {
         // Vérifier par voter_email ou par un identifiant stocké
         return (
-          vote.voter_email === voterId || localStorage.getItem(`voted-${foundPoll.id}`) === "true"
+          vote.voter_email === currentUserId || localStorage.getItem(`voted-${foundPoll.id}`) === "true"
         );
       });
       setHasVoted(userHasVoted);
@@ -120,11 +120,12 @@ const Results: React.FC = () => {
 
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
+    const deniedStatus = accessStatus as { allowed: false; reason: string; message: string };
     return (
       <ResultsAccessDenied
-        message={accessStatus.message}
+        message={deniedStatus.message}
         pollSlug={slug}
-        showVoteButton={accessStatus.reason === "not-voted"}
+        showVoteButton={deniedStatus.reason === "not-voted"}
       />
     );
   }
@@ -138,7 +139,7 @@ const Results: React.FC = () => {
               message={<>Sondage introuvable.</>}
               action={
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/date-polls/dashboard")}
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   data-testid="dashboard-button"
                 >
@@ -258,7 +259,7 @@ const Results: React.FC = () => {
                   message={<>Ce sondage n'a aucune date configurée.</>}
                   action={
                     <button
-                      onClick={() => navigate("/dashboard")}
+                      onClick={() => navigate("/date-polls/dashboard")}
                       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                       data-testid="dashboard-button"
                     >

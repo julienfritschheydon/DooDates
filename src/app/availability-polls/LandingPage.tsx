@@ -135,6 +135,7 @@ export const LandingPage: React.FC = () => {
                   size="lg"
                   onClick={() => navigate("/create/availability")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300"
+                  data-testid="create-availability-poll-button"
                 >
                   <span className="flex items-center gap-2">
                     Créer une disponibilité

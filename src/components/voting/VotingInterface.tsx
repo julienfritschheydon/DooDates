@@ -68,7 +68,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
             {error || "Ce sondage n'existe pas ou n'est plus actif."}
           </p>
           {onBack && (
-            <Button onClick={onBack} size="sm" className="px-6 py-2">
+            <Button onClick={onBack} size="sm" className="px-6 py-2" data-testid="voting-interface-back">
               Retour
             </Button>
           )}
@@ -127,6 +127,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
               onClick={() => setShowResults(true)}
               variant="outline"
               className="w-full py-6 rounded-xl font-semibold"
+              data-testid="voting-interface-view-results"
             >
               Voir les résultats actuels
             </Button>
@@ -135,6 +136,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
                 onClick={onBack}
                 variant="ghost"
                 className="w-full py-6 rounded-xl font-medium text-gray-500"
+                data-testid="voting-interface-back-2"
               >
                 Retour
               </Button>

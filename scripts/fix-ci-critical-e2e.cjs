@@ -9,7 +9,7 @@ const criticalFixes = [
     file: 'tests/e2e/advanced-settings.spec.ts',
     line: 10,
     pattern: /page\.fill\("input\[placeholder\*="\Réunion"\]/,
-    replacement: 'page.fill(\'input[placeholder*="Réunion"]\'
+    replacement: 'page.fill(\'input[placeholder*="Réunion"]\')'
   },
   {
     file: 'tests/e2e/analytics-ai-optimized.spec.ts',

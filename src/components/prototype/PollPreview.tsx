@@ -49,7 +49,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
     const pollUrl = `/poll/${publishedPoll.slug || publishedPoll.id}`;
 
     return (
-      <div className="min-h-[400px] bg-[#0a0a0a] flex items-center justify-center p-8">
+      <div className="min-h-[400px] bg-[#0a0a0a] flex items-center justify-center p-8" data-testid="form-success-screen">
         <div className="max-w-2xl w-full">
           <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
             {/* Icône de succès */}
@@ -78,6 +78,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
                       : "/date-polls/dashboard"
                 }
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
+                data-testid="go-to-dashboard"
               >
                 <LazyIconWrapper Icon={Check} className="w-5 h-5" />
                 Aller au Tableau de bord
@@ -85,6 +86,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
               <Link
                 to={pollUrl}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                data-testid="view-form"
               >
                 <LazyIconWrapper Icon={ExternalLink} className="w-5 h-5" />
                 Voir le {pollType.toLowerCase()}
@@ -109,6 +111,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
                     });
                   }}
                   className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors whitespace-nowrap"
+                  data-testid="copy-link"
                 >
                   Copier
                 </button>
@@ -246,7 +249,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
   // Preview pour questionnaire/formulaire - UTILISER L'EXPÉRIENCE EXISTANTE
   if (poll.type === "form") {
     return (
-      <div className="bg-[#0a0a0a] rounded-lg shadow-sm" data-poll-preview>
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm" data-poll-preview data-testid="poll-preview">
         {/* <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Édition du questionnaire</h3>
           <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>

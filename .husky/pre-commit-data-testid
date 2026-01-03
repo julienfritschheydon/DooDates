@@ -1,0 +1,1 @@
+node scripts/data-testid-auditor.cjs

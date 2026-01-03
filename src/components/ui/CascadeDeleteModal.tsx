@@ -210,7 +210,7 @@ export function CascadeDeleteModal({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
+          <Button variant="outline" onClick={onClose} disabled={isDeleting} data-testid="cascade-delete-cancel">
             {t.cancel}
           </Button>
           <Button
@@ -218,6 +218,7 @@ export function CascadeDeleteModal({
             onClick={handleConfirm}
             disabled={!isConfirmationValid || isDeleting}
             className={cn("min-w-[140px]", isConfirmationValid && "bg-red-600 hover:bg-red-700")}
+            data-testid="cascade-delete-confirm"
           >
             {isDeleting ? t.deleting : t.delete}
           </Button>

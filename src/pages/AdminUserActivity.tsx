@@ -284,6 +284,7 @@ const AdminUserActivity: React.FC = () => {
                 variant="ghost"
                 onClick={() => window.close()} // Assuming opened in new tab
                 className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                data-testid="admin-close-window"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Fermer

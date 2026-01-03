@@ -43,7 +43,6 @@ const AvailabilityPollCreator = lazy(() => import("./pages/AvailabilityPollCreat
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
-const Dashboard = lazy(() => import("./components/Dashboard"));
 const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
@@ -95,10 +94,16 @@ const AvailabilityPollsLayout = lazy(() =>
   })),
 );
 
-// Product-Specific Dashboards
-const DatePollsDashboard = lazy(() => import("./app/date-polls/Dashboard"));
-const FormPollsDashboard = lazy(() => import("./app/form-polls/Dashboard"));
-const AvailabilityPollsDashboard = lazy(() => import("./app/availability-polls/Dashboard"));
+// Product-Specific Dashboards - TEMPORAIREMENT désactivé pour les tests
+// const DatePollsDashboard = lazy(() => import("./app/date-polls/Dashboard"));
+// const FormPollsDashboard = lazy(() => import("./app/form-polls/Dashboard"));
+// const AvailabilityPollsDashboard = lazy(() => import("./app/availability-polls/Dashboard"));
+
+// Import direct pour contourner le problème de lazy loading avec Playwright
+import DatePollsDashboard from "./app/date-polls/Dashboard";
+import FormPollsDashboard from "./app/form-polls/Dashboard";
+import AvailabilityPollsDashboard from "./app/availability-polls/Dashboard";
+import QuizzDashboard from "./app/quizz/Dashboard";
 
 // Simple workspaces - Plus utilisés, redirigés vers les workspaces généraux
 // const DatePollsWorkspaceSimple = lazy(() => import("./app/date-polls/WorkspaceSimple"));
@@ -577,7 +582,10 @@ const App = () => {
                                 <Route path="/docs/:docId" element={<Docs />} />
 
                                 {/* Product Dashboards */}
-                                {/* Product Dashboards */}
+                                <Route
+                                  path="/DooDates/date-polls/dashboard"
+                                  element={<DatePollsDashboard />}
+                                />
                                 <Route
                                   path="/date-polls/dashboard"
                                   element={<DatePollsDashboard />}

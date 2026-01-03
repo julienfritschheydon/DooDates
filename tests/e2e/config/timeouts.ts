@@ -13,38 +13,38 @@ export interface TimeoutConfig {
 }
 
 const BASE_TIMEOUTS: TimeoutConfig = {
-  element: 15000,       // 15s (augmenté de 5s) - Attente d'un élément visible
-  network: 25000,       // 25s (augmenté de 5s) - Attente réseau inactif
-  navigation: 20000,    // 20s (augmenté de 7.5s) - Navigation entre pages
-  aiResponse: 25000,    // 25s (augmenté de 5s) - Réponse de l'IA
-  animation: 4000,      // 4s (augmenté de 1s) - Animations CSS/transitions
-  stability: 3000,      // 3s (augmenté de 1s) - Stabilité React (re-renders)
+  element: 3000,        // 3s - Éléments interactifs rapides
+  network: 5000,        // 5s - Réseau rapide
+  navigation: 8000,    // 8s - Navigation SPA robuste pour CI
+  aiResponse: 8000,     // 8s - IA locale rapide
+  animation: 1500,      // 1.5s - Animations légères
+  stability: 1200,      // 1.2s - React rapide
 };
 
 const FIREFOX_TIMEOUTS: TimeoutConfig = {
-  element: 20000,      // Firefox est plus lent
-  network: 40000,      // networkidle peut prendre plus de temps
-  navigation: 20000,
-  aiResponse: 35000,
-  animation: 3000,
+  element: 4000,       // Firefox plus lent
+  network: 6000,       // networkidle peut prendre plus de temps
+  navigation: 10000,   // 10s pour Firefox CI
+  aiResponse: 10000,
+  animation: 2000,
   stability: 1500,
 };
 
 const WEBKIT_TIMEOUTS: TimeoutConfig = {
-  element: 15000,      // WebKit peut être plus lent
-  network: 35000,
-  navigation: 18000,
-  aiResponse: 35000,
-  animation: 2500,
+  element: 3500,       // WebKit peut être plus lent
+  network: 5000,
+  navigation: 8000,    // 8s pour WebKit CI
+  aiResponse: 8000,
+  animation: 2000,
   stability: 1200,
 };
 
 const MOBILE_TIMEOUTS: TimeoutConfig = {
-  element: 20000,      // Mobile est généralement plus lent
-  network: 40000,
-  navigation: 25000,
-  aiResponse: 40000,
-  animation: 3000,
+  element: 5000,       // Mobile est plus lent
+  network: 8000,
+  navigation: 10000,   // 10s pour Mobile CI
+  aiResponse: 10000,
+  animation: 2000,
   stability: 1500,
 };
 

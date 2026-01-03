@@ -12,10 +12,50 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Job 0: Tests Production Build (PRIORITAIRE - Bloque tout si échec)
+  # Job 0: Quick Fail Layer (5 min max)
+  # ⚡ Échoue rapidement si problèmes critiques détectés
+  # Si ce job échoue, tous les autres jobs sont bloqués
+  quick-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+      
+      - name: 🧪 Tests Unitaires Ultra-Rapides
+        run: npm run test:unit:fast
+        timeout-minutes: 2
+      
+      - name: 📝 TypeScript Check
+        run: npm run type-check
+        timeout-minutes: 2
+      
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout-minutes: 1
+      
+      - name: ✅ Quick validation passed
+        run: |
+          echo "⚡ Quick validation passed - proceeding with comprehensive tests"
+          echo "✅ Unit tests: OK"
+          echo "✅ TypeScript: OK" 
+          echo "✅ Build: OK"
+
+  # Job 1: Tests Production Build (dépend de quick-fail)
   # 🔥 CRITIQUE: Teste le build de production AVANT tous les autres tests
   # Si ce job échoue, tous les autres jobs sont bloqués (le merge est impossible)
   production-smoke:
+    needs: [quick-fail]
+    if: needs.quick-fail.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -33,19 +73,15 @@ jobs:
       
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
-        timeout-minutes: 5
+        timeout-minutes: 2
       
       - name: 📝 TypeScript Check
         run: npm run type-check
-        timeout-minutes: 3
-      
-      - name: 🧹 Linting & Formatage
-        run: npm run lint -- --max-warnings=30
-        timeout-minutes: 3
+        timeout-minutes: 2
       
       - name: 🏗️ Build Validation
         run: npm run build
-        timeout-minutes: 5
+        timeout-minutes: 1
       
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke
@@ -84,8 +120,12 @@ jobs:
       - name: ⏳ Wait for server to be ready
         run: npx wait-on http://localhost:4173/ --timeout 60000
       
-      - name: 🔥 Run production smoke tests
-        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+      - name: 🔥 Run Smoke Tests Suite (5 min)
+        run: |
+          npx playwright test \
+            --config=playwright.config.smoke.ts \
+            --project=chromium \
+            --reporter=html,json
         env:
           BASE_URL: http://localhost:4173/
           CI: true
@@ -118,7 +158,10 @@ jobs:
 
   # Job 5d: Supabase Health Check (APIs critiques uniquement)
   supabase-health:
-    needs: [production-smoke]
+    needs: [quick-fail, production-smoke]
+    if: |
+      needs.quick-fail.result == 'success' && 
+      needs.production-smoke.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -204,7 +247,10 @@ jobs:
 
   # Job 1: Tests Rapides (Parallèle)
   quick-tests:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
+    needs: [quick-fail, production-smoke]
+    if: |
+      needs.quick-fail.result == 'success' && 
+      needs.production-smoke.result == 'success'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -241,7 +287,10 @@ jobs:
 
   # Job 2: Tests IA (Critique)
   ai-validation:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
+    needs: [quick-fail, production-smoke]
+    if: |
+      needs.quick-fail.result == 'success' && 
+      needs.production-smoke.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -288,7 +337,10 @@ jobs:
 
   # Job 3: Build & Type Check
   build-validation:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
+    needs: [quick-fail, production-smoke]
+    if: |
+      needs.quick-fail.result == 'success' && 
+      needs.production-smoke.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -318,7 +370,10 @@ jobs:
 
   # Job 4: Code Quality
   code-quality:
-    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
+    needs: [quick-fail, production-smoke]
+    if: |
+      needs.quick-fail.result == 'success' && 
+      needs.production-smoke.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -345,7 +400,7 @@ jobs:
 
   # Job 6: Summary
   validation-summary:
-    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, supabase-health]
+    needs: [quick-fail, production-smoke, quick-tests, ai-validation, build-validation, code-quality, supabase-health]
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
 
@@ -390,6 +445,7 @@ jobs:
             const path = require('path');
             
             const jobs = [
+              { name: '⚡ Quick Fail (Ultra-rapide)', status: '${{ needs.quick-fail.result }}' },
               { name: '🔥 Production Smoke + E2E (CRITIQUE)', status: '${{ needs.production-smoke.result }}' },
               { name: 'Tests Rapides', status: '${{ needs.quick-tests.result }}' },
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },

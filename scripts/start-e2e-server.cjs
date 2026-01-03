@@ -85,10 +85,15 @@ function waitForServer(url, maxAttempts = 30, interval = 2000) {
 function startVite() {
   console.log(`Starting Vite dev server on port ${PORT}...`);
 
-  const viteProcess = exec(`npx vite --mode test --port ${PORT}`, {
+  const viteProcess = exec(`npx vite --mode development --port ${PORT}`, {
     env: {
       ...process.env,
-      NODE_ENV: 'test',
+      // IMPORTANT: Force NODE_ENV=development for E2E tests compatibility
+      // WHY: CI sets NODE_ENV=production, but React needs development mode 
+      // to render the complete interface with data-testid elements
+      // Without this, E2E tests fail because React renders minimal UI in test mode
+      // DO NOT CHANGE THIS unless you update all E2E tests accordingly
+      NODE_ENV: 'development',  // FORCE this after spreading process.env
       VITE_HMR: 'false',
       VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
       FORCE_COLOR: '1',

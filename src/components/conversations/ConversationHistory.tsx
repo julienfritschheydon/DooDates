@@ -297,7 +297,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           </Alert>
 
           <div className="text-center">
-            <Button onClick={handleRetry} variant="outline" className="gap-2">
+            <Button onClick={handleRetry} variant="outline" className="gap-2" data-testid="conversationhistory-button">
               <RefreshCw className="h-4 w-4" />
               {text.retry}
             </Button>
@@ -334,7 +334,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               {text.noConversations}
             </h3>
             {onCreateConversation && (
-              <Button onClick={onCreateConversation} variant="default" className="gap-2">
+              <Button onClick={onCreateConversation} variant="default" className="gap-2" data-testid="conversationhistory-button">
                 <MessageSquare className="h-4 w-4" />
                 {text.createFirst}
               </Button>

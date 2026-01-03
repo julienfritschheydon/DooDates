@@ -144,7 +144,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 {submitText}
               </Button>
               {onCancel && (
-                <Button type="button" variant="outline" onClick={onCancel}>
+                <Button type="button" variant="outline" onClick={onCancel} data-testid="product-form-cancel">
                   Annuler
                 </Button>
               )}

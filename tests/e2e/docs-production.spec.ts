@@ -35,7 +35,7 @@ test.describe('Documentation - Production Build Tests', () => {
       
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation avec le base path
-      await page.goto("/${basePath}/docs", { waitUntil: 'domcontentloaded' });
+      await page.goto(`${basePath}/docs`, { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit complètement chargée
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
@@ -57,7 +57,7 @@ test.describe('Documentation - Production Build Tests', () => {
       });
       
       // Naviguer vers un document spécifique
-      await page.goto("/${basePath}/docs/01-Guide-Demarrage-Rapide", { waitUntil: 'domcontentloaded' });
+      await page.goto(`${basePath}/docs/01-Guide-Demarrage-Rapide`, { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets JS/CSS

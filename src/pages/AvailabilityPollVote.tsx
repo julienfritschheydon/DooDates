@@ -153,7 +153,7 @@ const AvailabilityPollVote = () => {
         <Card className="bg-[#1e1e1e] border-gray-700 max-w-md">
           <CardContent className="pt-6">
             <p className="text-white text-center">Sondage de disponibilités introuvable</p>
-            <Button onClick={() => navigate("/")} className="mt-4 w-full">
+            <Button onClick={() => navigate("/")} className="mt-4 w-full" data-testid="availability-vote-back-home">
               Retour à l'accueil
             </Button>
           </CardContent>
@@ -205,6 +205,7 @@ const AvailabilityPollVote = () => {
             <Button
               onClick={() => navigate("/")}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
+              data-testid="availability-vote-understood"
             >
               C'est compris
             </Button>
@@ -544,6 +545,7 @@ const AvailabilityPollVote = () => {
                         }}
                         variant="outline"
                         className="flex-1 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                        data-testid="availability-vote-download-ics"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Télécharger .ics
@@ -562,6 +564,7 @@ const AvailabilityPollVote = () => {
                         }}
                         variant="outline"
                         className="flex-1 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                        data-testid="availability-vote-google-calendar"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Google Calendar
@@ -594,6 +597,7 @@ const AvailabilityPollVote = () => {
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
                     className="w-full border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 mb-2"
+                    data-testid="availability-vote-view-results"
                   >
                     Voir les résultats
                   </Button>
@@ -602,6 +606,7 @@ const AvailabilityPollVote = () => {
                 <Button
                   onClick={() => navigate("/")}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="availability-vote-back-home"
                 >
                   Retour à l'accueil
                 </Button>
@@ -655,6 +660,7 @@ const AvailabilityPollVote = () => {
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
                     className="w-full border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 mb-2"
+                    data-testid="availability-vote-view-results"
                   >
                     Voir les résultats
                   </Button>
@@ -662,6 +668,7 @@ const AvailabilityPollVote = () => {
                 <Button
                   onClick={() => navigate("/")}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="availability-vote-back-home"
                 >
                   Retour à l'accueil
                 </Button>
@@ -683,6 +690,7 @@ const AvailabilityPollVote = () => {
         className="fixed top-24 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
         title="Fermer"
         aria-label="Fermer"
+        data-testid="availability-vote-close"
       >
         <X className="w-6 h-6" />
       </Button>
@@ -791,6 +799,7 @@ const AvailabilityPollVote = () => {
                                   onClick={() => handleValidateSlot(slot)}
                                   disabled={isValidating}
                                   className="bg-green-600 hover:bg-green-700 text-white"
+                                  data-testid="availability-vote-validate-slot"
                                 >
                                   {isValidating ? (
                                     <>
@@ -844,6 +853,7 @@ const AvailabilityPollVote = () => {
                   disabled={!availabilityText.trim() || isParsing}
                   size="lg"
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="availability-vote-submit"
                 >
                   {isParsing ? (
                     <>

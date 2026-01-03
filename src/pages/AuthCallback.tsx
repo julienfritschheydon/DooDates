@@ -22,7 +22,7 @@ export default function AuthCallback() {
     const returnToFromStorage = localStorage.getItem("auth_return_to");
 
     // Sauvegarder la valeur AVANT de la supprimer
-    const returnTo = returnToFromQuery || returnToFromHash || returnToFromStorage || "/dashboard";
+    const returnTo = returnToFromQuery || returnToFromHash || returnToFromStorage || "/date-polls/dashboard";
 
     // Supprimer auth_return_to UNE SEULE FOIS après l'avoir récupéré
     if (returnToFromStorage) {
@@ -175,13 +175,14 @@ export default function AuthCallback() {
                 </AlertDescription>
               </Alert>
               <div className="flex gap-2">
-                <Button onClick={() => navigate("/dashboard")} className="flex-1">
+                <Button onClick={() => navigate("/date-polls/dashboard")} className="flex-1" data-testid="auth-go-dashboard">
                   Aller au dashboard
                 </Button>
                 <Button
                   onClick={() => window.location.reload()}
                   variant="outline"
                   className="flex-1"
+                  data-testid="auth-reload"
                 >
                   Réessayer
                 </Button>

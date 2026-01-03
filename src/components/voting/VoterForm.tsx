@@ -155,6 +155,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
             <button
               onClick={onBack}
               className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors"
+              data-testid="voter-form-back"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>

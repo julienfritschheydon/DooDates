@@ -14,6 +14,9 @@
 ### Fonctionnalités
 - **[AUTOSAVE-EXPLANATION.md](./AUTOSAVE-EXPLANATION.md)** - Explication du système d'autosave
 
+### 🚨 CRITICAL - E2E Tests Configuration
+- **[E2E-NODE_ENV-CONFIGURATION.md](./E2E-NODE_ENV-CONFIGURATION.md)** - **IMPORTANT**: Configuration NODE_ENV pour les tests E2E - **NE PAS MODIFIER SANS COMPRIS**
+
 ---
 
 **Navigation :** [← Retour Docs](../README.md)

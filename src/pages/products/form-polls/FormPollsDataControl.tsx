@@ -147,7 +147,7 @@ export default function FormPollsDataControl() {
                 <li>Tous les fichiers uploadés</li>
                 <li>Votre historique de consommation</li>
               </ul>
-              <Button onClick={handleDeleteAllData} disabled={isDeleting} variant="destructive">
+              <Button onClick={handleDeleteAllData} disabled={isDeleting} variant="destructive" data-testid="form-delete-all-data">
                 <Trash2 className="w-4 h-4 mr-2" />
                 {isDeleting ? "Suppression en cours..." : "Supprimer toutes mes données"}
               </Button>

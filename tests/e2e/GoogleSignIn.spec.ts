@@ -8,7 +8,7 @@ test.describe("Google Sign In Flow", () => {
         // We can intercept the triggered navigation or just test the *callback* handling
 
         // 1. Visit the app
-        await page.goto("//DooDates/");
+        await page.goto("/DooDates/");
 
         // 2. Mock the auth state change that happens after a successful redirect
         // In a real app, the callback URL contains access_token in the hash

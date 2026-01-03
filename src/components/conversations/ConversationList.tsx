@@ -195,7 +195,7 @@ function EmptyState({
         Commencez votre première conversation avec l'IA pour créer des sondages intelligents.
       </p>
       {onCreateNew && (
-        <Button onClick={onCreateNew} className="gap-2">
+        <Button onClick={onCreateNew} className="gap-2" data-testid="conversation-list-new">
           <Plus className="h-4 w-4" />
           Nouvelle conversation
         </Button>
@@ -337,7 +337,7 @@ export function ConversationList({
         <p className="text-gray-500 mb-4">
           {error.message || "Une erreur est survenue lors du chargement des conversations."}
         </p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
+        <Button variant="outline" onClick={() => window.location.reload()} data-testid="conversation-list-retry">
           Réessayer
         </Button>
       </div>

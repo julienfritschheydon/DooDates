@@ -212,7 +212,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         }
         
         allData['guest'].datePollsCreated = (allData['guest'].datePollsCreated || 0) + 1;
-        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -271,7 +270,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         }
         
         allData['guest'].formPollsCreated = (allData['guest'].formPollsCreated || 0) + 1;
-        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -631,7 +629,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         
         // Simuler l'incrémentation d'un Date Poll
         allData['guest'].datePollsCreated = (allData['guest'].datePollsCreated || 0) + 1;
-        // pollsCreated supprimé - calculer à la volée si nécessaire
         allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
@@ -656,7 +653,6 @@ test.describe('Cross-Product Workflow Tests', () => {
         
         if (allData['guest']) {
           allData['guest'].formPollsCreated = (allData['guest'].formPollsCreated || 0) + 1;
-          // pollsCreated supprimé - calculer à la volée si nécessaire
           allData['guest'].totalCreditsConsumed = (allData['guest'].totalCreditsConsumed || 0) + 1;
           
           localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
