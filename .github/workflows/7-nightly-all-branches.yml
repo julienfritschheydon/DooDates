@@ -157,7 +157,7 @@ jobs:
       # ========================================
       - name: Run Full E2E Suite (45 min - 5 navigateurs)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             --config=playwright.config.full.ts \
             --reporter=html,json \
             --grep-invert "RGPD|RGPD-"

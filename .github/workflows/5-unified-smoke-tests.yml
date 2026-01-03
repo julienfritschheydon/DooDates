@@ -100,7 +100,7 @@ jobs:
         run: |
           echo "🔥 Phase 1: Tests de smoke pré-déploiement..."
           echo "🌐 URL: http://localhost:4173/"
-          npx playwright test tests/e2e/production-smoke.spec.ts \
+          E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
             --retries=2
@@ -254,7 +254,7 @@ jobs:
         run: |
           echo "🔥 Phase 2: Tests de smoke post-déploiement..."
           echo "🌐 URL: ${{ steps.production-url.outputs.url }}"
-          npx playwright test tests/e2e/production-smoke.spec.ts \
+          E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
             --retries=2

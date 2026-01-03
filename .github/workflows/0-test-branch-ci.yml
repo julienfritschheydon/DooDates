@@ -78,7 +78,7 @@ jobs:
 
       - name: 🎯 Run Dashboard Tests (Tests corrigés)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             tests/e2e/dashboard-complete.spec.ts \
             tests/e2e/tags-folders.spec.ts \
             --config=playwright.config.optimized.ts \

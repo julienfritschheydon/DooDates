@@ -17,6 +17,7 @@
     "test:coverage": "vitest run --coverage",
     "test:error-handling": "vitest run --config vitest.config.enforcement.ts",
     "test:debug-gemini": "playwright test tests/debug-gemini-edge.test.ts --project=chromium",
+    "test:gemini-real": "E2E_FORCE_MOCKS=false playwright test tests/e2e/gemini-real-api.spec.ts --project=chromium --grep \"@real-gemini\"",
     "test:ci": "vitest run --coverage",
     "test:unit": "vitest run",
     "test:unit:fast": "vitest run --run",

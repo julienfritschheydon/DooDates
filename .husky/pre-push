@@ -132,7 +132,7 @@ if [ "$BRANCH" = "pre-prod" ]; then
   
   # 4. Tests E2E Smoke
   echo "🔥 Tests E2E Smoke..."
-  npm run test:e2e:smoke
+  E2E_FORCE_MOCKS=true npm run test:e2e:smoke
   if [ $? -ne 0 ]; then
     echo "❌ Tests E2E Smoke échoués - Push bloqué"
     exit 1

@@ -294,7 +294,7 @@ jobs:
         run: npx wait-on http://localhost:4173/ --timeout 60000
 
       - name: 🔥 Run production smoke tests (main)
-        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        run: E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
           BASE_URL: http://localhost:4173/
           CI: true

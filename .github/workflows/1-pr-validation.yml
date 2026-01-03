@@ -122,7 +122,7 @@ jobs:
 
       - name: 🔥 Run Smoke Tests Suite (5 min)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             --config=playwright.config.smoke.ts \
             --project=chromium \
             --reporter=html,json
@@ -198,14 +198,14 @@ jobs:
           fi
 
       - name: 🧪 Run Supabase Health Check (APIs critiques)
-        run: npx playwright test tests/integration/api-security-performance.spec.ts --project=chromium --reporter=html,json
+        run: E2E_FORCE_MOCKS=true npx playwright test tests/integration/api-security-performance.spec.ts --project=chromium --reporter=html,json
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
 
       - name: 🧪 Run E2E Smoke Tests (Chromium)
-        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        run: E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
           BASE_URL: http://localhost:4173/
           CI: true
@@ -214,7 +214,7 @@ jobs:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 🧪 Run E2E Functional Tests (Chromium)
-        run: npx playwright test --project=chromium --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
+        run: E2E_FORCE_MOCKS=true npx playwright test --project=chromium --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
         env:
           BASE_URL: http://localhost:4173/
           CI: true
@@ -225,10 +225,10 @@ jobs:
       - name: 🧪 Run E2E Matrix Tests (Multi-navigateurs)
         run: |
           # Exécuter sur tous les navigateurs en parallèle
-          npx playwright test --project=firefox --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
-          npx playwright test --project=webkit --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
-          npx playwright test --project="Mobile Chrome" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
-          npx playwright test --project="Mobile Safari" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          E2E_FORCE_MOCKS=true npx playwright test --project=firefox --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          E2E_FORCE_MOCKS=true npx playwright test --project=webkit --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          E2E_FORCE_MOCKS=true npx playwright test --project="Mobile Chrome" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
+          E2E_FORCE_MOCKS=true npx playwright test --project="Mobile Safari" --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-" &
           wait
         env:
           BASE_URL: http://localhost:4173/

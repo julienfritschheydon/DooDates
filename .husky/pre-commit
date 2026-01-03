@@ -254,7 +254,7 @@ if [ "$BRANCH" != "main" ]; then
 
   # 3. Tests E2E critiques (ultra-simple form + poll @critical)
   echo "🌐 Tests E2E critiques (ultra-simple form + poll)..."
-  npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
+  E2E_FORCE_MOCKS=true npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
   if [ $? -ne 0 ]; then
     echo "❌ Tests E2E critiques échoués - Commit bloqué"
     exit 1

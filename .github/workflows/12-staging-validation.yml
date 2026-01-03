@@ -102,7 +102,7 @@ jobs:
 
       - name: 🎯 Run Critical E2E Tests (Chromium)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             --config=playwright.config.critical.ts \
             --project=chromium \
             --reporter=html,json
@@ -115,7 +115,7 @@ jobs:
 
       - name: 🎯 Run Critical E2E Tests (Firefox)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             --config=playwright.config.critical.ts \
             --project=firefox \
             --reporter=html,json

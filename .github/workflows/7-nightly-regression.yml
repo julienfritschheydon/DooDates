@@ -64,7 +64,7 @@ jobs:
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
         # Exclure les tests RGPD (exécutés séparément dans 8-rgpd-compliance.yml)
-        run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json --grep-invert "RGPD|RGPD-"
+        run: E2E_FORCE_MOCKS=true npx playwright test --project="${{ matrix.project }}" --reporter=html,json --grep-invert "RGPD|RGPD-"
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -109,7 +109,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: ⚡ Run E2E Performance Suite (chromium)
-        run: npx playwright test tests/e2e/dashboard-performance.spec.ts --project=chromium --reporter=html,json
+        run: E2E_FORCE_MOCKS=true npx playwright test tests/e2e/dashboard-performance.spec.ts --project=chromium --reporter=html,json
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

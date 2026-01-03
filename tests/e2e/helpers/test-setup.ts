@@ -76,7 +76,11 @@ export async function setupTestEnvironment(
   options?: TestSetupOptions,
 ): Promise<ConsoleGuard | null> {
   // 1. Setup mocks (doit être fait AVANT toute navigation)
-  if (options?.mocks?.all) {
+  // Forcer les mocks si E2E_FORCE_MOCKS=true (pour les hooks Git)
+  if (process.env.E2E_FORCE_MOCKS === "true") {
+    console.log("🔧 E2E_FORCE_MOCKS détecté - Activation des mocks Gemini");
+    await setupGeminiMock(page);
+  } else if (options?.mocks?.all) {
     await setupAllMocksWithoutNavigation(page);
   } else if (options?.mocks?.gemini) {
     await setupGeminiMock(page);
