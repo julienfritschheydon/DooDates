@@ -228,7 +228,34 @@ test.describe('🔍 CI Debug - Chat Input Analysis', () => {
     log('📋 Rapport de debug généré:');
     log(JSON.stringify(debugReport, null, 2));
     
-    // 9. Vérifier que NODE_ENV est correct pour éviter les régressions
+    // 9. Vérifier la console JavaScript pour des erreurs React
+    log('🔍 Vérification des erreurs console JavaScript...');
+    const consoleLogs: Array<{type: string, text: string, location?: any}> = [];
+    
+    page.on('console', msg => {
+      consoleLogs.push({
+        type: msg.type(),
+        text: msg.text(),
+        location: msg.location()
+      });
+    });
+    
+    // Attendre un peu pour capturer les erreurs
+    await page.waitForTimeout(3000);
+    
+    if (consoleLogs.length > 0) {
+      log(`📊 ${consoleLogs.length} messages console détectés:`);
+      consoleLogs.forEach((logItem: any, index: number) => {
+        log(`  ${index + 1}. [${logItem.type}] ${logItem.text}`);
+        if (logItem.location) {
+          log(`     📍 ${logItem.location.url}:${logItem.location.lineNumber}`);
+        }
+      });
+    } else {
+      log('✅ Aucune erreur console détectée');
+    }
+    
+    // 10. Vérifier que NODE_ENV est correct pour éviter les régressions
     const nodeEnv = await page.evaluate(() => process.env.NODE_ENV);
     log(`🔍 NODE_ENV détecté: "${nodeEnv}"`);
     
