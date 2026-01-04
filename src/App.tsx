@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { logger } from "@/lib/logger";
 import { performanceMeasurement } from "@/lib/performance-measurement";
@@ -529,9 +529,9 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
-            <BrowserRouter
+            <HashRouter
               basename={import.meta.env.VITE_BASE_PATH || undefined}
-              // ⚠️ IMPORTANT: Use VITE_BASE_PATH for environment-specific routing
+              // ⚠️ IMPORTANT: HashRouter pour GitHub Pages compatibility
               // In development: VITE_BASE_PATH="/DooDates"
               // In production: VITE_BASE_PATH undefined (handled by Vite base config)
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
@@ -795,7 +795,7 @@ const App = () => {
                   </Suspense>
                 </ErrorBoundary>
               </AppLayout>
-            </BrowserRouter>
+            </HashRouter>
             <Sonner />
           </TooltipProvider>
         </AuthProvider>
