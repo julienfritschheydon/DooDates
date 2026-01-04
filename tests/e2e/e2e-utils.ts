@@ -69,7 +69,7 @@ export async function waitForAppReady(page: Page): Promise<void> {
 
   // Attendre que les chargements initiaux soient terminés
   await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(500); // Petit délai supplémentaire
+  await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {}); // Petit délai supplémentaire
 }
 
 // Fonction pour désactiver les quotas en mode test

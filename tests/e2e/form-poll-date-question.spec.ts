@@ -56,7 +56,7 @@ test.describe("Form Poll - Questions de type Date", () => {
     });
 
     // Attendre un peu pour capturer les erreurs
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // 5. Vérifier qu'il n'y a pas d'erreurs JavaScript critiques
     const criticalErrors = consoleErrors.filter(

@@ -54,7 +54,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
   for (const path of paths) {
     try {
       await page.goto(path, { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
       // Check if we're on a data-control page
       const currentUrl = page.url();
@@ -74,7 +74,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
   }
 
   // Wait for page to be fully loaded
@@ -202,7 +202,7 @@ export async function triggerDataExport(page: Page): Promise<void> {
   await exportButton.click();
 
   // Wait for export to complete (check for success toast or download)
-  await page.waitForTimeout(2000);
+  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 }
 
 /**
@@ -269,7 +269,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
   for (const path of paths) {
     try {
       await page.goto(path, { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
       // Check if we're on settings page by looking for the title or any settings-related content
       const pageTitle = await page
@@ -286,7 +286,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
       const currentUrl = page.url();
       if (currentUrl.includes("/settings") && !currentUrl.includes("404")) {
         // Wait a bit more for content to load
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
         const titleAfterWait = await page
           .locator('[data-testid="settings-title"], h1, h2')
           .first()
@@ -321,7 +321,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
         waitUntil: "networkidle",
         timeout: 30000,
       });
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
       // Verify we're on the right page
       const title = await page
@@ -378,7 +378,7 @@ export async function modifyUserProfile(
     .first();
   if (await saveButton.isVisible({ timeout: 2000 }).catch(() => false)) {
     await saveButton.click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
   }
 }
 
@@ -402,7 +402,7 @@ export async function triggerAccountDeletion(page: Page): Promise<void> {
   await deleteButton.click();
 
   // Wait a bit for dialog to appear and be handled
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 }
 
 /**

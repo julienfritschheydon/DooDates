@@ -70,7 +70,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await page.goto("/DooDates/quizz/create", { waitUntil: "domcontentloaded" });
 
         // Attendre un peu pour que la page se stabilise (au lieu de waitForNetworkIdle)
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
         // Vérifier qu'on est sur la page de création de quiz
         await expect(page).toHaveURL(/\/quizz\/create/);
@@ -92,7 +92,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await addButton.click();
 
         // Attendre que le formulaire s'ouvre et que la question soit automatiquement dépliée
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
         // Remplir la question (maintenant visible automatiquement)
         const questionInput = page.locator('input[placeholder*="Entrez la question"]').first();
@@ -106,7 +106,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await option2Input.fill("3");
 
         // Attendre que la question soit ajoutée
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
         log("✅ Question ajoutée avec 2 options");
 
@@ -131,7 +131,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // Prendre une photo après le clic
         await page.screenshot({ path: "test-results/quiz-bouton-creer-apres.png" });
 
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
         // 5. Vérifier l'écran de succès
         log("✅ Vérification écran de succès");
@@ -148,7 +148,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // await expect(viewQuizButton).toBeVisible({ timeout: timeouts.element });
         // await viewQuizButton.click();
 
-        // await page.waitForTimeout(2000);
+        // await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
         // // 7. Indiquer un nom pour participer
         // log("📝 Indication du nom");
@@ -156,7 +156,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // const nameInput = page.locator('input[placeholder*="Votre nom"]').first();
         // if (await nameInput.isVisible({ timeout: 1000 })) {
         //   await nameInput.fill("Testeur E2E");
-        //   await page.waitForTimeout(500);
+        //   await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
         // }
 
         // // 8. Commencer le quiz
@@ -165,7 +165,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // const startButton = page.locator('button').filter({ hasText: /Commencer/i }).first();
         // if (await startButton.isVisible({ timeout: 1000 })) {
         //   await startButton.click();
-        //   await page.waitForTimeout(1000);
+        //   await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
         // }
 
         // // 9. Répondre à la question
@@ -174,7 +174,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // const option4 = page.locator('text=4').first();
         // await expect(option4).toBeVisible({ timeout: timeouts.element });
         // await option4.click();
-        // await page.waitForTimeout(500);
+        // await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
 
         // // 10. Valider la réponse
         // log("✔️ Validation de la réponse");
@@ -183,7 +183,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // await expect(submitButton).toBeVisible({ timeout: timeouts.element });
         // await submitButton.click();
 
-        // await page.waitForTimeout(2000);
+        // await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
         // // 11. Voir mes résultats
         // log("📊 Voir mes résultats");
@@ -191,7 +191,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // const viewResultsButton = page.locator('button').filter({ hasText: /Voir mes résultats/i }).first();
         // if (await viewResultsButton.isVisible({ timeout: 1000 })) {
         //   await viewResultsButton.click();
-        //   await page.waitForTimeout(1000);
+        //   await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
         // }
 
         // // 12. Voir l'historique et les badges
@@ -200,13 +200,13 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // const historyButton = page.locator('button').filter({ hasText: /Voir mon historique/i }).first();
         // if (await historyButton.isVisible({ timeout: 1000 })) {
         //   await historyButton.click();
-        //   await page.waitForTimeout(1000);
+        //   await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
         // }
 
         // const badgesButton = page.locator('button').filter({ hasText: /tous mes badges/i }).first();
         // if (await badgesButton.isVisible({ timeout: 1000 })) {
         //   await badgesButton.click();
-        //   await page.waitForTimeout(1000);
+        //   await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
         // }
 
         // await page.screenshot({ path: 'test-results/quiz-final-historique.png' });

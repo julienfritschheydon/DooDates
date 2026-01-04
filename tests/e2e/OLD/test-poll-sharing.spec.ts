@@ -45,7 +45,7 @@ test.describe("Test Poll Sharing", () => {
 
     await chatInput.fill("Crée un questionnaire avec 2 questions");
     await chatInput.press("Enter");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     console.log("✅ Message envoyé");
 
     // Cliquer sur "Créer ce formulaire"
@@ -122,7 +122,7 @@ test.describe("Test Poll Sharing", () => {
 
     // Naviguer vers l'URL du poll
     await page.goto(pollUrl);
-    await page.waitForTimeout(3000); // Augmenté à 3s pour laisser le temps au code de s'exécuter
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {}); // Augmenté à 3s pour laisser le temps au code de s'exécuter
     console.log("✅ Navigation effectuée");
 
     // Vérifier que l'éditeur est présent

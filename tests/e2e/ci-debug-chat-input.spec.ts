@@ -251,8 +251,8 @@ test.describe("🔍 CI Debug - Chat Input Analysis", () => {
       });
     });
 
-    // Attendre un peu pour capturer les erreurs
-    await page.waitForTimeout(3000);
+    // Attendre que la page soit stable pour capturer les erreurs
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     if (consoleLogs.length > 0) {
       log(`📊 ${consoleLogs.length} messages console détectés:`);
@@ -287,9 +287,9 @@ test.describe("🔍 CI Debug - Chat Input Analysis", () => {
       return; // Succès - on a identifié le mode CI
     }
 
-    // 10. Attendre un peu pour voir si le chat input apparaît plus tard
-    log("⏳ Attente de 10 secondes pour voir si le chat input apparaît...");
-    await page.waitForTimeout(10000);
+    // 10. Attendre pour voir si le chat input apparaît plus tard
+    log("⏳ Attente pour voir si le chat input apparaît...");
+    await page.locator('[data-testid="chat-input"]').waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
 
     const chatInputAfterWait = await page.locator('[data-testid="chat-input"]').count();
     log(`📊 Chat input après 10s: ${chatInputAfterWait}`);

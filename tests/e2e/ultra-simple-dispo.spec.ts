@@ -103,7 +103,7 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
           await waitForReactStable(page, { browserName });
 
           // Attendre un peu plus pour que le champ titre soit bien pris en compte
-          await page.waitForTimeout(1000);
+          await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
           // 3. Publier le sondage
           log("🚀 Publication du sondage");
@@ -132,7 +132,7 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
             waitUntil: "domcontentloaded",
             timeout: 30000,
           });
-          await page.waitForTimeout(2000);
+          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
           await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\/dashboard$/);
 

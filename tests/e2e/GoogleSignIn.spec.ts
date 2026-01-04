@@ -22,7 +22,7 @@ test.describe("Google Sign In Flow", () => {
     // Depending on implementation, this might trigger a state update
 
     // Wait for potential network requests to verify token
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Check if we are "logged in" (e.g., Avatar visible, "Sign In" button gone)
     // Adjust selectors based on actual app

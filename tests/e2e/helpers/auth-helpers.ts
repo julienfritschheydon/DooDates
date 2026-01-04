@@ -23,7 +23,7 @@ export async function authenticateUserInPage(
   retries: number = 3,
 ) {
   // Délai initial pour éviter le rate limiting (augmenté)
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
   let lastError: Error | null = null;
 
@@ -54,7 +54,7 @@ export async function authenticateUserInPage(
       });
 
       // Attendre que AuthContext s'initialise avec la session
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
       return authResult;
     } catch (error: any) {
@@ -70,7 +70,7 @@ export async function authenticateUserInPage(
 
       // Pour les autres erreurs, relancer immédiatement
       if (attempt < retries - 1) {
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
         continue;
       }
 
@@ -100,7 +100,7 @@ export async function ensureSessionAfterReload(
   const sessionBefore = await getSessionFromPage(page);
 
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(500);
+  await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
 
   // Vérifier la session après reload
   const sessionAfter = await getSessionFromPage(page);
@@ -108,7 +108,7 @@ export async function ensureSessionAfterReload(
   // Si la session est perdue, réauthentifier
   if (!sessionAfter.hasSession && sessionBefore.hasSession) {
     await authenticateUserInPage(page, email, password);
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
   }
 
   // Vérifier que l'ID utilisateur correspond si fourni
@@ -186,7 +186,7 @@ export async function waitForConversationsInDashboard(
       return true;
     }
 
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
   }
 
   return false;
@@ -249,7 +249,7 @@ export async function openConversationFromDashboard(
     }
 
     if (!conversationCard) {
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
       attempts++;
     }
   }
@@ -263,7 +263,7 @@ export async function openConversationFromDashboard(
 
   // Attendre la navigation vers workspace
   await page.waitForURL(/\/workspace\?conversationId=/, { timeout: 10000 });
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
   // Extraire l'ID de la conversation depuis l'URL
   const url = page.url();

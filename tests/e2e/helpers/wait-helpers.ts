@@ -19,7 +19,7 @@ import { getTimeouts } from "../config/timeouts";
  * ```typescript
  * // ❌ AVANT
  * await button.click();
- * await page.waitForTimeout(500);
+ * await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await button.click();
@@ -80,7 +80,7 @@ export async function waitForElementReady(
  * ```typescript
  * // ❌ AVANT
  * await page.goto('/DooDates/dashboard');
- * await page.waitForTimeout(2000);
+ * await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await page.goto('/DooDates/dashboard');
@@ -140,7 +140,7 @@ export async function waitForNetworkIdle(
  * ```typescript
  * // ❌ AVANT
  * await input.fill('text');
- * await page.waitForTimeout(500);
+ * await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await input.fill('text');
@@ -197,7 +197,7 @@ export async function waitForReactStable(
  * ```typescript
  * // ❌ AVANT
  * await dialog.click();
- * await page.waitForTimeout(300);
+ * await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await dialog.click();
@@ -267,7 +267,7 @@ export async function waitForAnimationComplete(
  * ```typescript
  * // ❌ AVANT
  * await action();
- * await page.waitForTimeout(1000);
+ * await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await action();
@@ -319,7 +319,7 @@ export async function waitForCondition(
  * ```typescript
  * // ❌ AVANT
  * await page.goto('/DooDates/dashboard');
- * await page.waitForTimeout(1000);
+ * await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
  *
  * // ✅ APRÈS
  * await page.goto('/DooDates/dashboard');

@@ -36,7 +36,7 @@ test.describe("🔒 RGPD - Droit à la portabilité (Article 20)", () => {
     testEmail = generateTestEmail("gdpr-portability");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {

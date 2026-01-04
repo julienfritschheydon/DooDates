@@ -30,7 +30,7 @@ test.describe("FormPoll Creation - Smoke Tests", () => {
       }
     });
 
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const criticalErrors = logs.filter(
       (log) => log.includes("Error") || log.includes("Uncaught") || log.includes("TypeError"),

@@ -50,8 +50,8 @@ test.describe("FormPolls - Smoke Tests", () => {
     await chatInput.fill("Aimez-vous les tests ? (Oui/Non)");
     await chatInput.press("Enter");
 
-    // 2. Attendre un peu pour la génération
-    await page.waitForTimeout(5000);
+    // 2. Attendre que la génération soit terminée (bouton finaliser visible)
+    await page.locator('[data-testid="publish-button"], [data-testid="finalize-button"], button:has-text("Publier"), button:has-text("Finaliser")').first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
 
     // 3. Essayer de finaliser le formulaire
     const finalizeButtonSelectors = [
@@ -187,8 +187,8 @@ test.describe("FormPolls - Tests Robustesse", () => {
     await chatInput.fill("Test performance");
     await chatInput.press("Enter");
 
-    // 3. Attendre un peu pour la réponse
-    await page.waitForTimeout(3000);
+    // 3. Attendre que la réponse soit affichée
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // 4. Vérifier performance (doit être < 30s pour être réaliste en CI)
     const endTime = Date.now();

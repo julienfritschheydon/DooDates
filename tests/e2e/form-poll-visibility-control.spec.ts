@@ -11,7 +11,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire avec visibilité publique
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire public");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Remplir le formulaire
     await page.fill('[data-testid="poll-title"]', "Test Public Form");
@@ -26,7 +26,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.selectOption('[data-testid="visibility-setting"]', "public");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Vérifier que le formulaire est accessible publiquement
     const formUrl = page.url();
@@ -45,7 +45,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire avec visibilité réservée aux votants
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire réservé aux votants");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Voters Only Form");
     await page.click('[data-testid="add-question"]');
@@ -59,7 +59,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.selectOption('[data-testid="visibility-setting"]', "voters");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -77,7 +77,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.fill('[data-testid="voter-name"]', "Test Voter");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const resultsSection = await page.locator('[data-testid="results-section"]').count();
     expect(resultsSection).toBeGreaterThan(0);
@@ -87,7 +87,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire avec visibilité privée
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire privé");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Private Form");
     await page.click('[data-testid="add-question"]');
@@ -101,7 +101,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.selectOption('[data-testid="visibility-setting"]', "private");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -131,7 +131,7 @@ test.describe("Form Poll - Visibility Control", () => {
       "Crée un formulaire pour test changement visibilité",
     );
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Visibility Change");
     await page.click('[data-testid="add-question"]');
@@ -141,7 +141,7 @@ test.describe("Form Poll - Visibility Control", () => {
 
     await page.selectOption('[data-testid="visibility-setting"]', "public");
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -150,13 +150,13 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.fill('[data-testid="voter-name"]', "Test Voter");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Accéder aux paramètres et changer la visibilité
     await page.click('[data-testid="settings-button"]');
     await page.selectOption('[data-testid="visibility-setting"]', "voters");
     await page.click('[data-testid="save-settings"]');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Vérifier que la visibilité a changé
     await page.reload();
@@ -168,7 +168,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire avec visibilité votants
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire pour test multiples votants");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Multiple Voters");
     await page.click('[data-testid="add-question"]');
@@ -180,7 +180,7 @@ test.describe("Form Poll - Visibility Control", () => {
 
     await page.selectOption('[data-testid="visibility-setting"]', "voters");
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -189,7 +189,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.fill('[data-testid="voter-name"]', "Voter 1");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Vérifier que les résultats sont visibles pour le votant
     const resultsSection1 = await page.locator('[data-testid="results-section"]').count();
@@ -201,7 +201,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.fill('[data-testid="voter-name"]', "Voter 2");
     await page.click('[data-testid="option-1"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Vérifier que les résultats sont visibles pour le deuxième votant
     const resultsSection2 = await page.locator('[data-testid="results-section"]').count();
@@ -220,7 +220,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire avec votes anonymes
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire avec votes anonymes");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Anonymous Voting");
     await page.click('[data-testid="add-question"]');
@@ -234,7 +234,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.check('[data-testid="allow-anonymous-voting"]');
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -243,7 +243,7 @@ test.describe("Form Poll - Visibility Control", () => {
     await page.check('[data-testid="anonymous-vote"]');
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Vérifier que le vote est enregistré et que les résultats sont visibles
     const resultsSection = await page.locator('[data-testid="results-section"]').count();
@@ -258,7 +258,7 @@ test.describe("Form Poll - Visibility Control", () => {
     // Créer un formulaire privé
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire privé pour test sécurité");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Security Form");
     await page.click('[data-testid="add-question"]');
@@ -268,7 +268,7 @@ test.describe("Form Poll - Visibility Control", () => {
 
     await page.selectOption('[data-testid="visibility-setting"]', "private");
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 

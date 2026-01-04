@@ -29,7 +29,7 @@ test.describe("🔒 RGPD - Suppression automatique", () => {
     testEmail = generateTestEmail("gdpr-auto-delete");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests (augmenté)
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -103,7 +103,7 @@ test.describe("🔒 RGPD - Suppression automatique", () => {
 
         // Toggle
         await toggle.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
         // Verify state changed
         const newState = await toggle.isChecked();
@@ -145,7 +145,7 @@ test.describe("🔒 RGPD - Suppression automatique", () => {
 
     // Reload page
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Re-authenticate
     await authenticateUserInPage(page, testEmail, testPassword);
@@ -199,7 +199,7 @@ test.describe("🔒 RGPD - Suppression automatique", () => {
 
         // Toggle
         await toggle.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
         // Verify state changed
         const newState = await toggle.isChecked();

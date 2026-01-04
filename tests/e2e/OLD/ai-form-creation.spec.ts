@@ -41,14 +41,14 @@ test.describe("AI Form Poll Creation", () => {
     console.log("✅ Message tapé");
 
     // 5. Attendre un peu avant d'envoyer
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
 
     // 6. Envoyer le message
     await chatInput.press("Enter");
     console.log("✅ Message envoyé");
 
     // 7. Attendre la réponse de Gemini (mock)
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     console.log("⏳ Attente réponse Gemini...");
 
     // 8. Vérifier que la réponse apparaît

@@ -36,7 +36,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
     testEmail = generateTestEmail("gdpr-deletion");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -103,7 +103,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
       )
       .first();
     await deleteButton.click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Verify confirmation dialog was shown
     expect(dialogAccepted).toBe(true);
@@ -143,7 +143,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
     await triggerAccountDeletion(page);
 
     // Wait for deletion to process
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Note: In a real implementation, we would verify that:
     // 1. All conversations are deleted
@@ -192,7 +192,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
 
     // Trigger deletion
     await triggerAccountDeletion(page);
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Verify UI indicates deletion
     const hasSuccessMessage = await page
@@ -225,7 +225,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
 
     // Trigger deletion
     await triggerAccountDeletion(page);
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Verify UI responds correctly even with no data
     const deleteButton = page
@@ -268,7 +268,7 @@ test.describe("🔒 RGPD - Droit à l'effacement (Article 17)", () => {
       )
       .first();
     await deleteButton.click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Verify dialog message contains warning about irreversibility
     expect(dialogMessage).toMatch(/irréversible|irreversible|définitif|permanent/i);

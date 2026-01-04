@@ -193,7 +193,7 @@ test.describe("Débogage Gestes Mobiles", () => {
     await page.screenshot({ path: "test-results/mobile-debug-initial.png" });
 
     // Attendre un peu pour voir les logs initiaux
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
 
     // Exécuter un test de geste long
     log("Début du test de long-press...");

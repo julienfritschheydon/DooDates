@@ -351,7 +351,8 @@ test.describe("Availability Polls - UI Mirror", () => {
       const csvExport = page.locator('[data-testid="export-csv"]');
       if (await csvExport.isVisible()) {
         await csvExport.click();
-        await page.waitForTimeout(2000); // Attendre le téléchargement
+        // Attendre que le téléchargement soit déclenché (vérifier que le bouton est cliquable à nouveau)
+        await expect(csvExport).toBeEnabled({ timeout: 3000 });
       }
     }
 

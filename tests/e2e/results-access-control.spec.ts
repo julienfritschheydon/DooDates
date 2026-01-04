@@ -30,21 +30,21 @@ test.describe("Results Access Control - Creator Only", () => {
 
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
-    await page.waitForTimeout(1000);
+    await page.locator('button:has-text("Paramètres avancés")').waitFor({ state: 'visible', timeout: 3000 });
 
     await page.click('button:has-text("Paramètres avancés")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Aller à Visibilité
     await page.click('button:has-text("Visibilité")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Sélectionner "Créateur uniquement"
     await page.click('input[value="creator-only"]');
 
     // Publier
     await page.click('button:has-text("Publier le sondage")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Récupérer l'URL des résultats
     const resultsUrl = page.url();
@@ -95,21 +95,21 @@ test.describe("Results Access Control - Voters Only", () => {
 
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
-    await page.waitForTimeout(1000);
+    await page.locator('button:has-text("Paramètres avancés")').waitFor({ state: 'visible', timeout: 3000 });
 
     await page.click('button:has-text("Paramètres avancés")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Aller à Visibilité
     await page.click('button:has-text("Visibilité")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Sélectionner "Participants après vote"
     await page.click('input[value="voters"]');
 
     // Publier
     await page.click('button:has-text("Publier le sondage")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const resultsUrl = page.url();
     const pollSlug = resultsUrl.split("/results/")[1];
@@ -133,7 +133,7 @@ test.describe("Results Access Control - Voters Only", () => {
     // Note: Ceci dépend de l'implémentation exacte du composant de vote
     await page.locator('button:has-text("Disponible")').first().click();
     await page.click('button:has-text("Valider")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Maintenant accéder aux résultats
     await page.goto(resultsUrl);
@@ -174,21 +174,21 @@ test.describe("Results Access Control - Public", () => {
 
     // Ouvrir paramètres
     await page.click('button:has-text("Paramètres et Partage")');
-    await page.waitForTimeout(1000);
+    await page.locator('button:has-text("Paramètres avancés")').waitFor({ state: 'visible', timeout: 3000 });
 
     await page.click('button:has-text("Paramètres avancés")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Aller à Visibilité
     await page.click('button:has-text("Visibilité")');
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Sélectionner "Public" (devrait être sélectionné par défaut)
     await page.click('input[value="public"]');
 
     // Publier
     await page.click('button:has-text("Publier le sondage")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     const resultsUrl = page.url();
 
@@ -254,7 +254,7 @@ test.describe("Results Access Control - Form Polls", () => {
         }
       }
     }
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
 
     // Remplir la question - sélecteurs flexibles
     let questionInput;
@@ -277,18 +277,18 @@ test.describe("Results Access Control - Form Polls", () => {
 
     // Scroll vers paramètres
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(500);
+    await page.locator('button:has-text("Visibilité")').waitFor({ state: 'visible', timeout: 2000 });
 
     // Aller à l'onglet Visibilité
     await page.click('button:has-text("Visibilité")');
-    await page.waitForTimeout(500);
+    await page.locator('input[value="creator-only"]').waitFor({ state: 'visible', timeout: 2000 });
 
     // Sélectionner "Créateur uniquement"
     await page.click('input[value="creator-only"]');
 
     // Publier
     await page.click('button:has-text("Publier")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Vérifier que les résultats sont visibles pour le créateur
     await expect(page.locator("text=Résultats")).toBeVisible();
