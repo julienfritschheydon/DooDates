@@ -196,23 +196,11 @@ jobs:
       - name: 🏗️ Build production (optimisé)
         run: npm run build
 
-      - name: 📤 Upload build artifact for GitHub Pages
-        run: |
-          mkdir -p github-pages-dist
-          # Copier seulement l'essentiel pour GitHub Pages
-          cp dist/index.html github-pages-dist/ || echo "index.html not found"
-          cp -r dist/assets github-pages-dist/ || echo "assets not found"
-          # Vérifier qu'il n'y a pas de symlinks
-          find github-pages-dist -type l 2>/dev/null || echo "No symlinks found"
-          # Lister les fichiers pour debug
-          echo "=== Files in github-pages-dist ==="
-          find github-pages-dist -type f | head -20
-
-      - name: 📤 Upload artifact for GitHub Pages
+      - name: 📤 Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: github-pages
-          path: github-pages-dist/
+          name: build-output
+          path: dist/
           retention-days: 1
 
   # ========================================
@@ -449,7 +437,13 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: Deploy to GitHub Pages
+      - name: 📥 Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+
+      - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
