@@ -204,6 +204,8 @@ jobs:
           rm -f github-pages-dist/performance-baseline.json
           rm -rf github-pages-dist/docs/
           rm -rf github-pages-dist/onboarding/
+
+      - name: 📤 Upload artifact for GitHub Pages
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
