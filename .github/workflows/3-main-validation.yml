@@ -199,15 +199,18 @@ jobs:
       - name: 📤 Upload GitHub Pages artifact
         run: |
           mkdir -p github-pages
-          # Copier seulement les fichiers essentiels pour GitHub Pages
-          cp -r dist/* github-pages/
-          # Supprimer les fichiers problématiques qui peuvent contenir des symlinks
-          rm -rf github-pages/docs
-          rm -rf github-pages/onboarding
-          rm -f github-pages/debug-conversations.html
-          rm -f github-pages/performance-baseline.json
-          # Vérifier le contenu
-          echo "=== GitHub Pages artifact content ==="
+          # Copier seulement les fichiers statiques essentiels
+          cp dist/index.html github-pages/
+          cp -r dist/assets github-pages/assets/
+          # Supprimer les fichiers JS qui causent des problèmes
+          find github-pages/assets -name "*.js" -delete
+          # Conserver seulement les fichiers CSS
+          find github-pages/assets -name "*.css" -exec cp {} github-pages/assets/ \;
+          # Copier les autres fichiers essentiels
+          cp dist/manifest.json github-pages/ 2>/dev/null || echo "manifest.json not found"
+          cp dist/robots.txt github-pages/ 2>/dev/null || echo "robots.txt not found"
+          # Vérifier le contenu final
+          echo "=== Final GitHub Pages artifact content ==="
           find github-pages -type f | head -10
 
       - name: 📤 Upload artifact
