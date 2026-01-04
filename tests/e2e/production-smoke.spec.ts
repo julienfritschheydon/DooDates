@@ -253,9 +253,9 @@ test.describe("🔥 Production Smoke Tests", () => {
           !text.includes("third-party") &&
           !text.includes("chrome-extension://") && // Extensions Chrome/Edge
           !text.includes("runtime/sendMessage") && // Erreurs extensions
-          !text.includes("ws://localhost:8080")
+          !text.includes("ws://localhost:8080") && // WebSocket dev inexistant
+          !text.includes("force-deployment") // Fichier temporaire de déploiement
         ) {
-          // WebSocket dev inexistant en smoke prod
           console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);
         }
