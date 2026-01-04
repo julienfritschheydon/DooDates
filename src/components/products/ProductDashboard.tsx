@@ -28,6 +28,7 @@ import { useFreemiumQuota } from "@/hooks/useFreemiumQuota";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations } from "@/hooks/useConversations";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
+import { buildAbsoluteUrl } from "@/lib/baseUrlUtils";
 import { useToast } from "@/hooks/use-toast";
 import TopNavGemini from "@/components/prototype/TopNavGemini";
 import { useViewportItems } from "@/hooks/useViewportItems";
@@ -164,7 +165,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
   };
 
   const handleCopyQuizzLink = (slug: string) => {
-    const url = `${window.location.origin}/DooDates/quizz/${slug}/vote`;
+    const url = buildAbsoluteUrl(`quizz/${slug}/vote`);
     navigator.clipboard.writeText(url);
     toast({ title: "Lien copié !" });
   };

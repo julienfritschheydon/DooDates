@@ -582,10 +582,6 @@ const App = () => {
 
                                 {/* Product Dashboards */}
                                 <Route
-                                  path="/DooDates/date-polls/dashboard"
-                                  element={<DatePollsDashboard />}
-                                />
-                                <Route
                                   path="/date-polls/dashboard"
                                   element={<DatePollsDashboard />}
                                 />

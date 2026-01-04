@@ -29,14 +29,17 @@ import {
   type QuizzQuestion,
   type QuizzResponse,
   type Badge,
-} from "@/lib/products/quizz/quizz-service";
-import type { Poll } from "@/lib/pollStorage";
+} from "../../lib/products/quizz/quizz-service";
+import type { Poll } from "../../lib/pollStorage";
 import { secureGeminiService } from "../../services/SecureGeminiService";
 import { cn } from "../../lib/utils";
 import { logError, ErrorFactory } from "../../lib/error-handling";
 import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
 import { getPollClosureReason } from "../../lib/pollEnforcement";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { buildAbsoluteUrl } from "@/lib/baseUrlUtils";
 
 // Configuration du timer (en secondes)
 const DEFAULT_TIME_PER_QUESTION = 30; // 30 secondes par question par défaut
@@ -149,7 +152,7 @@ export default function QuizzVote() {
 
   // Copier le lien du quiz
   const copyQuizLink = useCallback(() => {
-    const url = window.location.origin + `/DooDates/quizz/${slug}/vote`;
+    const url = buildAbsoluteUrl(`quizz/${slug}/vote`);
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);

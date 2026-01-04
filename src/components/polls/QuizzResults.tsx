@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useResultsAccess } from "@/hooks/useResultsAccess";
 import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
 import { useAuth } from "@/contexts/AuthContext";
+import { buildAbsoluteUrl } from "@/lib/baseUrlUtils";
 
 // Composant QR Code simple (génération via API externe)
 function QRCodeDisplay({ url, size = 150 }: { url: string; size?: number }) {
@@ -86,7 +87,7 @@ export default function QuizzResults() {
 
   // URL du quiz pour partage
   const quizUrl = useMemo(() => {
-    return `${window.location.origin}/DooDates/quizz/${slug}/vote`;
+    return buildAbsoluteUrl(`quizz/${slug}/vote`);
   }, [slug]);
 
   // Copier le lien

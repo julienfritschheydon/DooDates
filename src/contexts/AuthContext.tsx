@@ -5,6 +5,7 @@ import { SignInInput, SignUpInput } from "../lib/schemas";
 import { isLocalDevelopment } from "../lib/supabase";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import { logger } from "@/lib/logger";
+import { getBaseUrl, buildAbsoluteUrl } from "@/lib/baseUrlUtils";
 import {
   getSupabaseSessionFromLocalStorage,
   supabaseSelectSingle,
@@ -284,7 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/DooDates/auth/callback`,
+          redirectTo: buildAbsoluteUrl("auth/callback"),
           queryParams: {
             access_type: "offline",
             prompt: "consent",

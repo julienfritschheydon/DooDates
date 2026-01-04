@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 import { useConversations } from "./useConversations";
+import { buildUrl } from "@/lib/baseUrlUtils";
 
 export interface PollLinkMetadata {
   conversationId: string;
@@ -113,7 +114,7 @@ export const usePollConversationLink = () => {
    */
   const navigateToPoll = useCallback((pollId: string) => {
     // Navigate to poll page with base path
-    const pollUrl = `/DooDates/poll/${pollId}?source=conversation`;
+    const pollUrl = buildUrl(`poll/${pollId}?source=conversation`);
     window.location.href = pollUrl;
   }, []);
 

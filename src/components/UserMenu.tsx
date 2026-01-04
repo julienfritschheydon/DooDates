@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Button } from "./ui/button";
 import { LogOut, User } from "lucide-react";
 import { logger } from "@/lib/logger";
+import { navigateToUrl } from "@/lib/baseUrlUtils";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
@@ -32,7 +33,7 @@ export function UserMenu() {
         localStorage.clear();
         sessionStorage.clear();
         // Redirection unique partout - plus de conditions
-        window.location.href = "/DooDates/";
+        navigateToUrl("");
       } else {
         logger.info("Déconnexion réussie", "auth");
         // Nettoyer le stockage local
@@ -40,7 +41,7 @@ export function UserMenu() {
         sessionStorage.clear();
         // Redirection après déconnexion
         // Redirection unique partout - plus de conditions
-        window.location.href = "/DooDates/";
+        navigateToUrl("");
       }
     } catch (err) {
       logger.error("Erreur lors de la déconnexion", "auth", err);
@@ -51,7 +52,7 @@ export function UserMenu() {
       sessionStorage.clear();
 
       // Redirection unique partout - plus de conditions
-      window.location.href = "/DooDates/";
+      navigateToUrl("");
     }
   };
 
