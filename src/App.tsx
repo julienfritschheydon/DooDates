@@ -530,10 +530,10 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
-              basename={import.meta.env.VITE_BASE_PATH || undefined}
+              basename={import.meta.env.VITE_BASE_PATH || (import.meta.env.MODE === 'production' ? '/DooDates' : undefined)}
               // ⚠️ IMPORTANT: Use VITE_BASE_PATH for environment-specific routing
-              // In development: VITE_BASE_PATH="/DooDates"
-              // In production: VITE_BASE_PATH undefined (handled by Vite base config)
+              // In development: VITE_BASE_PATH="/DooDates" 
+              // In production: Fallback to /DooDates if VITE_BASE_PATH undefined
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>
