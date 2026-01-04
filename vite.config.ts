@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [react()],
   // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
   // This handles the /DooDates/ subdirectory deployment
-  // DO NOT add basename to BrowserRouter in App.tsx - Vite handles this!
-  base: "/DooDates/", // Base path statique pour GitHub Pages - plus de complexité
+  // VITE_BASE_PATH in .env.production handles React Router basename
+  base: process.env.NODE_ENV === 'production' ? "/DooDates/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
