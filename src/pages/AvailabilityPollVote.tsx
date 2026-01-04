@@ -154,7 +154,7 @@ const AvailabilityPollVote = () => {
           <CardContent className="pt-6">
             <p className="text-white text-center">Sondage de disponibilités introuvable</p>
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/availability-polls")}
               className="mt-4 w-full"
               data-testid="availability-vote-back-home"
             >
@@ -207,7 +207,7 @@ const AvailabilityPollVote = () => {
             <h2 className="text-2xl font-bold mb-3">{info.title}</h2>
             <p className="text-gray-400 mb-8">{info.message}</p>
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/availability-polls")}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
               data-testid="availability-vote-understood"
             >
@@ -608,7 +608,7 @@ const AvailabilityPollVote = () => {
                 )}
 
                 <Button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/availability-polls")}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   data-testid="availability-vote-back-home"
                 >
@@ -670,7 +670,7 @@ const AvailabilityPollVote = () => {
                   </Button>
                 )}
                 <Button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/availability-polls")}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   data-testid="availability-vote-back-home"
                 >
@@ -688,7 +688,7 @@ const AvailabilityPollVote = () => {
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
       {/* Bouton fermer */}
       <Button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/availability-polls")}
         variant="ghost"
         size="icon"
         className="fixed top-24 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"

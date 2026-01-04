@@ -305,7 +305,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
               );
             })()}
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/form-polls")}
               className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-all border border-gray-300"
             >
               Retour à l'accueil

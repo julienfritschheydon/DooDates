@@ -44,6 +44,20 @@ const Vote = () => {
 
   // Router vers le bon flux selon le type de sondage
   const p = getPollBySlugOrId(actualPollId);
+  
+  // Déterminer la landing page selon le type de poll
+  const getProductLanding = (pollType?: string) => {
+    switch (pollType) {
+      case "form":
+        return "/form-polls";
+      case "availability":
+        return "/availability-polls";
+      case "date":
+      default:
+        return "/date-polls";
+    }
+  };
+
   if (p?.type === "form") {
     return <FormPollVote idOrSlug={actualPollId} />;
   }
@@ -90,7 +104,7 @@ const Vote = () => {
         {/* VotingInterface gère l'affichage pour admin en interne */}
         <VotingInterface
           pollId={actualPollId}
-          onBack={() => navigate("/")}
+          onBack={() => navigate(getProductLanding(p?.type))}
           adminToken={adminToken}
         />
       </div>

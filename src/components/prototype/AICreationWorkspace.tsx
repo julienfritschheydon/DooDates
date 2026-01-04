@@ -909,7 +909,7 @@ export function AICreationWorkspace({
                     setSignOutDialogOpen(false);
                     // Forcer le rechargement pour s'assurer que tout est nettoyé
                     setTimeout(() => {
-                      window.location.href = "/DooDates/";
+                      window.location.href = "/";
                     }, 500);
                   }
                 } catch (error) {

@@ -736,7 +736,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/DooDates/workspace?conversationId=${item.id}`);
+                    navigate(`/workspace?conversationId=${item.id}`);
                   }}
                   className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
                 >

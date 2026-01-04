@@ -656,7 +656,7 @@ export function AICreationWorkspace() {
               <h1 className="text-xl font-medium text-white">DooDates</h1>
             </div>
             <button
-              onClick={() => navigate("/create/date")}
+              onClick={() => navigate("/date-polls/workspace/date")}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="Fermer"
               title="Fermer"
@@ -818,7 +818,7 @@ export function AICreationWorkspace() {
                     setSignOutDialogOpen(false);
                     // Forcer le rechargement pour s'assurer que tout est nettoyé
                     setTimeout(() => {
-                      window.location.href = "/DooDates/";
+                      window.location.href = "/";
                     }, 500);
                   }
                 } catch (error) {

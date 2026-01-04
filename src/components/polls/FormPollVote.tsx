@@ -378,10 +378,10 @@ export default function FormPollVote({ idOrSlug }: Props) {
     return (
       <VoteCompletionScreen
         voterName={voterName}
-        onBack={() => (window.location.href = "/DooDates/")}
+        onBack={() => (window.location.href = "/form-polls")}
         onViewResults={
           canSeeResults
-            ? () => (window.location.href = `/DooDates/poll/${poll.slug || poll.id}/results`)
+            ? () => (window.location.href = `/poll/${poll.slug || poll.id}/results`)
             : undefined
         }
         title="Merci pour votre participation !"

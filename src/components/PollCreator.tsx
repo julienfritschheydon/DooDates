@@ -784,7 +784,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               }),
                             );
                             // Rediriger vers la page de connexion avec intention calendrier
-                            window.location.href = "/DooDates/auth?connect=calendar";
+                            window.location.href = "/auth?connect=calendar";
                           }}
                           className="text-sm text-blue-600 hover:text-blue-800 underline bg-transparent border-none cursor-pointer"
                         >

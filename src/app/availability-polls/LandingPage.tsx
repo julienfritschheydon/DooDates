@@ -133,7 +133,7 @@ export const LandingPage: React.FC = () => {
                   product="availability"
                   variantRole="primary"
                   size="lg"
-                  onClick={() => navigate("/create/availability")}
+                  onClick={() => navigate("/availability-polls/workspace/availability")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300"
                   data-testid="create-availability-poll-button"
                 >
@@ -363,7 +363,7 @@ export const LandingPage: React.FC = () => {
               product="availability"
               variantRole="primary"
               size="lg"
-              onClick={() => navigate("/create/availability")}
+              onClick={() => navigate("/availability-polls/workspace/availability")}
               className="px-10 py-6 text-base font-medium bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 rounded-xl shadow-lg shadow-emerald-500/25"
             >
               Créer ma disponibilité Gratis

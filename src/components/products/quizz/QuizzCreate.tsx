@@ -542,7 +542,7 @@ export const QuizzCreate: React.FC = () => {
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
-                  to="/DooDates/quizz/dashboard"
+                  to="/quizz/dashboard"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg font-semibold transition-all shadow-lg"
                   data-testid="quiz-go-to-dashboard"
                 >
@@ -550,7 +550,7 @@ export const QuizzCreate: React.FC = () => {
                   Aller au Tableau de bord
                 </Link>
                 <Link
-                  to={`/DooDates/quizz/${publishedQuiz.slug || publishedQuiz.id}/vote`}
+                  to={`/quizz/${publishedQuiz.slug || publishedQuiz.id}/vote`}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-amber-300 border-2 border-amber-600/50 rounded-lg font-semibold hover:bg-amber-900/30 transition-colors"
                   data-testid="quiz-view-quiz"
                 >

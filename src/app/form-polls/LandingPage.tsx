@@ -126,7 +126,7 @@ export const LandingPage: React.FC = () => {
                   product="form"
                   variantRole="primary"
                   size="lg"
-                  onClick={() => navigate("/create/form")}
+                  onClick={() => navigate("/form-polls/workspace/form")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all durée-300"
                   data-testid="create-form-button"
                 >
@@ -324,7 +324,7 @@ export const LandingPage: React.FC = () => {
               product="form"
               variantRole="primary"
               size="lg"
-              onClick={() => navigate("/create/form")}
+              onClick={() => navigate("/form-polls/workspace/form")}
               className="px-10 py-6 text-base font-medium bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 rounded-xl shadow-lg shadow-violet-500/25"
             >
               Créer mon formulaire — Gratuit

@@ -187,7 +187,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
       onBack();
     } else {
       // Rediriger vers la page d'accueil si onBack n'est pas fourni
-      window.location.href = "/DooDates/";
+      window.location.href = "/";
     }
   };
 
