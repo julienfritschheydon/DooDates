@@ -209,6 +209,8 @@ jobs:
           # Vérifier le contenu
           echo "=== GitHub Pages artifact content ==="
           find github-pages -type f | head -10
+
+      - name: 📤 Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
