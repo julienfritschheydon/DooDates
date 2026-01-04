@@ -57,10 +57,12 @@ export default defineConfig(({ command }): UserConfig => {
   };
 
   // ⚠️ CRITIQUE: GitHub Pages routing - Configuration finale corrigée
-  // base: "/DooDates/" pour GitHub Pages (assets + routing)
-  // BrowserRouter SANS basename (GitHub Pages gère le routing)
-  // baseUrlUtils pour les URLs dynamiques (évite les doubles préfixes)
-  config.base = "/DooDates/";
+  // En production (build): base="/DooDates/" pour GitHub Pages
+  // En développement (serve): base="/" pour tester en local
+  // BrowserRouter SANS basename dans les deux cas
+  if (command !== "serve") {
+    config.base = "/DooDates/";
+  }
 
   return config;
 });
