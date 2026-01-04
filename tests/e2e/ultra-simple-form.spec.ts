@@ -148,7 +148,10 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           log("🗳️ Test vote sur formulaire");
 
           // Navigation simple vers le dashboard form polls
-          await page.goto("/DooDates/form-polls/dashboard", { waitUntil: "domcontentloaded", timeout: 30000 });
+          await page.goto("/DooDates/form-polls/dashboard", {
+            waitUntil: "domcontentloaded",
+            timeout: 30000,
+          });
           await page.waitForTimeout(2000);
 
           log("✅ Navigation vers le dashboard réussie");

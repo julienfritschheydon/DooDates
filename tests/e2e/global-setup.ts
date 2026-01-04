@@ -44,21 +44,39 @@ function generateMockPollResponse(prompt: string): any {
     }
 
     // Détection de la matière
-    if (lowerPrompt.includes("math") || lowerPrompt.includes("calcul") || lowerPrompt.includes("addition")) {
+    if (
+      lowerPrompt.includes("math") ||
+      lowerPrompt.includes("calcul") ||
+      lowerPrompt.includes("addition")
+    ) {
       subject = "Mathématiques";
-    } else if (lowerPrompt.includes("français") || lowerPrompt.includes("grammaire") || lowerPrompt.includes("orthographe")) {
+    } else if (
+      lowerPrompt.includes("français") ||
+      lowerPrompt.includes("grammaire") ||
+      lowerPrompt.includes("orthographe")
+    ) {
       subject = "Français";
-    } else if (lowerPrompt.includes("histoire") || lowerPrompt.includes("révolution") || lowerPrompt.includes("napoléon")) {
+    } else if (
+      lowerPrompt.includes("histoire") ||
+      lowerPrompt.includes("révolution") ||
+      lowerPrompt.includes("napoléon")
+    ) {
       subject = "Histoire";
-    } else if (lowerPrompt.includes("science") || lowerPrompt.includes("physique") || lowerPrompt.includes("chimie")) {
+    } else if (
+      lowerPrompt.includes("science") ||
+      lowerPrompt.includes("physique") ||
+      lowerPrompt.includes("chimie")
+    ) {
       subject = "Sciences";
     }
 
     // Génération du titre du quiz
     let quizTitle = `Quiz ${subject} - Test E2E`;
-    
+
     // Extraire un titre personnalisé si présent
-    const titleMatch = prompt.match(/(?:titre|title)\s+[«"]([^»"]+)[»"]|(?:titre|title)\s+"([^"]+)"/i);
+    const titleMatch = prompt.match(
+      /(?:titre|title)\s+[«"]([^»"]+)[»"]|(?:titre|title)\s+"([^"]+)"/i,
+    );
     if (titleMatch) {
       quizTitle = titleMatch[1] || titleMatch[2];
     }
@@ -74,7 +92,7 @@ function generateMockPollResponse(prompt: string): any {
           options: [],
           correctAnswer: `${15 * i}`,
           points: 1,
-          explanation: `La réponse est ${15 * i}. On additionne ${10 * i} + ${5 * i}.`
+          explanation: `La réponse est ${15 * i}. On additionne ${10 * i} + ${5 * i}.`,
         });
       } else if (subject === "Français") {
         questions.push({
@@ -84,17 +102,17 @@ function generateMockPollResponse(prompt: string): any {
           options: ["Nom", "Verbe", "Adjectif", "Adverbe"],
           correctAnswer: "Nom",
           points: 1,
-          explanation: "Test est un nom qui désigne une évaluation."
+          explanation: "Test est un nom qui désigne une évaluation.",
         });
       } else if (subject === "Histoire") {
         questions.push({
           id: `q${i}`,
           question: `En quelle année a eu lieu la Révolution française ?`,
-          type: "text", 
+          type: "text",
           options: [],
           correctAnswer: "1789",
           points: 1,
-          explanation: "La Révolution française a commencé en 1789."
+          explanation: "La Révolution française a commencé en 1789.",
         });
       } else {
         // Quiz général
@@ -105,7 +123,7 @@ function generateMockPollResponse(prompt: string): any {
           options: i <= 2 ? ["Option A", "Option B", "Option C"] : [],
           correctAnswer: i <= 2 ? "Option A" : `Réponse ${i}`,
           points: 1,
-          explanation: `Explication pour la question ${i}`
+          explanation: `Explication pour la question ${i}`,
         });
       }
     }
@@ -114,7 +132,7 @@ function generateMockPollResponse(prompt: string): any {
       title: quizTitle,
       subject: subject,
       questions: questions,
-      confidence: 90
+      confidence: 90,
     };
 
     console.log("🤖 generateMockPollResponse - quizData généré:", JSON.stringify(quizData));

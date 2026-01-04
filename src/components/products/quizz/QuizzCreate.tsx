@@ -218,7 +218,7 @@ export const QuizzCreate: React.FC = () => {
       if (title.trim()) {
         fullPrompt = `CONTEXTE DÉJÀ SAISI:\nTitre: "${title}"\n\nDEMANDE COMPLÉMENTAIRE: ${textPrompt}`;
       }
-      
+
       console.log("[QuizzCreate] Génération avec contexte complet:", fullPrompt);
       const result = await quizzVisionService.generateFromText(fullPrompt);
       console.log("[QuizzCreate] Résultat:", result);
@@ -396,7 +396,7 @@ export const QuizzCreate: React.FC = () => {
     };
     setQuestions([...questions, newQ]);
     // Déplier automatiquement la nouvelle question
-    setExpandedQuestions(prev => new Set([...prev, newQ.id]));
+    setExpandedQuestions((prev) => new Set([...prev, newQ.id]));
   };
 
   // Mettre à jour une question
@@ -443,18 +443,21 @@ export const QuizzCreate: React.FC = () => {
     if (!finalTitle) {
       // Générer un titre basé sur les questions ou le contenu
       const firstQuestion = questions[0]?.question || "";
-      const subject = questions[0]?.explanation?.includes("math") ? "Mathématiques" : 
-                      questions[0]?.explanation?.includes("français") ? "Français" : 
-                      questions[0]?.explanation?.includes("histoire") ? "Histoire" : 
-                      "Quiz";
-      finalTitle = `Quiz ${subject} - ${new Date().toLocaleDateString('fr-FR')}`;
-      
+      const subject = questions[0]?.explanation?.includes("math")
+        ? "Mathématiques"
+        : questions[0]?.explanation?.includes("français")
+          ? "Français"
+          : questions[0]?.explanation?.includes("histoire")
+            ? "Histoire"
+            : "Quiz";
+      finalTitle = `Quiz ${subject} - ${new Date().toLocaleDateString("fr-FR")}`;
+
       // Mettre à jour le titre généré
       setTitle(finalTitle);
-      toast({ 
-        title: "Titre généré automatiquement", 
+      toast({
+        title: "Titre généré automatiquement",
         description: `Titre : "${finalTitle}"`,
-        duration: 3000 
+        duration: 3000,
       });
     }
 
@@ -685,9 +688,7 @@ export const QuizzCreate: React.FC = () => {
         {/* Infos de base - toujours visible */}
         <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-700 space-y-3 sm:space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Titre du quiz *
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Titre du quiz *</label>
             <input
               type="text"
               value={title}

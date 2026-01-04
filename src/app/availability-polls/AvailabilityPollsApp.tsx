@@ -18,11 +18,14 @@ const AvailabilityPollsApp: React.FC = () => {
       <Route path="/dashboard" element={<AvailabilityPollsDashboard />} />
       <Route path="/pricing" element={<AvailabilityPollsPricing />} />
       <Route path="/documentation" element={<AvailabilityPollsDocumentation />} />
-      <Route path="/workspace/availability" element={
+      <Route
+        path="/workspace/availability"
+        element={
           <AvailabilityPollsLayout>
             <AvailabilityPollCreatorContent />
           </AvailabilityPollsLayout>
-        } />
+        }
+      />
       <Route path="/:id" element={<div>Voir un sondage de disponibilités</div>} />
     </Routes>
   );

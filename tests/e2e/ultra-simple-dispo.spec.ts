@@ -65,7 +65,9 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
 
         // 1. Naviguer vers le workspace Availability
         log("🛠️ Navigation vers le workspace Availability");
-        await page.goto("/DooDates/availability-polls/workspace/availability", { waitUntil: "domcontentloaded" });
+        await page.goto("/DooDates/availability-polls/workspace/availability", {
+          waitUntil: "domcontentloaded",
+        });
         await waitForNetworkIdle(page, { browserName });
         await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");
@@ -80,7 +82,7 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
         if (hasFormTitle) {
           // Mode Formulaire manuel (attendu pour Availability Polls)
           log("📝 Mode Formulaire manuel détecté");
-          
+
           // Remplir directement le champ titre avec le bon data-testid
           await formTitle.fill("Réunion Équipe - Test E2E Dispo");
           log("✅ Titre rempli");
@@ -128,10 +130,11 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
           log("📊 Vérification Dashboard");
           await page.goto(PRODUCT_ROUTES.availabilityPoll.dashboard, {
             waitUntil: "domcontentloaded",
+            timeout: 30000,
           });
-          await waitForNetworkIdle(page, { browserName });
+          await page.waitForTimeout(2000);
 
-          await expect(page).toHaveURL(/DooDates\/availability-polls\/dashboard/);
+          await expect(page).toHaveURL(/DooDates\/.*\/availability-polls\/dashboard$/);
 
           // Vérifier contenu dashboard - le poll doit être visible ou message "Aucun"
           const dashboardContent = page

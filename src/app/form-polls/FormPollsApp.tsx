@@ -18,11 +18,14 @@ const FormPollsApp: React.FC = () => {
       <Route path="/dashboard" element={<FormPollsDashboard />} />
       <Route path="/pricing" element={<FormPollsPricing />} />
       <Route path="/documentation" element={<FormPollsDocumentation />} />
-      <Route path="/workspace/form" element={
+      <Route
+        path="/workspace/form"
+        element={
           <FormPollsLayout>
             <FormPollCreator />
           </FormPollsLayout>
-        } />
+        }
+      />
       <Route path="/:id" element={<div>Voir un formulaire</div>} />
     </Routes>
   );
