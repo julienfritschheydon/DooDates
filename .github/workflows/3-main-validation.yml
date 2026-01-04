@@ -449,10 +449,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔨 Build production
-        run: npm run build
-
-      - name: 🚀 Deploy to GitHub Pages
+      - name:  Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
