@@ -56,10 +56,11 @@ export default defineConfig(({ command }): UserConfig => {
     },
   };
 
-  // ⚠️ CRITIQUE: GitHub Pages routing - Configuration finale
-  // base: "/" pour éviter les doubles préfixes dans les assets
-  // GitHub Pages gère automatiquement le base path /DooDates/
-  // PAS de configuration conditionnelle - base: "/" partout
+  // ⚠️ CRITIQUE: GitHub Pages routing - Configuration finale corrigée
+  // base: "/DooDates/" pour GitHub Pages (assets + routing)
+  // BrowserRouter SANS basename (GitHub Pages gère le routing)
+  // baseUrlUtils pour les URLs dynamiques (évite les doubles préfixes)
+  config.base = "/DooDates/";
 
   return config;
 });
