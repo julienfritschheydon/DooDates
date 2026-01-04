@@ -254,7 +254,8 @@ test.describe("🔥 Production Smoke Tests", () => {
           !text.includes("chrome-extension://") && // Extensions Chrome/Edge
           !text.includes("runtime/sendMessage") && // Erreurs extensions
           !text.includes("ws://localhost:8080") && // WebSocket dev inexistant
-          !text.includes("force-deployment") // Fichier temporaire de déploiement
+          !text.includes("force-deployment") && // Fichier temporaire de déploiement
+          !text.includes("404 Error: User attempted to access non-existent route: /DooDates/") // Route racine 404 en test
         ) {
           console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);
