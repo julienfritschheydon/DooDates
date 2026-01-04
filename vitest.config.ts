@@ -62,6 +62,7 @@ export default defineConfig({
       "src/test/gemini-benchmark.test.ts",
       "src/test/gemini-diagnostic.test.ts",
       "src/test/gemini-form-polls.test.ts",
+      "tests/temporal-prompts-validation.test.ts", // ⚠️ AJOUT - Exclure test avec appels Gemini réels
     ],
     coverage: {
       provider: "v8",
