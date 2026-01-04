@@ -30,8 +30,8 @@ export default defineConfig({
         },
       },
     },
-    // Éviter les symlinks dans le build
-    copyPublicDir: false,
+    // Copier les fichiers publics pour GitHub Pages
+    copyPublicDir: true,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000,
     minify: "terser" as const,
