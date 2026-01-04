@@ -24,7 +24,7 @@ import {
 } from "../../lib/products/quizz/quizz-service";
 import { cn } from "../../lib/utils";
 import { Button } from "@/components/ui/button";
-import { useResultsAccess } from "@/hooks/useResultsAccess";
+import { useResultsAccess, ResultsAccessStatus } from "@/hooks/useResultsAccess";
 import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Poll } from "../../lib/pollStorage";
@@ -227,11 +227,12 @@ export default function QuizzResults() {
 
   // Vérifier l'accès aux résultats
   if (!accessStatus.allowed) {
+    const deniedStatus = accessStatus as { allowed: false; reason: string; message: string };
     return (
       <ResultsAccessDenied
-        message={(accessStatus as any).message || "Accès non autorisé"}
+        message={deniedStatus.message || "Accès non autorisé"}
         pollSlug={quizz.slug}
-        showVoteButton={(accessStatus as any).reason === "not-voted"}
+        showVoteButton={deniedStatus.reason === "not-voted"}
       />
     );
   }

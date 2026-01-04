@@ -65,6 +65,9 @@ describe("usePollConversationLink", () => {
       updateConversation: mockUpdateConversation,
       useConversation: mockUseConversation,
     } as any);
+    
+    // Mock BASE_URL for tests
+    vi.stubEnv("BASE_URL", "/DooDates/");
   });
 
   describe("linkPollToConversation", () => {
