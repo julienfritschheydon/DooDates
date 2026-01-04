@@ -197,7 +197,7 @@ jobs:
         run: npm run build
 
   # ========================================
-  # E2E COMPLET (main - PARALLÈLE) - TEMPORAIREMENT DÉSACTIVÉ
+  # E2E COMPLET (main - DÉPLACÉ APRÈS DÉPLOIEMENT)
   # ========================================
   # tests-e2e-complete:
   #   needs: [changes, prepare-deps]
@@ -230,6 +230,7 @@ jobs:
   #       run: npm run test:e2e:smoke
   #       env:
   #         E2E_FORCE_MOCKS: true
+  #         VITE_BASE_PATH: /DooDates/
   #
   #     - name: 📊 Upload Playwright report
   #       if: failure()
@@ -434,7 +435,7 @@ jobs:
       - name: 🔨 Build production
         run: npm run build
 
-      - name: � Vérifier contenu du build
+      - name: 📋 Vérifier contenu du build
         run: |
           echo "=== Contenu du dossier dist/ ==="
           find dist -type f | head -20
@@ -443,7 +444,7 @@ jobs:
           ls -la dist/manifest.json || echo "manifest.json MANQUANT"
           ls -la dist/logo-doodates.svg || echo "logo-doodates.svg MANQUANT"
 
-      - name: �📤 Upload Pages artifact
+      - name: 📤 Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -454,15 +455,74 @@ jobs:
         uses: actions/deploy-pages@v4
 
   # ========================================
+  # E2E COMPLET (main - SÉQUENTIEL APRÈS DÉPLOIEMENT)
+  # ========================================
+  tests-e2e-complete:
+    needs: [deploy]
+    if: |
+      needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 E2E Smoke Tests (main)
+        run: npm run test:e2e:smoke
+        env:
+          E2E_FORCE_MOCKS: true
+          VITE_BASE_PATH: /DooDates/
+
+      - name: 📊 Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-main-complete
+          path: playwright-report/
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-main-complete
+          path: test-results/
+          retention-days: 7
+
+      - name: 🚨 Échec E2E - Rollback si nécessaire
+        if: failure()
+        run: |
+          echo "🚨 E2E tests failed - Rolling back deployment"
+          gh api repos/${{ github.repository }}/pages/pages/builds/latest -X DELETE
+          echo "📊 Déploiement annulé suite à l'échec des tests E2E"
+
+  # ========================================
   # SUCCESS NOTIFICATION (main)
   # ========================================
   success-notification-deploy:
-    needs: [changes, tests-complete, build-validation, production-smoke-main]
+    needs: [changes, tests-complete, build-validation, production-smoke-main, tests-e2e-complete]
     if: |
       needs.changes.outputs.code == 'true' &&
       needs.tests-complete.result == 'success' &&
       needs.build-validation.result == 'success' &&
-      needs.production-smoke-main.result == 'success'
+      needs.production-smoke-main.result == 'success' &&
+      needs.tests-e2e-complete.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 🎉 Production Ready
