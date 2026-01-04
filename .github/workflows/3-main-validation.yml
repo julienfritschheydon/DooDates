@@ -483,6 +483,9 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install chromium
+
       - name: 🚀 E2E Smoke Tests (main)
         run: npm run test:e2e:smoke
         env:
@@ -507,6 +510,8 @@ jobs:
 
       - name: 🚨 Échec E2E - Rollback si nécessaire
         if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "🚨 E2E tests failed - Rolling back deployment"
           gh api repos/${{ github.repository }}/pages/pages/builds/latest -X DELETE
