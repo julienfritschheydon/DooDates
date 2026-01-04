@@ -196,13 +196,18 @@ jobs:
         run: npm run build
 
       - name: 📤 Upload build artifact for GitHub Pages
+        run: |
+          mkdir -p github-pages-dist
+          cp -r dist/* github-pages-dist/
+          # Supprimer les fichiers qui peuvent causer des problèmes
+          rm -f github-pages-dist/debug-conversations.html
+          rm -f github-pages-dist/performance-baseline.json
+          rm -rf github-pages-dist/docs/
+          rm -rf github-pages-dist/onboarding/
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: |
-            dist/
-            !dist/**/*.map
-            !dist/**/*.txt
+          path: github-pages-dist/
           retention-days: 1
 
   # ========================================
