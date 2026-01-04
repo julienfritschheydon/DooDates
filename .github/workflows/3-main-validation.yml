@@ -199,12 +199,14 @@ jobs:
       - name: 📤 Upload build artifact for GitHub Pages
         run: |
           mkdir -p github-pages-dist
-          cp -r dist/* github-pages-dist/
-          # Supprimer les fichiers qui peuvent causer des problèmes
-          rm -f github-pages-dist/debug-conversations.html
-          rm -f github-pages-dist/performance-baseline.json
-          rm -rf github-pages-dist/docs/
-          rm -rf github-pages-dist/onboarding/
+          # Copier seulement les fichiers essentiels
+          cp dist/index.html github-pages-dist/
+          cp -r dist/assets github-pages-dist/
+          cp dist/manifest.json github-pages-dist/
+          cp dist/robots.txt github-pages-dist/
+          cp dist/sw.js github-pages-dist/
+          cp dist/logo-doodates.svg github-pages-dist/
+          cp dist/placeholder.svg github-pages-dist/
 
       - name: 📤 Upload artifact for GitHub Pages
         uses: actions/upload-artifact@v4

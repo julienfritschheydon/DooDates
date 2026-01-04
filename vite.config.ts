@@ -30,6 +30,9 @@ export default defineConfig({
         },
       },
     },
+    // Éviter les symlinks dans le build
+    copyPublicDir: false,
+    assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000,
     minify: "terser" as const,
     terserOptions: {
