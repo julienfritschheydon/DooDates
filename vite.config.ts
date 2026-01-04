@@ -56,11 +56,10 @@ export default defineConfig(({ command }): UserConfig => {
     },
   };
 
-  // ⚠️ CRITIQUE: Configuration conditionnelle GitHub Pages (28 Novembre)
-  // En production (build), utiliser le base path pour GitHub Pages
-  if (command !== "serve") {
-    config.base = "/DooDates/";
-  }
+  // ⚠️ CRITIQUE: GitHub Pages routing - Configuration finale
+  // base: "/" pour éviter les doubles préfixes dans les assets
+  // GitHub Pages gère automatiquement le base path /DooDates/
+  // PAS de configuration conditionnelle - base: "/" partout
 
   return config;
 });
