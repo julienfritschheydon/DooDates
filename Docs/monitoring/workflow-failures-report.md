@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 04/01/2026 15:06:32
+**Dernière mise à jour:** 04/01/2026 15:12:29
 
-_Workflow run #961 (ID 20694073096) — génération UTC 2026-01-04T14:06:32.328Z_
+_Workflow run #962 (ID 20694151872) — génération UTC 2026-01-04T14:12:29.436Z_
 
-## 🎯 Focus: Commit `3532196`
+## 🎯 Focus: Commit `2025fda`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,13 +26,13 @@ _Workflow run #961 (ID 20694073096) — génération UTC 2026-01-04T14:06:32.328
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3532196`.
+Tous les workflows surveillés ont réussi pour le commit `2025fda`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `3532196`
+- 🎯 **Focus: Commit actuel** `2025fda`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
