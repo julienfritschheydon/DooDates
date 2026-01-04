@@ -8,8 +8,7 @@ export default defineConfig({
   // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
   // This handles the /DooDates/ subdirectory deployment
   // VITE_BASE_PATH in .env.production handles React Router basename
-  // 🚨 TEMPORAIRE: Console logs activés en prod pour debugging IA
-  base: process.env.NODE_ENV === 'production' ? "/DooDates/" : "/",
+  base: "/DooDates/", // Base path statique pour GitHub Pages - comme avant
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
