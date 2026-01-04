@@ -530,8 +530,9 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
-              // ⚠️ IMPORTANT: PAS de basename - GitHub Pages gère le base path automatiquement
-              // Configuration du 28 Novembre qui fonctionnait parfaitement
+              // ⚠️ CRITIQUE: GitHub Pages routing - NE JAMAIS MODIFIER
+              // PAS de basename - GitHub Pages gère /DooDates/ automatiquement
+              // Voir Docs/routing-config-simple.md
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>
