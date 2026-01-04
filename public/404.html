@@ -2,29 +2,16 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>DooDates - Page Not Found</title>
+  <title>DooDates</title>
   <script type="text/javascript">
-    // GitHub Pages SPA redirect
-    // Single Page App for GitHub Pages
-    // See: https://github.com/blog/2107-github-pages-now-faster-and-simpler-with-jekyll-build-process-improvements
-    (function(l){
-      if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(function(s) { 
-          return s.replace(/~and~/g, '&')
-        }).join('?');
-        window.location.replace(l.pathname.slice(0, -1) + decoded + l.hash);
-      }
-    })(window.location)
+    // GitHub Pages SPA redirect for React Router
+    // Store the current path in sessionStorage and redirect to index.html
+    // The React app will then restore the path from sessionStorage
+    sessionStorage.setItem('redirectPath', location.pathname + location.search + location.hash);
+    location.replace('/DooDates/');
   </script>
 </head>
 <body>
-  <h1>404 - Page Not Found</h1>
-  <p>Redirecting to DooDates...</p>
-  <script>
-    // Fallback redirect
-    setTimeout(function() {
-      window.location.href = '/DooDates/';
-    }, 1000);
-  </script>
+  <p>Loading DooDates...</p>
 </body>
 </html>
