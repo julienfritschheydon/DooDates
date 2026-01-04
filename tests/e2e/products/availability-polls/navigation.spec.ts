@@ -42,7 +42,7 @@ test.describe("Availability Polls - Navigation Flow", () => {
     if (!titleFound) {
       // Si aucun titre trouvé, vérifier qu'on est quand même sur une page de availability-polls
       const url = page.url();
-      expect(url).toMatch(/availability-polls/);
+      expect(url).toMatch(/availability/);
     }
 
     // 2. Navigate to Workspace (Create Poll)

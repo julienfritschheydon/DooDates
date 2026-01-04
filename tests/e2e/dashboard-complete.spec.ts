@@ -53,7 +53,7 @@ test.describe("Dashboard - Fonctionnalités Essentielles", () => {
       async () => {
         // Étape 1: Identifier l'intention - Navigation dashboard simple
         await setupTestData(page);
-        await page.goto("/DooDates/date-polls/dashboard", { waitUntil: "domcontentloaded" });
+        await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
 
         // Étape 7: Simplifier les regex URL

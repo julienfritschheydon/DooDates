@@ -186,7 +186,7 @@ test.describe("Console Errors & React Warnings", () => {
     });
 
     // Aller sur la page d'accueil (workspace date par défaut)
-    await page.goto("/date-polls/workspace/date?e2e-test=true", { waitUntil: "domcontentloaded" });
+    await page.goto("/date/workspace/date?e2e-test=true", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -387,7 +387,7 @@ test.describe("Console Errors & React Warnings", () => {
 
     const timeouts = getTimeouts(browserName);
     // Créer un poll via IA (workspace form pour ce test)
-    await page.goto("/form-polls/workspace/form?e2e-test=true", { waitUntil: "domcontentloaded" });
+    await page.goto("/form/workspace/form?e2e-test=true", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

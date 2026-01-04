@@ -492,7 +492,7 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 export async function warmup(page: Page) {
   // Warmup workspace (route principale pour les tests)
   // Warmup workspace (route principale pour les tests)
-  await page.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
+  await page.goto("/DooDates/date/workspace/date", { waitUntil: "domcontentloaded" });
   await page.reload({ waitUntil: "domcontentloaded" });
 }
 
@@ -1025,24 +1025,24 @@ export async function debugScreenshot(
 export const PRODUCT_ROUTES = {
   datePoll: {
     landing: "/DooDates/date-polls",
-    workspace: "/DooDates/date-polls/workspace/date",
-    dashboard: "/DooDates/date-polls/dashboard",
-    docs: "/DooDates/date-polls/docs",
-    pricing: "/DooDates/date-polls/pricing",
+    workspace: "/DooDates/date/workspace/date",
+    dashboard: "/DooDates/date/dashboard",
+    docs: "/DooDates/date/docs",
+    pricing: "/DooDates/date/pricing",
   },
   formPoll: {
     landing: "/DooDates/form-polls",
-    workspace: "/DooDates/form-polls/workspace/form",
-    dashboard: "/DooDates/form-polls/dashboard",
-    docs: "/DooDates/form-polls/docs",
-    pricing: "/DooDates/form-polls/pricing",
+    workspace: "/DooDates/form/workspace/form",
+    dashboard: "/DooDates/form/dashboard",
+    docs: "/DooDates/form/docs",
+    pricing: "/DooDates/form/pricing",
   },
   availabilityPoll: {
     landing: "/DooDates/availability-polls",
-    workspace: "/DooDates/availability-polls/workspace/availability",
-    dashboard: "/DooDates/availability-polls/dashboard",
-    docs: "/DooDates/availability-polls/docs",
-    pricing: "/DooDates/availability-polls/pricing",
+    workspace: "/DooDates/availability/workspace/availability",
+    dashboard: "/DooDates/availability/dashboard",
+    docs: "/DooDates/availability/docs",
+    pricing: "/DooDates/availability/pricing",
   },
   quizz: {
     landing: "/DooDates/quizz",

@@ -67,7 +67,7 @@ test.describe("FormPoll Deletion - Smoke Tests", () => {
         },
         backup: {
           created: true,
-          location: "backups/form-polls/",
+          location: "backups/form/",
           expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 jours
         },
       };
@@ -178,7 +178,7 @@ test.describe("FormPoll Deletion - Smoke Tests", () => {
           "Les analytics seront perdus",
         ],
         canCancel: true,
-        cancelUrl: "/DooDates/form-polls/dashboard",
+        cancelUrl: "/DooDates/form/dashboard",
       };
 
       localStorage.setItem(

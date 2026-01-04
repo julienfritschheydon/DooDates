@@ -106,7 +106,7 @@ test.describe.skip("Debug - Test 5 fusion localStorage + Supabase", () => {
       await setupGeminiMock(pageB);
 
       // ===== APPAREIL A : Créer une conversation =====
-      await pageA.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
+      await pageA.goto("/DooDates/date/workspace/date", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(pageA, { browserName: "chromium" });
       await waitForReactStable(pageA, { browserName: "chromium" });
 

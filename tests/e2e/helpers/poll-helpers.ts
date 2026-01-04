@@ -359,7 +359,7 @@ export async function createFormWithDateQuestion(
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
 
   // Aller sur la page de création
-  await page.goto("/DooDates/form-polls/workspace/form", { waitUntil: "domcontentloaded" });
+  await page.goto("/DooDates/form/workspace/form", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -534,7 +534,7 @@ async function openFormFromDashboard(
   console.log(`[INFO] Navigation vers le tableau de bord...`);
 
   // Aller au tableau de bord
-  await page.goto("/DooDates/form-polls/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/DooDates/form/dashboard", { waitUntil: "domcontentloaded" });
 
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
 

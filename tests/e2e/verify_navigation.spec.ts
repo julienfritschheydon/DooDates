@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("UI Consistency and Navigation", () => {
   test("Date Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/date-polls/dashboard");
+    await page.goto("/DooDates/date/dashboard");
     // Check for Quota section text
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
@@ -11,14 +11,14 @@ test.describe("UI Consistency and Navigation", () => {
   });
 
   test("Form Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
     await expect(page.getByTitle("Voir le journal de consommation")).toBeVisible();
   });
 
   test("Availability Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/availability-polls/dashboard");
+    await page.goto("/DooDates/availability/dashboard");
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
     await expect(page.getByTitle("Voir le journal de consommation")).toBeVisible();

@@ -43,7 +43,7 @@ test.describe("Date Polls - Navigation Flow", () => {
     // Étape 6: Accepter les cas limites - Si aucun titre trouvé, vérifier l'URL
     if (!titleFound) {
       const url = page.url();
-      expect(url).toMatch(/date-polls/);
+      expect(url).toMatch(/date/);
     }
 
     // 2. Navigate to Workspace (Create Poll)
@@ -93,7 +93,7 @@ test.describe("Date Polls - Navigation Flow", () => {
       await waitForReactStable(page, { browserName });
     } catch (error) {
       // Étape 4: Fallback - Navigation alternative
-      await page.goto("/DooDates/date-polls/dashboard");
+      await page.goto("/DooDates/date/dashboard");
       await waitForNetworkIdle(page, { browserName });
     }
 

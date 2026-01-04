@@ -43,7 +43,7 @@ test.describe("Availability Polls - API Contract", () => {
     expect(createdPoll.slug).toBeDefined();
 
     // 2. Récupérer le Availability Poll créé
-    const getResponse = await request.get(`/api/availability-polls/${createdPoll.slug}`);
+    const getResponse = await request.get(`/api/availability/${createdPoll.slug}`);
     expect(getResponse.status()).toBe(200);
 
     const retrievedPoll = await getResponse.json();
@@ -87,7 +87,7 @@ test.describe("Availability Polls - API Contract", () => {
       ],
     };
 
-    const voteResponse = await request.post(`/api/availability-polls/${poll.slug}/vote`, {
+    const voteResponse = await request.post(`/api/availability/${poll.slug}/vote`, {
       data: votePayload,
     });
 
@@ -96,7 +96,7 @@ test.describe("Availability Polls - API Contract", () => {
     expect(voteResult.success).toBe(true);
 
     // 3. Récupérer les résultats
-    const resultsResponse = await request.get(`/api/availability-polls/${poll.slug}/results`);
+    const resultsResponse = await request.get(`/api/availability/${poll.slug}/results`);
     expect(resultsResponse.status()).toBe(200);
 
     const results = await resultsResponse.json();
@@ -132,7 +132,7 @@ test.describe("Availability Polls - API Contract", () => {
     const poll = await createResponse.json();
 
     // 2. Ajouter un vote
-    await request.post(`/api/availability-polls/${poll.slug}/vote`, {
+    await request.post(`/api/availability/${poll.slug}/vote`, {
       data: {
         pollId: poll.id,
         participantName: "Alice",
@@ -146,7 +146,7 @@ test.describe("Availability Polls - API Contract", () => {
 
     // 3. Tester les résultats avec grouping
     const resultsResponse = await request.get(
-      `/api/availability-polls/${poll.slug}/results?grouping=true`,
+      `/api/availability/${poll.slug}/results?grouping=true`,
     );
     expect(resultsResponse.status()).toBe(200);
 
@@ -157,7 +157,7 @@ test.describe("Availability Polls - API Contract", () => {
 
     // 4. Tester les exports
     const exportResponse = await request.get(
-      `/api/availability-polls/${poll.slug}/export?format=csv`,
+      `/api/availability/${poll.slug}/export?format=csv`,
     );
 
     expect(exportResponse.status()).toBe(200);

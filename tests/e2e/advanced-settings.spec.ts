@@ -6,7 +6,7 @@ test.describe("Advanced Settings - Date Polls", () => {
   }) => {
     // Vérifier que la page de création est accessible
     try {
-      await page.goto("/date-polls/workspace/date");
+      await page.goto("/date/workspace/date");
       await page.waitForLoadState("networkidle");
 
       // Vérifier que la page est vraiment accessible
@@ -115,7 +115,7 @@ test.describe("Advanced Settings - Form Polls", () => {
   }) => {
     // Vérifier que la page de création est accessible
     try {
-      await page.goto("/form-polls/workspace/form");
+      await page.goto("/form/workspace/form");
       await page.waitForLoadState("networkidle");
 
       // Vérifier que la page est vraiment accessible
@@ -222,7 +222,7 @@ test.describe("Advanced Settings - Availability Polls", () => {
   }) => {
     // Vérifier que la page de création est accessible
     try {
-      await page.goto("/availability-polls/workspace/availability");
+      await page.goto("/availability/workspace/availability");
       await page.waitForLoadState("networkidle");
 
       // Vérifier que la page est vraiment accessible

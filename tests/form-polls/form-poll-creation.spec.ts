@@ -10,7 +10,7 @@ import { test, expect } from "@playwright/test";
 test.describe("FormPoll Creation - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers workspace pour initialiser le système
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 
@@ -67,7 +67,7 @@ test.describe("FormPoll Creation - Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Naviguer vers le workspace FormPolls
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier que la page de création est accessible
@@ -123,7 +123,7 @@ test.describe("FormPoll Creation - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Navigation et chargement
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Simulation de création rapide

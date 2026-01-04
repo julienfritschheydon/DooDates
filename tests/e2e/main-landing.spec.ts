@@ -10,17 +10,17 @@ test.describe("Main Landing Page", () => {
     // Check for Date Polls card
     const datePollsCard = page.getByRole("link", { name: /Sondages de Dates/i });
     await expect(datePollsCard).toBeVisible();
-    await expect(datePollsCard).toHaveAttribute("href", /.*\/date-polls/);
+    await expect(datePollsCard).toHaveAttribute("href", /.*\/date/);
 
     // Check for Form Polls card
     const formPollsCard = page.getByRole("link", { name: /Formulaires/i });
     await expect(formPollsCard).toBeVisible();
-    await expect(formPollsCard).toHaveAttribute("href", /.*\/form-polls/);
+    await expect(formPollsCard).toHaveAttribute("href", /.*\/form/);
 
     // Check for Availability Polls card
     const availabilityPollsCard = page.getByRole("link", { name: /Disponibilités/i });
     await expect(availabilityPollsCard).toBeVisible();
-    await expect(availabilityPollsCard).toHaveAttribute("href", /.*\/availability-polls/);
+    await expect(availabilityPollsCard).toHaveAttribute("href", /.*\/availability/);
   });
 
   test("should navigate to Date Polls", async ({ page }) => {

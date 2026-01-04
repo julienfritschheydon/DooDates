@@ -138,7 +138,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
       );
       // Vérifier qu'on est quand même sur une page availability-polls
       const url = page.url();
-      expect(url).toMatch(/availability-polls/);
+      expect(url).toMatch(/availability/);
       return;
     }
 
@@ -151,7 +151,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     } catch (e) {
       console.log("⚠️ Impossible de cliquer sur le bouton, test skip - navigation vérifiée");
       const url = page.url();
-      expect(url).toMatch(/availability-polls/);
+      expect(url).toMatch(/availability/);
       return;
     }
 
@@ -584,7 +584,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to dashboard
-    await page.goto("/DooDates/date-polls/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

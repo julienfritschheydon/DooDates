@@ -43,7 +43,7 @@ test.describe("Security and Data Isolation", () => {
 
     // Vérifications de base pour le mode CI
     expect(pageTitle).toContain("DooDates");
-    expect(pageUrl).toContain("/date-polls/workspace/date");
+    expect(pageUrl).toContain("/date/workspace/date");
 
     // Test workspace again for consistency
     await navigateToWorkspace(page, browserName, "date"); // CORRECT: passer browserName en 2ème paramètre

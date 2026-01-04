@@ -12,7 +12,7 @@ test.describe("🔒 RGPD - Composants Invité", () => {
   test("RGPD-VERIF-02: Le créateur de formulaire affiche le champ email pour les invités", async ({
     page,
   }) => {
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await page.waitForTimeout(3000);
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput.first()).toBeVisible({ timeout: 10000 });
@@ -21,7 +21,7 @@ test.describe("🔒 RGPD - Composants Invité", () => {
   test("RGPD-VERIF-03: Le créateur de sondage de dates affiche le champ email pour les invités", async ({
     page,
   }) => {
-    await page.goto("/DooDates/date-polls/workspace/date");
+    await page.goto("/DooDates/date/workspace/date");
     await page.waitForTimeout(3000);
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput.first()).toBeVisible({ timeout: 10000 });

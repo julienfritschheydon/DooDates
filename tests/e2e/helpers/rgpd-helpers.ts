@@ -45,9 +45,9 @@ export async function navigateToDataControl(page: Page): Promise<void> {
     `${basePath}/data-control`,
     "/DooDates/data-control",
     "/data-control",
-    `${basePath}/date-polls/data-control`,
-    "/DooDates/date-polls/data-control",
-    "/date-polls/data-control",
+    `${basePath}/date/data-control`,
+    "/DooDates/date/data-control",
+    "/date/data-control",
   ];
 
   let navigated = false;
@@ -70,7 +70,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
 
   if (!navigated) {
     // Last resort: try with base path from page context
-    await page.goto("/DooDates/date-polls/data-control", {
+    await page.goto("/DooDates/date/data-control", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
@@ -247,7 +247,7 @@ export async function verifyUserDataDeleted(userId: string): Promise<{
 
 /**
  * Navigate to settings page for profile modification
- * Note: Uses /date-polls/settings as the default settings route
+ * Note: Uses /date/settings as the default settings route
  */
 export async function navigateToSettings(page: Page): Promise<void> {
   // Try to get base path from current page
@@ -255,9 +255,9 @@ export async function navigateToSettings(page: Page): Promise<void> {
 
   // Try navigating to date-polls/settings (the actual route)
   const paths = [
-    `${basePath}/date-polls/settings`,
-    "/DooDates/date-polls/settings",
-    "/date-polls/settings",
+    `${basePath}/date/settings`,
+    "/DooDates/date/settings",
+    "/date/settings",
     `${basePath}/settings`,
     "/DooDates/settings",
     "/settings",
@@ -317,7 +317,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
   if (!navigated) {
     // Last resort: try with date-polls/settings and wait longer
     try {
-      await page.goto("/DooDates/date-polls/settings", {
+      await page.goto("/DooDates/date/settings", {
         waitUntil: "networkidle",
         timeout: 30000,
       });

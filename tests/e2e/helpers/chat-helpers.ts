@@ -16,11 +16,11 @@ export type WorkspaceType = "date" | "form" | "quizz" | "availability" | "defaul
  * Configuration des URLs de workspace selon le type
  */
 const WORKSPACE_URLS: Record<WorkspaceType, string> = {
-  date: "/DooDates/date-polls/workspace/date",
-  form: "/DooDates/form-polls/workspace/form",
+  date: "/DooDates/date/workspace/date",
+  form: "/DooDates/form/workspace/form",
   quizz: "/DooDates/quizz/workspace",
-  availability: "/DooDates/availability-polls/workspace/availability",
-  default: "/DooDates/date-polls/workspace/date",
+  availability: "/DooDates/availability/workspace/availability",
+  default: "/DooDates/date/workspace/date",
 };
 
 /**
@@ -32,10 +32,10 @@ const WORKSPACE_URLS: Record<WorkspaceType, string> = {
 export async function detectPollType(page: Page): Promise<WorkspaceType> {
   // 1. Détection via l'URL (méthode principale)
   const url = page.url();
-  if (url.includes("/form-polls/")) return "form";
-  if (url.includes("/date-polls/")) return "date";
+  if (url.includes("/form/")) return "form";
+  if (url.includes("/date/")) return "date";
   if (url.includes("/quizz/")) return "quizz";
-  if (url.includes("/availability-polls/")) return "availability";
+  if (url.includes("/availability/")) return "availability";
 
   // 2. Fallback via le contenu de la page
   try {

@@ -225,7 +225,7 @@ test.describe("Documentation - Tests E2E", () => {
       const timeouts = getTimeouts(browserName);
 
       // 1. Date Polls Docs
-      await page.goto("/date-polls/docs", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/docs", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/DooDates\/.*\/DooDates\/date-polls\/docs\//);
@@ -234,7 +234,7 @@ test.describe("Documentation - Tests E2E", () => {
       ).toBeVisible();
 
       // 2. Form Polls Docs
-      await page.goto("/form-polls/docs", { waitUntil: "domcontentloaded" });
+      await page.goto("/form/docs", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/DooDates\/.*\/DooDates\/form-polls\/docs\//);
@@ -242,7 +242,7 @@ test.describe("Documentation - Tests E2E", () => {
       await expect(page.getByRole("heading", { name: /Documentation/i }).first()).toBeVisible();
 
       // 3. Availability Polls Docs
-      await page.goto("/availability-polls/docs", { waitUntil: "domcontentloaded" });
+      await page.goto("/availability/docs", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page.getByRole("heading", { name: /Documentation/i }).first()).toBeVisible();

@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Results Access Control - Creator Only", () => {
   test("should show results to creator and deny access to others", async ({ page, context }) => {
     // Créer un Date Poll avec visibilité "Créateur uniquement"
-    await page.goto("/date-polls/workspace/date");
+    await page.goto("/date/workspace/date");
     await page.waitForLoadState("networkidle");
 
     // Chercher l'input Réunion avec sélecteurs flexibles
@@ -68,7 +68,7 @@ test.describe("Results Access Control - Creator Only", () => {
 test.describe("Results Access Control - Voters Only", () => {
   test("should show results after voting", async ({ page }) => {
     // Créer un Date Poll avec visibilité "Participants après vote"
-    await page.goto("/date-polls/workspace/date");
+    await page.goto("/date/workspace/date");
     await page.waitForLoadState("networkidle");
 
     // Chercher l'input Réunion avec sélecteurs flexibles
@@ -147,7 +147,7 @@ test.describe("Results Access Control - Voters Only", () => {
 test.describe("Results Access Control - Public", () => {
   test("should show results to everyone", async ({ page, context }) => {
     // Créer un Date Poll avec visibilité "Public"
-    await page.goto("/date-polls/workspace/date");
+    await page.goto("/date/workspace/date");
     await page.waitForLoadState("networkidle");
 
     // Chercher l'input Réunion avec sélecteurs flexibles
@@ -210,7 +210,7 @@ test.describe("Results Access Control - Public", () => {
 test.describe("Results Access Control - Form Polls", () => {
   test("should enforce access control for form polls", async ({ page }) => {
     // Créer un Form Poll avec visibilité "Créateur uniquement"
-    await page.goto("/form-polls/workspace/form");
+    await page.goto("/form/workspace/form");
     await page.waitForLoadState("networkidle");
 
     // Chercher l'input titre avec sélecteurs flexibles

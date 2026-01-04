@@ -20,7 +20,7 @@ test.describe("Date Polls Dashboard - Tests Simples", () => {
   test("@simple - Dashboard vide - Vérification de base", async ({ page, browserName }) => {
     await withConsoleGuard(page, async () => {
       // Aller directement sur la page sans vérifier les erreurs console
-      await page.goto("/DooDates/date-polls/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
 
       const timeouts = getTimeouts(browserName);
 
@@ -55,7 +55,7 @@ test.describe("Date Polls Dashboard - Tests Simples", () => {
       });
 
       // Aller sur la page
-      await page.goto("/DooDates/date-polls/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
 
       const timeouts = getTimeouts(browserName);
 

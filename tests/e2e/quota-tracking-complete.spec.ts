@@ -10,7 +10,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Quota Tracking - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers workspace pour initialiser le système
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 

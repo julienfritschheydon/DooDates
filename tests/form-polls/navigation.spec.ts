@@ -16,7 +16,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
 
   test("Smoke - Navigation dashboard FormPolls", async ({ page }) => {
     // 1. Naviguer vers le dashboard FormPolls
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que la page se charge correctement
@@ -45,7 +45,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
 
   test("Smoke - Navigation workspace FormPolls", async ({ page }) => {
     // 1. Naviguer vers le workspace FormPolls
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que le workspace se charge
@@ -72,14 +72,14 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
 
   test("Smoke - Navigation entre pages FormPolls", async ({ page }) => {
     // 1. Dashboard → Workspace
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Workspace → Dashboard
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Dashboard → Dashboard principal
@@ -87,7 +87,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 4. Dashboard principal → Dashboard FormPolls
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     console.log("✅ Navigation entre pages FormPolls stable");
@@ -114,7 +114,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
     });
 
     // 2. Naviguer vers le dashboard
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier que les données sont accessibles
@@ -134,10 +134,10 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Effectuer plusieurs naviguations
-    await page.goto("/DooDates/form-polls/dashboard");
+    await page.goto("/DooDates/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
-    await page.goto("/DooDates/form-polls/workspace/form");
+    await page.goto("/DooDates/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     await page.goto("/DooDates/dashboard");

@@ -298,12 +298,12 @@ export async function createDatePollWithTimeSlots(
   console.log(`📅 Dates à sélectionner: ${dates.join(", ")}`);
 
   // Navigate to date polls workspace (new product-specific route)
-  await page.goto("/DooDates/date-polls/workspace/date", { waitUntil: "domcontentloaded" });
+  await page.goto("/DooDates/date/workspace/date", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Verify we're on the date polls workspace page
-  await expect(page).toHaveURL(/.*\/date-polls\/workspace\/date/);
-  console.log("✅ Page /date-polls/workspace/date accessible");
+  await expect(page).toHaveURL(/.*\/date\/workspace\/date/);
+  console.log("✅ Page /date/workspace/date accessible");
 
   const existingPollIds = await page.evaluate(() => {
     const parseArray = (key: string) => {

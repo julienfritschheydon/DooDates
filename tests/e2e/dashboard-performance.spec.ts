@@ -74,7 +74,7 @@ async function measureDurationMs(name: string, fn: () => Promise<void>): Promise
 
 async function measureDashboardLoadMs(page: Page, browserName: string) {
   return measureDurationMs("Dashboard - load", async () => {
-    await page.goto("/DooDates/date-polls/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForElementReady(page, '[data-testid="dashboard-ready"]', { browserName });
     await waitForReactStable(page, { browserName });
@@ -290,7 +290,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/date-polls/dashboard",
+      url: "/DooDates/date/dashboard",
       // Indicateur stable utilisé dans verify_navigation.spec.ts
       readySelector: "text=crédits utilisés",
     });
@@ -303,7 +303,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/form-polls/dashboard",
+      url: "/DooDates/form/dashboard",
       readySelector: "text=crédits utilisés",
     });
 
@@ -318,7 +318,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/availability-polls/dashboard",
+      url: "/DooDates/availability/dashboard",
       readySelector: "text=crédits utilisés",
     });
 
