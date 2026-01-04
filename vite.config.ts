@@ -6,9 +6,9 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
-  // This handles the /DooDates/ subdirectory deployment
-  // VITE_BASE_PATH in .env.production handles React Router basename
-  base: "/DooDates/", // Base path statique pour GitHub Pages - comme avant
+  // GitHub Pages gère automatiquement le base path /DooDates/
+  // On utilise base: "/" pour éviter le double préfixe
+  base: "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
