@@ -1,12 +1,13 @@
 # DooDates MVP - Spécifications Techniques
 
 ## 🎯 Objectif
+
 Créer un assistant IA de planification qui surpasse tous les outils existants par l'expérience conversationnelle, avec un modèle économique freemium + premium.
 
 👤 "Organise une réunion avec Paul et Marie mardi ou mercredi après-midi"
 
-🤖 "Parfait ! Je crée un sondage pour mardi 15h-17h et mercredi 14h-16h. 
-    Emails de Paul et Marie ?"
+🤖 "Parfait ! Je crée un sondage pour mardi 15h-17h et mercredi 14h-16h.
+Emails de Paul et Marie ?"
 
 👤 "paul@email.com et marie@email.com"
 
@@ -17,6 +18,7 @@ Créer un assistant IA de planification qui surpasse tous les outils existants p
 ### Points Faibles Identifiés Tous Concurrents
 
 #### Doodle (Leader Établi)
+
 - **UX datée** : Interface corporate 2010, pas de micro-animations
 - **Mobile non-natif** : Adaptation desktop, pas mobile-first
 - **Processus lourd** : 7+ étapes pour créer un sondage
@@ -24,6 +26,7 @@ Créer un assistant IA de planification qui surpasse tous les outils existants p
 - **Paywall agressif** : Fonctionnalités importantes en "Pro"
 
 #### Framadate (Alternative Française)
+
 - **Même paradigme** : Formulaires → tableaux classiques malgré design amélioré
 - **Durée limitée** : 180 jours puis suppression automatique
 - **Pas d'innovation** : Évolution incrémentale, pas révolutionnaire
@@ -33,6 +36,7 @@ Créer un assistant IA de planification qui surpasse tous les outils existants p
 ### Avantages Concurrentiels DooDates
 
 #### 🎨 **Interface Ultra-Moderne (2025)**
+
 ```
 Timeful (2020s)           vs           DooDates (2025)
 ├─ Design épuré                       ├─ Design system futuriste
@@ -42,6 +46,7 @@ Timeful (2020s)           vs           DooDates (2025)
 ```
 
 #### 📱 **Mobile-First Experience**
+
 ```
 Tous Concurrents          vs           DooDates
 ├─ Desktop→Mobile adapt              ├─ Mobile-first natif
@@ -51,6 +56,7 @@ Tous Concurrents          vs           DooDates
 ```
 
 #### ⚡ **Création Ultra-Rapide**
+
 ```
 Timeful (Meilleur): 3-4 étapes      DooDates: 1 étape
 ├─ 1. Nom + description             ├─ 💬 "Organise réunion
@@ -60,6 +66,7 @@ Timeful (Meilleur): 3-4 étapes      DooDates: 1 étape
 ```
 
 #### 🤖 **IA Conversationnelle (RÉVOLUTIONNAIRE)**
+
 - **UNIQUE AU MONDE** : Aucun concurrent (même Timeful) ne fait ça
 - **Blue Ocean confirmé** : Même le meilleur concurrent reste manuel
 - Création par langage naturel vs formulaires (même modernes)
@@ -67,6 +74,7 @@ Timeful (Meilleur): 3-4 étapes      DooDates: 1 étape
 - Automatisation complète vs processus multi-étapes
 
 #### 💰 **Modèle Économique Optimal**
+
 ```
 Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybride
 ├─ Coût récurrent    ├─ 180 jours max     ├─ Pas de revenue   ├─ Paiement unique
@@ -77,6 +85,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ### 🎯 Conclusion Stratégique
 
 **Timeful est le meilleur concurrent actuel** (surpasse Doodle/Framadate) **MAIS** :
+
 - Reste dans l'ancien paradigme formulaires → calendrier → votes
 - Aucune IA ni automatisation
 - **Confirme notre Blue Ocean** : Même le leader technique n'a pas d'IA
@@ -86,6 +95,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 🛠️ Stack Technique Recommandée (2025)
 
 ### Frontend
+
 - **Next.js 15** (React 18 + App Router)
 - **TypeScript** pour la robustesse
 - **TailwindCSS** pour le design moderne rapide
@@ -93,6 +103,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 - **Framer Motion** pour les animations fluides
 
 ### Backend
+
 - **Next.js API Routes** (évite backend séparé)
 - **Supabase** (BaaS complet)
   - PostgreSQL database
@@ -101,24 +112,28 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - Edge functions
 
 ### IA Conversationnelle
+
 - **OpenAI GPT-4** pour compréhension naturelle
 - **LangChain** pour workflows conversationnels
 - **Pinecone** (vector database) pour contexte utilisateur
 - **Vercel AI SDK** pour intégration streaming
 
 ### Infrastructure
+
 - **Vercel** pour le déploiement
 - **Supabase Cloud** pour la base de données
 - **Cloudflare** pour les domaines et CDN
 - **Upstash Redis** pour le cache (si besoin)
 
 ### Intégrations
+
 - **Slack SDK** pour bot Slack
 - **Google Calendar API** pour synchronisation
 - **Twilio** pour SMS (notifications)
 - **Stripe** pour paiements premium
 
 ### Outils complémentaires
+
 - **Prisma** comme ORM (avec Supabase)
 - **Zod** pour la validation de données
 - **React Hook Form** pour les formulaires
@@ -127,12 +142,14 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 📋 Fonctionnalités MVP (Phase 1)
 
 ### 🔐 Authentification
+
 - [ ] Inscription/connexion email + mot de passe
 - [ ] Récupération de mot de passe
 - [ ] Profil utilisateur basique (nom, email, préférences) y compris effacer son compte
 - [ ] Sessions persistantes
 
 ### 📊 Sondages de dates
+
 - [ ] **Création de sondage**
   - [ ] Formulaire multi-étapes optimisé
   - [ ] Étape 1: Titre (max 100 chars) + Description optionnelle (max 500 chars)
@@ -218,6 +235,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Logs audit pour conformité
 
 ### 👤 Gestion utilisateur
+
 - [ ] Dashboard personnel avec historique des sondages
 - [ ] Sondages créés vs sondages auxquels j'ai participé
 - [ ] Duplication/modèle de sondage
@@ -227,6 +245,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ### 📱 Expérience utilisateur (Détails techniques)
 
 #### Interface responsive mobile-first
+
 - [ ] **Design système et composants**
   - [ ] Design tokens configurables (couleurs, espacements, typographie)
   - [ ] Composants UI réutilisables avec Storybook
@@ -244,6 +263,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Code minification et compression Gzip/Brotli
 
 #### Design moderne avec micro-animations
+
 - [ ] **Animation système Framer Motion**
   - [ ] Transitions de page fluides (slide, fade, scale)
   - [ ] Loading states animés (skeleton, shimmer, pulse)
@@ -261,6 +281,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Error states avec actions de récupération
 
 #### Mode sombre/clair
+
 - [ ] **Implémentation technique**
   - [ ] CSS custom properties pour thèmes
   - [ ] Détection automatique `prefers-color-scheme`
@@ -278,6 +299,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Mode automatique selon heure du jour
 
 #### Feedback utilisateur en temps réel
+
 - [ ] **Système de notifications toast**
   - [ ] Positioning intelligent (évite le clavier mobile)
   - [ ] Stacking automatique avec limite (max 3)
@@ -295,6 +317,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Error recovery suggestions automatiques
 
 #### Notifications push
+
 - [ ] **PWA Push Notifications**
   - [ ] Service Worker avec notification API
   - [ ] Permission progressive (pas de spam immédiat)
@@ -314,6 +337,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ### 🌍 International (Détails techniques)
 
 #### Support multilingue (EN, FR, ES, DE)
+
 - [ ] **Architecture i18n avec next-intl**
   - [ ] Routing par locale (/en/poll, /fr/sondage)
   - [ ] Messages hiérarchiques par namespace
@@ -331,6 +355,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Crowdsourcing platform intégration (future)
 
 #### Gestion des fuseaux horaires
+
 - [ ] **Gestion temporelle robuste avec date-fns-tz**
   - [ ] Détection automatique timezone navigateur
   - [ ] Conversion bidirectionnelle UTC ↔ Local
@@ -348,6 +373,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - [ ] Export .ics avec timezone metadata correcte
 
 #### Formats de date localisés
+
 - [ ] **Localisation formats avec Intl API**
   - [ ] Formats date courts/longs par locale
   - [ ] Premiers jours semaine (lundi vs dimanche)
@@ -367,6 +393,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 🏗️ Architecture Base de Données
 
 ### Table `users`
+
 ```sql
 - id (uuid, pk)
 - email (text, unique)
@@ -377,6 +404,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ```
 
 ### Table `polls`
+
 ```sql
 - id (uuid, pk)
 - user_id (uuid, fk)
@@ -390,6 +418,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ```
 
 ### Table `poll_options`
+
 ```sql
 - id (uuid, pk)
 - poll_id (uuid, fk)
@@ -399,6 +428,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ```
 
 ### Table `votes`
+
 ```sql
 - id (uuid, pk)
 - poll_id (uuid, fk)
@@ -412,6 +442,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 🎨 Design System
 
 ### Couleurs principales
+
 - **Primary**: #3B82F6 (blue-500)
 - **Secondary**: #10B981 (emerald-500)
 - **Accent**: #F59E0B (amber-500)
@@ -419,6 +450,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 - **Light**: #F9FAFB (gray-50)
 
 ### Composants clés
+
 - **PollCard**: Carte de sondage avec preview
 - **VoteGrid**: Interface de vote avec tableau
 - **DatePicker**: Sélecteur de dates moderne
@@ -428,24 +460,28 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 🚀 Plan de développement (4 semaines)
 
 ### Semaine 1: Setup & Auth
+
 - [x] Setup Next.js + Supabase + Vercel
 - [x] Configuration TypeScript + TailwindCSS
 - [x] System d'authentification complet
 - [x] Layout de base + navigation
 
 ### Semaine 2: Core Features
+
 - [x] Création de sondages
 - [x] Interface de vote
 - [x] Base de données + API
 - [x] Dashboard utilisateur basique
 
 ### Semaine 3: UX & Polish
+
 - [x] Design responsive mobile
 - [x] Animations et micro-interactions
 - [x] Gestion des erreurs
 - [x] Optimisations performance
 
 ### Semaine 4: International & Deploy
+
 - [x] Internationalisation (4 langues)
 - [x] Tests utilisateur
 - [x] SEO basique
@@ -454,6 +490,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 📊 Métriques de succès
 
 ### MVP Goals (1 mois)
+
 - **50+ sondages créés**
 - **20+ utilisateurs inscrits**
 - **80%+ taux de complétion des votes**
@@ -461,6 +498,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 - **>95% uptime**
 
 ### Feedback qualitatif
+
 - "Plus moderne que Framadate"
 - "Plus simple que Doodle"
 - "J'aime avoir mon historique"
@@ -469,38 +507,42 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
 ## 🔮 Roadmap Post-MVP
 
 ### Phase 2 (Mois 2-3): Premium Features
-- [ ] Rappels automatiques 
+
+- [ ] Rappels automatiques
 - [ ] Personnalisation avancée (branding)
 - [ ] Synchronisation calendriers (Google, Outlook)
 - [ ] Analytics détaillées des sondages
 
 ### Phase 3 (Mois 4-6): Monétisation
+
 - [ ] Plans premium (10€ unique)
 - [ ] API publique pour intégrations
 - [ ] Templates de sondages avancés
 
 ### Phase 4 (Mois 6+): Scale
+
 - [ ] Intégrations visioconférence (Zoom, Meet)
 - [ ] Workflow automatiques
 
 ## 💰 Business Model (Modèle Hybride)
 
 ### Approche 1: Paiement Unique Limité (Recommandé)
-- **Gratuit**: 
+
+- **Gratuit**:
   - 3 sondage actif
   - 20 votes/mois
   - Interface basique
   - Pas d'historique
-  
 - **DooDates Pro (15€ unique)**:
   - **100 sondages lifetime** (limité mais généreux)
   - Votes illimités
   - Historique permanent
   - Personnalisation complète
   - Intégration calendriers
-  - Support 
+  - Support
 
 ### Approche 2: Options Premium Modulaires
+
 - **Gratuit**: Base limitée (comme ci-dessus)
 
 - **IA Assistant (10€ unique)**:
@@ -522,6 +564,7 @@ Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybrid
   - Export PDF professionnel
 
 - **Modèle Hybride Recommandé ⭐**
+
 ```
 GRATUIT                 PRO (15€)              PREMIUM (25€)
 ├─ 3 sondages          ├─ 100 sondages         ├─ 500 sondages
@@ -536,6 +579,7 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 ```
 
 ### Add-ons (Optionnels)
+
 - **Enterprise Slack Bot**: +10€/équipe
 - **SMS Notifications**: +3€ (100 SMS inclus)
 - **Custom Domain**: +5€ (votredomaine.com/sondage)
@@ -544,37 +588,43 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 ### Analyse Financière
 
 #### Coûts mensuels
+
 - **Infrastructure**: 120$/mois
 - **Total**: ~120€/mois
 
 #### Revenus cibles
+
 - **Break-even**: 20 ventes Pro/mois OU 13 ventes Premium/mois
-- **Objectif réaliste Y1**: 
+- **Objectif réaliste Y1**:
   - 150 Pro (15€) = 2250€
   - 50 Premium (25€) = 1250€
   - Add-ons = 500€
   - **Total Y1**: 4000€ (rentable dès mois 6)
 
 #### Avantages du modèle hybride
+
 ✅ **Simple**: 2 tiers principaux seulement  
 ✅ **Prévisible**: Paiement unique = pas d'abonnement  
 ✅ **Flexible**: Add-ons pour besoins spécifiques  
 ✅ **Scalable**: Premium inclut IA (différenciateur clé)  
-✅ **Rentable**: Limites raisonnables (100-500 sondages)  
+✅ **Rentable**: Limites raisonnables (100-500 sondages)
 
 #### Justification des limites
+
 - **100 sondages** = ~2 ans d'usage intensif pour utilisateur individuel
 - **500 sondages** = ~5-10 ans d'usage, même pour freelances actifs
 - **Coût d'opportunité** : Client satisfait = bouche-à-oreille
 - **LTV élevée** : Pas de churn d'abonnement
 
 ### Stratégie de pricing
+
 1. **Phase MVP**: Gratuit seulement (validation marché)
 2. **Phase 2**: Lancement Pro 15€ (fonctionnalités standard)
 3. **Phase 3**: Lancement Premium 25€ (avec IA)
 4. **Phase 4**: Add-ons enterprise
 
 ### Métriques de succès
+
 - **Conversion gratuit → Pro**: >5%
 - **Conversion Pro → Premium**: >20%
 - **NPS**: >50 (satisfaction élevée)
@@ -625,8 +675,9 @@ doodates/
 ## ✅ Prêt à commencer !
 
 Cette stack vous donne:
+
 - **Développement rapide** (Next.js + Supabase)
-- **Moderne et scalable** (TypeScript + PostgreSQL) 
+- **Moderne et scalable** (TypeScript + PostgreSQL)
 - **International ready** (next-intl + timezone support)
 - **Coût minimal** (Vercel + Supabase tiers gratuits pour commencer)
 - **Production ready** (monitoring, analytics, SEO inclus)

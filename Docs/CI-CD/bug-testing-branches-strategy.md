@@ -9,6 +9,7 @@ Tester les corrections de bugs et les nouvelles fonctionnalités sur des branche
 ### **Fichier :** `e2e-bug-testing-branches.yml`
 
 ### **Déclencheurs :**
+
 - **Push** sur branches `bug/*` ou `testing/*`
 - **Pull Request** sur ces branches
 - **Manuel** avec choix de la suite de tests
@@ -16,12 +17,14 @@ Tester les corrections de bugs et les nouvelles fonctionnalités sur des branche
 ## 📊 Configuration Intelligente
 
 ### **Branches Bug (`bug/*`)**
+
 - **Suite :** Critical (15 min)
 - **Navigateurs :** Chromium + Firefox
 - **Objectif :** Validation complète des corrections
 - **Issue auto-créée** si échec
 
 ### **Branches Testing (`testing/*`)**
+
 - **Suite :** Smoke (5 min)
 - **Navigateurs :** Chromium uniquement
 - **Objectif :** Validation rapide des fonctionnalités
@@ -30,6 +33,7 @@ Tester les corrections de bugs et les nouvelles fonctionnalités sur des branche
 ## 🔄 Workflow Complet
 
 ### **1. Détection de la branche**
+
 ```bash
 # Détection automatique du type de branche
 if [[ "$BRANCH" == "bug"* ]]; then
@@ -40,6 +44,7 @@ fi
 ```
 
 ### **2. Exécution des tests**
+
 ```bash
 # Branches bug - Tests complets
 npx playwright test --config=playwright.config.critical.ts --project=chromium
@@ -50,6 +55,7 @@ npx playwright test --config=playwright.config.smoke.ts --project=chromium
 ```
 
 ### **3. Rapport et notifications**
+
 - **GitHub Summary** avec résultats détaillés
 - **Labels automatiques** sur les PRs
 - **Issues GitHub** pour les branches bug en échec
@@ -58,11 +64,13 @@ npx playwright test --config=playwright.config.smoke.ts --project=chromium
 ## 🏷️ Labels Automatiques
 
 ### **Tests réussis :**
+
 - `tests-passed`
 - `bug-fix` ou `testing`
 - `ready-for-merge`
 
 ### **Tests échoués :**
+
 - `tests-failed`
 - `bug-fix` ou `testing`
 - `needs-fixes`
@@ -70,6 +78,7 @@ npx playwright test --config=playwright.config.smoke.ts --project=chromium
 ## 📋 Intégration avec Nightly
 
 ### **Workflow Nightly Actuel :**
+
 ```yaml
 BRANCHES_TO_TEST='["main", "staging", "pre-prod", "testing", "bug"]'
 ```
@@ -79,21 +88,25 @@ Les branches `testing` et `bug` sont déjà incluses dans le nightly complet ave
 ## 🎯 Avantages
 
 ### **1. Validation Rapide**
+
 - **Testing branches :** 5 minutes pour validation rapide
 - **Bug branches :** 15 minutes pour validation complète
 - **Feedback immédiat** sur les corrections
 
 ### **2. Isolation des Risques**
+
 - Tests sur branches dédiées
 - Pas d'impact sur `staging` ou `main`
 - Validation avant merge
 
 ### **3. Traçabilité Complète**
+
 - Issues GitHub automatiques pour les bugs
 - Labels clairs sur les PRs
 - Artefacts de test conservés 3 jours
 
 ### **4. Workflow Optimisé**
+
 - Détection automatique du type de branche
 - Configuration adaptative des tests
 - Notifications contextuelles
@@ -101,6 +114,7 @@ Les branches `testing` et `bug` sont déjà incluses dans le nightly complet ave
 ## 📈 Scénarios d'Usage
 
 ### **Scénario 1 : Correction de Bug**
+
 ```bash
 # 1. Créer branche bug
 git checkout -b bug/fix-login-issue
@@ -114,6 +128,7 @@ git push origin bug/fix-login-issue
 ```
 
 ### **Scénario 2 : Nouvelle Fonctionnalité**
+
 ```bash
 # 1. Créer branche testing
 git checkout -b testing/new-feature
@@ -126,6 +141,7 @@ git push origin testing/new-feature
 ```
 
 ### **Scénario 3 : Pull Request**
+
 ```bash
 # 1. Créer PR vers main/staging
 # 2. Tests automatiques sur la branche
@@ -136,6 +152,7 @@ git push origin testing/new-feature
 ## 🔧 Configuration Personnalisée
 
 ### **Forcer une suite spécifique :**
+
 ```yaml
 workflow_dispatch:
   inputs:
@@ -147,17 +164,20 @@ workflow_dispatch:
 ```
 
 ### **Exemples d'utilisation :**
+
 - Tester une branche spécifique : `branch_name: "bug/specific-issue"`
 - Forcer les tests complets : `test_suite: "critical"`
 
 ## 📊 Métriques Attendues
 
 ### **Temps d'exécution :**
+
 - **Testing branches :** ~5 minutes
 - **Bug branches :** ~15 minutes
 - **Nightly complet :** ~45 minutes
 
 ### **Taux de succès cibles :**
+
 - **Testing :** 90%+ (tests rapides)
 - **Bug :** 85%+ (tests complets)
 - **Nightly :** 80%+ (tous navigateurs)
@@ -176,6 +196,7 @@ workflow_dispatch:
 ## 🎉 Conclusion
 
 Cette stratégie permet de :
+
 1. **Tester rapidement** les corrections et nouvelles fonctionnalités
 2. **Isoler les risques** en utilisant des branches dédiées
 3. **Automatiser le feedback** avec labels et issues

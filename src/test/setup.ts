@@ -116,12 +116,12 @@ Object.defineProperty(HTMLCanvasElement.prototype, "toDataURL", {
 });
 
 // Mock pour crypto.subtle (SHA-256) - évite les erreurs dans browserFingerprint
-if (typeof global.crypto === 'undefined') {
+if (typeof global.crypto === "undefined") {
   global.crypto = {} as Crypto;
 }
 
 if (!global.crypto.subtle) {
-  Object.defineProperty(global.crypto, 'subtle', {
+  Object.defineProperty(global.crypto, "subtle", {
     value: {
       digest: vi.fn(() => Promise.resolve(new ArrayBuffer(32))),
     },
@@ -184,17 +184,17 @@ Object.defineProperty(global, "Intl", {
 });
 
 // Mock pour TextEncoder (utilisé dans hashString)
-if (typeof global.TextEncoder === 'undefined') {
+if (typeof global.TextEncoder === "undefined") {
   const MockTextEncoder = class TextEncoder {
     encode(str: string) {
-      return new Uint8Array(str.split('').map(char => char.charCodeAt(0)));
+      return new Uint8Array(str.split("").map((char) => char.charCodeAt(0)));
     }
     encodeInto(str: string, dest: Uint8Array) {
       const encoded = this.encode(str);
       dest.set(encoded.slice(0, dest.length));
       return { read: str.length, written: encoded.length };
     }
-    encoding = 'utf-8';
+    encoding = "utf-8";
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   global.TextEncoder = MockTextEncoder as any;
@@ -203,7 +203,7 @@ if (typeof global.TextEncoder === 'undefined') {
 // Mock pour vi.useFakeTimers (résout les erreurs dans les tests de timers)
 const originalUseFakeTimers = vi.useFakeTimers;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.useFakeTimers = function(config?: any) {
+vi.useFakeTimers = function (config?: any) {
   try {
     const result = originalUseFakeTimers(config);
     return result;
@@ -212,7 +212,7 @@ vi.useFakeTimers = function(config?: any) {
     const mockUtils = {
       // État des timers
       isFakeTimers: () => true,
-      
+
       // Contrôle des timers
       useRealTimers: vi.useRealTimers,
       setSystemTime: vi.setSystemTime,
@@ -224,14 +224,14 @@ vi.useFakeTimers = function(config?: any) {
       advanceTimersByTimeAsync: vi.advanceTimersByTimeAsync,
       clearAllTimers: vi.clearAllTimers,
       getTimerCount: vi.getTimerCount,
-      
+
       // Mock pour les fonctions de timer qui ne sont pas disponibles
       clearAllTimersFn: () => {},
-      
+
       // Fonctions supplémentaires qui peuvent être appelées
       getMockedSystemTime: () => new Date(),
     };
-    
+
     // S'assurer que toutes les fonctions de timer sont mockées
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.setSystemTime) vi.setSystemTime = () => mockUtils as any;
@@ -244,7 +244,7 @@ vi.useFakeTimers = function(config?: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!vi.clearAllTimers) vi.clearAllTimers = () => mockUtils as any;
     if (!vi.getTimerCount) vi.getTimerCount = () => 0;
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return mockUtils as any;
   }
@@ -252,15 +252,15 @@ vi.useFakeTimers = function(config?: any) {
 
 // Mock direct des fonctions de timer pour contourner les problèmes
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.setSystemTime = vi.fn(() => ({} as any));
+vi.setSystemTime = vi.fn(() => ({}) as any);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.advanceTimersByTime = vi.fn(() => ({} as any));
+vi.advanceTimersByTime = vi.fn(() => ({}) as any);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.runAllTimers = vi.fn(() => ({} as any));
+vi.runAllTimers = vi.fn(() => ({}) as any);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.runOnlyPendingTimers = vi.fn(() => ({} as any));
+vi.runOnlyPendingTimers = vi.fn(() => ({}) as any);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.clearAllTimers = vi.fn(() => ({} as any));
+vi.clearAllTimers = vi.fn(() => ({}) as any);
 vi.getTimerCount = vi.fn(() => 0);
 
 // Charger .env.local AVANT le mock pour que les variables soient disponibles

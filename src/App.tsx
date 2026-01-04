@@ -532,7 +532,7 @@ const App = () => {
             <BrowserRouter
               basename={import.meta.env.VITE_BASE_PATH || undefined}
               // ⚠️ IMPORTANT: Use VITE_BASE_PATH for environment-specific routing
-              // In development: VITE_BASE_PATH="/DooDates" 
+              // In development: VITE_BASE_PATH="/DooDates"
               // In production: VITE_BASE_PATH undefined (handled by Vite base config)
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
@@ -750,7 +750,6 @@ const App = () => {
 
                                 {/* Quizz - Aide aux Devoirs */}
                                 <Route path="/quizz/*" element={<QuizzApp />} />
-                                <Route path="/quizz/:slug/vote" element={<QuizzVote />} />
 
                                 {/* Old /create/* routes - Redirect to product-specific routes */}
                                 <Route

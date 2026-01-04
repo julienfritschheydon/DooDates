@@ -17,35 +17,35 @@ jobs:
   production-deploy:
     runs-on: ubuntu-latest
     if: false
-    
+
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          
+          node-version: "20"
+          cache: "npm"
+
       - name: 📦 Install Dependencies
         run: npm ci
-        
+
       - name: 🏗️ Build Production
         run: npm run build
-        
+
       - name: 🚀 Deploy to Production
         run: |
           echo "🚀 Deploying to production..."
           echo "🌐 URL: https://julienfritschheydon.github.io/DooDates/"
           # Note: GitHub Pages deployment will be handled by existing workflow
-        
+
       - name: ❤️ Health Check
         run: |
           echo "❤️ Running production health checks..."
           echo "📊 Monitoring active"
           echo "🔍 Error tracking enabled"
-        
+
       - name: 📊 Deploy Summary
         if: always()
         run: |

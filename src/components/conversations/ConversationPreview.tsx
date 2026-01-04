@@ -503,7 +503,11 @@ export function ConversationPreview({
               {text.close}
             </Button>
             {conversation.status !== "archived" && (
-              <Button onClick={handleResume} className="flex items-center gap-1" data-testid="conversationpreview-button">
+              <Button
+                onClick={handleResume}
+                className="flex items-center gap-1"
+                data-testid="conversationpreview-button"
+              >
                 <Play className="h-3 w-3" />
                 {language === "fr" ? "Reprendre" : "Resume"}
               </Button>

@@ -11,47 +11,53 @@
 `GeminiChatInterface.tsx` est le composant central de l'UX IA-First. Il gère l'intégralité de l'interaction utilisateur avec l'IA pour créer et modifier des sondages.
 
 ### Problème actuel
+
 **God Component** : Trop de responsabilités mélangées → régressions fréquentes
 
 ---
 
 ## 📊 Métriques de complexité
 
-| Métrique | Valeur | Seuil recommandé | Statut |
-|----------|--------|------------------|--------|
-| Lignes de code | 1,510 | < 300 | 🔴 CRITIQUE |
-| Nombre de hooks | 25+ | < 10 | 🔴 CRITIQUE |
-| Responsabilités | 11 | 1-2 | 🔴 CRITIQUE |
-| États locaux | 7 | < 5 | 🟠 ÉLEVÉ |
-| Dépendances contexte | 7 | < 3 | 🟠 ÉLEVÉ |
+| Métrique             | Valeur | Seuil recommandé | Statut      |
+| -------------------- | ------ | ---------------- | ----------- |
+| Lignes de code       | 1,510  | < 300            | 🔴 CRITIQUE |
+| Nombre de hooks      | 25+    | < 10             | 🔴 CRITIQUE |
+| Responsabilités      | 11     | 1-2              | 🔴 CRITIQUE |
+| États locaux         | 7      | < 5              | 🟠 ÉLEVÉ    |
+| Dépendances contexte | 7      | < 3              | 🟠 ÉLEVÉ    |
 
 ---
 
 ## 🏗️ Responsabilités actuelles
 
 ### 1. **Gestion de la conversation**
+
 - Messages (historique, ajout, suppression)
 - ID de conversation
 - Sauvegarde/restauration localStorage
 
 ### 2. **Interface utilisateur**
+
 - Input utilisateur (textarea)
 - États de chargement (loading, generating)
 - Scroll automatique
 - Animations et feedback visuel
 
 ### 3. **Intégration Gemini**
+
 - Appels API Gemini
 - Parsing des réponses
 - Gestion des erreurs API
 - Streaming (si activé)
 
 ### 4. **Gestion des quotas**
+
 - Vérification quota avant envoi
 - Affichage modal auth
 - Gestion incentives (freemium)
 
 ### 5. **Détection d'intention**
+
 - 3 services différents :
   - `IntentDetectionService` (Date Polls)
   - `FormPollIntentService` (Form Polls)
@@ -60,31 +66,37 @@
 - Dispatch vers reducers
 
 ### 6. **Gestion Form Polls**
+
 - Conversion `FormPollSuggestion` → `FormPollDraft`
 - Dispatch actions vers `formPollReducer`
 - Gestion highlights et animations
 
 ### 7. **Gestion Date Polls**
+
 - Création de sondages de dates
 - Ouverture de `PollCreator`
 - Gestion des suggestions IA
 
 ### 8. **Auto-save & Resume**
+
 - Hook `useAutoSave` (sauvegarde automatique)
 - Hook `useConversationResume` (reprise après refresh)
 - Synchronisation avec URL params
 
 ### 9. **Performance monitoring**
+
 - Hook `useInfiniteLoopProtection`
 - Service `performanceMonitor`
 - Logs et métriques
 
 ### 10. **Feedback IA**
+
 - Composant `AIProposalFeedback`
 - Tracking des propositions IA
 - Envoi de feedback utilisateur
 
 ### 11. **Gestion des erreurs**
+
 - Error handling centralisé
 - Logging avec `logger`
 - Toasts utilisateur
@@ -94,18 +106,20 @@
 ## 🔗 Dépendances
 
 ### Contextes utilisés
+
 ```typescript
 const {
-  messages,              // ConversationProvider
-  setMessages,           // ConversationProvider
-  currentPoll,           // ConversationProvider
-  dispatchPollAction,    // ConversationProvider
-  openEditor,            // ConversationProvider
-  setModifiedQuestion,   // ConversationProvider
+  messages, // ConversationProvider
+  setMessages, // ConversationProvider
+  currentPoll, // ConversationProvider
+  dispatchPollAction, // ConversationProvider
+  openEditor, // ConversationProvider
+  setModifiedQuestion, // ConversationProvider
 } = useConversation();
 ```
 
 ### Hooks métier
+
 ```typescript
 const autoSave = useAutoSave({ debug: true });
 const conversationResume = useConversationResume();
@@ -115,6 +129,7 @@ const { toast } = useToast();
 ```
 
 ### Services externes
+
 ```typescript
 import { geminiService } from "../lib/gemini";
 import { ConversationService } from "../services/ConversationService";
@@ -162,6 +177,7 @@ PollCreator         formPollReducer
 ```
 
 ### Problème : Boucle de dépendances
+
 ```
 GeminiChatInterface
   ↓ dispatch action
@@ -209,6 +225,7 @@ const hasResumedConversation = useRef(false);
 ## 🐛 Points de fragilité
 
 ### 1. **Détection d'intention fragile**
+
 ```typescript
 // 3 services avec regex complexes
 const dateIntent = IntentDetectionService.detectIntent(userMessage);
@@ -219,17 +236,19 @@ const geminiIntent = GeminiIntentService.parse(aiResponse);
 **Risque** : Modifier une regex → casser les autres intentions
 
 ### 2. **Conversion Form Poll complexe**
+
 ```typescript
 const convertFormSuggestionToDraft = (suggestion: FormPollSuggestion): FormPollDraft => {
   // 100+ lignes de transformation
   // Mapping types, options, conditions
   // Génération d'IDs
-}
+};
 ```
 
 **Risque** : Ajouter un type de question → tout retester
 
 ### 3. **useEffect avec dépendances multiples**
+
 ```typescript
 useEffect(() => {
   // Logique complexe
@@ -239,6 +258,7 @@ useEffect(() => {
 **Risque** : Modifier une dépendance → effets de bord imprévus
 
 ### 4. **Gestion du scroll**
+
 ```typescript
 useEffect(() => {
   // Désactiver complètement le scroll automatique vers le bas sur mobile
@@ -301,7 +321,7 @@ const GeminiChatInterface = () => {
   const intent = useIntentDetection();
   const polls = usePollCreation();
   const persistence = useConversationPersistence();
-  
+
   // Logique UI uniquement
   return <ChatUI />;
 };
@@ -327,6 +347,7 @@ Avant de modifier `GeminiChatInterface.tsx`, vérifier :
 ## 🚨 Règles strictes
 
 ### ❌ NE PAS FAIRE
+
 1. Ajouter de nouveaux états locaux
 2. Modifier les regex sans tests
 3. Toucher au scroll sans plan
@@ -334,6 +355,7 @@ Avant de modifier `GeminiChatInterface.tsx`, vérifier :
 5. Créer de nouvelles dépendances circulaires
 
 ### ✅ FAIRE
+
 1. Extraire la logique dans des hooks
 2. Tester avant de modifier
 3. Documenter les changements

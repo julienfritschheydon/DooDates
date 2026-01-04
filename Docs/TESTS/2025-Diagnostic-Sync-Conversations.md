@@ -12,9 +12,9 @@ Ce document fournit des outils pour diagnostiquer les différences de synchronis
 
 ```javascript
 // Récupérer votre User ID
-const authData = JSON.parse(localStorage.getItem('sb-outmbbisrrdiumlweira-auth-token'));
+const authData = JSON.parse(localStorage.getItem("sb-outmbbisrrdiumlweira-auth-token"));
 const userId = authData.user?.id; // 3b1802f9-db46-48c7-86b0-199830f56f53
-console.log('User ID:', userId);
+console.log("User ID:", userId);
 ```
 
 ```sql
@@ -33,15 +33,17 @@ ORDER BY updated_at DESC;
 
 ```javascript
 // À exécuter dans la console de chaque navigateur
-const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-console.table(conversations.map(c => ({
-  id: c.id,
-  title: c.title,
-  userId: c.userId,
-  createdAt: c.createdAt,
-  updatedAt: c.updatedAt,
-  status: c.status
-})));
+const conversations = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+console.table(
+  conversations.map((c) => ({
+    id: c.id,
+    title: c.title,
+    userId: c.userId,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    status: c.status,
+  })),
+);
 
 console.log(`Total conversations dans localStorage: ${conversations.length}`);
 ```
@@ -50,16 +52,16 @@ console.log(`Total conversations dans localStorage: ${conversations.length}`);
 
 ```javascript
 // Navigateur 1 - Exécuter ceci et copier le résultat
-const convs1 = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-const ids1 = convs1.map(c => c.id).sort();
-console.log('IDs des conversations (Navigateur 1):');
+const convs1 = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+const ids1 = convs1.map((c) => c.id).sort();
+console.log("IDs des conversations (Navigateur 1):");
 console.log(JSON.stringify(ids1, null, 2));
 console.log(`Total: ${ids1.length}`);
 
 // Navigateur 2 - Exécuter ceci et comparer avec Navigateur 1
-const convs2 = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-const ids2 = convs2.map(c => c.id).sort();
-console.log('IDs des conversations (Navigateur 2):');
+const convs2 = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+const ids2 = convs2.map((c) => c.id).sort();
+console.log("IDs des conversations (Navigateur 2):");
 console.log(JSON.stringify(ids2, null, 2));
 console.log(`Total: ${ids2.length}`);
 ```
@@ -68,32 +70,36 @@ console.log(`Total: ${ids2.length}`);
 
 ```javascript
 // Après avoir copié les IDs des deux navigateurs, utilisez ce script
-const ids1 = [/* Coller les IDs du navigateur 1 */];
-const ids2 = [/* Coller les IDs du navigateur 2 */];
+const ids1 = [
+  /* Coller les IDs du navigateur 1 */
+];
+const ids2 = [
+  /* Coller les IDs du navigateur 2 */
+];
 
-const uniqueToNav1 = ids1.filter(id => !ids2.includes(id));
-const uniqueToNav2 = ids2.filter(id => !ids1.includes(id));
+const uniqueToNav1 = ids1.filter((id) => !ids2.includes(id));
+const uniqueToNav2 = ids2.filter((id) => !ids1.includes(id));
 
-console.log('Conversations uniquement dans Navigateur 1:', uniqueToNav1);
-console.log('Conversations uniquement dans Navigateur 2:', uniqueToNav2);
+console.log("Conversations uniquement dans Navigateur 1:", uniqueToNav1);
+console.log("Conversations uniquement dans Navigateur 2:", uniqueToNav2);
 ```
 
 ### Script 4: Voir les détails d'une conversation spécifique
 
 ```javascript
 // Remplacer 'CONVERSATION_ID' par l'ID de la conversation
-const convId = 'CONVERSATION_ID';
-const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-const conv = conversations.find(c => c.id === convId);
+const convId = "CONVERSATION_ID";
+const conversations = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+const conv = conversations.find((c) => c.id === convId);
 
 if (conv) {
-  console.log('Détails de la conversation:', conv);
-  console.log('Titre:', conv.title);
-  console.log('UserId:', conv.userId);
-  console.log('CreatedAt:', new Date(conv.createdAt));
-  console.log('UpdatedAt:', new Date(conv.updatedAt));
+  console.log("Détails de la conversation:", conv);
+  console.log("Titre:", conv.title);
+  console.log("UserId:", conv.userId);
+  console.log("CreatedAt:", new Date(conv.createdAt));
+  console.log("UpdatedAt:", new Date(conv.updatedAt));
 } else {
-  console.log('Conversation non trouvée dans localStorage');
+  console.log("Conversation non trouvée dans localStorage");
 }
 ```
 
@@ -101,13 +107,13 @@ if (conv) {
 
 ```javascript
 // Vérifier quel utilisateur est connecté
-const authKey = Object.keys(localStorage).find(k => k.includes('supabase.auth.token'));
+const authKey = Object.keys(localStorage).find((k) => k.includes("supabase.auth.token"));
 if (authKey) {
   const authData = JSON.parse(localStorage.getItem(authKey));
-  console.log('User ID:', authData?.user?.id);
-  console.log('Email:', authData?.user?.email);
+  console.log("User ID:", authData?.user?.id);
+  console.log("Email:", authData?.user?.email);
 } else {
-  console.log('Aucun utilisateur connecté');
+  console.log("Aucun utilisateur connecté");
 }
 ```
 
@@ -116,21 +122,21 @@ if (authKey) {
 ```javascript
 // Exporter toutes les données pour analyse détaillée
 const exportData = {
-  conversations: JSON.parse(localStorage.getItem('doodates_conversations') || '[]'),
-  messages: JSON.parse(localStorage.getItem('doodates_messages') || '{}'),
+  conversations: JSON.parse(localStorage.getItem("doodates_conversations") || "[]"),
+  messages: JSON.parse(localStorage.getItem("doodates_messages") || "{}"),
   timestamp: new Date().toISOString(),
   userAgent: navigator.userAgent,
-  url: window.location.href
+  url: window.location.href,
 };
 
 // Afficher les conversations avec leurs détails
-console.log('=== EXPORT COMPLET ===');
+console.log("=== EXPORT COMPLET ===");
 console.log(JSON.stringify(exportData, null, 2));
 
 // Télécharger en fichier JSON
-const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
 const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
+const a = document.createElement("a");
 a.href = url;
 a.download = `doodates-export-${Date.now()}.json`;
 a.click();
@@ -142,7 +148,7 @@ a.click();
 
 ```sql
 -- Remplacer 'USER_ID' par votre ID utilisateur
-SELECT 
+SELECT
   id,
   title,
   user_id,
@@ -160,7 +166,7 @@ ORDER BY updated_at DESC;
 
 ```sql
 -- Après avoir récupéré les IDs du localStorage, vérifier leur présence dans Supabase
-SELECT 
+SELECT
   id,
   title,
   user_id,
@@ -179,7 +185,7 @@ ORDER BY updated_at DESC;
 
 ```sql
 -- Voir les conversations créées dans les dernières 24 heures
-SELECT 
+SELECT
   id,
   title,
   user_id,
@@ -195,7 +201,7 @@ ORDER BY created_at DESC;
 
 ```sql
 -- Vérifier s'il y a des doublons de conversations
-SELECT 
+SELECT
   title,
   user_id,
   COUNT(*) as count,
@@ -213,7 +219,7 @@ ORDER BY count DESC;
 
 ```sql
 -- Vue d'ensemble des conversations par utilisateur
-SELECT 
+SELECT
   user_id,
   COUNT(*) as total_conversations,
   COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
@@ -230,69 +236,75 @@ GROUP BY user_id;
 ```javascript
 // Script de diagnostic complet à exécuter dans chaque navigateur
 async function diagnosticComplet() {
-  console.log('=== DIAGNOSTIC DE SYNCHRONISATION ===\n');
-  
+  console.log("=== DIAGNOSTIC DE SYNCHRONISATION ===\n");
+
   // 1. localStorage
-  const localConvs = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-  console.log('📦 localStorage:');
+  const localConvs = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+  console.log("📦 localStorage:");
   console.log(`   Total: ${localConvs.length} conversations`);
-  console.log('   IDs:', localConvs.map(c => c.id));
-  
+  console.log(
+    "   IDs:",
+    localConvs.map((c) => c.id),
+  );
+
   // 2. User info
-  const authKey = Object.keys(localStorage).find(k => k.includes('supabase.auth.token'));
+  const authKey = Object.keys(localStorage).find((k) => k.includes("supabase.auth.token"));
   let userId = null;
   if (authKey) {
     const authData = JSON.parse(localStorage.getItem(authKey));
     userId = authData?.user?.id;
-    console.log('\n👤 Utilisateur:');
+    console.log("\n👤 Utilisateur:");
     console.log(`   ID: ${userId}`);
     console.log(`   Email: ${authData?.user?.email}`);
   }
-  
+
   // 3. Supabase
   if (userId && window.supabase) {
-    console.log('\n☁️ Supabase:');
+    console.log("\n☁️ Supabase:");
     try {
       const { data, error } = await window.supabase
-        .from('conversations')
-        .select('id, title, created_at, updated_at')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
-      
+        .from("conversations")
+        .select("id, title, created_at, updated_at")
+        .eq("user_id", userId)
+        .order("updated_at", { ascending: false });
+
       if (error) {
-        console.error('   Erreur:', error.message);
+        console.error("   Erreur:", error.message);
       } else {
         console.log(`   Total: ${data.length} conversations`);
-        console.log('   IDs:', data.map(c => c.id));
-        
+        console.log(
+          "   IDs:",
+          data.map((c) => c.id),
+        );
+
         // 4. Comparaison
-        console.log('\n🔍 Comparaison:');
-        const localIds = localConvs.map(c => c.id);
-        const supabaseIds = data.map(c => c.id);
-        
-        const onlyLocal = localIds.filter(id => !supabaseIds.includes(id));
-        const onlySupabase = supabaseIds.filter(id => !localIds.includes(id));
-        
+        console.log("\n🔍 Comparaison:");
+        const localIds = localConvs.map((c) => c.id);
+        const supabaseIds = data.map((c) => c.id);
+
+        const onlyLocal = localIds.filter((id) => !supabaseIds.includes(id));
+        const onlySupabase = supabaseIds.filter((id) => !localIds.includes(id));
+
         console.log(`   Uniquement dans localStorage: ${onlyLocal.length}`, onlyLocal);
         console.log(`   Uniquement dans Supabase: ${onlySupabase.length}`, onlySupabase);
-        
+
         if (onlyLocal.length === 0 && onlySupabase.length === 0) {
-          console.log('   ✅ Parfaitement synchronisé!');
+          console.log("   ✅ Parfaitement synchronisé!");
         } else {
-          console.log('   ⚠️ Désynchronisation détectée!');
+          console.log("   ⚠️ Désynchronisation détectée!");
         }
       }
     } catch (error) {
-      console.error('   Erreur lors de la requête Supabase:', error);
+      console.error("   Erreur lors de la requête Supabase:", error);
     }
   } else {
-    console.log('\n☁️ Supabase: Non disponible ou non connecté');
+    console.log("\n☁️ Supabase: Non disponible ou non connecté");
   }
-  
+
   // 5. Cache info
-  console.log('\n🗄️ Cache:');
-  const cacheKeys = Object.keys(localStorage).filter(k => k.includes('doodates'));
-  console.log('   Clés:', cacheKeys);
+  console.log("\n🗄️ Cache:");
+  const cacheKeys = Object.keys(localStorage).filter((k) => k.includes("doodates"));
+  console.log("   Clés:", cacheKeys);
 }
 
 // Exécuter le diagnostic
@@ -315,8 +327,8 @@ diagnosticComplet();
 // Forcer la synchronisation depuis Supabase
 async function syncFromSupabase() {
   if (window.queryClient) {
-    await window.queryClient.invalidateQueries(['conversations']);
-    console.log('Cache invalidé, rechargement...');
+    await window.queryClient.invalidateQueries(["conversations"]);
+    console.log("Cache invalidé, rechargement...");
     window.location.reload();
   }
 }
@@ -326,12 +338,12 @@ async function syncFromSupabase() {
 
 ```javascript
 // Identifier la conversation manquante
-const convId = 'CONVERSATION_ID_MANQUANT';
-const localConvs = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-const missingConv = localConvs.find(c => c.id === convId);
+const convId = "CONVERSATION_ID_MANQUANT";
+const localConvs = JSON.parse(localStorage.getItem("doodates_conversations") || "[]");
+const missingConv = localConvs.find((c) => c.id === convId);
 
 if (missingConv) {
-  console.log('Conversation manquante dans Supabase:', missingConv);
+  console.log("Conversation manquante dans Supabase:", missingConv);
   // Il faudra la re-créer ou vérifier pourquoi elle n'a pas été synchronisée
 }
 ```
@@ -345,7 +357,7 @@ async function forceFullSync() {
   if (window.queryClient) {
     window.queryClient.clear();
   }
-  
+
   // Recharger la page
   window.location.reload();
 }
@@ -365,9 +377,8 @@ async function forceFullSync() {
 
 ```javascript
 // Activer les logs de debug
-localStorage.setItem('debug', 'doodates:*');
+localStorage.setItem("debug", "doodates:*");
 
 // Voir les logs dans la console
 // Recharger la page pour voir tous les logs de synchronisation
 ```
-

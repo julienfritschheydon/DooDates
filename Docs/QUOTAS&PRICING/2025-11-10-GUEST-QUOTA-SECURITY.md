@@ -27,11 +27,13 @@ git push
 ### Test 2 : Contournement localStorage (DOIT ÉCHOUER) ✅ CORRIGÉ
 
 **Bug identifié (10/11/2025) :** Le système détectait la limite mais ne bloquait pas l'action
+
 - `incrementConversationCreated()` utilisait "fire and forget" (pas bloquant)
 - `consumeCredits()` loggait un warning mais ne throw pas d'erreur
 - Résultat : 12 conversations créées au lieu de 5 max
 
 **Correctif appliqué :**
+
 - `incrementConversationCreated()` → async/await (bloquant)
 - `consumeCredits()` → throw Error si quota atteint
 - `handleSendMessage()` → try/catch + toast utilisateur
@@ -41,6 +43,7 @@ git push
 **Protocole :**
 
 1. **Créer 3 sondages en mode guest**
+
    ```
    - Aller sur /create
    - Créer 3 sondages de date
@@ -48,6 +51,7 @@ git push
    ```
 
 2. **Vérifier stockage Supabase**
+
    ```sql
    -- Dans Supabase SQL Editor
    SELECT fingerprint, conversations_created, polls_created, total_credits_consumed
@@ -55,22 +59,26 @@ git push
    ORDER BY created_at DESC
    LIMIT 5;
    ```
+
    **Attendu :** 1 ligne avec `polls_created = 3`
 
 3. **Effacer localStorage complètement**
+
    ```javascript
    // Console navigateur
    localStorage.clear();
-   console.log('localStorage cleared');
+   console.log("localStorage cleared");
    ```
 
 4. **Recharger la page**
+
    ```
    - F5 ou Ctrl+R
    - Vérifier que le quota affiche toujours 3/5
    ```
 
 5. **Tenter de créer 2 sondages supplémentaires**
+
    ```
    - Créer sondage #4 → ✅ Doit réussir (quota 4/5)
    - Créer sondage #5 → ✅ Doit réussir (quota 5/5)
@@ -78,6 +86,7 @@ git push
    ```
 
 6. **Vérifier message d'erreur**
+
    ```
    - Modal "Conversation Limit Reached" doit s'afficher
    - Bouton "Upgrade Now" visible
@@ -85,6 +94,7 @@ git push
    ```
 
 7. **Effacer localStorage à nouveau**
+
    ```javascript
    localStorage.clear();
    location.reload();
@@ -101,13 +111,14 @@ git push
 
 ```javascript
 // Console navigateur
-import { getGuestQuotaJournal } from './src/lib/guestQuotaService';
+import { getGuestQuotaJournal } from "./src/lib/guestQuotaService";
 
 const journal = await getGuestQuotaJournal(20);
 console.table(journal);
 ```
 
 **Résultat attendu :**
+
 - 5 entrées (5 polls créés)
 - Action = `poll_created`
 - Credits = 1 par entrée
@@ -118,16 +129,16 @@ console.table(journal);
 ```javascript
 // Console navigateur
 const fp1 = await getCachedFingerprint();
-console.log('Fingerprint 1:', fp1);
+console.log("Fingerprint 1:", fp1);
 
 // Recharger la page
 location.reload();
 
 // Après rechargement
 const fp2 = await getCachedFingerprint();
-console.log('Fingerprint 2:', fp2);
+console.log("Fingerprint 2:", fp2);
 
-console.log('Match:', fp1 === fp2); // Doit être true
+console.log("Match:", fp1 === fp2); // Doit être true
 ```
 
 ### Test 5 : Transition guest → authenticated
@@ -157,8 +168,9 @@ const GUEST_LIMITS = {
 ### Requêtes SQL utiles
 
 **Voir tous les guests actifs :**
+
 ```sql
-SELECT 
+SELECT
   fingerprint,
   total_credits_consumed,
   conversations_created,
@@ -172,8 +184,9 @@ ORDER BY total_credits_consumed DESC;
 ```
 
 **Détecter abus potentiels :**
+
 ```sql
-SELECT 
+SELECT
   fingerprint,
   total_credits_consumed,
   COUNT(*) as action_count,
@@ -186,6 +199,7 @@ ORDER BY action_count DESC;
 ```
 
 **Nettoyage manuel des guests inactifs :**
+
 ```sql
 SELECT cleanup_old_guest_quotas();
 -- Retourne le nombre de quotas supprimés (>90 jours inactifs)
@@ -200,7 +214,7 @@ SELECT cleanup_old_guest_quotas();
 
 ```javascript
 // Activer logs debug
-localStorage.setItem('doodates_log_level', 'debug');
+localStorage.setItem("doodates_log_level", "debug");
 location.reload();
 ```
 
@@ -210,10 +224,11 @@ location.reload();
 **Solution :**
 
 1. Vérifier connexion Supabase :
+
    ```javascript
-   import { supabase } from './src/lib/supabase';
-   const { data, error } = await supabase.from('guest_quotas').select('count');
-   console.log('Supabase OK:', !error);
+   import { supabase } from "./src/lib/supabase";
+   const { data, error } = await supabase.from("guest_quotas").select("count");
+   console.log("Supabase OK:", !error);
    ```
 
 2. Vérifier RLS policies dans Supabase Dashboard
@@ -234,6 +249,7 @@ location.reload();
 ## 🔜 Prochaines étapes (POST-BÊTA)
 
 Voir **Solution 3** dans `Docs/2. Planning.md` :
+
 - Migration complète vers Supabase Functions
 - Validation serveur 100% (pas de localStorage)
 - Monitoring avancé et alertes

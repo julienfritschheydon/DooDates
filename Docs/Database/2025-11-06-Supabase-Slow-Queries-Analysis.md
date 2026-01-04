@@ -20,6 +20,7 @@ SELECT name FROM pg_timezone_names
 ```
 
 **Métriques :**
+
 - **115 appels**
 - **223ms** en moyenne (52ms - 894ms)
 - **0% cache hit rate** ⚠️
@@ -28,7 +29,8 @@ SELECT name FROM pg_timezone_names
 
 **Problème :** Cette requête n'est jamais mise en cache et lit systématiquement toutes les timezones PostgreSQL.
 
-**Impact :** 
+**Impact :**
+
 - Cette requête est probablement appelée par Supabase Dashboard ou des fonctionnalités système
 - Pas directement contrôlable par l'application
 - Impact sur les performances globales de la base
@@ -48,7 +50,7 @@ SELECT name FROM pg_timezone_names
 3. **Monitoring** : Surveiller si cette requête est appelée depuis l'application
    ```sql
    -- Vérifier les appels depuis l'application
-   SELECT * FROM pg_stat_statements 
+   SELECT * FROM pg_stat_statements
    WHERE query LIKE '%pg_timezone_names%';
    ```
 
@@ -57,30 +59,35 @@ SELECT name FROM pg_timezone_names
 **Requête principale :** Requête complexe sur `pg_proc` (fonctions PostgreSQL)
 
 **Métriques :**
+
 - **234 appels**
 - **178ms** en moyenne (67ms - 797ms)
 - **100% cache hit rate** ✅
 - **41.7 secondes** de temps total
 
 **Analyse :**
+
 - Ces requêtes sont générées par le dashboard Supabase
 - Cache hit rate excellent (100%)
 - Temps moyen acceptable pour des requêtes système complexes
 - Pas d'action requise côté application
 
 **Autres requêtes dashboard :**
+
 - Requêtes `pg_get_tabledef` : ~950-1000ms chacune, mais seulement 1 appel chacune
 - Requêtes sur tables/colonnes : 17ms en moyenne, cache hit rate 100%
 
 ### ✅ Bon : Requêtes Applicatives
 
 **INSERT conversations :**
+
 - **1084 appels**
 - **0.9ms** en moyenne
 - **100% cache hit rate**
 - Performance excellente ✅
 
 **INSERT refresh_tokens / sessions :**
+
 - **~1500 appels chacun**
 - **~1ms** en moyenne
 - Performance excellente ✅
@@ -150,6 +157,7 @@ SELECT name FROM pg_timezone_names
 ### Pourquoi `pg_timezone_names` est lent ?
 
 La vue `pg_timezone_names` contient toutes les timezones supportées par PostgreSQL (environ 600+ entrées). Sans cache, chaque requête doit :
+
 1. Scanner les catalogues système
 2. Construire la liste complète
 3. Retourner toutes les entrées
@@ -157,6 +165,7 @@ La vue `pg_timezone_names` contient toutes les timezones supportées par Postgre
 ### Pourquoi le cache ne fonctionne pas ?
 
 Plusieurs possibilités :
+
 - La requête est appelée avec des paramètres différents
 - Le cache PostgreSQL n'est pas activé pour cette vue
 - La requête est appelée depuis différents contextes (dashboard vs application)
@@ -166,4 +175,3 @@ Plusieurs possibilités :
 - [PostgreSQL pg_timezone_names](https://www.postgresql.org/docs/current/view-pg-timezone-names.html)
 - [Supabase Performance Tuning](https://supabase.com/docs/guides/platform/performance)
 - [PostgreSQL Query Performance](https://www.postgresql.org/docs/current/performance-tips.html)
-

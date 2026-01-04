@@ -40,7 +40,7 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidExpirationDate(dateString: string): boolean {
   if (!dateString || typeof dateString !== "string" || dateString.trim() === "") return true; // Optionnel
-  
+
   try {
     const date = new Date(dateString);
     const now = new Date();
@@ -71,7 +71,7 @@ export function isValidTimeLimit(timeLimit: number | undefined): boolean {
  */
 export function validateAdvancedSettings(
   settings: AdvancedSettings,
-  pollType: "date" | "form" | "quizz"
+  pollType: "date" | "form" | "quizz",
 ): SettingsValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -117,7 +117,9 @@ export function validateAdvancedSettings(
   }
 
   if ((settings as FormPollSettings | QuizzSettings).maxResponses === 1) {
-    warnings.push("Une seule réponse autorisée - considérez utiliser l'option 'Une réponse par personne'");
+    warnings.push(
+      "Une seule réponse autorisée - considérez utiliser l'option 'Une réponse par personne'",
+    );
   }
 
   return {
@@ -132,7 +134,7 @@ export function validateAdvancedSettings(
  */
 export function transformAdvancedSettings(
   settings: AdvancedSettings,
-  options: SettingsTransformOptions = {}
+  options: SettingsTransformOptions = {},
 ): AdvancedSettings {
   const transformed = { ...settings };
 
@@ -205,8 +207,8 @@ export function generateSettingsSummary(settings: AdvancedSettings): string[] {
     const date = new Date((settings as FormPollSettings | QuizzSettings).expiresAt!);
     const dateStr = date.toLocaleDateString("fr-FR", {
       day: "2-digit",
-      month: "2-digit", 
-      year: "numeric"
+      month: "2-digit",
+      year: "numeric",
     });
     summary.push(`Ferme le ${dateStr}`);
   }
@@ -217,10 +219,10 @@ export function generateSettingsSummary(settings: AdvancedSettings): string[] {
 
   const visibilityMap = {
     "creator-only": "Résultats privés",
-    "voters": "Résultats pour participants",
-    "public": "Résultats publics",
+    voters: "Résultats pour participants",
+    public: "Résultats publics",
   };
-  
+
   const visibility = visibilityMap[settings.resultsVisibility || "public"];
   summary.push(visibility);
 
@@ -244,7 +246,7 @@ export function generateSettingsSummary(settings: AdvancedSettings): string[] {
  */
 export function checkSettingsCompatibility(
   settings: AdvancedSettings,
-  pollType: "date" | "form" | "quizz"
+  pollType: "date" | "form" | "quizz",
 ): SettingsValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -262,7 +264,9 @@ export function checkSettingsCompatibility(
 
   // Incompatibilités générales
   if (settings.allowEditAfterSubmit && settings.oneResponsePerPerson && !settings.requireAuth) {
-    warnings.push("La modification après soumission avec 'une réponse par personne' sans connexion peut être contournée");
+    warnings.push(
+      "La modification après soumission avec 'une réponse par personne' sans connexion peut être contournée",
+    );
   }
 
   if (settings.sendEmailCopy && settings.requireAuth) {

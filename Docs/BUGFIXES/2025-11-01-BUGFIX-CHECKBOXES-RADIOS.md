@@ -11,11 +11,13 @@
 Les checkboxes et radio buttons restaient **noirs** au lieu d'utiliser la couleur du thème sélectionné (Bleu, Vert, Violet).
 
 ### Symptôme
+
 - Thème Bleu → Checkboxes noires (au lieu de bleues #3B82F6)
 - Thème Vert → Checkboxes noires (au lieu de vertes #10B981)
 - Thème Violet → Checkboxes noires (au lieu de violettes #8B5CF6)
 
 ### Impact
+
 - Expérience utilisateur incohérente
 - Thèmes visuels non appliqués complètement
 - Bug critique pour la bêta
@@ -27,6 +29,7 @@ Les checkboxes et radio buttons restaient **noirs** au lieu d'utiliser la couleu
 **Double problème identifié :**
 
 1. **`accentColor` ne supporte pas les CSS variables dans certains navigateurs**
+
    ```css
    /* ❌ NE FONCTIONNE PAS */
    input[type="checkbox"] {
@@ -55,10 +58,8 @@ export function useThemeColor(cssVariable: string, fallback: string): string {
   useEffect(() => {
     const updateColor = () => {
       const root = document.documentElement;
-      const computedColor = getComputedStyle(root)
-        .getPropertyValue(cssVariable)
-        .trim();
-      
+      const computedColor = getComputedStyle(root).getPropertyValue(cssVariable).trim();
+
       if (computedColor) {
         setColor(computedColor);
       } else {
@@ -76,7 +77,7 @@ export function useThemeColor(cssVariable: string, fallback: string): string {
     const observer = new MutationObserver(updateColor);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['style'],
+      attributeFilter: ["style"],
     });
 
     return () => {
@@ -100,10 +101,10 @@ input[type="checkbox"][data-themed="true"] {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  
+
   /* Style de base : fond blanc + bordure noire */
   background-color: white;
-  border: 2px solid #1E293B;
+  border: 2px solid #1e293b;
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -188,10 +189,12 @@ useEffect(() => {
 ## 📊 Modifications
 
 ### Fichiers créés (2)
+
 - `src/hooks/useThemeColor.ts` - Hook pour lire CSS variables avec MutationObserver (51 lignes)
 - `src/components/polls/themed-inputs.css` - Styles custom pour inputs (93 lignes)
 
 ### Fichiers modifiés (1)
+
 - `src/components/polls/FormPollVote.tsx` (3 modifications)
   1. Import `useThemeColor` + `themed-inputs.css`
   2. Appel du hook + application CSS variable `--input-accent-color`
@@ -202,10 +205,12 @@ useEffect(() => {
 ## ✅ Résultat
 
 **Avant :**
+
 - ❌ Checkboxes/radios noirs (couleur par défaut du navigateur)
 - ❌ Pas de distinction visuelle entre coché/non coché
 
 **Après :**
+
 - ✅ **Non coché** : Fond blanc + bordure noire (lisible et clair)
 - ✅ **Hover** : Bordure de la couleur du thème (feedback visuel)
 - ✅ **Coché** : Fond couleur du thème + checkmark/point blanc
@@ -220,24 +225,28 @@ useEffect(() => {
 ## 🧪 Tests à Effectuer
 
 ### Test 1 : Thème Bleu
+
 1. Créer un formulaire avec thème "Bleu Océan"
 2. Ajouter des questions à choix multiple
 3. Aller sur `/poll/{slug}`
 4. **Vérifier :** Checkboxes bleues (#3B82F6)
 
 ### Test 2 : Thème Vert
+
 1. Créer un formulaire avec thème "Vert Nature"
 2. Ajouter des questions à choix unique
 3. Aller sur `/poll/{slug}`
 4. **Vérifier :** Radio buttons verts (#10B981)
 
 ### Test 3 : Thème Violet
+
 1. Créer un formulaire avec thème "Violet Créatif"
 2. Ajouter une question matrice
 3. Aller sur `/poll/{slug}`
 4. **Vérifier :** Checkboxes/radios violets (#8B5CF6)
 
 ### Test 4 : Changement de thème dynamique
+
 1. Créer un formulaire avec thème Bleu
 2. Modifier le formulaire → Changer pour thème Vert
 3. Recharger la page de vote
@@ -248,6 +257,7 @@ useEffect(() => {
 ## 🎯 Pourquoi Cette Solution Fonctionne
 
 ### Avantages
+
 1. ✅ **Compatible tous navigateurs** : `appearance: none` supporté partout (Chrome, Firefox, Safari, Edge)
 2. ✅ **Contrôle total** : Styles custom pour tous les états (non coché, hover, coché, disabled, focus)
 3. ✅ **Réactif** : MutationObserver détecte les changements de thème automatiquement
@@ -256,6 +266,7 @@ useEffect(() => {
 6. ✅ **Maintenable** : CSS séparé dans un fichier dédié avec `!important` pour écraser Tailwind
 
 ### Tentatives échouées
+
 1. ❌ **`accent-color` avec CSS variable** : Non supporté dans certains navigateurs
 2. ❌ **`accent-color` avec valeur hexadécimale** : Navigateur utilisateur ne supporte pas `accent-color`
 3. ❌ **Inline styles uniquement** : Impossible de forcer avec `!important` en React
@@ -303,6 +314,7 @@ input[type="checkbox"]:checked::after {
 ### Pourquoi MutationObserver ?
 
 Le hook doit détecter les changements de thème en temps réel :
+
 1. Utilisateur change le thème dans FormPollCreator
 2. `applyTheme()` modifie `--theme-primary` dans `<html>`
 3. `MutationObserver` détecte le changement d'attribut `style`
@@ -334,6 +346,7 @@ input[type="checkbox"][data-themed="true"] {
 Les checkboxes et radio buttons utilisent maintenant correctement la couleur du thème sélectionné avec une UX améliorée :
 
 ### Ce qui a été accompli :
+
 - ✅ **Inputs custom** avec `appearance: none` pour contrôle total
 - ✅ **3 états visuels** : non coché (blanc/noir), hover (bordure colorée), coché (fond coloré + checkmark)
 - ✅ **Hook réactif** avec MutationObserver pour détecter les changements de thème
@@ -342,6 +355,7 @@ Les checkboxes et radio buttons utilisent maintenant correctement la couleur du 
 - ✅ **Compatible** tous navigateurs (Chrome, Firefox, Safari, Edge)
 
 ### Leçons apprises :
+
 1. `accent-color` n'est pas supporté partout → Toujours tester sur le navigateur cible
 2. CSS variables + `!important` = Solution robuste pour écraser frameworks CSS
 3. `appearance: none` donne un contrôle total sur les inputs natifs

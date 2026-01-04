@@ -28,6 +28,7 @@ await analyzePerformance();
 ## 📊 Ce qui est Analysé
 
 ### 1. **Phases de Chargement**
+
 - DNS Lookup
 - TCP Connection
 - Request/Response
@@ -36,16 +37,19 @@ await analyzePerformance();
 - Load Complete
 
 ### 2. **Ressources Chargées**
+
 - Fichiers JS (taille, temps)
 - Fichiers CSS
 - Images
 - Autres ressources
 
 ### 3. **Composants React**
+
 - WorkspacePage (page par défaut)
 - Temps de chargement de chaque composant
 
 ### 4. **Imports Synchrones**
+
 - Dépendances lourdes chargées au démarrage
 - Opportunités de lazy loading
 
@@ -56,16 +60,19 @@ await analyzePerformance();
 L'analyseur identifie automatiquement :
 
 ### 1. **Fichiers JS Lourds (>100 KB)**
+
 - Liste des fichiers les plus lourds
 - Temps de chargement de chaque fichier
 - Suggestions d'optimisation
 
 ### 2. **Imports Synchrones Lourds**
+
 - `framer-motion` - peut être lazy loaded
 - `@supabase/supabase-js` - peut être lazy loaded
 - `lucide-react` - peut être lazy loaded
 
 ### 3. **Composants Non Utilisés**
+
 - Composants chargés mais non utilisés sur la page d'accueil
 
 ---
@@ -75,6 +82,7 @@ L'analyseur identifie automatiquement :
 ### 1. **Lazy Load des Dépendances Lourdes**
 
 #### framer-motion
+
 Actuellement chargé de manière synchrone. Peut être lazy loaded :
 
 ```typescript
@@ -82,10 +90,11 @@ Actuellement chargé de manière synchrone. Peut être lazy loaded :
 import { motion } from "framer-motion";
 
 // Utiliser :
-const motion = lazy(() => import("framer-motion").then(m => ({ default: m.motion })));
+const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
 ```
 
 #### @supabase/supabase-js
+
 Peut être chargé uniquement quand nécessaire :
 
 ```typescript
@@ -94,16 +103,18 @@ const supabase = lazy(() => import("@supabase/supabase-js"));
 ```
 
 #### lucide-react
+
 Les icônes peuvent être chargées à la demande :
 
 ```typescript
 // Lazy load des icônes
-const Loader2 = lazy(() => import("lucide-react").then(m => ({ default: m.Loader2 })));
+const Loader2 = lazy(() => import("lucide-react").then((m) => ({ default: m.Loader2 })));
 ```
 
 ### 2. **Optimiser WorkspacePage**
 
 Si WorkspacePage est lourde, on peut :
+
 - Lazy load ses sous-composants
 - Code split les composants lourds
 - Déferrer le chargement des données non critiques
@@ -111,12 +122,14 @@ Si WorkspacePage est lourde, on peut :
 ### 3. **Optimiser les Providers**
 
 Les providers sont chargés de manière synchrone. On peut :
+
 - Lazy initialiser les providers non critiques
 - Déferrer l'initialisation jusqu'à ce qu'elle soit nécessaire
 
 ### 4. **Optimiser le Préchargement**
 
 Le préchargement en batch (après 1 seconde) peut être optimisé :
+
 - Réduire le nombre de modules préchargés
 - Précharger seulement les modules vraiment utilisés sur la page d'accueil
 
@@ -125,11 +138,13 @@ Le préchargement en batch (après 1 seconde) peut être optimisé :
 ## 📈 Métriques à Surveiller
 
 ### Avant Optimisation
+
 - Temps de chargement initial : ~750 ms
 - Bundle JS total : À mesurer
 - Nombre de chunks : À mesurer
 
 ### Après Optimisation (Objectifs)
+
 - Temps de chargement initial : < 500 ms
 - Bundle JS initial : -30% à -50%
 - Chunks mieux séparés
@@ -139,12 +154,14 @@ Le préchargement en batch (après 1 seconde) peut être optimisé :
 ## 🔧 Utilisation de l'Analyseur
 
 ### Commande Rapide
+
 ```javascript
 // Dans la console
 await analyzePerformance();
 ```
 
 ### Analyse Ciblée
+
 ```javascript
 // Analyser seulement les ressources JS
 const resources = performanceAnalyzer.analyzeResources();
@@ -175,6 +192,7 @@ const optimizations = performanceAnalyzer.identifyOptimizations(report);
 ## 🎯 Résultats Attendus
 
 Après les optimisations :
+
 - **Temps de chargement initial** : < 500 ms (au lieu de 750 ms)
 - **Bundle initial** : Réduit de 30-50%
 - **Temps d'interaction** : Amélioré
@@ -196,4 +214,3 @@ Après les optimisations :
 - [Chrome DevTools Performance](https://developer.chrome.com/docs/devtools/performance/)
 - [Web Vitals](https://web.dev/vitals/)
 - [React Code Splitting](https://react.dev/reference/react/lazy)
-

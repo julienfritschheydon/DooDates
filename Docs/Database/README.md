@@ -9,6 +9,7 @@ C'est le **document de référence officiel** pour l'architecture et le schéma 
 ### Architecture Actuelle
 
 DooDates utilise une **architecture centrée sur les conversations** :
+
 - Table principale : `conversations`
 - Les sondages sont stockés dans `conversations.poll_data` (JSONB)
 - Principe : **UNE CONVERSATION = UN PROJET**
@@ -47,4 +48,3 @@ Le dossier `Archive/` contient des documents obsolètes conservés uniquement po
 ---
 
 **Dernière mise à jour :** 7 novembre 2025
-

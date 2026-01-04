@@ -3,17 +3,17 @@ name: 8️⃣ RGPD Compliance Tests (Weekly)
 on:
   schedule:
     # Tous les dimanches à 3h du matin (UTC)
-    - cron: '0 3 * * 0'
-  workflow_dispatch:  # Permet exécution manuelle
+    - cron: "0 3 * * 0"
+  workflow_dispatch: # Permet exécution manuelle
   push:
     branches: [main]
     paths:
-      - 'tests/e2e/rgpd/**'
-      - 'src/lib/security/**'
-      - 'src/services/DataRetentionService.ts'
-      - 'src/pages/DataControl.tsx'
-      - 'src/pages/products/date-polls/DatePollsDataControl.tsx'
-      - '.github/workflows/8-rgpd-compliance.yml'
+      - "tests/e2e/rgpd/**"
+      - "src/lib/security/**"
+      - "src/services/DataRetentionService.ts"
+      - "src/pages/DataControl.tsx"
+      - "src/pages/products/date-polls/DatePollsDataControl.tsx"
+      - ".github/workflows/8-rgpd-compliance.yml"
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     # Exécuter seulement sur chromium pour gagner du temps
     # Les tests RGPD sont fonctionnels, pas liés au navigateur
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -84,7 +84,7 @@ jobs:
           echo "" >> rgpd-compliance-report.md
           echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> rgpd-compliance-report.md
           echo "" >> rgpd-compliance-report.md
-          
+
           if [ -f test-results.json ]; then
             echo "## Résultats des Tests" >> rgpd-compliance-report.md
             echo "" >> rgpd-compliance-report.md
@@ -93,7 +93,7 @@ jobs:
             echo "- **Tests échoués:** $(jq '.stats.failed' test-results.json 2>/dev/null || echo 'N/A')" >> rgpd-compliance-report.md
             echo "- **Temps d'exécution:** $(jq '.stats.duration' test-results.json 2>/dev/null || echo 'N/A')s" >> rgpd-compliance-report.md
           fi
-          
+
           echo "" >> rgpd-compliance-report.md
           echo "## Tests Couverts" >> rgpd-compliance-report.md
           echo "" >> rgpd-compliance-report.md
@@ -125,7 +125,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             let reportContent = '';
             const reportPath = path.join(process.cwd(), 'rgpd-compliance-report.md');
             if (fs.existsSync(reportPath)) {
@@ -133,12 +133,12 @@ jobs:
             } else {
               reportContent = '## 🚨 Échec des Tests RGPD\n\nLes tests de conformité RGPD ont échoué.';
             }
-            
+
             reportContent += `\n\n---\n\n**🔗 Lien vers le workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
-            
+
             const today = new Date().toISOString().split('T')[0];
             const issueTitle = `🚨 RGPD Compliance Tests - Échec - ${today}`;
-            
+
             try {
               const { data: issues } = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
@@ -172,4 +172,3 @@ jobs:
             } catch (error) {
               console.error('❌ Erreur lors de la création/mise à jour de l\'issue:', error);
             }
-

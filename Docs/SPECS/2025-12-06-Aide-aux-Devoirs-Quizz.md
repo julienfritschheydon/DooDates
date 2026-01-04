@@ -52,21 +52,21 @@ src/lib/products/quizz/
 
 ### quizz-service.ts - Déjà Implémenté ! (500 lignes)
 
-| Fonctionnalité | Status |
-|----------------|--------|
-| Types `QuizzQuestion` avec `correctAnswer` | ✅ |
-| Types `QuizzResponse` avec scoring | ✅ |
-| Types `QuizzResults` avec stats | ✅ |
-| CRUD complet (get, save, delete, duplicate) | ✅ |
-| `checkAnswer()` - Vérification réponses | ✅ |
-| `addQuizzResponse()` - Avec calcul score | ✅ |
-| `getQuizzResults()` - Statistiques | ✅ |
-| `questionStats` - Stats par question | ✅ |
+| Fonctionnalité                              | Status |
+| ------------------------------------------- | ------ |
+| Types `QuizzQuestion` avec `correctAnswer`  | ✅     |
+| Types `QuizzResponse` avec scoring          | ✅     |
+| Types `QuizzResults` avec stats             | ✅     |
+| CRUD complet (get, save, delete, duplicate) | ✅     |
+| `checkAnswer()` - Vérification réponses     | ✅     |
+| `addQuizzResponse()` - Avec calcul score    | ✅     |
+| `getQuizzResults()` - Statistiques          | ✅     |
+| `questionStats` - Stats par question        | ✅     |
 
 ### Route dans ProductRoutes.tsx
 
 ```tsx
-<Route path="/quizz/*" element={<QuizzApp />} />  // ✅ Déjà configuré !
+<Route path="/quizz/*" element={<QuizzApp />} /> // ✅ Déjà configuré !
 ```
 
 ---
@@ -88,6 +88,7 @@ src/components/polls/QuizzVote.tsx  ← À CRÉER (~150 lignes)
 ### 2. Route de vote
 
 Dans `App.tsx`, ajouter :
+
 ```tsx
 <Route path="/quizz/:slug" element={<QuizzVote />} />
 <Route path="/quizz/:slug/results" element={<QuizzResults />} />
@@ -96,6 +97,7 @@ Dans `App.tsx`, ajouter :
 ### 3. Prompt Gemini pour création
 
 Dans `FormPollService.ts` ou nouveau `QuizzPrompts.ts` :
+
 ```typescript
 buildQuizzPrompt(userInput: string): string
 ```
@@ -113,13 +115,13 @@ src/app/quizz/
 
 ## 📊 Bilan Réutilisation (mis à jour)
 
-| Catégorie | Existant | À créer | % Réutilisation |
-|-----------|----------|---------|-----------------|
-| Service (quizz-service.ts) | 500 | 0 | **100%** |
-| Composants Liste/Create | 100+ | 0 | **100%** |
-| Vote Page | 0 | ~150 | 0% |
-| Routes App.tsx | 5 lignes | 2 lignes | 70% |
-| **Total** | **600+** | **~150** | **80%** |
+| Catégorie                  | Existant | À créer  | % Réutilisation |
+| -------------------------- | -------- | -------- | --------------- |
+| Service (quizz-service.ts) | 500      | 0        | **100%**        |
+| Composants Liste/Create    | 100+     | 0        | **100%**        |
+| Vote Page                  | 0        | ~150     | 0%              |
+| Routes App.tsx             | 5 lignes | 2 lignes | 70%             |
+| **Total**                  | **600+** | **~150** | **80%**         |
 
 ---
 
@@ -133,9 +135,9 @@ export interface QuizzQuestion {
   question: string;
   type: "single" | "multiple" | "text" | "true-false";
   options?: string[];
-  correctAnswer: string | string[] | boolean;  // ✅ Existe !
-  points?: number;                              // ✅ Existe !
-  explanation?: string;                         // ✅ Existe !
+  correctAnswer: string | string[] | boolean; // ✅ Existe !
+  points?: number; // ✅ Existe !
+  explanation?: string; // ✅ Existe !
 }
 ```
 
@@ -148,12 +150,12 @@ export interface QuizzResponse {
   answers: Array<{
     questionId: string;
     answer: string | string[] | boolean;
-    isCorrect: boolean;   // ✅ Calculé automatiquement !
-    points: number;       // ✅ Calculé automatiquement !
+    isCorrect: boolean; // ✅ Calculé automatiquement !
+    points: number; // ✅ Calculé automatiquement !
   }>;
-  totalPoints: number;    // ✅ Somme des points
-  maxPoints: number;      // ✅ Maximum possible
-  percentage: number;     // ✅ Score en %
+  totalPoints: number; // ✅ Somme des points
+  maxPoints: number; // ✅ Maximum possible
+  percentage: number; // ✅ Score en %
 }
 ```
 
@@ -261,6 +263,7 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
 ## ✅ Implémenté (Proto 06/12/2024)
 
 ### Services & Backend
+
 - ✅ **QuizzVisionService.ts** (312 lignes)
   - `extractFromImage()` : Gemini Vision → questions/réponses
   - `generateFromText()` : Gemini texte → questions
@@ -271,6 +274,7 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
   - Gestion erreurs localStorage robuste
 
 ### Frontend
+
 - ✅ **QuizzApp.tsx** - Routeur simplifié (sans ProductContext API)
 - ✅ **QuizzCreate.tsx** (411 lignes) - Création texte + image
 - ✅ **QuizzList.tsx** (140 lignes) - Liste des quiz
@@ -278,6 +282,7 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
 - ✅ Routes dans App.tsx : `/quizz/*`, `/quizz/:slug/vote`
 
 ### ❌ Non implémenté (Phase 3+)
+
 - ❌ Historique des scores par enfant
 - ❌ Système de badges/récompenses
 - ❌ Timer par question
@@ -297,18 +302,19 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
 
 ## 📊 Métriques de Réutilisation (Mise à jour 06/12/2024)
 
-| Catégorie | Lignes | Status | Notes |
-|-----------|--------|--------|-------|
-| quizz-service.ts | 476 | ✅ Modifié | Stockage séparé, logs corrigés |
-| QuizzVisionService.ts | 312 | ✅ **Nouveau** | Gemini Vision + texte |
-| QuizzCreate.tsx | 411 | ✅ Amélioré | Upload image + génération |
-| QuizzList.tsx | 140 | ✅ Amélioré | Sans ProductContext |
-| QuizzApp.tsx | 44 | ✅ Créé | Routeur simplifié |
-| App.tsx routes | +5 | ✅ Modifié | /quizz/*, /quizz/:slug/vote |
-| MainLanding.tsx | +1 | ✅ Modifié | Lien vers /quizz |
-| **Total nouveau** | **~800** | | |
+| Catégorie             | Lignes   | Status         | Notes                          |
+| --------------------- | -------- | -------------- | ------------------------------ |
+| quizz-service.ts      | 476      | ✅ Modifié     | Stockage séparé, logs corrigés |
+| QuizzVisionService.ts | 312      | ✅ **Nouveau** | Gemini Vision + texte          |
+| QuizzCreate.tsx       | 411      | ✅ Amélioré    | Upload image + génération      |
+| QuizzList.tsx         | 140      | ✅ Amélioré    | Sans ProductContext            |
+| QuizzApp.tsx          | 44       | ✅ Créé        | Routeur simplifié              |
+| App.tsx routes        | +5       | ✅ Modifié     | /quizz/\*, /quizz/:slug/vote   |
+| MainLanding.tsx       | +1       | ✅ Modifié     | Lien vers /quizz               |
+| **Total nouveau**     | **~800** |                |                                |
 
 ### Ce qui fonctionne maintenant (Proto complet !)
+
 1. ✅ Accès depuis landing `/` → carte "Aide aux Devoirs"
 2. ✅ Liste des quiz existants `/quizz`
 3. ✅ Création quiz par texte (Gemini via Supabase)
@@ -324,6 +330,7 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
 13. ✅ **Couleurs unifiées** (thème jaune/amber cohérent)
 
 ### Prochaine étape
+
 **Tester le flux complet** avec un vrai exercice scolaire
 
 ---
@@ -335,6 +342,7 @@ Explication : 7 × 8, c'est comme 7 × 10 - 7 × 2 = 70 - 14 = 56
 Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme les autres produits. Les fonctionnalités spécifiques suivantes ont été retirées et doivent être réimplémentées dans des sous-pages ou composants dédiés :
 
 #### 1. **Stats Globales (3 cartes en haut)**
+
 - **Carte 1** : Nombre total de quiz créés
   - Icône : Brain (amber)
   - Valeur : `globalStats.totalQuizz`
@@ -348,6 +356,7 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 **À refaire dans :** `/quizz/stats` ou composant `QuizzStatsCards.tsx`
 
 #### 2. **Tri personnalisé**
+
 - Tri par "Plus récents" (par défaut)
 - Tri par "Plus populaires" (nombre de réponses)
 - Tri par "Meilleur score" (score moyen décroissant)
@@ -355,6 +364,7 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 **À refaire dans :** Extension de `DashboardFilters` ou composant `QuizzSortSelector.tsx`
 
 #### 3. **Affichage des quiz avec métadonnées spécifiques**
+
 - Badge vert : Nombre de réponses (`responses.length`)
 - Badge amber : Nombre de questions (`quiz.questions?.length || 0`)
 - Stats par quiz :
@@ -365,6 +375,7 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 **À refaire dans :** Composant `QuizzCard.tsx` personnalisé ou extension de `ConversationCard`
 
 #### 4. **Actions spécifiques sur chaque quiz**
+
 - **Tester** : Navigation vers `/quizz/:slug/vote`
 - **Résultats** : Navigation vers `/quizz/:slug/results`
 - **Copier le lien** : Copie du lien de vote dans le presse-papier
@@ -373,6 +384,7 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 **À refaire dans :** Composant `QuizzCardActions.tsx` ou extension de `ConversationCard`
 
 #### 5. **Vue liste avec colonnes spécifiques**
+
 - Colonne "Questions" (nombre de questions)
 - Colonne "Réponses" (nombre de réponses)
 - Colonne "Score moy." (avec code couleur : vert ≥75%, amber ≥50%, rouge >0%, gris 0%)
@@ -381,18 +393,21 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 **À refaire dans :** Extension de `DashboardTableView` ou composant `QuizzTableView.tsx`
 
 #### 6. **Bouton Refresh manuel**
+
 - Bouton avec icône RefreshCw
 - Rafraîchit la liste des quiz
 
 **À refaire dans :** Ajout dans `DashboardFilters` ou composant séparé
 
 #### 7. **Pas de quota indicator**
+
 - Le dashboard quizz n'affiche pas l'indicateur de crédits/quota
 - À décider si on l'ajoute ou non
 
 **À refaire dans :** Optionnel - décision à prendre
 
 #### 8. **Pas de filtres avancés**
+
 - Pas de filtres par tags
 - Pas de filtres par folders
 - Seulement recherche textuelle et tri
@@ -407,4 +422,3 @@ Le dashboard quizz a été refactorisé pour utiliser `ProductDashboard` comme l
 4. **Créer `QuizzTableView.tsx`** : Vue liste avec colonnes spécifiques
 5. **Étendre `DashboardFilters`** : Ajouter tri personnalisé pour quizz
 6. **Optionnel** : Ajouter quota indicator et filtres avancés
-

@@ -1,7 +1,7 @@
 /**
  * E2E Tests for Beta Key Activation
  * DooDates - Testing Beta Key Redemption Flow
- * 
+ *
  * Tests the complete beta key activation journey:
  * - User authentication
  * - Beta key input and validation
@@ -10,66 +10,76 @@
  * - Error handling for invalid/used keys
  */
 
-import { test, expect } from '@playwright/test';
-import { setupGeminiMock } from './global-setup';
-import { mockSupabaseAuth } from './utils';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
-import { getTimeouts } from './config/timeouts';
-import { clearTestData } from './helpers/test-data';
-import { safeIsVisible } from './helpers/safe-helpers';
+import { test, expect } from "@playwright/test";
+import { setupGeminiMock } from "./global-setup";
+import { mockSupabaseAuth } from "./utils";
+import {
+  waitForNetworkIdle,
+  waitForReactStable,
+  waitForElementReady,
+  waitForChatInputReady,
+} from "./helpers/wait-helpers";
+import { getTimeouts } from "./config/timeouts";
+import { clearTestData } from "./helpers/test-data";
+import { safeIsVisible } from "./helpers/safe-helpers";
 
-test.describe('Beta Key Activation', () => {
+test.describe("Beta Key Activation", () => {
   test.beforeEach(async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
-    
+
     // Clear localStorage and start fresh
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
   });
 
-  test('should show beta key activation option when authenticated', async ({ page, browserName }) => {
-    const timeouts = getTimeouts(browserName, browserName.includes('Mobile'));
-    
+  test("should show beta key activation option when authenticated", async ({
+    page,
+    browserName,
+  }) => {
+    const timeouts = getTimeouts(browserName, browserName.includes("Mobile"));
+
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Wait for app to load via chat input helper (résilient à la vue / device)
-    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, {
+      timeout: timeouts.element,
+    });
     await expect(messageInput).toBeVisible({ timeout: timeouts.element });
   });
 
-  test('should validate beta key format', async ({ page, browserName }) => {
+  test("should validate beta key format", async ({ page, browserName }) => {
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Try to find beta key input
     // Since UI might not have beta key modal yet, we test the service directly via browser console
     const validationResult = await page.evaluate(() => {
       // Test validation function if available
       const testKeys = [
-        { key: 'BETA-1234-5678-9012', expected: true },
-        { key: 'INVALID', expected: false },
-        { key: 'BETA-123', expected: false },
+        { key: "BETA-1234-5678-9012", expected: true },
+        { key: "INVALID", expected: false },
+        { key: "BETA-123", expected: false },
       ];
-      
+
       // Simple validation regex (should match BetaKeyService logic)
       const pattern = /^BETA-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-      
+
       return testKeys.map(({ key, expected }) => ({
         key,
         expected,
@@ -77,51 +87,51 @@ test.describe('Beta Key Activation', () => {
         passed: pattern.test(key.trim().toUpperCase()) === expected,
       }));
     });
-    
+
     // All validation tests should pass
-    const allPassed = validationResult.every(r => r.passed);
+    const allPassed = validationResult.every((r) => r.passed);
     expect(allPassed).toBe(true);
   });
 
-  test('should handle beta key activation with mock API', async ({ page, browserName }) => {
+  test("should handle beta key activation with mock API", async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
     // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
-    test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
-    
+    test.skip(browserName === "webkit", "page.route() non fiable sur Safari/Webkit");
+
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Mock the beta key redemption API
-    await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
+    await page.route("**/rest/v1/rpc/redeem_beta_key", async (route) => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
           success: true,
-          tier: 'beta',
+          tier: "beta",
           credits: 1000,
-          expires_at: '2026-12-31T23:59:59Z',
+          expires_at: "2026-12-31T23:59:59Z",
         }),
       });
     });
-    
+
     // Test redemption via browser console
     const redemptionResult = await page.evaluate(async () => {
       try {
-        const response = await fetch('https://test.supabase.co/rest/v1/rpc/redeem_beta_key', {
-          method: 'POST',
+        const response = await fetch("https://test.supabase.co/rest/v1/rpc/redeem_beta_key", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'test-key',
-            'Authorization': 'Bearer mock-token-12345',
+            "Content-Type": "application/json",
+            apikey: "test-key",
+            Authorization: "Bearer mock-token-12345",
           },
           body: JSON.stringify({
-            p_user_id: 'test-user-id',
-            p_code: 'BETA-TEST-XXXX-YYYY',
+            p_user_id: "test-user-id",
+            p_code: "BETA-TEST-XXXX-YYYY",
           }),
         });
         const data = await response.json();
@@ -130,293 +140,324 @@ test.describe('Beta Key Activation', () => {
         return { success: false, error: error.message };
       }
     });
-    
+
     expect(redemptionResult.success).toBe(true);
     if (redemptionResult.success) {
-      expect(redemptionResult.data.tier).toBe('beta');
+      expect(redemptionResult.data.tier).toBe("beta");
       expect(redemptionResult.data.credits).toBe(1000);
     }
   });
 
-  test('should reject invalid beta key with mock API', async ({ page, browserName }) => {
+  test("should reject invalid beta key with mock API", async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
     // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
-    test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
-    
+    test.skip(browserName === "webkit", "page.route() non fiable sur Safari/Webkit");
+
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Mock the beta key redemption API with error
-    await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
+    await page.route("**/rest/v1/rpc/redeem_beta_key", async (route) => {
       await route.fulfill({
         status: 400,
-        contentType: 'text/plain',
-        body: 'Clé bêta invalide ou déjà utilisée',
+        contentType: "text/plain",
+        body: "Clé bêta invalide ou déjà utilisée",
       });
     });
-    
+
     // Test redemption via browser console
     const redemptionResult = await page.evaluate(async () => {
       try {
-        const response = await fetch('https://test.supabase.co/rest/v1/rpc/redeem_beta_key', {
-          method: 'POST',
+        const response = await fetch("https://test.supabase.co/rest/v1/rpc/redeem_beta_key", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'test-key',
-            'Authorization': 'Bearer mock-token-12345',
+            "Content-Type": "application/json",
+            apikey: "test-key",
+            Authorization: "Bearer mock-token-12345",
           },
           body: JSON.stringify({
-            p_user_id: 'test-user-id',
-            p_code: 'INVALID-KEY',
+            p_user_id: "test-user-id",
+            p_code: "INVALID-KEY",
           }),
         });
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           return { success: false, error: errorText, status: response.status };
         }
-        
+
         const data = await response.json();
         return { success: true, data };
       } catch (error: any) {
         return { success: false, error: error.message };
       }
     });
-    
+
     expect(redemptionResult.success).toBe(false);
     expect(redemptionResult.status).toBe(400);
-    expect(redemptionResult.error).toContain('invalide');
+    expect(redemptionResult.error).toContain("invalide");
   });
 
-  test('should reject already used beta key with mock API', async ({ page, browserName }) => {
+  test("should reject already used beta key with mock API", async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
     // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
-    test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
-    
+    test.skip(browserName === "webkit", "page.route() non fiable sur Safari/Webkit");
+
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Mock the beta key redemption API with conflict error
-    await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
+    await page.route("**/rest/v1/rpc/redeem_beta_key", async (route) => {
       await route.fulfill({
         status: 409,
-        contentType: 'text/plain',
-        body: 'Clé déjà utilisée',
+        contentType: "text/plain",
+        body: "Clé déjà utilisée",
       });
     });
-    
+
     // Test redemption via browser console
     const redemptionResult = await page.evaluate(async () => {
       try {
-        const response = await fetch('https://test.supabase.co/rest/v1/rpc/redeem_beta_key', {
-          method: 'POST',
+        const response = await fetch("https://test.supabase.co/rest/v1/rpc/redeem_beta_key", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'test-key',
-            'Authorization': 'Bearer mock-token-12345',
+            "Content-Type": "application/json",
+            apikey: "test-key",
+            Authorization: "Bearer mock-token-12345",
           },
           body: JSON.stringify({
-            p_user_id: 'test-user-id',
-            p_code: 'BETA-USED-XXXX-YYYY',
+            p_user_id: "test-user-id",
+            p_code: "BETA-USED-XXXX-YYYY",
           }),
         });
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           return { success: false, error: errorText, status: response.status };
         }
-        
+
         const data = await response.json();
         return { success: true, data };
       } catch (error: any) {
         return { success: false, error: error.message };
       }
     });
-    
+
     expect(redemptionResult.success).toBe(false);
     expect(redemptionResult.status).toBe(409);
-    expect(redemptionResult.error).toContain('déjà');
+    expect(redemptionResult.error).toContain("déjà");
   });
 
-  test('should handle unauthorized error (401)', async ({ page, browserName }) => {
+  test("should handle unauthorized error (401)", async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
     // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
-    test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
-    
+    test.skip(browserName === "webkit", "page.route() non fiable sur Safari/Webkit");
+
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication with expired token
     await mockSupabaseAuth(page, {
-      accessToken: 'expired-token',
+      accessToken: "expired-token",
       expiresAt: Date.now() - 3600000, // Expired
     });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
-    
+
     // Mock the beta key redemption API with 401 error
-    await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
+    await page.route("**/rest/v1/rpc/redeem_beta_key", async (route) => {
       await route.fulfill({
         status: 401,
-        contentType: 'text/plain',
-        body: 'Unauthorized',
+        contentType: "text/plain",
+        body: "Unauthorized",
       });
     });
-    
+
     // Test redemption via browser console
     const redemptionResult = await page.evaluate(async () => {
       try {
-        const response = await fetch('https://test.supabase.co/rest/v1/rpc/redeem_beta_key', {
-          method: 'POST',
+        const response = await fetch("https://test.supabase.co/rest/v1/rpc/redeem_beta_key", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'test-key',
-            'Authorization': 'Bearer expired-token',
+            "Content-Type": "application/json",
+            apikey: "test-key",
+            Authorization: "Bearer expired-token",
           },
           body: JSON.stringify({
-            p_user_id: 'test-user-id',
-            p_code: 'BETA-TEST-XXXX-YYYY',
+            p_user_id: "test-user-id",
+            p_code: "BETA-TEST-XXXX-YYYY",
           }),
         });
-        
+
         if (!response.ok) {
           return { success: false, status: response.status };
         }
-        
+
         const data = await response.json();
         return { success: true, data };
       } catch (error: any) {
         return { success: false, error: error.message };
       }
     });
-    
+
     expect(redemptionResult.success).toBe(false);
     expect(redemptionResult.status).toBe(401);
   });
 
-  test('should format beta key input automatically', async ({ page, browserName }) => {
+  test("should format beta key input automatically", async ({ page, browserName }) => {
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
-    
+
     // Test formatting logic in browser
     const formattingResults = await page.evaluate(() => {
       const formatBetaKey = (input: string): string => {
         // Enlever tout ce qui n'est pas alphanumérique
-        const cleaned = input.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-        
+        const cleaned = input.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+
         // Si commence par BETA, l'enlever
-        const withoutPrefix = cleaned.startsWith('BETA') ? cleaned.slice(4) : cleaned;
-        
+        const withoutPrefix = cleaned.startsWith("BETA") ? cleaned.slice(4) : cleaned;
+
         // Limiter à 12 caractères max
         const limited = withoutPrefix.slice(0, 12);
-        
+
         // Ajouter tirets tous les 4 caractères
         const segments: string[] = [];
         for (let i = 0; i < limited.length; i += 4) {
           segments.push(limited.slice(i, i + 4));
         }
-        
-        return 'BETA-' + segments.join('-');
+
+        return "BETA-" + segments.join("-");
       };
-      
+
       return [
-        { input: '123456789012', expected: 'BETA-1234-5678-9012', result: formatBetaKey('123456789012') },
-        { input: 'beta123456789012', expected: 'BETA-1234-5678-9012', result: formatBetaKey('beta123456789012') },
-        { input: '12-34-56-78-90-12', expected: 'BETA-1234-5678-9012', result: formatBetaKey('12-34-56-78-90-12') },
-        { input: 'abcdefghijkl', expected: 'BETA-ABCD-EFGH-IJKL', result: formatBetaKey('abcdefghijkl') },
-      ].map(test => ({
+        {
+          input: "123456789012",
+          expected: "BETA-1234-5678-9012",
+          result: formatBetaKey("123456789012"),
+        },
+        {
+          input: "beta123456789012",
+          expected: "BETA-1234-5678-9012",
+          result: formatBetaKey("beta123456789012"),
+        },
+        {
+          input: "12-34-56-78-90-12",
+          expected: "BETA-1234-5678-9012",
+          result: formatBetaKey("12-34-56-78-90-12"),
+        },
+        {
+          input: "abcdefghijkl",
+          expected: "BETA-ABCD-EFGH-IJKL",
+          result: formatBetaKey("abcdefghijkl"),
+        },
+      ].map((test) => ({
         ...test,
         passed: test.result === test.expected,
       }));
     });
-    
-    const allPassed = formattingResults.every(r => r.passed);
+
+    const allPassed = formattingResults.every((r) => r.passed);
     expect(allPassed).toBe(true);
   });
 
-  test('should normalize beta key input (trim and uppercase)', async ({ page, browserName }) => {
+  test("should normalize beta key input (trim and uppercase)", async ({ page, browserName }) => {
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
-    
+
     const normalizationResult = await page.evaluate(() => {
       const normalize = (code: string): string => code.trim().toUpperCase();
-      
+
       return [
-        { input: '  beta-test-xxxx-yyyy  ', expected: 'BETA-TEST-XXXX-YYYY' },
-        { input: 'beta-test-xxxx-yyyy', expected: 'BETA-TEST-XXXX-YYYY' },
-        { input: 'BeTa-TeSt-XxXx-YyYy', expected: 'BETA-TEST-XXXX-YYYY' },
-      ].map(test => ({
+        { input: "  beta-test-xxxx-yyyy  ", expected: "BETA-TEST-XXXX-YYYY" },
+        { input: "beta-test-xxxx-yyyy", expected: "BETA-TEST-XXXX-YYYY" },
+        { input: "BeTa-TeSt-XxXx-YyYy", expected: "BETA-TEST-XXXX-YYYY" },
+      ].map((test) => ({
         ...test,
         result: normalize(test.input),
         passed: normalize(test.input) === test.expected,
       }));
     });
-    
-    const allPassed = normalizationResult.every(r => r.passed);
+
+    const allPassed = normalizationResult.every((r) => r.passed);
     expect(allPassed).toBe(true);
   });
 });
 
-test.describe('Beta Key Activation - Integration with Real Supabase', () => {
-  test.skip('should activate a valid beta key with real Supabase (requires .env.local)', async ({ page, browserName }) => {
+test.describe("Beta Key Activation - Integration with Real Supabase", () => {
+  test.skip("should activate a valid beta key with real Supabase (requires .env.local)", async ({
+    page,
+    browserName,
+  }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Ce test nécessite une vraie connexion à Supabase de test
     // Il est skip par défaut et doit être activé manuellement avec une vraie clé de test
     // Pour l'activer : retirer le .skip et fournir une vraie clé bêta de test
-    
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
-    
+
     // Attendre que l'utilisateur se connecte manuellement (ou utiliser un helper)
     // Note: Ce test nécessite une authentification réelle et une clé bêta valide
-    
+
     // Chercher le bouton de clé bêta
-    const betaKeyButton = page.locator("button, a").filter({ 
-      hasText: /clé bêta|beta key|activer|activate/i 
-    }).first();
-    
+    const betaKeyButton = page
+      .locator("button, a")
+      .filter({
+        hasText: /clé bêta|beta key|activer|activate/i,
+      })
+      .first();
+
     if (await safeIsVisible(betaKeyButton)) {
       await betaKeyButton.click();
-      
+
       // Remplir le formulaire avec une vraie clé de test
       // Note: Cette clé doit exister dans la base de test
-      const keyInput = await waitForElementReady(page, 'input[placeholder*="BETA"], input[type="text"]', { browserName, timeout: timeouts.element });
-      await keyInput.fill('BETA-TEST-XXXX-YYYY'); // Remplacer par une vraie clé de test
-      
-      const submitButton = await waitForElementReady(page, 'button', { browserName, timeout: timeouts.element });
+      const keyInput = await waitForElementReady(
+        page,
+        'input[placeholder*="BETA"], input[type="text"]',
+        { browserName, timeout: timeouts.element },
+      );
+      await keyInput.fill("BETA-TEST-XXXX-YYYY"); // Remplacer par une vraie clé de test
+
+      const submitButton = await waitForElementReady(page, "button", {
+        browserName,
+        timeout: timeouts.element,
+      });
       await submitButton.click();
-      
+
       // Vérifier le message de succès ou d'erreur
       const successMessage = page.locator("text=/activée|succès|success/i");
       const errorMessage = page.locator("text=/erreur|error|invalide/i");
-      
+
       // Au moins un des deux devrait apparaître
       const successVisible = await safeIsVisible(successMessage);
       const errorVisible = await safeIsVisible(errorMessage);
-      const resultVisible = successVisible ? 'success' : (errorVisible ? 'error' : null);
-      
+      const resultVisible = successVisible ? "success" : errorVisible ? "error" : null;
+
       expect(resultVisible).not.toBeNull();
     }
   });
 
-  test.skip('should show updated quotas after beta key activation (requires real Supabase)', async ({ page, browserName }) => {
+  test.skip("should show updated quotas after beta key activation (requires real Supabase)", async ({
+    page,
+    browserName,
+  }) => {
     // Ce test nécessite une vraie connexion et une vraie activation
-    await page.goto("/workspace", { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
-    
+
     // L'implémentation complète nécessiterait:
     // 1. Authentification réelle
     // 2. Activation d'une clé bêta valide
     // 3. Vérification que les quotas sont mis à jour dans l'UI
     // 4. Navigation vers le dashboard pour voir les nouveaux quotas
-    
+
     await expect(page.locator("body")).toBeVisible();
   });
 });
-

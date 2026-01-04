@@ -11,6 +11,7 @@ Ce document décrit la décision et l'implémentation de la suppression définit
 ## Contexte
 
 Avant la séparation des quotas par produit (Décembre 2024), le système utilisait un compteur global `polls_created` pour suivre tous les types de polls. Après la séparation, chaque type de poll a son propre compteur :
+
 - `date_polls_created`
 - `form_polls_created`
 - `quizz_created`
@@ -22,7 +23,8 @@ Le champ `polls_created` était maintenu par un trigger SQL pour la rétrocompat
 
 **Raison :** Simplifier l'architecture en supprimant un champ redondant qui n'est plus nécessaire.
 
-**Impact :** 
+**Impact :**
+
 - ✅ Réduction de la complexité de la base de données
 - ✅ Suppression d'un trigger SQL inutile
 - ✅ Code plus simple et maintenable
@@ -62,6 +64,7 @@ Le champ `polls_created` était maintenu par un trigger SQL pour la rétrocompat
 **Script exécuté :** `sql-scripts/eol-remove-polls-created.sql`
 
 **Actions effectuées :**
+
 1. Suppression du trigger `sync_polls_created_trigger` sur `quota_tracking`
 2. Suppression du trigger `sync_polls_created_trigger` sur `guest_quotas`
 3. Suppression de la fonction `sync_polls_created_from_separated_counters()`
@@ -74,6 +77,7 @@ Le champ `polls_created` était maintenu par un trigger SQL pour la rétrocompat
 ### Phase 3 : Validation (19 Janvier 2025)
 
 **Tests exécutés :**
+
 - ✅ 1274 tests unitaires passés
 - ✅ 6 tests E2E critiques passés après exécution SQL
 - ✅ Vérification que toutes les anciennes pages redirigent correctement
@@ -90,7 +94,12 @@ export function calculateTotalPollsCreated(quota: {
   quizzCreated: number;
   availabilityPollsCreated: number;
 }): number {
-  return quota.datePollsCreated + quota.formPollsCreated + quota.quizzCreated + quota.availabilityPollsCreated;
+  return (
+    quota.datePollsCreated +
+    quota.formPollsCreated +
+    quota.quizzCreated +
+    quota.availabilityPollsCreated
+  );
 }
 ```
 
@@ -101,6 +110,7 @@ export function calculateTotalPollsCreated(quota: {
 **Aucune migration de données nécessaire** car le projet n'est pas encore en production.
 
 Si une migration était nécessaire, elle consisterait à :
+
 1. Calculer `polls_created` à partir des compteurs séparés pour chaque ligne
 2. Vérifier la cohérence des données
 3. Exécuter le script de suppression
@@ -108,6 +118,7 @@ Si une migration était nécessaire, elle consisterait à :
 ## Fichiers modifiés
 
 ### Code TypeScript
+
 - `src/lib/quotaTracking.ts`
 - `src/lib/quotaTracking.d.ts`
 - `src/lib/guestQuotaService.ts`
@@ -117,6 +128,7 @@ Si une migration était nécessaire, elle consisterait à :
 - `supabase/functions/quota-tracking/index.ts`
 
 ### Scripts SQL
+
 - `sql-scripts/create-quota-tracking-table.sql`
 - `sql-scripts/create-guest-quotas-table.sql`
 - `sql-scripts/view-user-quotas.sql`
@@ -125,16 +137,19 @@ Si une migration était nécessaire, elle consisterait à :
 - `sql-scripts/eol-remove-polls-created.sql` (nouveau)
 
 ### Tests
+
 - `src/lib/__tests__/guestQuotaService.test.ts`
 - `tests/e2e/quota-tracking-complete.spec.ts`
 - `tests/e2e/products/cross-product/cross-product-workflow.spec.ts`
 - `src/components/__tests__/GeminiChatInterface.test.tsx.skip`
 
 ### Scripts shell
+
 - `scripts/view-quotas.ps1`
 - `scripts/view-quotas.sh`
 
 ### Documentation
+
 - `Docs/2. Planning - Decembre.md`
 - `Docs/ARCHITECTURE/2025-12-04-QUOTA-SEPARATION-BY-PRODUCT.md`
 
@@ -155,4 +170,3 @@ Si une migration était nécessaire, elle consisterait à :
 ## Conclusion
 
 La suppression de `polls_created` a été complétée avec succès. Le système utilise maintenant uniquement les compteurs séparés par type de poll, et le total est calculé à la volée quand nécessaire. Cette simplification améliore la maintenabilité du code sans impact fonctionnel.
-

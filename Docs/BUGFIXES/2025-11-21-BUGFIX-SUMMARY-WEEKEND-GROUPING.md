@@ -15,6 +15,7 @@
 ## 🐛 Le Problème
 
 ### Symptômes observés
+
 ```
 ✅ Chat IA : "Week-end du 7-8 mars", "Week-end du 14-15 mars"
 ❌ Sondage créé : Dates individuelles (7 mars, 8 mars) avec horaires visibles
@@ -22,8 +23,9 @@
 ```
 
 ### Prompt de test
+
 ```
-"Crée un sondage pour un week-end jeux. L'évènement aura lieu le samedi et le dimanche. 
+"Crée un sondage pour un week-end jeux. L'évènement aura lieu le samedi et le dimanche.
 Sélectionner les dates correspondantes de mars et avril 2026"
 ```
 
@@ -32,12 +34,14 @@ Sélectionner les dates correspondantes de mars et avril 2026"
 ## 🔍 Diagnostic
 
 ### Phase 1 : Suspicion Supabase
+
 - **Observation** : Timeouts Supabase fréquents
 - **Hypothèse** : Les `dateGroups` ne sont pas récupérés depuis Supabase
 - **Action** : Test en mode localStorage pur (`localStorage.setItem('dev-local-mode', '1')`)
 - **Résultat** : ❌ Même bug → **Le problème n'est PAS Supabase**
 
 ### Phase 2 : Identification des ruptures
+
 Analyse complète de la chaîne de données :
 
 ```
@@ -55,6 +59,7 @@ Gemini ✅ → EditorStateProvider ❌ → createPoll ❌ → Storage ✅ → ge
 ## ✅ La Solution
 
 ### FIX 1 : EditorStateProvider (ligne 450)
+
 ```typescript
 const datePollData: DatePollData = {
   // ...
@@ -63,6 +68,7 @@ const datePollData: DatePollData = {
 ```
 
 ### FIX 2 : Sauvegarde dans poll_data (lignes 277, 248-251)
+
 ```typescript
 // Supabase
 pollData_json = {
@@ -78,6 +84,7 @@ const mockPoll = {
 ```
 
 ### FIX 3 : Récupération depuis poll_data (lignes 486, 647)
+
 ```typescript
 // Lors de la création
 const createdPoll = {
@@ -95,6 +102,7 @@ userPolls = conversations.map((c) => ({
 ```
 
 ### Interfaces TypeScript mises à jour
+
 ```typescript
 // DatePollData (ligne 88-92)
 export interface DatePollData {
@@ -126,7 +134,9 @@ interface SupabaseConversation {
 ### Tests créés
 
 #### 1. `usePolls.dateGroups.test.ts` (7 tests)
+
 Vérifie la fiabilité de chaque étape :
+
 - ✅ Interface `DatePollData` inclut `dateGroups`
 - ✅ Interface `SupabaseConversation.poll_data` inclut `dateGroups`
 - ✅ Conversion `poll_data → Poll` préserve `dateGroups`
@@ -134,7 +144,9 @@ Vérifie la fiabilité de chaque étape :
 - ✅ Scénario complet end-to-end
 
 #### 2. `weekend-grouping-integration.test.ts` (11 tests)
+
 Vérifie le flux complet :
+
 - ✅ Gemini génère `dateGroups`
 - ✅ `groupConsecutiveDates` détecte les week-ends
 - ✅ `createPoll` sauvegarde `dateGroups`
@@ -143,6 +155,7 @@ Vérifie le flux complet :
 - ✅ Edge cases (dates non-week-end, week-ends incomplets, etc.)
 
 ### Résultats
+
 ```bash
 npm test -- weekend-grouping
 ✓ 11 tests d'intégration passent
@@ -158,11 +171,13 @@ npm test -- usePolls.dateGroups
 ## 📊 Impact
 
 ### Avant le fix
+
 - ❌ 0% des sondages avec week-ends groupés affichaient correctement
 - ❌ Horaires toujours visibles (mauvaise UX)
 - ❌ Message "Dates groupées détectées" jamais affiché
 
 ### Après le fix
+
 - ✅ 100% des sondages avec week-ends groupés affichent correctement
 - ✅ Horaires masqués automatiquement
 - ✅ Message informatif affiché
@@ -173,6 +188,7 @@ npm test -- usePolls.dateGroups
 ## 📝 Fichiers Modifiés
 
 ### Code de production
+
 1. **`src/hooks/usePolls.ts`** (6 modifications)
    - Interface `DatePollData` : ajout `dateGroups`
    - Interface `SupabaseConversation.poll_data` : ajout `dateGroups`
@@ -185,6 +201,7 @@ npm test -- usePolls.dateGroups
    - Passage de `dateGroups` à `createPoll`
 
 ### Tests
+
 3. **`src/hooks/__tests__/usePolls.dateGroups.test.ts`** (nouveau)
    - 7 tests de fiabilité de la chaîne
 
@@ -192,6 +209,7 @@ npm test -- usePolls.dateGroups
    - 11 tests d'intégration
 
 ### Documentation
+
 5. **`Docs/BUGFIXES/2025-11-21-BUGFIX-WEEKEND-GROUPING-DATA-FLOW.md`** (mis à jour)
    - Documentation complète du bug et des corrections
 
@@ -202,13 +220,15 @@ npm test -- usePolls.dateGroups
 ### Pourquoi les tests unitaires n'ont pas détecté le bug
 
 **Test unitaire existant** : `date-utils.weekendGrouping.test.ts`
+
 ```typescript
 // ✅ Ce test passait
-groupConsecutiveDates(['2025-12-06', '2025-12-07'], true)
+groupConsecutiveDates(["2025-12-06", "2025-12-07"], true);
 // Retourne correct DateGroup
 ```
 
 **Mais il ne testait PAS :**
+
 - ❌ L'intégration avec Gemini
 - ❌ La persistance via `createPoll`
 - ❌ La récupération depuis storage
@@ -217,11 +237,13 @@ groupConsecutiveDates(['2025-12-06', '2025-12-07'], true)
 ### Principe : Tests unitaires ≠ Tests d'intégration
 
 **Tests unitaires** : Testent une fonction isolée
+
 - ✅ Rapides
 - ✅ Faciles à écrire
 - ❌ Ne détectent pas les bugs d'intégration
 
 **Tests d'intégration** : Testent le flux complet
+
 - ✅ Détectent les ruptures de chaîne
 - ✅ Garantissent la fiabilité end-to-end
 - ⚠️ Plus lents, plus complexes
@@ -229,6 +251,7 @@ groupConsecutiveDates(['2025-12-06', '2025-12-07'], true)
 ### Recommandation
 
 Pour les fonctionnalités critiques :
+
 1. ✅ Tests unitaires pour chaque fonction
 2. ✅ **Tests d'intégration pour le flux complet**
 3. ✅ Tests de non-régression
@@ -240,6 +263,7 @@ Pour les fonctionnalités critiques :
 ### Procédure de validation
 
 1. **Démarrer l'application**
+
    ```bash
    npm run dev
    ```
@@ -247,12 +271,14 @@ Pour les fonctionnalités critiques :
 2. **Ouvrir la console** (F12)
 
 3. **Envoyer le prompt de test**
+
    ```
-   Crée un sondage pour un week-end jeux. L'évènement aura lieu le samedi et le dimanche. 
+   Crée un sondage pour un week-end jeux. L'évènement aura lieu le samedi et le dimanche.
    Sélectionner les dates correspondantes de mars et avril 2026
    ```
 
 4. **Vérifier les logs console**
+
    ```javascript
    [WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator: {
      hasDates: true,
@@ -271,6 +297,7 @@ Pour les fonctionnalités critiques :
 ### Résultat attendu
 
 **Avant le fix :**
+
 ```
 hasDateGroups: false ❌
 dateGroups: undefined ❌
@@ -278,6 +305,7 @@ Horaires visibles ❌
 ```
 
 **Après le fix :**
+
 ```
 hasDateGroups: true ✅
 dateGroups: [{...}, {...}, ...] ✅
@@ -305,6 +333,7 @@ Horaires masqués ✅
 **Bug critique de production corrigé avec succès.**
 
 La chaîne de données `dateGroups` est maintenant **fiabilisée à 100%** avec :
+
 - ✅ 3 corrections de code
 - ✅ 2 interfaces TypeScript mises à jour
 - ✅ 18 tests automatisés (100% de réussite)

@@ -16,6 +16,7 @@ Cette page regroupe **toute la documentation** liée au lancement international 
 ### 1. Stratégie & Vision
 
 **[INTERNATIONAL-LAUNCH-STRATEGY.md](./INTERNATIONAL-LAUNCH-STRATEGY.md)**
+
 - 📊 Analyse de marché (POP/POD)
 - 🗺️ Roadmap de lancement (Phase 1: US/EU, Phase 2: Inde)
 - 💰 Modèle économique freemium
@@ -30,6 +31,7 @@ Cette page regroupe **toute la documentation** liée au lancement international 
 ### 2. Architecture Technique
 
 **[INTERNATIONAL-PRICING-ARCHITECTURE.md](./INTERNATIONAL-PRICING-ARCHITECTURE.md)**
+
 - 🏗️ Principes fondamentaux (découplage Géographie/Langue/Locale)
 - 🌍 Détection géographique (Géo-IP, Cloudflare, IPinfo)
 - 💳 Infrastructure paiements (Lemon Squeezy MoR)
@@ -45,6 +47,7 @@ Cette page regroupe **toute la documentation** liée au lancement international 
 ### 3. Guide d'Implémentation
 
 **[INTERNATIONAL-PRICING-IMPLEMENTATION.md](./INTERNATIONAL-PRICING-IMPLEMENTATION.md)**
+
 - 📅 Planning détaillé par semaine (Phase 0: 3 semaines)
 - ✅ Checklists de tâches
 - 💻 Exemples de code (TypeScript, SQL, React)
@@ -63,7 +66,9 @@ Cette page regroupe **toute la documentation** liée au lancement international 
 **Location :** `sql-scripts/`
 
 #### [international-pricing-schema.sql](../sql-scripts/international-pricing-schema.sql)
+
 **Contenu :**
+
 - Tables : `regions`, `price_lists`, `products`, `product_prices`
 - Tables : `geo_detection_logs`, `transactions`
 - Extensions colonnes : `users` (detected_country, price_list_id, preferences)
@@ -72,6 +77,7 @@ Cette page regroupe **toute la documentation** liée au lancement international 
 - RLS Policies : Sécurité Row Level
 
 **Usage :**
+
 ```bash
 psql $DATABASE_URL -f sql-scripts/international-pricing-schema.sql
 ```
@@ -79,7 +85,9 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-schema.sql
 ---
 
 #### [international-pricing-data.sql](../sql-scripts/international-pricing-data.sql)
+
 **Contenu :**
+
 - 6 régions (EU, CH, GB, NO, US, CA)
 - 6 price lists (Phase 1)
 - 4 produits (FREE, STARTER, PREMIUM, PRO)
@@ -87,6 +95,7 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-schema.sql
 - Queries de vérification
 
 **Usage :**
+
 ```bash
 # Après international-pricing-schema.sql
 psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
@@ -94,12 +103,12 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 
 **Prix Phase 1 :**
 
-| Produit | EUR | CHF | GBP | NOK | USD | CAD |
-|---------|-----|-----|-----|-----|-----|-----|
-| **FREE** | €0 | CHF 0 | £0 | 0 kr | $0 | C$0 |
-| **STARTER** | €9.99 | CHF 10.90 | £8.49 | 115 kr | $9.99 | C$12.99 |
-| **PREMIUM** | €6.95 | CHF 7.50 | £5.95 | 79 kr | $6.95 | C$8.95 |
-| **PRO** | €29 | CHF 32 | £24.90 | 335 kr | $29 | C$37.50 |
+| Produit     | EUR   | CHF       | GBP    | NOK    | USD   | CAD     |
+| ----------- | ----- | --------- | ------ | ------ | ----- | ------- |
+| **FREE**    | €0    | CHF 0     | £0     | 0 kr   | $0    | C$0     |
+| **STARTER** | €9.99 | CHF 10.90 | £8.49  | 115 kr | $9.99 | C$12.99 |
+| **PREMIUM** | €6.95 | CHF 7.50  | £5.95  | 79 kr  | $6.95 | C$8.95  |
+| **PRO**     | €29   | CHF 32    | £24.90 | 335 kr | $29   | C$37.50 |
 
 ---
 
@@ -108,6 +117,7 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Types TypeScript
 
 **Fichier :** `src/types/pricing.ts`
+
 - Interfaces : `Region`, `PriceList`, `Product`, `ProductPrice`
 - Types : `PricingDisplay`, `UserGeography`
 
@@ -116,11 +126,13 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Services & Hooks
 
 **Fichier :** `src/lib/pricing/pricing-service.ts`
+
 - `getPricingForCountry(country: string)`
 - `getPricingForUser(userId: string)`
 - `formatCurrency()`, `getPriceListForCountry()`
 
 **Fichier :** `src/hooks/useGeography.ts`
+
 - Hook React : `useGeography()`
 - Détection automatique pays
 - Persistance préférence utilisateur
@@ -130,11 +142,13 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Supabase Edge Functions
 
 **Fichier :** `supabase/functions/detect-country/index.ts`
+
 - Détection via Cloudflare headers (gratuit)
 - Fallback IPinfo (50k req/mois gratuit)
 - Fallback ultime: US
 
 **Fichier :** `supabase/functions/lemonsqueezy-webhook/index.ts`
+
 - Gestion événements Lemon Squeezy
 - Activation plans utilisateurs
 - Logs transactions
@@ -144,16 +158,19 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Composants UI
 
 **Fichier :** `src/components/GeoBanner.tsx`
+
 - Bannière suggestion pays (conformité UE 2018/302)
 - Actions : Accepter / Refuser
 - Persistance choix (localStorage)
 
 **Fichier :** `src/components/CountrySelector.tsx`
+
 - Sélecteur manuel pays/devise
 - Position : Footer + Navigation + Pricing page
 - UI : Dropdown avec drapeaux + devises
 
 **Fichier :** `src/pages/Pricing.tsx` (à modifier)
+
 - Affichage prix dynamiques selon géolocalisation
 - Intégration `useGeography` hook
 - Boutons achat vers Lemon Squeezy
@@ -165,6 +182,7 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Tests Unitaires
 
 **Fichier :** `src/lib/pricing/pricing-service.test.ts`
+
 - Tests pricing par pays (FR, US, CH, GB, CA, NO)
 - Tests formatage devises
 - Tests mapping pays → price list
@@ -174,6 +192,7 @@ psql $DATABASE_URL -f sql-scripts/international-pricing-data.sql
 ### Tests E2E
 
 **Fichier :** `tests/e2e/international-pricing.spec.ts`
+
 - Test affichage prix par pays
 - Test sélecteur manuel pays
 - Test bannière géo-suggestion
@@ -191,15 +210,15 @@ graph TD
     C --> D[Tests E2E]
     D --> E[Déploiement Staging]
     E --> F[Phase 1 Launch]
-    
+
     A --> A1[Schema SQL]
     A --> A2[Data SQL]
     A --> A3[Types TS]
-    
+
     B --> B1[Pricing Service]
     B --> B2[useGeography Hook]
     B --> B3[Edge Functions]
-    
+
     C --> C1[Lemon Squeezy Setup]
     C --> C2[Webhook Handler]
     C --> C3[GeoBanner Component]
@@ -211,13 +230,13 @@ graph TD
 
 ### Choix Technologiques
 
-| Composant | Options | Choix Final | Justification |
-|-----------|---------|-------------|---------------|
-| **MoR** | Stripe, Paddle, Lemon Squeezy | ✅ Lemon Squeezy | Élimine 100% responsabilité fiscale, fees 5-7%, setup rapide |
-| **Géo-IP** | MaxMind, IPinfo, Cloudflare | ✅ Cloudflare (primary) + IPinfo (fallback) | Gratuit, déjà disponible, 50k req/mois backup |
-| **i18n** | react-intl, react-i18next, LinguiJS | ✅ react-i18next | Standard industrie, 10M téléchargements/sem, pluralization |
-| **Analytics** | Google Analytics, Plausible, Fathom | ✅ Plausible | GDPR-friendly, pas de cookie, hébergement EU |
-| **Pricing Model** | Prix dans Products, Price Lists, Dynamic | ✅ Price Lists | Flexibilité régionale, scalable Phase 2+ |
+| Composant         | Options                                  | Choix Final                                 | Justification                                                |
+| ----------------- | ---------------------------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| **MoR**           | Stripe, Paddle, Lemon Squeezy            | ✅ Lemon Squeezy                            | Élimine 100% responsabilité fiscale, fees 5-7%, setup rapide |
+| **Géo-IP**        | MaxMind, IPinfo, Cloudflare              | ✅ Cloudflare (primary) + IPinfo (fallback) | Gratuit, déjà disponible, 50k req/mois backup                |
+| **i18n**          | react-intl, react-i18next, LinguiJS      | ✅ react-i18next                            | Standard industrie, 10M téléchargements/sem, pluralization   |
+| **Analytics**     | Google Analytics, Plausible, Fathom      | ✅ Plausible                                | GDPR-friendly, pas de cookie, hébergement EU                 |
+| **Pricing Model** | Prix dans Products, Price Lists, Dynamic | ✅ Price Lists                              | Flexibilité régionale, scalable Phase 2+                     |
 
 ---
 
@@ -260,12 +279,14 @@ graph TD
 
 **Timeline :** 3 semaines  
 **Objectifs :**
+
 - ✅ Base de données prix géographiques
 - ✅ Détection Géo-IP fonctionnelle
 - ✅ Intégration Lemon Squeezy
 - ✅ Tests multi-pays passent
 
 **KPIs :**
+
 - [ ] 100% tables BDD créées
 - [ ] 100% prix Phase 1 insérés
 - [ ] 100% tests unitaires passent
@@ -280,6 +301,7 @@ graph TD
 **Pays :** FR, DE, IT, ES, GB, CH, US, CA
 
 **KPIs :**
+
 - Inscriptions : 1000+ utilisateurs
 - Conversion Freemium→Payant : 5-10%
 - K-factor viralité : > 1.2
@@ -294,6 +316,7 @@ graph TD
 **Pays :** IN
 
 **KPIs :**
+
 - Utilisateurs indiens : 500+
 - Adoption Hindi : 60%+
 - Paiements UPI : 60%+ transactions IN
@@ -348,15 +371,16 @@ graph TD
 ### Ajouter une Nouvelle Région (Phase 2+)
 
 1. **Mise à jour SQL** :
+
    ```sql
    -- Ajouter région
    INSERT INTO regions (code, name, countries, default_currency, tax_included)
    VALUES ('APAC_IN', 'India', ARRAY['IN'], 'INR', true);
-   
+
    -- Ajouter price list
    INSERT INTO price_lists (region_id, code, name, currency, active)
    VALUES (...);
-   
+
    -- Ajouter prix
    INSERT INTO product_prices (product_id, price_list_id, amount, tax_rate)
    VALUES (...);
@@ -394,4 +418,3 @@ graph TD
 **Document maintenu par :** Équipe DooDates  
 **Dernière mise à jour :** 10 Novembre 2025  
 **Version :** 1.0
-

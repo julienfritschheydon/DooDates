@@ -1,14 +1,14 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import { Resend } from "https://esm.sh/resend@2.0.0"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 interface DeletionWarning {
-  type: 'chat' | 'poll';
+  type: "chat" | "poll";
   daysUntilDeletion: number;
   itemCount: number;
   deletionDate: string;
@@ -18,93 +18,93 @@ interface DeletionWarning {
 
 serve(async (req: Request) => {
   // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: req.headers.get("Authorization")! },
         },
-      }
-    )
+      },
+    );
 
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-    const { warnings } = await req.json()
+    const { warnings } = await req.json();
 
     if (!warnings || !Array.isArray(warnings)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid warnings data' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: "Invalid warnings data" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const results = []
+    const results = [];
 
     for (const warning of warnings) {
       try {
-        const emailContent = generateEmailContent(warning)
-        
+        const emailContent = generateEmailContent(warning);
+
         const { data, error } = await resend.emails.send({
-          from: 'DooDates <noreply@doodates.com>',
+          from: "DooDates <noreply@doodates.com>",
           to: [warning.userEmail],
           subject: emailContent.subject,
           html: emailContent.html,
-        })
+        });
 
         if (error) {
-          console.error(`Error sending email to ${warning.userEmail}:`, error)
-          results.push({ success: false, error: error.message, userEmail: warning.userEmail })
+          console.error(`Error sending email to ${warning.userEmail}:`, error);
+          results.push({ success: false, error: error.message, userEmail: warning.userEmail });
         } else {
-          console.log(`Email sent successfully to ${warning.userEmail}`)
-          results.push({ success: true, messageId: data?.id, userEmail: warning.userEmail })
+          console.log(`Email sent successfully to ${warning.userEmail}`);
+          results.push({ success: true, messageId: data?.id, userEmail: warning.userEmail });
         }
 
         // Log l'envoi dans la base de données
-        await supabaseClient
-          .from('email_logs')
-          .insert({
-            user_id: warning.userId,
-            email: warning.userEmail,
-            type: 'deletion_warning',
-            warning_type: warning.type,
-            days_until_deletion: warning.daysUntilDeletion,
-            sent_at: new Date().toISOString(),
-            status: error ? 'failed' : 'sent'
-          })
-
+        await supabaseClient.from("email_logs").insert({
+          user_id: warning.userId,
+          email: warning.userEmail,
+          type: "deletion_warning",
+          warning_type: warning.type,
+          days_until_deletion: warning.daysUntilDeletion,
+          sent_at: new Date().toISOString(),
+          status: error ? "failed" : "sent",
+        });
       } catch (error) {
-        console.error(`Error processing warning for ${warning.userEmail}:`, error)
-        results.push({ success: false, error: (error as Error).message, userEmail: warning.userEmail })
+        console.error(`Error processing warning for ${warning.userEmail}:`, error);
+        results.push({
+          success: false,
+          error: (error as Error).message,
+          userEmail: warning.userEmail,
+        });
       }
     }
 
-    return new Response(
-      JSON.stringify({ results }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-
+    return new Response(JSON.stringify({ results }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    console.error('Function error:', error)
-    return new Response(
-      JSON.stringify({ error: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.error("Function error:", error);
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
-})
+});
 
 function generateEmailContent(warning: DeletionWarning) {
   const typeLabels = {
-    chat: 'conversations IA',
-    poll: 'sondages et formulaires'
-  }
+    chat: "conversations IA",
+    poll: "sondages et formulaires",
+  };
 
-  const subject = `⚠️ Alerte DooDates : Suppression de vos ${typeLabels[warning.type]} dans ${warning.daysUntilDeletion} jours`
+  const subject = `⚠️ Alerte DooDates : Suppression de vos ${typeLabels[warning.type]} dans ${warning.daysUntilDeletion} jours`;
 
   const html = `
     <!DOCTYPE html>
@@ -132,7 +132,7 @@ function generateEmailContent(warning: DeletionWarning) {
         <div class="content">
           <div class="alert">
             <h2>⚠️ Action requise : ${warning.daysUntilDeletion} jours restants</h2>
-            <p><strong>${warning.itemCount}</strong> ${typeLabels[warning.type]} seront automatiquement supprimées le <strong>${new Date(warning.deletionDate).toLocaleDateString('fr-FR')}</strong>.</p>
+            <p><strong>${warning.itemCount}</strong> ${typeLabels[warning.type]} seront automatiquement supprimées le <strong>${new Date(warning.deletionDate).toLocaleDateString("fr-FR")}</strong>.</p>
           </div>
 
           <h3>📋 Que se passe-t-il ?</h3>
@@ -164,7 +164,7 @@ function generateEmailContent(warning: DeletionWarning) {
       </div>
     </body>
     </html>
-  `
+  `;
 
-  return { subject, html }
+  return { subject, html };
 }

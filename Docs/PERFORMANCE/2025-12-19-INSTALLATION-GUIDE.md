@@ -60,7 +60,7 @@ supabase db push
    - Cliquez sur "New repository secret"
    - Name: `SUPABASE_SERVICE_KEY`
    - Value: Votre clé de service Supabase
-   
+
    **Comment obtenir la clé de service:**
    - Dashboard Supabase → Settings → API
    - Section "Project API keys"
@@ -119,11 +119,13 @@ Les workflows ont déjà été configurés ! Vérifiez que tout fonctionne :
 #### 4.1 Workflow Lighthouse (Automatique)
 
 Le workflow `.github/workflows/lighthouse.yml` :
+
 - S'exécute tous les jours à 3h UTC
 - Peut être déclenché manuellement
 - Envoie automatiquement les métriques à Supabase
 
 **Test manuel:**
+
 ```bash
 # Via GitHub UI
 Actions → Lighthouse CI (Scheduled) → Run workflow
@@ -145,7 +147,7 @@ Pour les tests E2E, ajoutez à votre workflow de tests :
     node scripts/extract-e2e-metrics.js \
       --input test-results/results.json \
       --output e2e-metrics.json
-    
+
     # Envoyer à Supabase
     if [ -f e2e-metrics.json ]; then
       node scripts/send-performance-metrics.js \
@@ -160,17 +162,18 @@ Pour les tests E2E, ajoutez à votre workflow de tests :
 
 ```sql
 -- Dans SQL Editor Supabase
-SELECT 
+SELECT
   table_name,
-  (SELECT COUNT(*) FROM information_schema.columns 
+  (SELECT COUNT(*) FROM information_schema.columns
    WHERE table_name = t.table_name) as columns
 FROM information_schema.tables t
-WHERE table_schema = 'public' 
+WHERE table_schema = 'public'
   AND table_name IN ('web_vitals', 'performance_metrics', 'performance_alerts')
 ORDER BY table_name;
 ```
 
 Résultat attendu:
+
 ```
 table_name            | columns
 ----------------------|--------
@@ -182,6 +185,7 @@ web_vitals           | 9
 ### 2. Vérifier le Dashboard de Performance
 
 1. Lancez l'application en local:
+
    ```bash
    npm run dev
    ```
@@ -224,10 +228,11 @@ node scripts/send-performance-metrics.js \
 ### Problème: "Failed to store performance metrics"
 
 **Solution:**
+
 1. Vérifiez que `SUPABASE_SERVICE_KEY` est correct
 2. Vérifiez les RLS policies:
    ```sql
-   SELECT * FROM pg_policies 
+   SELECT * FROM pg_policies
    WHERE tablename = 'performance_metrics';
    ```
 3. Vérifiez que la policy "Allow workflow metrics inserts" existe
@@ -235,6 +240,7 @@ node scripts/send-performance-metrics.js \
 ### Problème: "Cannot find module 'web-vitals'"
 
 **Solution:**
+
 ```bash
 npm install web-vitals@^5.1.0
 ```
@@ -242,16 +248,18 @@ npm install web-vitals@^5.1.0
 ### Problème: Dashboard affiche "Aucune donnée de performance disponible"
 
 **Solution:**
+
 1. Vérifiez que `public/performance-baseline.json` existe
 2. Vérifiez le chemin dans `PerformanceDashboard.tsx`:
    ```typescript
-   const baselineResponse = await fetch('/DooDates/performance-baseline.json');
+   const baselineResponse = await fetch("/DooDates/performance-baseline.json");
    ```
 3. Rechargez la page avec Ctrl+Shift+R (hard refresh)
 
 ### Problème: Lighthouse report not found
 
 **Solution:**
+
 ```bash
 # Vérifier que lighthouserc.json est configuré
 cat lighthouserc.json
@@ -285,7 +293,7 @@ ls -la .lighthouseci/
 ```sql
 -- Exporter les métriques des 30 derniers jours
 COPY (
-  SELECT * FROM performance_metrics 
+  SELECT * FROM performance_metrics
   WHERE timestamp > NOW() - INTERVAL '30 days'
   ORDER BY timestamp DESC
 ) TO '/tmp/performance-metrics.csv' WITH CSV HEADER;
@@ -310,6 +318,7 @@ Après l'installation, vous pouvez :
 ## 🆘 Support
 
 En cas de problème:
+
 1. Consultez la section Dépannage ci-dessus
 2. Vérifiez les logs des workflows GitHub Actions
 3. Consultez les logs de la console navigateur
@@ -318,4 +327,3 @@ En cas de problème:
 ---
 
 ✅ **Installation terminée !** Le système de monitoring est maintenant actif.
-

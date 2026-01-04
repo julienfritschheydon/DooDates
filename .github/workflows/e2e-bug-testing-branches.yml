@@ -11,15 +11,15 @@ on:
   workflow_dispatch:
     inputs:
       test_suite:
-        description: 'Suite de tests à exécuter'
+        description: "Suite de tests à exécuter"
         required: false
         type: choice
-        default: 'smoke'
+        default: "smoke"
         options:
           - smoke
           - critical
       branch_name:
-        description: 'Nom de la branche à tester (si différente)'
+        description: "Nom de la branche à tester (si différente)"
         required: false
         type: string
 
@@ -50,7 +50,7 @@ jobs:
         run: |
           BRANCH="${{ github.event.inputs.branch_name || github.ref_name }}"
           echo "name=$BRANCH" >> $GITHUB_OUTPUT
-          
+
           if [[ "$BRANCH" == "bug"* ]]; then
             echo "is_bug=true" >> $GITHUB_OUTPUT
             echo "🐛 Branch BUG détectée: $BRANCH"
@@ -65,7 +65,7 @@ jobs:
         id: config
         run: |
           SUITE="${{ github.event.inputs.test_suite || 'smoke' }}"
-          
+
           # Branches bug = tests complets (critical)
           # Branches testing = tests rapides (smoke)
           if [[ "${{ steps.branch.outputs.is_bug }}" == "true" ]]; then
@@ -75,7 +75,7 @@ jobs:
             SUITE="smoke"
             echo "🧪 Branch TESTING → Suite SMOKE (5 min)"
           fi
-          
+
           echo "suite=$SUITE" >> $GITHUB_OUTPUT
 
   # ========================================
@@ -85,7 +85,7 @@ jobs:
     needs: detect-branch
     runs-on: ubuntu-latest
     timeout-minutes: ${{ needs.detect-branch.outputs.test_suite == 'critical' && 20 || 10 }}
-    
+
     env:
       CI: true
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -99,8 +99,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -148,7 +148,7 @@ jobs:
         run: |
           echo "🎯 Branch: ${{ needs.detect-branch.outputs.branch_name }}"
           echo "🎯 Suite: ${{ needs.detect-branch.outputs.test_suite }}"
-          
+
           if [[ "${{ needs.detect-branch.outputs.test_suite }}" == "critical" ]]; then
             echo "🐛 Exécution suite CRITICAL (Chromium + Firefox)"
             npx playwright test \
@@ -192,7 +192,7 @@ jobs:
     needs: [detect-branch, run-e2e-tests]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Download results
         uses: actions/download-artifact@v4
@@ -210,9 +210,9 @@ jobs:
           echo "**Test Suite:** ${{ needs.detect-branch.outputs.test_suite }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "results/results.json" ]; then
             PASSED=$(cat results/results.json | jq '.suites | map(select(.status == "passed"))) | length')
             FAILED=$(cat results/results.json | jq '.suites | map(select(.status == "failed"))) | length')
@@ -247,18 +247,18 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
-            
+
             const labels = [];
             const testResult = '${{ needs.run-e2e-tests.result }}';
             const branchType = '${{ needs.detect-branch.outputs.is_bug_branch }}' === 'true' ? 'bug-fix' : 
                             '${{ needs.detect-branch.outputs.is_testing_branch }}' === 'true' ? 'testing' : 'other';
-            
+
             if (testResult === 'success') {
               labels.push('tests-passed', branchType, 'ready-for-merge');
             } else {
               labels.push('tests-failed', branchType, 'needs-fixes');
             }
-            
+
             // Ajouter les labels
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
@@ -266,7 +266,7 @@ jobs:
               issue_number: context.issue.number,
               labels: labels
             });
-            
+
             console.log(`Labels ajoutés: ${labels.join(', ')}`);
 
   # ========================================
@@ -276,7 +276,7 @@ jobs:
     needs: [detect-branch, run-e2e-tests]
     if: failure() && needs.detect-branch.outputs.is_bug_branch == 'true' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 🐛 Create Bug Report Issue
         uses: actions/github-script@v7
@@ -285,10 +285,10 @@ jobs:
             const branchName = '${{ needs.detect-branch.outputs.branch_name }}';
             const commitSha = '${{ github.sha }}';
             const commitUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}`;
-            
+
             const issueTitle = `🐛 Tests Failed on Branch: ${branchName}`;
             const issueBody = `## 🐛 Bug Branch Test Failure\n\n**Branch:** \`${branchName}\`\n**Commit:** ${commitSha}\n**Commit URL:** ${commitUrl}\n**Test Suite:** ${{ needs.detect-branch.outputs.test_suite }}\n\n### 📊 Test Results\nLes tests E2E ont échoué sur cette branche de correction de bug.\n\n### 🔍 Next Steps\n1. Vérifier les artefacts de test pour les détails\n2. Corriger les problèmes identifiés\n3. Pousser les corrections sur la branche\n4. Les tests se relanceront automatiquement\n\n### 📋 Checklist\n- [ ] Corriger les tests échoués\n- [ ] Vérifier la correction localement\n- [ ] Pousser sur la branche \`${branchName}\`\n- [ ] Attendre validation CI\n\n---\n*Issue créée automatiquement par le workflow E2E Bug Branch*`;
-            
+
             try {
               const { data: issue } = await github.rest.issues.create({
                 owner: context.repo.owner,

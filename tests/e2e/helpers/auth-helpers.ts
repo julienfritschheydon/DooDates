@@ -3,13 +3,13 @@
  * Factorise le code commun pour authentifier les utilisateurs et vérifier les sessions
  */
 
-import { Page, expect } from '@playwright/test';
-import { authenticateWithSupabase, mockSupabaseAuth, waitForPageLoad } from '../utils';
+import { Page, expect } from "@playwright/test";
+import { authenticateWithSupabase, mockSupabaseAuth, waitForPageLoad } from "../utils";
 
 /**
  * Authentifie un utilisateur sur une page et désactive la détection E2E
  * Avec retry logic pour gérer les rate limits
- * 
+ *
  * @param page - La page Playwright
  * @param email - Email de l'utilisateur
  * @param password - Mot de passe de l'utilisateur
@@ -20,13 +20,13 @@ export async function authenticateUserInPage(
   page: Page,
   email: string,
   password: string,
-  retries: number = 3
+  retries: number = 3,
 ) {
   // Délai initial pour éviter le rate limiting (augmenté)
   await page.waitForTimeout(1000);
-  
+
   let lastError: Error | null = null;
-  
+
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       // Désactiver temporairement la détection E2E pour permettre le chargement depuis Supabase
@@ -46,7 +46,7 @@ export async function authenticateUserInPage(
 
       // FIX: Forcer un reload pour que AuthContext relise la session depuis localStorage
       // Le client Supabase créé dans page.evaluate() ne notifie pas l'AuthContext de React
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.reload({ waitUntil: "domcontentloaded" });
 
       // Réappliquer le flag après reload
       await page.evaluate(() => {
@@ -59,32 +59,32 @@ export async function authenticateUserInPage(
       return authResult;
     } catch (error: any) {
       lastError = error;
-      
+
       // Si c'est une erreur de rate limiting, attendre avec backoff exponentiel
-      if (error.message?.includes('rate limit') || error.message?.includes('Request rate limit')) {
+      if (error.message?.includes("rate limit") || error.message?.includes("Request rate limit")) {
         const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5 secondes
         console.log(`Rate limit hit, waiting ${delay}ms before retry ${attempt + 1}/${retries}`);
         await page.waitForTimeout(delay);
         continue;
       }
-      
+
       // Pour les autres erreurs, relancer immédiatement
       if (attempt < retries - 1) {
         await page.waitForTimeout(1000);
         continue;
       }
-      
+
       throw error;
     }
   }
-  
+
   throw lastError || new Error(`Failed to authenticate user after ${retries} attempts: ${email}`);
 }
 
 /**
  * Vérifie que la session est présente dans localStorage après un reload
  * Si la session est perdue, réauthentifie automatiquement
- * 
+ *
  * @param page - La page Playwright
  * @param email - Email de l'utilisateur
  * @param password - Mot de passe de l'utilisateur
@@ -94,12 +94,12 @@ export async function ensureSessionAfterReload(
   page: Page,
   email: string,
   password: string,
-  expectedUserId?: string
+  expectedUserId?: string,
 ) {
   // Vérifier la session avant reload
   const sessionBefore = await getSessionFromPage(page);
 
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(500);
 
   // Vérifier la session après reload
@@ -116,7 +116,7 @@ export async function ensureSessionAfterReload(
     const finalSession = await getSessionFromPage(page);
     if (finalSession.userId !== expectedUserId) {
       throw new Error(
-        `Session userId mismatch: expected ${expectedUserId}, got ${finalSession.userId}`
+        `Session userId mismatch: expected ${expectedUserId}, got ${finalSession.userId}`,
       );
     }
   }
@@ -124,7 +124,7 @@ export async function ensureSessionAfterReload(
 
 /**
  * Récupère la session Supabase depuis localStorage de la page
- * 
+ *
  * @param page - La page Playwright
  * @returns Informations sur la session (hasSession, userId)
  */
@@ -136,7 +136,7 @@ export async function getSessionFromPage(page: Page): Promise<{
     // Chercher la clé de session Supabase dans localStorage
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
         const value = localStorage.getItem(key);
         if (value) {
           try {
@@ -159,21 +159,21 @@ export async function getSessionFromPage(page: Page): Promise<{
 
 /**
  * Attend que les conversations soient chargées dans le dashboard
- * 
+ *
  * @param page - La page Playwright
  * @param maxAttempts - Nombre maximum de tentatives (défaut: 20)
  * @returns true si les conversations sont chargées, false sinon
  */
 export async function waitForConversationsInDashboard(
   page: Page,
-  maxAttempts: number = 20
+  maxAttempts: number = 20,
 ): Promise<boolean> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const state = await page.evaluate(() => {
       const conversationCards = Array.from(
         document.querySelectorAll(
-          '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item'
-        )
+          '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+        ),
       );
       const bodyText = document.body.innerText;
       return {
@@ -201,7 +201,7 @@ export async function waitForConversationsInDashboard(
  */
 export async function openConversationFromDashboard(
   page: Page,
-  searchText: string
+  searchText: string,
 ): Promise<string | null> {
   // Attendre que les conversations soient chargées
   await waitForConversationsInDashboard(page);
@@ -226,7 +226,7 @@ export async function openConversationFromDashboard(
         conversationCard = exactCard;
       } else {
         // Essayer avec recherche partielle (premier mot)
-        const firstWord = searchText.split(' ')[0];
+        const firstWord = searchText.split(" ")[0];
         const partialCard = page.locator(`text=${firstWord}`).first();
         const isVisiblePartial = await partialCard.isVisible({ timeout: 2000 }).catch(() => false);
 
@@ -234,7 +234,11 @@ export async function openConversationFromDashboard(
           conversationCard = partialCard;
         } else {
           // Essayer de trouver n'importe quelle carte de conversation
-          const anyCard = page.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
+          const anyCard = page
+            .locator(
+              '[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item',
+            )
+            .first();
           const isVisibleAny = await anyCard.isVisible({ timeout: 2000 }).catch(() => false);
 
           if (isVisibleAny) {
@@ -269,7 +273,7 @@ export async function openConversationFromDashboard(
 
 /**
  * Authentifie un utilisateur avec mock Supabase et recharge la page
- * 
+ *
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur
  * @param options - Options d'authentification
@@ -282,7 +286,7 @@ export async function authenticateUser(
     waitForReady?: boolean;
     userId?: string;
     email?: string;
-  }
+  },
 ): Promise<void> {
   await mockSupabaseAuth(page, {
     userId: options?.userId,
@@ -290,13 +294,12 @@ export async function authenticateUser(
   });
 
   if (options?.reload !== false) {
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await waitForPageLoad(page, browserName);
   }
 
   if (options?.waitForReady) {
-    const { waitForAppReady } = await import('../utils');
+    const { waitForAppReady } = await import("../utils");
     await waitForAppReady(page, page.url());
   }
 }
-

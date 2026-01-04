@@ -73,6 +73,7 @@ src/
 **Responsabilité :** Affichage et édition du titre du sondage
 
 **Props :**
+
 ```typescript
 interface PollCreatorHeaderProps {
   pollTitle: string;
@@ -81,6 +82,7 @@ interface PollCreatorHeaderProps {
 ```
 
 **Fonctionnalités :**
+
 - Input de titre avec validation
 - Indicateur de champ requis
 - Optimisé avec `React.memo`
@@ -92,12 +94,13 @@ interface PollCreatorHeaderProps {
 **Responsabilité :** Gestion complète des créneaux horaires (desktop + mobile)
 
 **Props :**
+
 ```typescript
 interface PollCreatorTimeSlotsProps {
   state: PollCreationState;
   timeSlotsByDate: Record<string, TimeSlot[]>;
-  getVisibleTimeSlots: () => Array<{hour: number; minute: number; label: string}>;
-  getTimeSlotBlocks: (dateStr: string) => Array<{start: TimeSlot; end: TimeSlot}>;
+  getVisibleTimeSlots: () => Array<{ hour: number; minute: number; label: string }>;
+  getTimeSlotBlocks: (dateStr: string) => Array<{ start: TimeSlot; end: TimeSlot }>;
   handleTimeSlotToggle: (dateStr: string, hour: number, minute: number) => void;
   isDragging: boolean;
   handleDragStart: (slot: TimeSlotWithDate, e: React.PointerEvent) => void;
@@ -110,6 +113,7 @@ interface PollCreatorTimeSlotsProps {
 ```
 
 **Fonctionnalités :**
+
 - Grille desktop et mobile responsive
 - Drag-to-extend pour sélection de créneaux
 - Paramètres de granularité (15min, 30min, 1h, 2h, 4h)
@@ -123,6 +127,7 @@ interface PollCreatorTimeSlotsProps {
 **Responsabilité :** Panneau de configuration avec onglets (Paramètres + Partage)
 
 **Props :**
+
 ```typescript
 interface PollCreatorSettingsPanelProps {
   state: PollCreationState;
@@ -135,6 +140,7 @@ interface PollCreatorSettingsPanelProps {
 ```
 
 **Fonctionnalités :**
+
 - Onglet "Paramètres" : Expiration du sondage, connexion Google Calendar
 - Onglet "Partage" : Emails des participants, UserMenu
 - Utilise le composant `SettingsPanel` existant
@@ -146,11 +152,12 @@ interface PollCreatorSettingsPanelProps {
 **Responsabilité :** Section de connexion calendrier et bouton "Horaires"
 
 **Props :**
+
 ```typescript
 interface PollCreatorCalendarSectionProps {
   state: PollCreationState;
   timeSlotsByDate: Record<string, TimeSlot[]>;
-  initialData?: { dateGroups?: Array<{type?: string; dates: string[]}> };
+  initialData?: { dateGroups?: Array<{ type?: string; dates: string[] }> };
   isAnalyzingCalendar: boolean;
   onToggleTimeSlots: () => void;
   onAnalyzeCalendar: () => void;
@@ -159,6 +166,7 @@ interface PollCreatorCalendarSectionProps {
 ```
 
 **Fonctionnalités :**
+
 - Affichage conditionnel du bouton "Connecter votre calendrier"
 - Indicateur de calendrier connecté
 - Bouton "Horaires" (masqué si dates groupées)
@@ -171,6 +179,7 @@ interface PollCreatorCalendarSectionProps {
 **Responsabilité :** Boutons d'action (Enregistrer brouillon, Publier)
 
 **Props :**
+
 ```typescript
 interface PollCreatorActionsProps {
   pollTitle: string;
@@ -183,6 +192,7 @@ interface PollCreatorActionsProps {
 ```
 
 **Fonctionnalités :**
+
 - Bouton "Enregistrer le brouillon" avec tooltip
 - Bouton "Publier le sondage" avec tooltip
 - États désactivés selon validation
@@ -197,6 +207,7 @@ interface PollCreatorActionsProps {
 **Responsabilité :** Gestion de l'état principal du poll creator
 
 **Fonctionnalités :**
+
 - Initialisation depuis `initialData` ou draft localStorage
 - Gestion de `pollTitle`, `selectedDates`, `visibleMonths`
 - Gestion de `participantEmails`, `timeGranularity`, `expirationDays`
@@ -204,6 +215,7 @@ interface PollCreatorActionsProps {
 - Gestion des `dateGroups`
 
 **API :**
+
 ```typescript
 const {
   state,
@@ -223,6 +235,7 @@ const {
 **Responsabilité :** Gestion complète des créneaux horaires
 
 **Fonctionnalités :**
+
 - Initialisation depuis `initialData.timeSlots` ou draft
 - Gestion de `timeSlotsByDate` (Record<string, TimeSlot[]>)
 - Toggle de créneaux individuels
@@ -232,6 +245,7 @@ const {
 - Intégration avec `useDragToSelect` hook
 
 **API :**
+
 ```typescript
 const {
   timeSlotsByDate,
@@ -254,6 +268,7 @@ const {
 **Responsabilité :** Détection et gestion des conflits Google Calendar
 
 **Fonctionnalités :**
+
 - Initialisation de `GoogleCalendarService`
 - Détection automatique des conflits (debounce 1.5s)
 - Analyse manuelle des conflits (avec toast)
@@ -261,6 +276,7 @@ const {
 - Gestion des conflits par date ou par créneau horaire
 
 **API :**
+
 ```typescript
 const {
   calendarConflicts,
@@ -280,6 +296,7 @@ const {
 **Responsabilité :** Finalisation du poll (création/mise à jour)
 
 **Fonctionnalités :**
+
 - Validation avec `canFinalize()`
 - Sauvegarde de brouillon dans localStorage
 - Création de nouveau poll via `usePolls().createPoll`
@@ -288,6 +305,7 @@ const {
 - Navigation après création
 
 **API :**
+
 ```typescript
 const {
   canFinalize,
@@ -307,12 +325,14 @@ const {
 ### pollCreatorUtils.ts
 
 **Fonctions utilitaires pures :**
+
 - `formatSlotKey()` : Formate un slot en clé unique
 - `createGetSlotsInRange()` : Génère les slots entre deux points
 
 ### pollCreatorTypes.ts
 
 **Types et interfaces :**
+
 - `TimeSlot` : Interface pour un créneau horaire
 - `PollCreationState` : État complet du poll creator
 - Types pour les props des composants
@@ -324,6 +344,7 @@ const {
 ### React.memo
 
 Les composants suivants sont optimisés avec `React.memo` :
+
 - ✅ `PollCreator` (composant principal)
 - ✅ `PollCreatorHeader`
 - ✅ `PollCreatorActions`
@@ -347,6 +368,7 @@ Les composants suivants sont optimisés avec `React.memo` :
 ### Tests E2E
 
 **Fichiers testés :**
+
 - ✅ `tests/e2e/ultra-simple-form.spec.ts`
 - ✅ `tests/e2e/ultra-simple-poll.spec.ts`
 
@@ -355,6 +377,7 @@ Les composants suivants sont optimisés avec `React.memo` :
 ### Tests Unitaires
 
 **Fichiers testés :**
+
 - ✅ Tous les tests unitaires existants
 
 **Résultat :** Aucune régression détectée ✅
@@ -396,7 +419,7 @@ interface PollCreatorProps {
     description?: string;
     dates?: string[];
     participants?: string[];
-    timeSlots?: Array<{start: string; end: string; dates?: string[]}>;
+    timeSlots?: Array<{ start: string; end: string; dates?: string[] }>;
     dateGroups?: DateGroup[];
   };
   withBackground?: boolean;
@@ -440,4 +463,3 @@ interface PollCreatorProps {
 ---
 
 **Navigation :** [← Retour Index](./-INDEX.md) | [← Retour Docs](../README.md)
-

@@ -133,7 +133,12 @@ export default function AvailabilityPollsDataControl() {
                   </div>
                 </div>
               </div>
-              <Button onClick={handleDeleteAllData} disabled={isDeleting} variant="destructive" data-testid="availability-delete-all-data">
+              <Button
+                onClick={handleDeleteAllData}
+                disabled={isDeleting}
+                variant="destructive"
+                data-testid="availability-delete-all-data"
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 {isDeleting ? "Suppression en cours..." : "Supprimer toutes mes données"}
               </Button>

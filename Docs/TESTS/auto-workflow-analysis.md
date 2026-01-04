@@ -41,6 +41,7 @@ graph TD
 ### 🔮 Analyse Prédictive avec Gemini AI (NOUVEAU)
 
 #### 🎯 Analyse de Risque des Commits
+
 - **Évaluation prédictive** du risque avant exécution
 - **Analyse sémantique** des changements (messages, fichiers modifiés)
 - **Prédiction des workflows** susceptibles d'échouer
@@ -48,12 +49,14 @@ graph TD
 - **Temps estimé** avant échec potentiel
 
 #### 📈 Analyse des Tendances
+
 - **Détection de patterns** récurrents d'échec
 - **Score de risque global** du système CI/CD
 - **Prévisions** pour les prochains jours
 - **Risques émergents** identifiés automatiquement
 
 #### 🚀 Recommandations Proactives
+
 - **Actions rapides** à impact immédiat
 - **Améliorations long terme** pour la stabilité
 - **Recommandations détaillées** avec priorité/impact/effort
@@ -64,43 +67,54 @@ graph TD
 Le rapport inclut maintenant **deux sections IA** :
 
 #### Section Classique
+
 ```markdown
 ## 🤖 Analyse IA Automatique
 
 ### 📊 Analyse des 2 échec(s) détecté(s)
+
 **Statistiques :**
+
 - 🔴 Critiques : 1
 - 📂 Catégories : dependencies (1), runtime (1)
 
 ### 🚨 1. production-smoke
+
 **Cause identifiée :** Erreur reconnue : Cannot find package '@playwright/test'
 **Solutions suggérées :** Utiliser `npm install` au lieu de `npm ci`
 ```
 
 #### Section Prédictive (NOUVEAU)
+
 ```markdown
 ## 🔮 Analyse Prédictive avec Gemini AI
 
 ### 🎯 Analyse de Risque du Commit Actuel
+
 **Niveau de risque :** 🟡 MOYEN
 **Confiance de l'analyse :** 85%
 **Raisons du risque :**
+
 - Changements dans les dépendances npm
 - Modification des fichiers de test
-**Workflows à risque élevé :** tests-e2e, production-smoke
+  **Workflows à risque élevé :** tests-e2e, production-smoke
 
 ### 📈 Tendances d'Échec
+
 **Score de risque global :** 65/100
 **Tendances identifiées :**
+
 - Échecs récurrents sur les dépendances Playwright
 - Problèmes de timeout dans les tests E2E
-**Prévisions :** Risque d'échec dans les 24h si pas d'action
+  **Prévisions :** Risque d'échec dans les 24h si pas d'action
 
 ### 🚀 Recommandations Proactives
+
 **Actions rapides (impact immédiat) :**
+
 - ⚡ Mettre à jour les dépendances npm
 - ⚡ Exécuter les tests localement avant push
-**Améliorations long terme :**
+  **Améliorations long terme :**
 - 🏗️ Ajouter des tests de régression automatisés
 - 🏗️ Optimiser les timeouts des tests E2E
 ```
@@ -146,6 +160,7 @@ node scripts/monitor-workflow-failures.js
 ### Mode développement (sans Gemini)
 
 Si `GEMINI_API_KEY` n'est pas définie :
+
 - ✅ **Analyse classique** fonctionne normalement
 - ⚠️ **Analyse prédictive** affiche un message d'indisponibilité
 - ✅ **Rapport généré** avec section classique uniquement
@@ -162,14 +177,17 @@ Le système s'exécute automatiquement via le workflow `8-workflow-monitoring.ym
 ## Avantages
 
 ### ✅ Proactif vs Réactif
+
 - **Avant** : Rapport passif, intervention manuelle requise
 - **Après** : Analyse prédictive + curative automatique
 
 ### ✅ Intelligence hybride
+
 - **Analyse classique** : Détection fiable des erreurs connues
 - **Analyse prédictive** : Anticipation des risques avec IA générative
 
 ### ✅ Évolutivité infinie
+
 - **Base de connaissances** extensible manuellement
 - **IA générative** apprend et s'adapte automatiquement
 - **Intégration** facile de nouveaux patterns
@@ -178,12 +196,12 @@ Le système s'exécute automatiquement via le workflow `8-workflow-monitoring.ym
 
 ### 📊 Impact mesuré
 
-| Métrique | Avant | Après | Amélioration |
-|----------|-------|-------|--------------|
-| **Temps diagnostic** | 30-60 min | 2-5 min | **-90%** |
-| **Échecs prévenus** | 0% | 40-60% | **+40-60%** |
-| **Précision diagnostic** | 70% | 90%+ | **+20%** |
-| **Actions proactives** | 0 | 5-10/jour | **∞** |
+| Métrique                 | Avant     | Après     | Amélioration |
+| ------------------------ | --------- | --------- | ------------ |
+| **Temps diagnostic**     | 30-60 min | 2-5 min   | **-90%**     |
+| **Échecs prévenus**      | 0%        | 40-60%    | **+40-60%**  |
+| **Précision diagnostic** | 70%       | 90%+      | **+20%**     |
+| **Actions proactives**   | 0         | 5-10/jour | **∞**        |
 
 ### 🎯 Cas d'usage validés
 

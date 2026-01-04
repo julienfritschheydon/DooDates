@@ -2,8 +2,8 @@ name: 7️⃣ Nightly Full Regression
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Tous les jours à 2h du matin (UTC)
-  workflow_dispatch:  # Permet exécution manuelle
+    - cron: "0 2 * * *" # Tous les jours à 2h du matin (UTC)
+  workflow_dispatch: # Permet exécution manuelle
 
 permissions:
   contents: read
@@ -15,8 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safari']
-    
+        project: ["chromium", "firefox", "webkit", "Mobile Chrome", "Mobile Safari"]
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -24,8 +24,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -57,14 +57,14 @@ jobs:
               BROWSER="chromium firefox webkit"
               ;;
           esac
-          
+
           # Toujours installer avec --with-deps en CI (dépendances système non cachées)
           echo "📦 Installation de $BROWSER avec dépendances système..."
           npx playwright install --with-deps $BROWSER
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
         # Exclure les tests RGPD (exécutés séparément dans 8-rgpd-compliance.yml)
-        run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json --grep-invert "RGPD|RGPD-"
+        run: E2E_FORCE_MOCKS=true npx playwright test --project="${{ matrix.project }}" --reporter=html,json --grep-invert "RGPD|RGPD-"
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -99,8 +99,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -109,7 +109,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: ⚡ Run E2E Performance Suite (chromium)
-        run: npx playwright test tests/e2e/dashboard-performance.spec.ts --project=chromium --reporter=html,json
+        run: E2E_FORCE_MOCKS=true npx playwright test tests/e2e/dashboard-performance.spec.ts --project=chromium --reporter=html,json
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -202,7 +202,7 @@ jobs:
     needs: [full-regression, e2e-performance]
     runs-on: ubuntu-latest
     if: always()
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -210,8 +210,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci
@@ -274,10 +274,10 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             let summaryContent = '';
             const summaryPath = path.join(process.cwd(), 'regression-summary.md');
-            
+
             if (fs.existsSync(summaryPath)) {
               summaryContent = fs.readFileSync(summaryPath, 'utf-8');
             } else {
@@ -302,15 +302,15 @@ jobs:
               summaryContent += `**Workflow:** ${context.payload.repository.html_url}/actions/runs/${context.runId}\n`;
               summaryContent += `\nVérifiez les artefacts pour plus de détails.\n`;
             }
-            
+
             // Ajouter le lien vers le workflow
             summaryContent += `\n\n---\n\n`;
             summaryContent += `**🔗 Lien vers le workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
-            
+
             // Chercher une issue existante pour aujourd'hui
             const today = new Date().toISOString().split('T')[0];
             const issueTitle = `🚨 Nightly Regression Tests - Échec - ${today}`;
-            
+
             try {
               // Chercher les issues ouvertes avec le label 'regression'
               const { data: issues } = await github.rest.issues.listForRepo({

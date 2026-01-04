@@ -1,80 +1,104 @@
 /**
  * AI Night Tester - Configuration
- * 
+ *
  * Configuration for the autonomous AI testing agent
  */
 
 export const config = {
-    // Ollama settings
-    ollama: {
-        baseUrl: 'http://localhost:11434',
-        fastModel: 'qwen2.5:0.5b', // Very fast for navigation
-        deepModel: 'gemma2:2b',    // Smarter for issue analysis
-        timeout: 60000,
+  // Ollama settings
+  ollama: {
+    baseUrl: "http://localhost:11434",
+    fastModel: "qwen2.5:0.5b", // Very fast for navigation
+    deepModel: "gemma2:2b", // Smarter for issue analysis
+    timeout: 60000,
+  },
+
+  // Test duration
+  duration: {
+    default: 8 * 60 * 60 * 1000, // 8 hours in ms
+    short: 30 * 60 * 1000, // 30 minutes
+    debug: 5 * 60 * 1000, // 5 minutes
+  },
+
+  // Application settings
+  app: {
+    baseUrl: process.env.BASE_URL || "http://localhost:8080/DooDates",
+    startPages: ["/date-polls", "/form-polls", "/availability-polls", "/quizz"],
+  },
+
+  // Test behavior
+  behavior: {
+    maxActionsPerPage: 10, // Force navigate after N actions on same page
+    screenshotOnEveryAction: false,
+    screenshotOnIssue: true,
+    waitBetweenActions: 500, // 0.5s between actions (was 1s)
+    maxConsecutiveErrors: 5, // Stop if too many errors in a row
+    excludeText: [
+      "Login",
+      "Sign in",
+      "Se connecter",
+      "Connexion",
+      "Sign up",
+      "S'inscrire",
+      "Activer le micro",
+      "micro",
+      "Joindre un fichier",
+      "Attach file",
+      "Prendre une photo",
+      "Fichier (photo/PDF)",
+      "Fichier",
+      "Upload",
+      "Passer à Pro",
+      "Nous contacter",
+      "Informations sur la confidentialité",
+      "Email",
+      "Français",
+      "Anglais",
+      "English",
+      "French",
+      "Language",
+      "Langue",
+      "Mentions légales",
+      "Conditions d'utilisation",
+      "Privacy Policy",
+      "Cookie",
+    ], // Avoid auth, blocking actions, and distractions
+    // Randomly switch screen sizes
+    randomizeViewport: false, // Disabled for stability during LLM heavy runs
+  },
+
+  // Screen sizes (Viewports)
+  viewports: [
+    { name: "Desktop", width: 1280, height: 800, isMobile: false },
+    { name: "Tablet", width: 768, height: 1024, isMobile: false },
+    { name: "Mobile", width: 375, height: 667, isMobile: true },
+  ],
+
+  // User Personas
+  personas: [
+    {
+      id: "new_user",
+      name: "The New User",
+      description: "Unfamiliar with the interface, reads carefully, hesitates.",
+      frustrationTolerance: "low",
     },
-
-    // Test duration
-    duration: {
-        default: 8 * 60 * 60 * 1000, // 8 hours in ms
-        short: 30 * 60 * 1000,       // 30 minutes
-        debug: 5 * 60 * 1000,        // 5 minutes
+    {
+      id: "power_user",
+      name: "The Power User",
+      description: "Moves fast, uses keyboard shortcuts, expects efficiency.",
+      frustrationTolerance: "high",
     },
-
-    // Application settings
-    app: {
-        baseUrl: process.env.BASE_URL || 'http://localhost:8080/DooDates',
-        startPages: [
-            '/date-polls',
-            '/form-polls',
-            '/availability-polls',
-            '/quizz',
-        ],
+    {
+      id: "mobile_user",
+      name: "The Mobile User",
+      description: "Simulates mobile constraints (though running on desktop), hates small buttons.",
+      frustrationTolerance: "medium",
     },
+  ],
 
-    // Test behavior
-    behavior: {
-        maxActionsPerPage: 10,        // Force navigate after N actions on same page
-        screenshotOnEveryAction: false,
-        screenshotOnIssue: true,
-        waitBetweenActions: 500,     // 0.5s between actions (was 1s)
-        maxConsecutiveErrors: 5,      // Stop if too many errors in a row
-        excludeText: ['Login', 'Sign in', 'Se connecter', 'Connexion', 'Sign up', 'S\'inscrire', 'Activer le micro', 'micro', 'Joindre un fichier', 'Attach file', 'Prendre une photo', 'Fichier (photo/PDF)', 'Fichier', 'Upload', 'Passer à Pro', 'Nous contacter', 'Informations sur la confidentialité', 'Email', 'Français', 'Anglais', 'English', 'French', 'Language', 'Langue', 'Mentions légales', 'Conditions d\'utilisation', 'Privacy Policy', 'Cookie'], // Avoid auth, blocking actions, and distractions
-        // Randomly switch screen sizes
-        randomizeViewport: false,    // Disabled for stability during LLM heavy runs
-    },
-
-    // Screen sizes (Viewports)
-    viewports: [
-        { name: 'Desktop', width: 1280, height: 800, isMobile: false },
-        { name: 'Tablet', width: 768, height: 1024, isMobile: false },
-        { name: 'Mobile', width: 375, height: 667, isMobile: true },
-    ],
-
-    // User Personas
-    personas: [
-        {
-            id: 'new_user',
-            name: 'The New User',
-            description: 'Unfamiliar with the interface, reads carefully, hesitates.',
-            frustrationTolerance: 'low',
-        },
-        {
-            id: 'power_user',
-            name: 'The Power User',
-            description: 'Moves fast, uses keyboard shortcuts, expects efficiency.',
-            frustrationTolerance: 'high',
-        },
-        {
-            id: 'mobile_user',
-            name: 'The Mobile User',
-            description: 'Simulates mobile constraints (though running on desktop), hates small buttons.',
-            frustrationTolerance: 'medium',
-        },
-    ],
-
-    // Testing Missions
-    missions: [
-        /* 
+  // Testing Missions
+  missions: [
+    /* 
         {
             id: 'create_date_poll',
             name: 'Le Créateur (Sondage Dates)',
@@ -90,14 +114,14 @@ export const config = {
             successCondition: '/workspace/form',
         },
         */
-        {
-            id: 'vote_flow',
-            name: 'Le Votant (Parcours complet)',
-            personaId: 'new_user',
-            goal: 'Simule un votant réel : 1. Trouve un sondage accessible (ou va sur "/poll/demo" si dispo). 2. Saisis ton nom "AI Tester". 3. Coche des options disponibles. 4. Valide ton vote. 5. Vérifie la confirmation.',
-            successCondition: 'Merci pour votre vote',
-        },
-        /*
+    {
+      id: "vote_flow",
+      name: "Le Votant (Parcours complet)",
+      personaId: "new_user",
+      goal: 'Simule un votant réel : 1. Trouve un sondage accessible (ou va sur "/poll/demo" si dispo). 2. Saisis ton nom "AI Tester". 3. Coche des options disponibles. 4. Valide ton vote. 5. Vérifie la confirmation.',
+      successCondition: "Merci pour votre vote",
+    },
+    /*
         {
             id: 'create_and_play_quiz',
             name: 'Le Candidat (Quiz)',
@@ -113,112 +137,109 @@ export const config = {
             successCondition: '/poll/'
         },
         */
-        {
-            id: 'vote_flow_dashboard',
-            name: 'Le Votant - Dashboard',
-            personaId: 'new_user',
-            goal: '1. Go to /form-polls/dashboard, 2. Find a poll in the list (or create one if empty), 3. Click the "Tester" button (Eye icon) on a poll card, 4. Answer the questions, 5. Submit the form.',
-            successCondition: 'Merci'
-        },
-        {
-            id: 'explore_docs',
-            name: 'L\'Apprenti - Docs',
-            personaId: 'new_user',
-            goal: '1. Go to /docs, 2. Click on "Guide de démarrage", 3. Read about Polls, 4. Click on "Date Polls", 5. Click on "Settings".',
-            successCondition: '/docs'
-        },
-        {
-            id: 'data_control_check',
-            name: 'L\'Auditeur Data RGPD',
-            personaId: 'power_user',
-            goal: 'Visite la page "/data-control" (Data Control). 1. Vérifie que la page charge sans erreur console. 2. Identifie les boutons d\'export ("Exporter mes données"). 3. Identifie les zones de suppression ("Supprimer mon compte"). 4. Ne clique PAS sur supprimer, mais vérifie la présence des modales de confirmation.',
-            successCondition: '/data-control'
-        },
-        {
-            id: 'vote_access_public',
-            name: 'Le Visiteur Public (Vote)',
-            personaId: 'new_user',
-            goal: 'Teste l\'accès public aux votes. 1. Accède à une URL de vote connue (ex: "/poll/demo-vote" ou via un lien Dashboard). 2. Vérifie que la page est accessible sans login. 3. Tente une interaction simple (clic sur une option). 4. Vérifie que l\'UI réagit (sélection visible).',
-            successCondition: 'option'
-        },
-    ],
-
-    // Product groups for sequential testing (Date → Form → Availability → Quizz)
-    productGroups: [
-        {
-            id: 'date',
-            name: 'Sondages de Dates',
-            routes: [
-                '/date-polls',
-                '/date-polls/workspace/date',
-                '/date-polls/dashboard',
-                '/date-polls/settings',
-                '/date-polls/docs',
-            ],
-        },
-        {
-            id: 'form',
-            name: 'Formulaires',
-            routes: [
-                '/form-polls',
-                '/form-polls/workspace/form',
-                '/form-polls/dashboard',
-                '/form-polls/settings',
-                '/form-polls/docs',
-            ],
-        },
-        {
-            id: 'availability',
-            name: 'Disponibilités',
-            routes: [
-                '/availability-polls',
-                '/availability-polls/workspace/availability',
-                '/availability-polls/dashboard',
-                '/availability-polls/settings',
-                '/availability-polls/docs',
-            ],
-        },
-        {
-            id: 'quizz',
-            name: 'Quiz',
-            routes: [
-                '/quizz',
-                '/quizz/create',
-            ],
-        },
-    ],
-
-    // Routes to test (priority order) - flattened from productGroups
-    priorityRoutes: [
-        // Landing pages
-        '/date-polls',
-        '/form-polls',
-        '/availability-polls',
-        // Workspaces
-        '/date-polls/workspace/date',
-        '/form-polls/workspace/form',
-        '/availability-polls/workspace/availability',
-        // Dashboards
-        '/date-polls/dashboard',
-        '/form-polls/dashboard',
-        '/availability-polls/dashboard',
-        // Settings
-        '/date-polls/settings',
-        '/form-polls/settings',
-        '/availability-polls/settings',
-        // Documentation
-        '/date-polls/docs',
-        '/form-polls/docs',
-        '/availability-polls/docs',
-        // Quizz
-        '/quizz',
-    ],
-
-    // Output paths
-    output: {
-        reportsDir: './scripts/ai-night-tester/reports',
-        screenshotsDir: './scripts/ai-night-tester/reports/screenshots',
+    {
+      id: "vote_flow_dashboard",
+      name: "Le Votant - Dashboard",
+      personaId: "new_user",
+      goal: '1. Go to /form-polls/dashboard, 2. Find a poll in the list (or create one if empty), 3. Click the "Tester" button (Eye icon) on a poll card, 4. Answer the questions, 5. Submit the form.',
+      successCondition: "Merci",
     },
+    {
+      id: "explore_docs",
+      name: "L'Apprenti - Docs",
+      personaId: "new_user",
+      goal: '1. Go to /docs, 2. Click on "Guide de démarrage", 3. Read about Polls, 4. Click on "Date Polls", 5. Click on "Settings".',
+      successCondition: "/docs",
+    },
+    {
+      id: "data_control_check",
+      name: "L'Auditeur Data RGPD",
+      personaId: "power_user",
+      goal: 'Visite la page "/data-control" (Data Control). 1. Vérifie que la page charge sans erreur console. 2. Identifie les boutons d\'export ("Exporter mes données"). 3. Identifie les zones de suppression ("Supprimer mon compte"). 4. Ne clique PAS sur supprimer, mais vérifie la présence des modales de confirmation.',
+      successCondition: "/data-control",
+    },
+    {
+      id: "vote_access_public",
+      name: "Le Visiteur Public (Vote)",
+      personaId: "new_user",
+      goal: "Teste l'accès public aux votes. 1. Accède à une URL de vote connue (ex: \"/poll/demo-vote\" ou via un lien Dashboard). 2. Vérifie que la page est accessible sans login. 3. Tente une interaction simple (clic sur une option). 4. Vérifie que l'UI réagit (sélection visible).",
+      successCondition: "option",
+    },
+  ],
+
+  // Product groups for sequential testing (Date → Form → Availability → Quizz)
+  productGroups: [
+    {
+      id: "date",
+      name: "Sondages de Dates",
+      routes: [
+        "/date-polls",
+        "/date-polls/workspace/date",
+        "/date-polls/dashboard",
+        "/date-polls/settings",
+        "/date-polls/docs",
+      ],
+    },
+    {
+      id: "form",
+      name: "Formulaires",
+      routes: [
+        "/form-polls",
+        "/form-polls/workspace/form",
+        "/form-polls/dashboard",
+        "/form-polls/settings",
+        "/form-polls/docs",
+      ],
+    },
+    {
+      id: "availability",
+      name: "Disponibilités",
+      routes: [
+        "/availability-polls",
+        "/availability-polls/workspace/availability",
+        "/availability-polls/dashboard",
+        "/availability-polls/settings",
+        "/availability-polls/docs",
+      ],
+    },
+    {
+      id: "quizz",
+      name: "Quiz",
+      routes: ["/quizz", "/quizz/create"],
+    },
+  ],
+
+  // Routes to test (priority order) - flattened from productGroups
+  priorityRoutes: [
+    // Landing pages
+    "/date-polls",
+    "/form-polls",
+    "/availability-polls",
+    // Workspaces
+    "/date-polls/workspace/date",
+    "/form-polls/workspace/form",
+    "/availability-polls/workspace/availability",
+    // Dashboards
+    "/date-polls/dashboard",
+    "/form-polls/dashboard",
+    "/availability-polls/dashboard",
+    // Settings
+    "/date-polls/settings",
+    "/form-polls/settings",
+    "/availability-polls/settings",
+    // Documentation
+    "/date-polls/docs",
+    "/form-polls/docs",
+    "/availability-polls/docs",
+    // Quizz
+    "/quizz",
+  ],
+
+  // Output paths
+  output: {
+    reportsDir: "./scripts/ai-night-tester/reports",
+    screenshotsDir: "./scripts/ai-night-tester/reports/screenshots",
+  },
 };
 
 export type Config = typeof config;

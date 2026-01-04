@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { 
+  {
     ignores: [
       "dist/**",
       "build/**",
@@ -25,8 +25,8 @@ export default tseslint.config(
       "test-results/**",
       "scripts/**",
       "temp-test-results/**",
-      "trace/**"
-    ] 
+      "trace/**",
+    ],
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -41,19 +41,19 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/ban-ts-comment": "warn",
       "@typescript-eslint/no-require-imports": "warn",
       "@typescript-eslint/no-empty-object-type": "warn",
-      "@typescript-eslint/no-unused-expressions": ["warn", { 
-        allowShortCircuit: true, 
-        allowTernary: true 
-      }],
+      "@typescript-eslint/no-unused-expressions": [
+        "warn",
+        {
+          allowShortCircuit: true,
+          allowTernary: true,
+        },
+      ],
       "no-useless-escape": "warn",
       "no-empty": "warn",
       "no-prototype-builtins": "warn",
@@ -64,5 +64,5 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "warn",
       "react-refresh/only-export-components": "warn",
     },
-  }
+  },
 );

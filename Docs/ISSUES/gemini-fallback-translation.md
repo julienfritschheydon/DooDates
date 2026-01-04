@@ -9,7 +9,7 @@ Actuellement, le système de traduction des expressions temporelles françaises 
 Lors des tests, certains cas échouent car la traduction manuelle ne couvre pas tous les patterns possibles :
 
 - ❌ `"dans deux semaines"` → reste `"in deux semaines"` (non traduit)
-- ❌ `"quinze jours"` → reste `"quinze jours"` (non traduit)  
+- ❌ `"quinze jours"` → reste `"quinze jours"` (non traduit)
 - ❌ `"d'après-midi"` → reste `"d'après-midi"` (non traduit)
 - ❌ Expressions contextuelles complexes non prévues
 
@@ -22,12 +22,14 @@ Lors des tests, certains cas échouent car la traduction manuelle ne couvre pas 
 ## 🎯 Objectif
 
 Implémenter un **fallback Gemini** qui s'active automatiquement lorsque :
+
 1. La traduction manuelle détecte des expressions complexes
 2. La traduction manuelle laisse du français non traduit dans le résultat
 
 ## 🔒 Sécurité Production
 
 **IMPORTANT** : Le fallback Gemini est **désactivé par défaut en production** pour éviter :
+
 - ⚠️ Coûts API élevés
 - ⚠️ Latences supplémentaires
 - ⚠️ Consommation de quota
@@ -35,6 +37,7 @@ Implémenter un **fallback Gemini** qui s'active automatiquement lorsque :
 ### Activation contrôlée avec rollout progressif
 
 Le fallback s'active si :
+
 - Mode développement (`isDev() === true`) - **toujours activé**
 - Mode test (`NODE_ENV=test` ou `VITEST=true`) - **toujours activé**
 - Production avec feature flag :
@@ -62,7 +65,7 @@ const isTestOrDev = isDev() || getEnv("NODE_ENV") === "test" || getEnv("VITEST")
 // Activer si :
 // 1. Mode dev/test (toujours)
 // 2. Flag explicite activé ET (100% du trafic OU échantillonnage aléatoire)
-const enableGeminiFallback = 
+const enableGeminiFallback =
   isTestOrDev ||
   (fallbackEnabled && (fallbackPercent >= 100 || Math.random() * 100 < fallbackPercent));
 
@@ -85,15 +88,15 @@ translatedInput = await translateTemporalToEnglish(userInput, enableGeminiFallba
 // src/lib/temporalTranslator.ts
 export async function translateTemporalToEnglish(
   input: string,
-  useGeminiFallback: boolean = false
+  useGeminiFallback: boolean = false,
 ): Promise<string> {
   const manualTranslation = translateManual(input);
   const needsGemini = hasComplexTemporalExpressions(input, manualTranslation);
-  
+
   if (!needsGemini || !useGeminiFallback) {
     return manualTranslation;
   }
-  
+
   // TODO: Implémenter translateWithGemini
   return manualTranslation;
 }
@@ -185,7 +188,7 @@ Texte: "{input}"
 
 ## 👤 Demandeur
 
-*Anonymisé* - Utilisateur ayant identifié les limites de la traduction manuelle lors des tests.
+_Anonymisé_ - Utilisateur ayant identifié les limites de la traduction manuelle lors des tests.
 
 ---
 

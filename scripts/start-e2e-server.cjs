@@ -1,47 +1,47 @@
-const { exec } = require('child_process');
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
+const { exec } = require("child_process");
+const http = require("http");
+const path = require("path");
+const fs = require("fs");
 
 // Utiliser le même port que Playwright (via process.env.PORT ou --port), avec 8080 en fallback local
 const args = process.argv.slice(2);
-let port = parseInt(process.env.PORT || '8080', 10);
+let port = parseInt(process.env.PORT || "8080", 10);
 
 // Check for --port arg (handles both --port=XXXX and --port XXXX)
-const portArgIndex = args.findIndex(arg => arg === '--port' || arg.startsWith('--port='));
+const portArgIndex = args.findIndex((arg) => arg === "--port" || arg.startsWith("--port="));
 if (portArgIndex !== -1) {
   const arg = args[portArgIndex];
-  if (arg.startsWith('--port=')) {
-    port = parseInt(arg.split('=')[1], 10);
+  if (arg.startsWith("--port=")) {
+    port = parseInt(arg.split("=")[1], 10);
   } else if (args[portArgIndex + 1]) {
     port = parseInt(args[portArgIndex + 1], 10);
   }
 }
 
 const PORT = port;
-const HOST = '0.0.0.0';
+const HOST = "0.0.0.0";
 const TIMEOUT = process.env.CI ? 180000 : 120000; // 3 min en CI, 2 min en local
 
 // Vérifier si le serveur est déjà en cours d'exécution
 function isServerRunning(port, callback) {
-  const http = require('http');
+  const http = require("http");
   const options = {
-    hostname: 'localhost',
+    hostname: "localhost",
     port: port,
-    path: '/DooDates/',
-    method: 'HEAD',
-    timeout: 2000
+    path: "/DooDates/",
+    method: "HEAD",
+    timeout: 2000,
   };
 
   const req = http.request(options, (res) => {
     callback(res.statusCode === 200 || res.statusCode === 304);
   });
 
-  req.on('error', () => {
+  req.on("error", () => {
     callback(false);
   });
 
-  req.on('timeout', () => {
+  req.on("timeout", () => {
     req.destroy();
     callback(false);
   });
@@ -57,24 +57,26 @@ function waitForServer(url, maxAttempts = 30, interval = 2000) {
     const checkServer = () => {
       attempts++;
 
-      http.get(url, (res) => {
-        if (res.statusCode === 200) {
-          console.log('Server is ready!');
-          resolve(true);
-        } else {
+      http
+        .get(url, (res) => {
+          if (res.statusCode === 200) {
+            console.log("Server is ready!");
+            resolve(true);
+          } else {
+            if (attempts >= maxAttempts) {
+              reject(new Error(`Server returned status code ${res.statusCode}`));
+            } else {
+              setTimeout(checkServer, interval);
+            }
+          }
+        })
+        .on("error", (err) => {
           if (attempts >= maxAttempts) {
-            reject(new Error(`Server returned status code ${res.statusCode}`));
+            reject(new Error(`Failed to connect to server: ${err.message}`));
           } else {
             setTimeout(checkServer, interval);
           }
-        }
-      }).on('error', (err) => {
-        if (attempts >= maxAttempts) {
-          reject(new Error(`Failed to connect to server: ${err.message}`));
-        } else {
-          setTimeout(checkServer, interval);
-        }
-      });
+        });
     };
 
     checkServer();
@@ -89,14 +91,14 @@ function startVite() {
     env: {
       ...process.env,
       // IMPORTANT: Force NODE_ENV=development for E2E tests compatibility
-      // WHY: CI sets NODE_ENV=production, but React needs development mode 
+      // WHY: CI sets NODE_ENV=production, but React needs development mode
       // to render the complete interface with data-testid elements
       // Without this, E2E tests fail because React renders minimal UI in test mode
       // DO NOT CHANGE THIS unless you update all E2E tests accordingly
-      NODE_ENV: 'development',  // FORCE this after spreading process.env
-      VITE_HMR: 'false',
-      VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
-      FORCE_COLOR: '1',
+      NODE_ENV: "development", // FORCE this after spreading process.env
+      VITE_HMR: "false",
+      VITE_DEV_SERVER_OPTIMIZE_DEPS: "false",
+      FORCE_COLOR: "1",
     },
   });
 
@@ -136,23 +138,22 @@ async function main() {
     if (isRunning) {
       console.log(`Server is already running on port ${PORT}`);
       // Garder le processus en vie
-      setInterval(() => { }, 1000);
+      setInterval(() => {}, 1000);
     } else {
       // Démarrer un nouveau serveur
-      startVite().catch(error => {
-        console.error('Failed to start Vite server:', error);
+      startVite().catch((error) => {
+        console.error("Failed to start Vite server:", error);
         process.exit(1);
       });
     }
 
     // Gérer la sortie proprement
-    process.on('SIGINT', () => {
-      console.log('Shutting down...');
+    process.on("SIGINT", () => {
+      console.log("Shutting down...");
       process.exit(0);
     });
-
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }

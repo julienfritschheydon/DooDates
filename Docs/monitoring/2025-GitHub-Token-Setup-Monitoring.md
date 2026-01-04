@@ -72,9 +72,9 @@ Après l'exécution, vérifiez :
 ## Alternative : Utiliser GitHub Actions (Recommandé)
 
 Si vous ne voulez pas créer de token local, vous pouvez simplement :
+
 1. Aller sur GitHub → Actions
 2. Sélectionner le workflow "8️⃣ Workflow Monitoring & Health Report"
 3. Cliquer sur "Run workflow"
 
 Le workflow a déjà accès au token automatiquement via `secrets.GITHUB_TOKEN`.
-

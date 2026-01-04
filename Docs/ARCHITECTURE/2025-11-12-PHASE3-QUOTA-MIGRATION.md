@@ -3,11 +3,13 @@
 ## 📋 Informations du projet
 
 **Project Supabase :**
+
 - **Project URL** : `outmbbisrrdiumlweira.supabase.co`
 - **Edge Function URL** : `https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tracking`
 - **User ID exemple** : `3b1802f9-db46-48c7-86b0-199830f56f53`
 
 **Pour obtenir un JWT Token :**
+
 - Via application web : Se connecter → Console navigateur (F12) → Exécuter le script JavaScript fourni ci-dessous
 - ⚠️ Les tokens expirent après 1 heure
 - ⚠️ Le Dashboard ne stocke pas les tokens JWT (ils sont générés lors de la connexion)
@@ -17,6 +19,7 @@
 ### Tables Supabase
 
 #### `quota_tracking`
+
 Table principale pour les quotas utilisateurs authentifiés.
 
 ```sql
@@ -41,6 +44,7 @@ Table principale pour les quotas utilisateurs authentifiés.
 **Note :** Depuis décembre 2024, les quotas sont séparés par type de poll. Chaque type a son propre compteur et sa propre limite indépendante. Voir `Docs/ARCHITECTURE/2025-12-04-QUOTA-SEPARATION-BY-PRODUCT.md` pour plus de détails.
 
 #### `quota_tracking_journal`
+
 Journal détaillé de toutes les consommations.
 
 ```sql
@@ -87,11 +91,12 @@ Journal détaillé de toutes les consommations.
 5. Cliquer sur **Run** (ou `Ctrl+Enter`)
 
 **Vérification :**
+
 ```sql
 -- Vérifier que les tables existent
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('quota_tracking', 'quota_tracking_journal');
 ```
 
@@ -109,6 +114,7 @@ AND table_name IN ('quota_tracking', 'quota_tracking_journal');
 8. Attendre la confirmation "Function deployed successfully"
 
 **Via ligne de commande (si Supabase CLI configuré) :**
+
 ```bash
 cd supabase/functions/quota-tracking
 supabase functions deploy quota-tracking
@@ -124,9 +130,12 @@ supabase functions deploy quota-tracking
 2. Ouvrir la console développeur (F12)
 3. Se connecter avec un compte utilisateur
 4. Exécuter dans la console :
+
    ```javascript
    // Récupérer le token depuis localStorage (où Supabase le stocke)
-   const supabaseSession = localStorage.getItem('sb-' + window.location.hostname.split('.')[0] + '-auth-token');
+   const supabaseSession = localStorage.getItem(
+     "sb-" + window.location.hostname.split(".")[0] + "-auth-token",
+   );
    if (supabaseSession) {
      const session = JSON.parse(supabaseSession);
      console.log("JWT Token:", session.access_token);
@@ -134,7 +143,7 @@ supabase functions deploy quota-tracking
      // Alternative : chercher toutes les clés Supabase dans localStorage
      for (let i = 0; i < localStorage.length; i++) {
        const key = localStorage.key(i);
-       if (key && key.includes('auth-token')) {
+       if (key && key.includes("auth-token")) {
          const session = JSON.parse(localStorage.getItem(key));
          console.log("JWT Token:", session.access_token);
          break;
@@ -142,11 +151,12 @@ supabase functions deploy quota-tracking
      }
    }
    ```
-   
+
    **Ou méthode encore plus simple :**
+
    ```javascript
    // Chercher automatiquement la clé Supabase dans localStorage
-   const sessionKey = Object.keys(localStorage).find(key => key.includes('auth-token'));
+   const sessionKey = Object.keys(localStorage).find((key) => key.includes("auth-token"));
    if (sessionKey) {
      try {
        const session = JSON.parse(localStorage.getItem(sessionKey));
@@ -162,6 +172,7 @@ supabase functions deploy quota-tracking
      console.log("Aucune session trouvée. Connectez-vous d'abord ou utilisez la Méthode 2");
    }
    ```
+
 5. Copier le token affiché dans la console
 
 **Méthode 2 : Via votre application web (⭐ La plus simple)**
@@ -174,7 +185,7 @@ supabase functions deploy quota-tracking
 4. Exécuter ce code dans la console :
    ```javascript
    // Trouver la clé Supabase dans localStorage
-   const sessionKey = Object.keys(localStorage).find(key => key.includes('auth-token'));
+   const sessionKey = Object.keys(localStorage).find((key) => key.includes("auth-token"));
    if (sessionKey) {
      const session = JSON.parse(localStorage.getItem(sessionKey));
      if (session && session.access_token) {
@@ -191,6 +202,7 @@ supabase functions deploy quota-tracking
 **Méthode 2b : Via Supabase Dashboard (si disponible)**
 
 Certaines versions du Dashboard ont un bouton pour générer/copier un token :
+
 1. Aller dans **Authentication** → **Users**
 2. Sélectionner un utilisateur
 3. Chercher un bouton **"Generate JWT"**, **"Copy JWT"** ou **"View JWT"** dans le panneau de détails
@@ -218,6 +230,7 @@ curl -X POST 'https://outmbbisrrdiumlweira.supabase.co/auth/v1/token?grant_type=
 La réponse contiendra `access_token` qui est votre JWT.
 
 **Informations du projet :**
+
 - **Project URL** : `outmbbisrrdiumlweira.supabase.co`
 - **Edge Function URL** : `https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tracking`
 
@@ -268,6 +281,7 @@ Invoke-RestMethod -Uri "https://outmbbisrrdiumlweira.supabase.co/functions/v1/qu
 ```
 
 **Alternative PowerShell avec curl.exe (si curl est installé) :**
+
 ```powershell
 # Utiliser curl.exe au lieu de curl (alias PowerShell)
 # Note: Utiliser des guillemets doubles pour PowerShell
@@ -278,11 +292,13 @@ curl.exe -X POST https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tra
 ```
 
 **⚠️ Note importante pour PowerShell :**
+
 - Utiliser `Invoke-RestMethod` (méthode recommandée ci-dessus) est plus fiable
 - Si vous utilisez `curl.exe`, les backticks `` ` `` sont nécessaires pour les continuations de ligne
 - Les guillemets simples `'...'` dans PowerShell ne fonctionnent pas pour les chaînes JSON, utilisez des guillemets doubles `"..."` avec échappement `\"`
 
 **Pour Bash/Linux/Mac :**
+
 ```bash
 curl -X POST https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tracking \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6IjZZQVhsVCtQN3N6VUljTmsiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL291dG1iYmlzcnJkaXVtbHdlaXJhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIzYjE4MDJmOS1kYjQ2LTQ4YzctODZiMC0xOTk4MzBmNTZmNTMiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzYzMTA5MjAwLCJpYXQiOjE3NjMxMDU2MDAsImVtYWlsIjoianVsaWVuLmZyaXRzY2grZG9vZGF0ZXMyQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJqdWxpZW4uZnJpdHNjaCtkb29kYXRlczJAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ikp1bGllbiBGcml0c2NoIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJyb2xlIjoiYWRtaW4iLCJzdWIiOiIzYjE4MDJmOS1kYjQ2LTQ4YzctODZiMC0xOTk4MzBmNTZmNTMifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc2MzEwNTYwMH1dLCJzZXNzaW9uX2lkIjoiMjFmYTIzNWEtMmU2Yy00MmFmLWIxNjMtZGU1OGJhMmQ3ZTI4IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.QXqibDQXOrlbU2GacCoNUv5FayJvgt6xlOcRl2uBev4" \
@@ -291,6 +307,7 @@ curl -X POST https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-trackin
 ```
 
 **Résultat attendu :**
+
 ```json
 {
   "success": true,
@@ -307,7 +324,8 @@ curl -X POST https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-trackin
 }
 ```
 
-**Note :** 
+**Note :**
+
 - Project URL : `outmbbisrrdiumlweira.supabase.co`
 - Edge Function URL : `https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tracking`
 - User ID (exemple) : `3b1802f9-db46-48c7-86b0-199830f56f53`
@@ -354,6 +372,7 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
 2. ❌ Le token JWT utilisé n'est pas valide ou est expiré
 
 **Causes possibles :**
+
 - Le token a expiré (les tokens expirent après 1 heure)
 - Le token n'a pas été copié correctement (caractères manquants)
 - Le token provient d'un autre projet Supabase
@@ -370,21 +389,22 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
    - Si le token est ancien, récupérez-en un nouveau via le Dashboard
 
 3. **Exemple avec un vrai token :**
+
    ```powershell
    # Remplacer par votre vrai token depuis le Dashboard
    $token = "eyJhbGciOiJIUzI1NiIsImtpZCI6IjZZQVhsVCtQN3N6VUljTmsiLCJ0eXAiOiJKV1QifQ..."
-   
+
    $headers = @{
        "Authorization" = "Bearer $token"
        "Content-Type" = "application/json"
    }
-   
+
    $body = @{
        endpoint = "checkQuota"
        action = "other"
        credits = 0
    } | ConvertTo-Json
-   
+
    Invoke-RestMethod -Uri "https://outmbbisrrdiumlweira.supabase.co/functions/v1/quota-tracking" `
        -Method Post `
        -Headers $headers `
@@ -392,10 +412,11 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
    ```
 
 4. **Utiliser le script de test automatique :**
+
    ```powershell
    # Exécuter le script de test complet
    .\tests\test-quota-tracking-edge-function.ps1 -Token "VOTRE_JWT_TOKEN"
-   
+
    # Le script teste automatiquement les 3 endpoints :
    # - checkQuota
    # - consumeCredits
@@ -422,6 +443,7 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
    - Logs détaillés (console.log)
 
 **Format des logs :**
+
 ```
 [timestamp] [requestId] 🚀 QUOTA TRACKING EDGE FUNCTION
 [timestamp] [requestId] ✅ Utilisateur authentifié: USER_ID
@@ -429,6 +451,7 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
 ```
 
 **Filtrage :**
+
 - Filtrer par status code (200, 400, 500, etc.)
 - Filtrer par date/heure
 - Rechercher dans les logs avec `Ctrl+F`
@@ -454,4 +477,3 @@ Si vous obtenez l'erreur **"Invalid JWT"** ou **"code: 401"**, cela signifie que
 - Script SQL : `sql-scripts/create-quota-tracking-table.sql`
 - Edge Function : `supabase/functions/quota-tracking/index.ts`
 - Migration : `sql-scripts/migrate-localstorage-to-quota-tracking.ts`
-

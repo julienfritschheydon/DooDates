@@ -12,13 +12,16 @@
 **Score** : 0.80/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 2
 - Créneaux générés : 1
 
 **Créneaux détaillés** :
+
 1. 11:30-13:00 (90min) sur 2025-12-27
 
 **Violations** :
+
 - ❌ Trop peu de créneaux: 1 < 2
 
 **💡 Avis** :
@@ -32,10 +35,12 @@
 **Score** : 0.50/1.0 - ❌ ÉCHEC
 
 **Résultat** :
+
 - Dates générées : 8
 - Créneaux générés : 0
 
 **Violations** :
+
 - ❌ Absence de créneaux horaires
 - ❌ Trop peu de créneaux: 0 < 1
 
@@ -43,4 +48,3 @@
 ⚠️ **À améliorer** : Le post-processor n'a pas complètement résolu le problème. Violations détectées : Absence de créneaux horaires, Trop peu de créneaux: 0 < 1.
 
 ---
-

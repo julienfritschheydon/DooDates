@@ -9,6 +9,7 @@ Vérifier que l'application supporte la charge attendue avec des tests de charge
 ### Installation k6
 
 **Windows (PowerShell) :**
+
 ```powershell
 # Via Chocolatey
 choco install k6
@@ -17,11 +18,13 @@ choco install k6
 ```
 
 **MacOS :**
+
 ```bash
 brew install k6
 ```
 
 **Linux :**
+
 ```bash
 # Ubuntu/Debian
 sudo gpg -k
@@ -36,10 +39,12 @@ sudo apt-get install k6
 ### Test de charge Edge Function quota-tracking
 
 **1. Obtenir un JWT Token :**
+
 - Se connecter à l'application
 - Console navigateur (F12) → Exécuter le script JavaScript fourni dans la documentation Phase 3
 
 **2. Exécuter le test :**
+
 ```bash
 # Avec variables d'environnement
 export JWT_TOKEN="votre_token_jwt"
@@ -51,6 +56,7 @@ k6 run --env JWT_TOKEN="votre_token" --env SUPABASE_URL="https://outmbbisrrdiuml
 ```
 
 **3. Résultats :**
+
 - Affichage en temps réel dans le terminal
 - Résumé à la fin avec métriques clés
 - Export JSON dans `load-test-results.json`
@@ -58,6 +64,7 @@ k6 run --env JWT_TOKEN="votre_token" --env SUPABASE_URL="https://outmbbisrrdiuml
 ## 📈 Scénarios de Test
 
 ### Scénario par défaut (quota-tracking-load-test.js)
+
 - **Montée progressive** : 0 → 10 utilisateurs (30s)
 - **Charge normale** : 50 utilisateurs simultanés (1min)
 - **Pic de charge** : 100 utilisateurs (30s)
@@ -65,6 +72,7 @@ k6 run --env JWT_TOKEN="votre_token" --env SUPABASE_URL="https://outmbbisrrdiuml
 - **Descente** : 50 → 0 utilisateurs (30s)
 
 ### Seuils de performance
+
 - ✅ 95% des requêtes < 2s
 - ✅ < 1% d'erreurs
 - ✅ 80% des checkQuota < 500ms
@@ -75,19 +83,23 @@ k6 run --env JWT_TOKEN="votre_token" --env SUPABASE_URL="https://outmbbisrrdiuml
 ### Métriques importantes
 
 **Temps de réponse (http_req_duration) :**
+
 - **p50 (médiane)** : Temps de réponse pour 50% des requêtes
 - **p95** : Temps de réponse pour 95% des requêtes (objectif < 2s)
 - **p99** : Temps de réponse pour 99% des requêtes
 
 **Taux d'erreur (http_req_failed) :**
+
 - Doit être < 1% (< 0.01)
 - Si > 1%, vérifier les logs Supabase
 
 **Throughput (http_reqs) :**
+
 - Nombre de requêtes par seconde
 - Indique la capacité du système
 
 ### Exemple de résultats réussis
+
 ```
 ⏱️  Temps de réponse:
   - Moyenne: 180ms
@@ -115,9 +127,9 @@ k6 run --env JWT_TOKEN="votre_token" --env SUPABASE_URL="https://outmbbisrrdiuml
 ```javascript
 export const options = {
   stages: [
-    { duration: '1m', target: 100 },  // 100 utilisateurs pendant 1 minute
-    { duration: '2m', target: 200 },  // Pic à 200 utilisateurs
-    { duration: '1m', target: 0 },   // Descente
+    { duration: "1m", target: 100 }, // 100 utilisateurs pendant 1 minute
+    { duration: "2m", target: 200 }, // Pic à 200 utilisateurs
+    { duration: "1m", target: 0 }, // Descente
   ],
   // ...
 };
@@ -127,24 +139,31 @@ export const options = {
 
 ```javascript
 // Test getJournal
-const journalRes = http.post(edgeFunctionUrl, JSON.stringify({
-  endpoint: 'getJournal',
-  limit: 10,
-}), { headers });
+const journalRes = http.post(
+  edgeFunctionUrl,
+  JSON.stringify({
+    endpoint: "getJournal",
+    limit: 10,
+  }),
+  { headers },
+);
 ```
 
 ## 🚨 Dépannage
 
 ### Erreur "JWT_TOKEN manquant"
+
 - Vérifier que le token est bien passé en variable d'environnement
 - Le token expire après 1 heure, en obtenir un nouveau si nécessaire
 
 ### Taux d'erreur élevé (> 1%)
+
 - Vérifier les logs Supabase Edge Functions
 - Vérifier que le token JWT est valide
 - Vérifier la disponibilité de Supabase
 
 ### Temps de réponse élevé (> 2s)
+
 - Vérifier la charge actuelle sur Supabase
 - Vérifier les logs pour identifier les requêtes lentes
 - Considérer l'optimisation des requêtes SQL
@@ -154,4 +173,3 @@ const journalRes = http.post(edgeFunctionUrl, JSON.stringify({
 - [Documentation k6](https://k6.io/docs/)
 - [k6 Examples](https://k6.io/docs/examples/)
 - [Architecture Phase 3](Docs/ARCHITECTURE/2025-11-12-PHASE3-QUOTA-MIGRATION.md)
-

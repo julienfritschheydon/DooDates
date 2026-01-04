@@ -174,11 +174,12 @@ PR créée → main
    - Screenshots des erreurs
 
 3. **Actions à Prendre**
+
    ```bash
    # Option 1: Rollback (si critique)
    git revert <commit-sha>
    git push origin main
-   
+
    # Option 2: Hotfix immédiat
    git checkout -b hotfix/production-fix
    # ... corriger le problème ...
@@ -189,6 +190,7 @@ PR créée → main
 #### ✅ Critères de Protection
 
 **L'application NE SERA PLUS déployée si:**
+
 - ❌ La page ne charge pas
 - ❌ Les assets JS/CSS sont manquants
 - ❌ Erreurs JavaScript critiques
@@ -246,30 +248,30 @@ Réduire la dépendance aux mocks et tester les vraies intégrations AVANT la pr
  * ❌ PAS DE MOCKS - teste la vraie intégration
  */
 
-describe('Real Supabase Integration', () => {
+describe("Real Supabase Integration", () => {
   // Utilise vraie instance de test
   const testSupabase = createClient(
     process.env.VITE_SUPABASE_TEST_URL,
-    process.env.VITE_SUPABASE_TEST_KEY
+    process.env.VITE_SUPABASE_TEST_KEY,
   );
 
-  test('should authenticate with real credentials', async () => {
+  test("should authenticate with real credentials", async () => {
     // Teste avec vrai serveur Supabase
     const { data, error } = await testSupabase.auth.signUp({
-      email: 'test@example.com',
-      password: 'test123456'
+      email: "test@example.com",
+      password: "test123456",
     });
-    
+
     expect(error).toBeNull();
     expect(data.user).toBeTruthy();
   });
 
-  test('should save conversation to real database', async () => {
+  test("should save conversation to real database", async () => {
     // Teste écriture réelle en DB
     const { data, error } = await testSupabase
-      .from('conversations')
-      .insert({ title: 'Test', status: 'active' });
-    
+      .from("conversations")
+      .insert({ title: "Test", status: "active" });
+
     expect(error).toBeNull();
     expect(data).toBeTruthy();
   });
@@ -336,14 +338,14 @@ Monitoring proactif et tests de performance pour anticiper les problèmes.
 
 #### 🛠️ Outils Envisagés
 
-| Catégorie | Outil | Usage |
-|-----------|-------|-------|
-| Erreurs JS | Sentry | Capture et tracking des erreurs |
-| Uptime | UptimeRobot | Monitoring 24/7 |
-| Performance | Lighthouse CI | Core Web Vitals |
-| Charge | k6 | Tests de charge |
-| Visuel | Percy | Régression visuelle |
-| Logs | Logtail | Logs centralisés |
+| Catégorie   | Outil         | Usage                           |
+| ----------- | ------------- | ------------------------------- |
+| Erreurs JS  | Sentry        | Capture et tracking des erreurs |
+| Uptime      | UptimeRobot   | Monitoring 24/7                 |
+| Performance | Lighthouse CI | Core Web Vitals                 |
+| Charge      | k6            | Tests de charge                 |
+| Visuel      | Percy         | Régression visuelle             |
+| Logs        | Logtail       | Logs centralisés                |
 
 #### 📈 Métriques de Succès
 
@@ -356,16 +358,16 @@ Monitoring proactif et tests de performance pour anticiper les problèmes.
 
 ## 📊 Comparaison Avant/Après
 
-| Aspect | ❌ Avant | ✅ Phase 1 | ✅ Phase 2 (prévu) | ✅ Phase 3 (prévu) |
-|--------|----------|------------|-------------------|-------------------|
-| **Tests de prod** | Aucun | Double protection (pré-merge + post-deploy) | + Intégration réelle | + Monitoring continu |
-| **Détection de panne** | Utilisateurs (heures/jours) | **Pré-merge (0 déploiement cassé)** + post-deploy < 3 min | Avant deploy | Temps réel |
-| **Blocage merge** | ❌ Aucun | ✅ **Automatique si build prod cassé** | ✅ + Tests intégration | ✅ + Métriques perf |
-| **Mocks** | 100% mocké | Tests prod sans mocks | 80% réduits | Tous environnements testés |
-| **Alertes** | Manuelles | Issue auto + assign (post-deploy) | + Blocage intégration | + Alertes temps réel |
-| **Rollback** | Manuel lent | Procédure définie | Automatique | Instant |
-| **Pre-commit** | E2E lents (3-5 min) | **Tests unitaires rapides (< 1 min)** | Idem | Idem |
-| **Confiance déploiement** | 🔴 Faible | 🟢 **Haute** (double protection) | 🟢 Très haute | 🟢 Maximale |
+| Aspect                    | ❌ Avant                    | ✅ Phase 1                                                | ✅ Phase 2 (prévu)     | ✅ Phase 3 (prévu)         |
+| ------------------------- | --------------------------- | --------------------------------------------------------- | ---------------------- | -------------------------- |
+| **Tests de prod**         | Aucun                       | Double protection (pré-merge + post-deploy)               | + Intégration réelle   | + Monitoring continu       |
+| **Détection de panne**    | Utilisateurs (heures/jours) | **Pré-merge (0 déploiement cassé)** + post-deploy < 3 min | Avant deploy           | Temps réel                 |
+| **Blocage merge**         | ❌ Aucun                    | ✅ **Automatique si build prod cassé**                    | ✅ + Tests intégration | ✅ + Métriques perf        |
+| **Mocks**                 | 100% mocké                  | Tests prod sans mocks                                     | 80% réduits            | Tous environnements testés |
+| **Alertes**               | Manuelles                   | Issue auto + assign (post-deploy)                         | + Blocage intégration  | + Alertes temps réel       |
+| **Rollback**              | Manuel lent                 | Procédure définie                                         | Automatique            | Instant                    |
+| **Pre-commit**            | E2E lents (3-5 min)         | **Tests unitaires rapides (< 1 min)**                     | Idem                   | Idem                       |
+| **Confiance déploiement** | 🔴 Faible                   | 🟢 **Haute** (double protection)                          | 🟢 Très haute          | 🟢 Maximale                |
 
 ---
 
@@ -406,7 +408,8 @@ git push origin feature/ma-fonctionnalite
 # - Si tout passe → Merge autorisé
 ```
 
-**⚠️ IMPORTANT:** 
+**⚠️ IMPORTANT:**
+
 - Les tests E2E ne sont **plus dans le pre-commit** (trop lents)
 - Ils s'exécutent **automatiquement en CI** (plus efficace)
 - Le job `production-smoke` en CI **bloque le merge** si problème
@@ -460,6 +463,7 @@ npm run test:e2e
 ### Phase 1 (Terminée)
 
 **Fichiers créés:**
+
 - `tests/e2e/production-smoke.spec.ts` - 10 tests critiques sans mocks
 - `.github/workflows/5-production-smoke-tests.yml` - Workflow post-déploiement (filet de sécurité)
 - `scripts/test-production-build.ps1` - Script Windows pour tests locaux
@@ -467,6 +471,7 @@ npm run test:e2e
 - `Docs/TESTS/PROTECTION-PRODUCTION.md` - Cette documentation
 
 **Fichiers modifiés:**
+
 - `.github/workflows/1-pr-validation.yml` - Ajout job `production-smoke` BLOQUANT (Job 0)
 - `.github/workflows/8-workflow-monitoring.yml` - Monitoring hybride (après workflows critiques + backup 6h)
 - `package.json` - Ajout scripts `test:production` et `test:production:bash`
@@ -474,6 +479,7 @@ npm run test:e2e
 - `Docs/TESTS/PROTECTION-PRODUCTION.md` - Cette documentation (mise à jour double protection)
 
 **Recommandations hooks Git (à implémenter):**
+
 - Pre-commit `develop`: Lint + format uniquement (< 10s)
 - Pre-commit `main`: Tests unitaires + lint + format (< 1 min)
 - Pre-push: Retirer E2E (CI bloque si problème)
@@ -497,13 +503,15 @@ npm run test:e2e
 ### Q: Et si les tests de smoke échouent à cause d'un faux positif?
 
 **R:** Les tests ont 2 retries automatiques. Si c'est vraiment un faux positif:
+
 1. Consulter les logs et screenshots dans les artefacts
 2. Fermer l'issue avec explication
 3. Améliorer le test pour éviter le faux positif
 
 ### Q: Combien de temps ajoutent ces tests au déploiement?
 
-**R:** 
+**R:**
+
 - Tests de smoke: ~2-3 minutes après le déploiement
 - Total du déploiement: +3 minutes maximum
 - **Bénéfice:** Détection immédiate vs. découverte par les utilisateurs
@@ -511,6 +519,7 @@ npm run test:e2e
 ### Q: Peut-on déployer même si les tests échouent?
 
 **R:** Techniquement oui (le déploiement est déjà fait quand les tests s'exécutent), MAIS:
+
 - ❌ Une issue critique est créée
 - ⚠️ Vous êtes assigné automatiquement
 - 🚨 Vous devez corriger immédiatement (rollback ou hotfix)
@@ -524,6 +533,7 @@ npm run test:e2e
 ## 📞 Support
 
 En cas de problème avec cette stratégie:
+
 1. Consulter les logs du workflow GitHub Actions
 2. Vérifier les artefacts (rapports, screenshots)
 3. Consulter cette documentation
@@ -535,4 +545,3 @@ En cas de problème avec cette stratégie:
 **Dernière mise à jour:** 7 novembre 2025  
 **Auteur:** Équipe DooDates  
 **Statut:** ✅ Phase 1 Active | 📋 Phase 2 Planifiée | 📅 Phase 3 Planifiée
-

@@ -210,7 +210,12 @@ export function CascadeDeleteModal({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isDeleting} data-testid="cascade-delete-cancel">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isDeleting}
+            data-testid="cascade-delete-cancel"
+          >
             {t.cancel}
           </Button>
           <Button

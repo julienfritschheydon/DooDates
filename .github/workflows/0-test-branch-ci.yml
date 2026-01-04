@@ -22,8 +22,8 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -51,8 +51,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
@@ -78,7 +78,7 @@ jobs:
 
       - name: 🎯 Run Dashboard Tests (Tests corrigés)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             tests/e2e/dashboard-complete.spec.ts \
             tests/e2e/tags-folders.spec.ts \
             --config=playwright.config.optimized.ts \
@@ -143,8 +143,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright-smoke

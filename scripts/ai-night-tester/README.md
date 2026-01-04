@@ -7,12 +7,14 @@ Autonomous testing agent powered by **Gemma** (via Ollama) that tests DooDates o
 ### Prerequisites
 
 1. **Ollama** installed and running:
+
    ```bash
    # Install: https://ollama.com/download
    ollama serve
    ```
 
 2. **Gemma model** downloaded:
+
    ```bash
    ollama pull gemma2:7b-instruct
    ```
@@ -45,6 +47,7 @@ Press `Ctrl+C` to stop gracefully - the report will still be generated.
 Reports are saved to: `scripts/ai-night-tester/reports/`
 
 Each report includes:
+
 - 📊 Summary statistics (pages visited, actions taken, issues found)
 - 🐛 Detailed issues with screenshots
 - 📍 Reproduction steps for each issue
@@ -53,6 +56,7 @@ Each report includes:
 ## Configuration
 
 Edit `ai-night-tester.config.ts` to customize:
+
 - Ollama model
 - Test duration
 - Priority routes

@@ -43,10 +43,12 @@ performanceMeasurement.getMetrics();
 ### 2. **Chrome DevTools - Performance Tab**
 
 #### Étape 1 : Ouvrir DevTools
+
 - `F12` ou `Ctrl+Shift+I` (Windows/Linux)
 - `Cmd+Option+I` (Mac)
 
 #### Étape 2 : Enregistrer une session
+
 1. Aller dans l'onglet **Performance**
 2. Cliquer sur **Record** (⏺️)
 3. Recharger la page (`Ctrl+R` ou `Cmd+R`)
@@ -54,12 +56,14 @@ performanceMeasurement.getMetrics();
 5. Cliquer sur **Stop** (⏹️)
 
 #### Étape 3 : Analyser les résultats
+
 - **Load Time** : Temps total de chargement
 - **Scripting** : Temps d'exécution JavaScript
 - **Rendering** : Temps de rendu
 - **Painting** : Temps de peinture
 
 #### Métriques à vérifier :
+
 - ✅ **FCP** (First Contentful Paint) : < 1.8s
 - ✅ **LCP** (Largest Contentful Paint) : < 2.5s
 - ✅ **TBT** (Total Blocking Time) : < 200ms
@@ -80,11 +84,13 @@ performanceMeasurement.getMetrics();
    - **PollCreator chunk** : Ne devrait pas être chargé au démarrage
 
 #### Avant optimisation :
+
 ```
 pollcreator.js: 300 KB (chargé immédiatement)
 ```
 
 #### Après optimisation :
+
 ```
 pollcreator.js: 300 KB (chargé uniquement à la demande)
 ```
@@ -94,12 +100,14 @@ pollcreator.js: 300 KB (chargé uniquement à la demande)
 ### 4. **Chrome DevTools - Lighthouse**
 
 #### Étape 1 : Lancer Lighthouse
+
 1. Ouvrir DevTools
 2. Aller dans l'onglet **Lighthouse**
 3. Sélectionner **Performance**
 4. Cliquer sur **Analyze page load**
 
 #### Métriques clés :
+
 - **Performance Score** : Devrait être > 90
 - **First Contentful Paint** : < 1.8s
 - **Largest Contentful Paint** : < 2.5s
@@ -107,6 +115,7 @@ pollcreator.js: 300 KB (chargé uniquement à la demande)
 - **Speed Index** : < 3.4s
 
 #### Rapport avant/après :
+
 ```
 AVANT :
 - Performance: 75
@@ -142,9 +151,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
-          'pollcreator': ['./src/components/PollCreator'], // Devrait être un chunk séparé
+          "react-vendor": ["react", "react-dom"],
+          "ui-vendor": ["framer-motion", "lucide-react"],
+          pollcreator: ["./src/components/PollCreator"], // Devrait être un chunk séparé
         },
       },
     },
@@ -159,14 +168,14 @@ export default defineConfig({
 #### Mesurer dans le code :
 
 ```typescript
-import { performanceMeasurement, measurePerformance } from '@/lib/performance-measurement';
+import { performanceMeasurement, measurePerformance } from "@/lib/performance-measurement";
 
 // Mesure automatique
 performanceMeasurement.measureInitialLoad();
 
 // Mesure d'une fonction spécifique
-await measurePerformance('Chargement PollCreator', async () => {
-  await import('./components/PollCreator');
+await measurePerformance("Chargement PollCreator", async () => {
+  await import("./components/PollCreator");
 });
 ```
 
@@ -195,10 +204,12 @@ await measurePerformance('Chargement PollCreator', async () => {
 ### 4. **Temps de Chargement à l'Usage**
 
 **Scénario 1 - Préchargé (hover/navigation)** :
+
 - Objectif : < 200 ms
 - Mesure : Temps entre le clic et l'affichage
 
 **Scénario 2 - Non préchargé** :
+
 - Objectif : < 500 ms
 - Mesure : Temps entre le clic et l'affichage
 
@@ -210,7 +221,7 @@ await measurePerformance('Chargement PollCreator', async () => {
 
 ```javascript
 // Dans la console après chargement de la page
-console.log('PollCreator chargé ?', pollCreatorModule !== null);
+console.log("PollCreator chargé ?", pollCreatorModule !== null);
 // Devrait être : false
 
 // Vérifier dans Network tab
@@ -222,11 +233,11 @@ console.log('PollCreator chargé ?', pollCreatorModule !== null);
 ```javascript
 // Dans la console
 const button = document.querySelector('[data-testid="poll-type-date"]');
-button.addEventListener('mouseenter', () => {
-  console.time('Preload');
+button.addEventListener("mouseenter", () => {
+  console.time("Preload");
 });
-button.addEventListener('mouseleave', () => {
-  console.timeEnd('Preload');
+button.addEventListener("mouseleave", () => {
+  console.timeEnd("Preload");
 });
 ```
 
@@ -248,13 +259,9 @@ button.addEventListener('mouseleave', () => {
 // Dans la console du navigateur
 const metrics = performanceMeasurement.getMetrics();
 console.table({
-  'Initial Load': `${metrics.initialLoadTime.toFixed(2)} ms`,
-  'PollCreator Load': metrics.preloadTime 
-    ? `${metrics.preloadTime.toFixed(2)} ms` 
-    : 'Not loaded',
-  'Bundle Size': metrics.bundleSize 
-    ? `${metrics.bundleSize.toFixed(2)} MB` 
-    : 'N/A',
+  "Initial Load": `${metrics.initialLoadTime.toFixed(2)} ms`,
+  "PollCreator Load": metrics.preloadTime ? `${metrics.preloadTime.toFixed(2)} ms` : "Not loaded",
+  "Bundle Size": metrics.bundleSize ? `${metrics.bundleSize.toFixed(2)} MB` : "N/A",
 });
 ```
 
@@ -262,13 +269,13 @@ console.table({
 
 ## 🎯 Objectifs de Performance
 
-| Métrique | Avant | Après | Gain |
-|----------|-------|-------|------|
-| **Temps chargement initial** | 1460 ms | 0 ms | -1460 ms (100%) |
-| **Bundle initial** | +300 KB | -200 KB | -500 KB |
-| **Temps à l'usage (préchargé)** | 0 ms | < 200 ms | Acceptable |
-| **Temps à l'usage (non préchargé)** | 0 ms | < 500 ms | Acceptable |
-| **Lighthouse Performance** | ~75 | > 90 | +20% |
+| Métrique                            | Avant   | Après    | Gain            |
+| ----------------------------------- | ------- | -------- | --------------- |
+| **Temps chargement initial**        | 1460 ms | 0 ms     | -1460 ms (100%) |
+| **Bundle initial**                  | +300 KB | -200 KB  | -500 KB         |
+| **Temps à l'usage (préchargé)**     | 0 ms    | < 200 ms | Acceptable      |
+| **Temps à l'usage (non préchargé)** | 0 ms    | < 500 ms | Acceptable      |
+| **Lighthouse Performance**          | ~75     | > 90     | +20%            |
 
 ---
 
@@ -290,10 +297,10 @@ console.table({
 ```javascript
 // Sauvegarder les métriques
 const metrics = performanceMeasurement.getMetrics();
-localStorage.setItem('doodates-performance-metrics', JSON.stringify(metrics));
+localStorage.setItem("doodates-performance-metrics", JSON.stringify(metrics));
 
 // Charger plus tard
-const saved = JSON.parse(localStorage.getItem('doodates-performance-metrics'));
+const saved = JSON.parse(localStorage.getItem("doodates-performance-metrics"));
 console.table(saved);
 ```
 
@@ -335,4 +342,3 @@ console.table(saved);
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 - [Web Vitals](https://web.dev/vitals/)
 - [Performance API](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API)
-

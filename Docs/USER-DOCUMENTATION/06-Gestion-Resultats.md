@@ -24,6 +24,7 @@ Dashboard → Votre sondage → [Voir les résultats]
 ```
 
 **Ou via le lien direct :**
+
 ```
 https://doodates.com/results/abc123
 ```
@@ -33,11 +34,13 @@ https://doodates.com/results/abc123
 ### Vérification des Permissions
 
 **Accès autorisé si :**
+
 - ✅ Vous êtes le **créateur** du sondage
 - ✅ Vous avez **voté** (si visibilité = "Participants")
 - ✅ Visibilité = "Public"
 
 **Accès refusé si :**
+
 - ❌ Visibilité = "Créateur uniquement" ET vous n'êtes pas le créateur
 - ❌ Visibilité = "Participants" ET vous n'avez pas voté
 
@@ -48,6 +51,7 @@ https://doodates.com/results/abc123
 ### Sondages de Dates
 
 #### Vue Tableau
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │  Mardi 12 nov, 9h-11h                               │
@@ -65,6 +69,7 @@ https://doodates.com/results/abc123
 ```
 
 #### Vue Matrice
+
 ```
                   12/11  12/11  14/11
                   9h-11h 14h-16h 14h-16h
@@ -79,6 +84,7 @@ Henry Taylor        ✗      ✗      ✗
 ```
 
 #### Vue Calendrier
+
 ```
  Novembre 2025
 ┌──┬──┬──┬──┬──┬──┬──┐
@@ -100,6 +106,7 @@ Légende :
 ### Formulaires
 
 #### Questions à Choix (Pie Chart)
+
 ```
 Q1 : Niveau de satisfaction
 
@@ -121,6 +128,7 @@ Q1 : Niveau de satisfaction
 ```
 
 #### Questions à Choix Multiples (Bar Chart)
+
 ```
 Q2 : Qu'appréciez-vous ?
 
@@ -131,6 +139,7 @@ Ambiance      ████████ 36% (18)
 ```
 
 #### Rating (Distribution)
+
 ```
 Q3 : Note globale
 
@@ -144,6 +153,7 @@ Note moyenne : 4.2/5 ⭐⭐⭐⭐☆
 ```
 
 #### NPS (Score + Segments)
+
 ```
 Q4 : Net Promoter Score
 
@@ -172,6 +182,7 @@ Détail par note :
 ```
 
 #### Matrix (Heatmap)
+
 ```
 Q5 : Évaluez notre service
 
@@ -188,6 +199,7 @@ Légende :
 ```
 
 #### Texte Libre (Nuage + Liste)
+
 ```
 Q6 : Vos suggestions ?
 
@@ -196,7 +208,7 @@ Nuage de mots :
        RAPIDITÉ
     ambiance  prix  livraison
        menu    parking
-    
+
 Mots-clés les plus fréquents :
 1. Rapidité (12 mentions)
 2. Qualité (8 mentions)
@@ -216,6 +228,7 @@ Liste des réponses :
 ### Vue d'Ensemble
 
 **En haut de la page de résultats :**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │  📊 Résultats : Satisfaction Client Q4           │
@@ -262,6 +275,7 @@ Distribution :
 ### Tendances Temporelles
 
 **Graphique d'évolution :**
+
 ```
 📈 Satisfaction dans le temps
 
@@ -305,6 +319,7 @@ Distribution :
 ### Configurer la Visibilité
 
 **Paramètres du sondage (lors de la création) :**
+
 ```
 Visibilité des résultats :
 ⚫ Moi uniquement (par défaut)
@@ -313,6 +328,7 @@ Visibilité des résultats :
 ```
 
 **Où trouver :**
+
 - Dans l'éditeur de formulaire, section "Visibilité des résultats"
 - Modifiable après publication via Dashboard → Modifier
 
@@ -321,19 +337,23 @@ Visibilité des résultats :
 ### Visibilité : Moi Uniquement (Creator-Only)
 
 **Qui peut voir :**
+
 - ✅ Seulement le créateur du sondage
 
 **Comportement :**
+
 - Après avoir voté, le bouton "Voir les résultats" **n'apparaît pas**
 - Accès direct à `/poll/{slug}/results` → Message "Accès restreint"
 - Seul le créateur peut voir les résultats depuis son Dashboard
 
 **Avantages :**
+
 - ✅ Confidentialité maximale
 - ✅ Contrôle total
 - ✅ Pas de biais de réponses
 
 **Cas d'usage :**
+
 - Enquêtes RH sensibles
 - Feedback confidentiel
 - Études de marché compétitives
@@ -344,21 +364,25 @@ Visibilité des résultats :
 ### Visibilité : Personnes Ayant Voté (Voters)
 
 **Qui peut voir :**
+
 - ✅ Le créateur
 - ✅ Toute personne ayant voté
 
 **Comportement :**
+
 - Après avoir voté, le bouton **"Voir les résultats"** apparaît
 - Cliquer sur le bouton → Accès aux résultats
 - Accès direct à `/poll/{slug}/results` → Résultats visibles (si vous avez voté)
 - Si vous n'avez pas voté → Message "Accès restreint" + "💡 Votez pour voir les résultats !"
 
 **Avantages :**
+
 - ✅ Transparence après participation
 - ✅ Engagement des participants
 - ✅ Décisions collaboratives
 
 **Cas d'usage :**
+
 - Sondages de groupe (date de réunion)
 - Décisions d'équipe
 - Votes communautaires
@@ -369,23 +393,28 @@ Visibilité des résultats :
 ### Visibilité : Public
 
 **Qui peut voir :**
+
 - ✅ Tout le monde (même sans voter)
 
 **Comportement :**
+
 - Accès direct à `/poll/{slug}/results` → Résultats visibles immédiatement
 - Pas besoin de voter pour voir les résultats
 - Partage facile des résultats
 
 **Avantages :**
+
 - ✅ Maximum de transparence
 - ✅ Partage facile
 - ✅ Marketing viral
 
 **Risques :**
+
 - ⚠️ Biais de réponses ("effet mouton" - les gens voient les réponses avant de voter)
 - ⚠️ Données sensibles exposées
 
 **Cas d'usage :**
+
 - Sondages d'opinion publics
 - Études de marché transparentes
 - Votes ouverts
@@ -395,15 +424,18 @@ Visibilité des résultats :
 ### Vérification des Permissions
 
 **Accès autorisé si :**
+
 - ✅ Vous êtes le **créateur** du sondage
 - ✅ Vous avez **voté** (si visibilité = "Personnes ayant voté")
 - ✅ Visibilité = "Public"
 
 **Accès refusé si :**
+
 - ❌ Visibilité = "Moi uniquement" ET vous n'êtes pas le créateur
 - ❌ Visibilité = "Personnes ayant voté" ET vous n'avez pas voté
 
 **Message d'erreur :**
+
 ```
 ┌─────────────────────────────────────────┐
 │  🔒 Accès restreint                     │
@@ -432,6 +464,7 @@ Visibilité des résultats :
 ### Exporter
 
 **Formats disponibles :**
+
 ```
 📥 Exporter ▼
 ├── CSV (Excel, Google Sheets)
@@ -447,6 +480,7 @@ Visibilité des résultats :
 ### Partager les Résultats
 
 **Copier le lien :**
+
 ```
 1. Sur la page de résultats, cliquez sur "Partager"
 2. Le lien est copié dans votre presse-papier
@@ -454,6 +488,7 @@ Visibilité des résultats :
 ```
 
 **Format du lien :**
+
 ```
 https://doodates.com/results/{poll-slug}
 ```
@@ -465,6 +500,7 @@ https://doodates.com/results/{poll-slug}
 ### Analytics IA
 
 **Bouton dédié :**
+
 ```
 [📊 Analytics IA]
 → Ouvre le panneau d'analyse intelligente
@@ -496,6 +532,7 @@ https://doodates.com/results/{poll-slug}
 ### Mise à Jour Automatique
 
 **Les résultats se mettent à jour en direct :**
+
 ```
 ⟳ Nouveau vote reçu !
   📊 Mise à jour automatique...
@@ -503,6 +540,7 @@ https://doodates.com/results/{poll-slug}
 ```
 
 **Fréquence :**
+
 - Instantané (< 1 seconde via WebSocket)
 - Pas besoin de rafraîchir la page
 
@@ -511,6 +549,7 @@ https://doodates.com/results/{poll-slug}
 ### Notifications de Nouveau Vote
 
 **Paramétrable dans Settings :**
+
 ```
 ☑ Me notifier des nouveaux votes
   Fréquence : ○ Chaque vote
@@ -519,6 +558,7 @@ https://doodates.com/results/{poll-slug}
 ```
 
 **Notification :**
+
 ```
 ┌─────────────────────────────────────┐
 │  🔔 Nouveau vote !                  │
@@ -535,6 +575,7 @@ https://doodates.com/results/{poll-slug}
 ### Suivi en Direct
 
 **Page "Suivi en temps réel" :**
+
 ```
 🔴 LIVE - Réponses en temps réel
 
@@ -564,6 +605,7 @@ Graphique en direct :
 ### Comparer Deux Sondages
 
 **Feature Premium :**
+
 ```
 Résultats → Menu ••• → "Comparer avec..."
 → Sélectionnez un autre sondage
@@ -610,6 +652,7 @@ Affichage côte à côte :
 ## 🎯 Récapitulatif
 
 **Vous savez maintenant :**
+
 - ✅ Accéder et naviguer dans les résultats
 - ✅ Lire tous les types de graphiques
 - ✅ Configurer la visibilité
@@ -631,4 +674,3 @@ Affichage côte à côte :
 ---
 
 **© 2025 DooDates - Gestion des Résultats v1.0**
-

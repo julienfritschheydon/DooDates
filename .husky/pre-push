@@ -1,28 +1,205 @@
 #!/bin/sh
-# 🔍 DÉSACTIVÉ TEMPORAIREMENT - Pre-push désactivé pour debug rapide E2E
-# ✅ Push autorisé sans vérifications
-# 
-# POUR RÉACTIVER PLUS TARD (quand les E2E marchent) :
-# 1. Remplacer ce contenu par le backup dans docs/pre-commit-backup.md
-# 2. OU restaurer depuis git: git checkout HEAD~1 -- .husky/pre-push
-# 3. OU copier le contenu de docs/pre-commit-backup.md
-#
-# CONTENU ORIGINAL SAUVEGARDÉ :
-# - Build production
-# - Tests unitaires complets
-# - Tests d'intégration
-# - Tests E2E Smoke
-# - Protection branche main
-#
-# BRANCHES SPÉCIALES :
-# - test*: validation complètement skipée
-# - bug: validation légère (build seulement)
-# - feature-*: validation légère (build seulement)
-# - testing: validation légère+ (build + tests unitaires rapides)
-# - staging: validation intermédiaire (build + tests unitaires + intégration)
-# - pre-prod: validation complète (build + tests unitaires + intégration + E2E smoke)
-# - main: validation complète + E2E Smoke (protection)
-#
-# ⚠️ NE PAS OUBLIER DE RÉACTIVER APRÈS DEBUG E2E !
+echo "🚀 DooDates - Validation pre-push..."
 
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-push (test branch) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche bug: validation légère (build seulement)
+if [ "$BRANCH" = "bug" ]; then
+  echo "🐛 Branche BUG: validation légère (CI fera les tests complets)..."
+  
+  # Build seulement
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (bug) validé - Push autorisé"
+  exit 0
+fi
+
+# Branches feature-*: validation légère (build seulement)
+if echo "$BRANCH" | grep -qE "^feature-"; then
+  echo "✨ Branche FEATURE ($BRANCH): validation légère (CI fera les tests complets)..."
+  
+  # Build seulement
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (feature) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche testing: validation légère+ (build + tests unitaires rapides)
+if [ "$BRANCH" = "testing" ]; then
+  echo "🧪 Branche TESTING: validation légère+..."
+  
+  # 1. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 2. Tests unitaires rapides
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (testing) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche staging: validation intermédiaire (build + tests unitaires + intégration)
+if [ "$BRANCH" = "staging" ]; then
+  echo "🎭 Branche STAGING: validation intermédiaire..."
+  
+  # 1. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 2. Tests unitaires rapides
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 3. Tests d'intégration
+  echo "🔗 Tests d'intégration..."
+  npm run test:integration
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests d'intégration échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (staging) validé - Push autorisé"
+  exit 0
+fi
+
+# Branche pre-prod: validation complète (build + tests unitaires + intégration + E2E smoke)
+if [ "$BRANCH" = "pre-prod" ]; then
+  echo "🚀 Branche PRE-PROD: validation complète..."
+  
+  # Ressources accrues
+  export NODE_OPTIONS="--max-old-space-size=4096"
+  
+  # 1. Lint strict (0 warnings, pas de any)
+  echo "🔍 ESLint (Strict - 0 warnings autorisées)..."
+  npm run lint -- --max-warnings=0
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs ou warnings lint - Push bloqué"
+    echo "💡 Corrigez avec: npm run lint:fix"
+    exit 1
+  fi
+  
+  # 2. Build production
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  # 3. Tests unitaires complets
+  echo "🧪 Tests unitaires complets..."
+  npm run test:unit
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 4. Tests d'intégration
+  echo "🔗 Tests d'intégration..."
+  npm run test:integration
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests d'intégration échoués - Push bloqué"
+    exit 1
+  fi
+  
+  # 5. Tests E2E Smoke
+  echo "🔥 Tests E2E Smoke..."
+  E2E_FORCE_MOCKS=true npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (pre-prod) validé - Push autorisé"
+  exit 0
+fi
+
+# Ressources accrues pour éviter OOM et fiabiliser Vitest
+export NODE_OPTIONS="--max-old-space-size=4096"
+export VITEST_MAX_THREADS=1
+export VITEST_POOL=forks
+
+# 1. Suite complète de tests unitaires
+echo "🧪 Tests unitaires complets..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires complets échoués - Push bloqué"
+  exit 1
+fi
+
+# 2. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Push bloqué"
+  exit 1
+fi
+
+# 3. Build de production
+echo "🏗️ Build production..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build production échoué - Push bloqué"
+  exit 1
+fi
+
+# 4. Tests E2E Smoke (uniquement si push vers main)
+# Détecter si on push vers main en lisant les refs depuis stdin
+PUSHING_TO_MAIN="false"
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    PUSHING_TO_MAIN="true"
+    break
+  fi
+done
+
+if [ "$PUSHING_TO_MAIN" = "true" ]; then
+  echo "🔥 Tests E2E Smoke (protection branche main)..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push vers main bloqué"
+    echo "💡 Les tests critiques doivent passer avant de pusher vers main"
+    exit 1
+  fi
+  echo "✅ Tests E2E Smoke passés"
+fi
+
+echo "✅ Pre-push validé - Push autorisé"
 exit 0

@@ -42,15 +42,15 @@ Vous devez organiser une réunion hebdomadaire avec votre équipe de 8 personnes
 
 🤖 IA :
 "Parfait ! Je crée un sondage avec :
- 
+
  Lundi 4 nov :
    • 9h00-11h00
    • 14h00-16h00
- 
+
  Mercredi 6 nov :
    • 9h00-11h00
    • 14h00-16h00
- 
+
  Jeudi 7 nov :
    • 14h00-16h00
 
@@ -62,7 +62,7 @@ Vous devez organiser une réunion hebdomadaire avec votre équipe de 8 personnes
 🤖 IA :
 "✅ Sondage créé ! Voici le lien :
     https://doodates.com/vote/sprint-w45
-    
+
     Je l'envoie par email à ton équipe ?"
 ```
 
@@ -71,6 +71,7 @@ Vous devez organiser une réunion hebdomadaire avec votre équipe de 8 personnes
 ### Configuration Recommandée
 
 **Paramètres :**
+
 - ✅ **Votes anonymes** : Non (pour voir qui est disponible)
 - ✅ **Peut-être autorisé** : Oui (flexibilité)
 - ✅ **Deadline** : Vendredi 17h
@@ -96,6 +97,7 @@ Alternatives :
 ```
 
 **Actions :**
+
 1. Cliquez sur **"Finaliser cette option"**
 2. DooDates crée automatiquement l'événement
 3. Emails de confirmation envoyés
@@ -106,6 +108,7 @@ Alternatives :
 ### Template Prêt à l'Emploi
 
 **Pour créer directement :**
+
 ```
 1. Dashboard → Nouveau sondage de dates
 2. Titre : "Réunion [Nom Équipe] - [Sujet]"
@@ -181,12 +184,14 @@ pour les clients insatisfaits ?"
 ### Configuration Recommandée
 
 **Paramètres :**
+
 - ✅ **Mode** : Multi-étapes (meilleur taux de complétion)
 - ✅ **Anonyme** : Oui (clients plus honnêtes)
 - ✅ **Visibilité résultats** : Créateur uniquement
 - ✅ **Email confirmation** : Non (anonymat)
 
 **QR Code :**
+
 - Imprimer et placer sur tables
 - Ou afficher en caisse
 
@@ -229,16 +234,15 @@ pour les clients insatisfaits ?"
 ### Actions Suite aux Résultats
 
 **Semaine 1 :**
+
 1. Partager insights avec l'équipe
 2. Brainstorm solutions pour le service soir
 3. Test : Serveur supplémentaire vendredi/samedi
 
-**Semaine 2-4 :**
-4. Relancer même enquête
-5. Comparer les résultats (feature Analytics IA)
-6. Mesurer l'impact des actions
+**Semaine 2-4 :** 4. Relancer même enquête 5. Comparer les résultats (feature Analytics IA) 6. Mesurer l'impact des actions
 
 **Export recommandé :**
+
 - 📊 PDF pour réunion d'équipe
 - 📈 CSV pour analyse Excel mensuelle
 
@@ -271,7 +275,7 @@ Vous organisez une fête d'anniversaire surprise pour un ami. Vous devez choisir
    • Samedi 7 déc, 19h-00h
    • Samedi 14 déc, 19h-00h
    • Samedi 21 déc, 19h-00h
-   
+
    Lien : doodates.com/vote/anniv-marc-2025"
 ```
 
@@ -322,15 +326,17 @@ Après avoir fixé la date :
 **Pour maximiser les réponses :**
 
 1. **Envoi séquentiel**
+
    ```
    Semaine 1 : Sondage de dates uniquement
    → Attendre consensus (80% votes)
-   
+
    Semaine 2 : Formulaire détails (date fixée)
    → Plus engageant car date déjà décidée
    ```
 
 2. **Gamification**
+
    ```
    Message d'accompagnement :
    "🎉 Marc ne se doute de rien !
@@ -362,6 +368,7 @@ Après avoir fixé la date :
 ```
 
 **Actions finales :**
+
 1. Réservation escape game (17 personnes)
 2. Réservation restaurant avec menu adapté
 3. Email récap à tous avec :
@@ -393,14 +400,14 @@ Vous êtes Product Manager d'une app SaaS. Vous venez de lancer une nouvelle fon
 
 ```
 💬 Vous :
-"Crée un formulaire de feedback pour notre nouvelle feature 
+"Crée un formulaire de feedback pour notre nouvelle feature
  'Intégrations API'. Je veux savoir si les utilisateurs l'ont testée,
  leur niveau de satisfaction, les cas d'usage, et les bugs rencontrés."
 
 🤖 IA :
 "Formulaire Feedback - Intégrations API (8 questions)
 
-Q1. [Choix unique] Avez-vous testé la nouvelle fonctionnalité 
+Q1. [Choix unique] Avez-vous testé la nouvelle fonctionnalité
     "Intégrations API" ?
     ○ Oui, je l'utilise régulièrement
     ○ Oui, j'ai testé une fois
@@ -450,6 +457,7 @@ Q9. [Choix multiples - Si pas intéressé] Pourquoi ?
 ### Stratégie de Diffusion
 
 **Méthode 1 : In-app Prompt**
+
 ```javascript
 // Afficher après 3 utilisations de la feature
 if (apiIntegrationUsageCount === 3) {
@@ -458,12 +466,13 @@ if (apiIntegrationUsageCount === 3) {
     description: "2 minutes pour améliorer les Intégrations API",
     link: "doodates.com/vote/api-feedback",
     ctaText: "Donner mon avis",
-    incentive: "🎁 10% de réduction sur votre prochain upgrade"
+    incentive: "🎁 10% de réduction sur votre prochain upgrade",
   });
 }
 ```
 
 **Méthode 2 : Email Campaign**
+
 ```
 Objet : [Feedback] Votre avis sur les Intégrations API ? 🚀
 
@@ -498,7 +507,7 @@ Merci de nous aider à améliorer le produit !
 💡 Insights IA Clés
 
 1. 🔥 Feature validée
-   "NPS de +52 indique une adoption forte. 
+   "NPS de +52 indique une adoption forte.
     72% des utilisateurs qui testent deviennent des promoteurs."
 
 2. 🎯 Cas d'usage principal
@@ -532,19 +541,14 @@ Merci de nous aider à améliorer le produit !
 ### Actions Product
 
 **Semaine 1-2 : Quick Wins**
+
 1. ✅ Créer tutoriel vidéo Zapier (use case #1)
 2. ✅ Email annonce feature à 32% non-testeurs
 3. ✅ Investiguer bugs "Timeout API" (priorité haute)
 
-**Semaine 3-4 : Améliorations**
-4. ✅ Réécrire documentation API (+ exemples code)
-5. ✅ Augmenter rate limit Plan Pro
-6. ✅ Ajouter page "Use Cases" avec templates Zapier
+**Semaine 3-4 : Améliorations** 4. ✅ Réécrire documentation API (+ exemples code) 5. ✅ Augmenter rate limit Plan Pro 6. ✅ Ajouter page "Use Cases" avec templates Zapier
 
-**Mois suivant : Mesure d'impact**
-7. ✅ Relancer même sondage
-8. ✅ Comparer NPS, adoption, bugs
-9. ✅ Célébrer si NPS > +60 ! 🎉
+**Mois suivant : Mesure d'impact** 7. ✅ Relancer même sondage 8. ✅ Comparer NPS, adoption, bugs 9. ✅ Célébrer si NPS > +60 ! 🎉
 
 ---
 
@@ -595,7 +599,7 @@ Q3. [Choix multiple] Quels sont des types de données primitifs ?
 
 [... 7 autres questions ...]
 
-Q10. [Texte court] Quelle est la sortie de : 
+Q10. [Texte court] Quelle est la sortie de :
      console.log(typeof null) ?
      Réponse attendue : "object"
 
@@ -609,6 +613,7 @@ Q10. [Texte court] Quelle est la sortie de :
 ### Configuration Mode Examen
 
 **Paramètres spécifiques :**
+
 - ✅ **Limite de temps** : 20 minutes
 - ✅ **Une seule tentative** par personne
 - ✅ **Ordre aléatoire** : Questions mélangées
@@ -646,7 +651,7 @@ Q10. [Texte court] Quelle est la sortie de :
    "Q1-Q3 (Bases) : 96% de réussite → Acquis solides"
 
 3. ⏱️ Corrélation temps/score
-   "Pas de corrélation (r=0.12) → Les étudiants rapides 
+   "Pas de corrélation (r=0.12) → Les étudiants rapides
     ne sont pas moins bons. Temps suffisant."
 ```
 
@@ -655,11 +660,13 @@ Q10. [Texte court] Quelle est la sortie de :
 ### Actions Pédagogiques
 
 **Semaine suivante :**
+
 1. Session de rattrapage sur les closures (Q7)
 2. Exercices pratiques async/await (Q9)
 3. Quiz de confirmation sur ces 2 concepts
 
 **Export :**
+
 - 📊 CSV avec scores par étudiant
 - 📄 PDF rapport de classe (anonymisé)
 
@@ -741,6 +748,7 @@ Section 3 : Culture & Fit (3 questions)
 ### Configuration Stratégique
 
 **Paramètres :**
+
 - ✅ **Mode** : Multi-étapes (plus engageant)
 - ✅ **Progression** : Afficher % complétion
 - ✅ **Sauvegarde** : Auto-save (candidat peut revenir)
@@ -748,6 +756,7 @@ Section 3 : Culture & Fit (3 questions)
 - ✅ **Email confirmation** : Oui (avec récapitulatif)
 
 **Diffusion :**
+
 - LinkedIn (post + sponsorisé)
 - Site carrières entreprise
 - Welcome to the Jungle, Indeed
@@ -802,17 +811,17 @@ Rang | Nom           | Score | Expérience | Stack | NPS
 ### Actions Recrutement
 
 **Phase 1 : Invitations Entretien (Top 20)**
+
 1. Email personnalisé automatique
 2. Lien Calendly pour entretien technique
 3. Take-home assignment (si pertinent)
 
-**Phase 2 : Liste d'Attente (Rang 21-40)**
-4. Email "Profil intéressant, on vous recontacte sous 2 semaines"
+**Phase 2 : Liste d'Attente (Rang 21-40)** 4. Email "Profil intéressant, on vous recontacte sous 2 semaines"
 
-**Phase 3 : Refus Polis (Rang 41+)**
-5. Email générique + Feedback constructif (optionnel)
+**Phase 3 : Refus Polis (Rang 41+)** 5. Email générique + Feedback constructif (optionnel)
 
 **Export utile :**
+
 - 📊 Excel avec tous les scores pour revue RH
 - 📄 PDF des Top 20 pour hiring manager
 
@@ -840,7 +849,7 @@ Vous lancez un nouveau produit et voulez valider l'intérêt du marché avant d'
 📋 Étude de Marché - [Nom Produit]
 
 Introduction :
-"Nous développons [Produit]. Aidez-nous à créer quelque chose 
+"Nous développons [Produit]. Aidez-nous à créer quelque chose
  que vous aimerez vraiment ! (5 minutes)"
 
 Section 1 : Profil (5 questions)
@@ -958,6 +967,7 @@ Top 3 demandées :
 ### Décision GO/NO-GO
 
 **Critères de validation :**
+
 - ✅ Problème fort (>70% frustration élevée) → 82% ✅
 - ✅ Concept attractif (intérêt >3.5/5) → 4.1/5 ✅
 - ✅ Volonté de payer (>50%) → 68% ✅
@@ -966,6 +976,7 @@ Top 3 demandées :
 **🎉 Décision : GO !**
 
 **Actions immédiates :**
+
 1. Développer MVP avec features B, A, D uniquement
 2. Pricing : Freemium + Pro 9€/mois
 3. Lancer bêta privée avec 68 "hyper motivés"
@@ -1068,7 +1079,7 @@ Q8. [Texte libre] Autres contraintes ou remarques ?
 Sprint 1 : 25 nov - 1er déc
   • Daily : Lun-Jeu 9h15 (15min)
   • Review : Vendredi 1er déc, 14h
-  
+
 Sprint 2 : 2-8 déc
   • Daily : Lun-Jeu 9h15
   • Review : Vendredi 8 déc, 14h
@@ -1127,4 +1138,3 @@ Vous avez vu **8 cas d'usage concrets** :
 ---
 
 **© 2025 DooDates - Cas d'Usage v1.0**
-

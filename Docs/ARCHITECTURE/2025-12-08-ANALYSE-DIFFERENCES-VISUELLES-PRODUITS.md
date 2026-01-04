@@ -20,7 +20,9 @@
 **Localisation :** `src/components/prototype/AICreationWorkspace.tsx` (lignes 633-641)
 
 ```tsx
-{/* Bouton Fermer */}
+{
+  /* Bouton Fermer */
+}
 <button
   onClick={() => setIsSidebarOpen(false)}
   className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -28,21 +30,24 @@
   title="Fermer le menu"
 >
   <LazyIconWrapper Icon={X} className="w-5 h-5 text-gray-300" />
-</button>
+</button>;
 ```
 
 **Contexte :**
+
 - Ce bouton **ferme la sidebar interne** de `AICreationWorkspace`
 - Il apparaît **uniquement** dans le workspace IA (Date Polls, Form Polls, Availability)
 - **PAS présent** dans les dashboards ou autres pages
 
 **Produits concernés :**
+
 - ✅ Date Polls (`/date-polls/workspace/date`)
 - ✅ Form Polls (`/form-polls/workspace/form`)
 - ✅ Availability (`/availability-polls/workspace/availability`)
 - ❌ Quizz (pas de workspace IA)
 
 **Raison :**
+
 - `AICreationWorkspace` a sa **propre sidebar interne** avec :
   - Boutons "Créer un sondage", "Créer un formulaire", "Créer une disponibilité"
   - Liste des conversations récentes
@@ -51,6 +56,7 @@
 - Le bouton X permet de **fermer cette sidebar interne** sur mobile
 
 **⚠️ Incohérence :**
+
 - **Double sidebar** : `ProductSidebar` (layout) + sidebar interne (`AICreationWorkspace`)
 - Peut créer de la confusion utilisateur
 
@@ -76,21 +82,23 @@
 
 **Différences visuelles :**
 
-| Élément | Availability | Date/Form Polls | Quizz |
-|---------|-------------|-----------------|-------|
-| **Fond page** | `bg-gray-50` (gris clair) | `bg-[#1e1e1e]` (noir) | `bg-gray-800/50` (gris foncé) |
-| **Carte** | `bg-white` + `border-gray-200` | `bg-[#1e1e1e]` + `border-gray-700` | `bg-gray-800/50` + `border-gray-700` |
-| **Padding top** | `pt-20` (80px) | Variable | Variable |
-| **Max width** | `max-w-2xl` (672px) | Variable | Variable |
-| **Shadow** | `shadow-sm` | Aucune | Aucune |
+| Élément         | Availability                   | Date/Form Polls                    | Quizz                                |
+| --------------- | ------------------------------ | ---------------------------------- | ------------------------------------ |
+| **Fond page**   | `bg-gray-50` (gris clair)      | `bg-[#1e1e1e]` (noir)              | `bg-gray-800/50` (gris foncé)        |
+| **Carte**       | `bg-white` + `border-gray-200` | `bg-[#1e1e1e]` + `border-gray-700` | `bg-gray-800/50` + `border-gray-700` |
+| **Padding top** | `pt-20` (80px)                 | Variable                           | Variable                             |
+| **Max width**   | `max-w-2xl` (672px)            | Variable                           | Variable                             |
+| **Shadow**      | `shadow-sm`                    | Aucune                             | Aucune                               |
 
 **⚠️ Incohérences :**
+
 1. **Fond clair** (`bg-gray-50`) vs fond sombre pour les autres
 2. **Carte blanche** vs cartes sombres
 3. **Bordures grises claires** vs bordures grises foncées
 4. **Shadow** présente uniquement sur Availability
 
 **Raison probable :**
+
 - Availability a été développé **séparément** ou **plus tard**
 - Utilise un **thème clair** par défaut au lieu du thème sombre
 - Pas de cohérence avec le reste de l'app
@@ -121,6 +129,7 @@
 ```
 
 **Différences :**
+
 - **Quizz** : 3 cartes de statistiques globales (Total Quiz, Réponses, Score moyen)
 - **Date/Form/Availability** : Pas de statistiques globales
 
@@ -133,10 +142,12 @@
 ```
 
 **Différences :**
+
 - **Quizz** : `bg-gray-800/50` (gris foncé semi-transparent)
 - **Date/Form/Availability** : Utilise `ConversationCard` (design différent)
 
 **⚠️ Incohérences :**
+
 1. **Statistiques globales** uniquement pour Quizz
 2. **Design de cartes** différent (Quizz vs autres)
 3. **Couleurs** : Quizz utilise `amber` partout, autres utilisent leurs couleurs respectives
@@ -148,10 +159,12 @@
 **Localisation :** À vérifier dans les composants Quizz
 
 **Hypothèse :**
+
 - Quizz a probablement un **bouton retour** dans certaines pages
 - Pas présent dans Date/Form/Availability
 
 **À investiguer :**
+
 - `src/components/products/quizz/QuizzCreate.tsx`
 - `src/app/quizz/Dashboard.tsx`
 - `src/app/quizz/ChildHistory.tsx`
@@ -162,13 +175,14 @@
 
 ### **1. AICreationWorkspace (Date/Form/Availability)**
 
-| Problème | Impact |
-|----------|--------|
-| **Double sidebar** (ProductSidebar + sidebar interne) | Confusion utilisateur |
-| **Bouton X** pour fermer sidebar interne | Pas clair que c'est une sidebar différente |
-| **Sidebar interne** avec boutons de création | Redondance avec ProductSidebar |
+| Problème                                              | Impact                                     |
+| ----------------------------------------------------- | ------------------------------------------ |
+| **Double sidebar** (ProductSidebar + sidebar interne) | Confusion utilisateur                      |
+| **Bouton X** pour fermer sidebar interne              | Pas clair que c'est une sidebar différente |
+| **Sidebar interne** avec boutons de création          | Redondance avec ProductSidebar             |
 
 **Recommandation :**
+
 - ✅ **Supprimer la sidebar interne** de `AICreationWorkspace`
 - ✅ **Utiliser uniquement** `ProductSidebar` (déjà factorisé)
 - ✅ **Déplacer les boutons de création** dans `ProductSidebar`
@@ -177,14 +191,15 @@
 
 ### **2. Availability Polls**
 
-| Problème | Impact |
-|----------|--------|
+| Problème                      | Impact                                 |
+| ----------------------------- | -------------------------------------- |
 | **Fond clair** (`bg-gray-50`) | Incohérent avec le thème sombre global |
-| **Carte blanche** | Tranche avec le reste de l'app |
-| **Bordures claires** | Pas de cohérence visuelle |
-| **Shadow** présente | Autres produits n'en ont pas |
+| **Carte blanche**             | Tranche avec le reste de l'app         |
+| **Bordures claires**          | Pas de cohérence visuelle              |
+| **Shadow** présente           | Autres produits n'en ont pas           |
 
 **Recommandation :**
+
 - ✅ **Aligner sur le thème sombre** : `bg-[#1e1e1e]` ou `bg-gray-900`
 - ✅ **Carte sombre** : `bg-[#2a2a2a]` + `border-gray-700`
 - ✅ **Supprimer shadow** ou l'ajouter partout
@@ -194,13 +209,14 @@
 
 ### **3. Quizz Dashboard**
 
-| Problème | Impact |
-|----------|--------|
+| Problème                                        | Impact                                 |
+| ----------------------------------------------- | -------------------------------------- |
 | **Statistiques globales** uniquement pour Quizz | Incohérent avec Date/Form/Availability |
-| **Design de cartes** différent | Pas de cohérence visuelle |
-| **Couleurs Amber** partout | OK, mais design de carte différent |
+| **Design de cartes** différent                  | Pas de cohérence visuelle              |
+| **Couleurs Amber** partout                      | OK, mais design de carte différent     |
 
 **Recommandation :**
+
 - ✅ **Ajouter statistiques globales** pour Date/Form/Availability (optionnel)
 - ✅ **Utiliser `ConversationCard`** pour Quizz aussi (cohérence)
 - ✅ **Ou créer un composant générique** `ProductCard` pour tous
@@ -210,6 +226,7 @@
 ### **4. Flèche de Retour (Quizz)**
 
 **À investiguer :**
+
 - Localiser où se trouve cette flèche
 - Vérifier si elle est nécessaire
 - Décider si elle doit être ajoutée aux autres produits
@@ -304,6 +321,7 @@
 Les différences visuelles sont **importantes** et **impactent l'expérience utilisateur**.
 
 **Priorités :**
+
 1. 🔥 **Availability** : Aligner sur le thème sombre (impact visuel fort)
 2. ⚠️ **AICreationWorkspace** : Simplifier la double sidebar (confusion utilisateur)
 3. 📊 **Quizz Dashboard** : Harmoniser le design des cartes (cohérence)

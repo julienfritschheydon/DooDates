@@ -1,6 +1,6 @@
-import { Page, expect } from '@playwright/test';
-import { waitForNetworkIdle, waitForReactStable } from './wait-helpers';
-import { PRODUCT_ROUTES } from '../utils';
+import { Page, expect } from "@playwright/test";
+import { waitForNetworkIdle, waitForReactStable } from "./wait-helpers";
+import { PRODUCT_ROUTES } from "../utils";
 
 export async function createPollInLocalStorage(
   page: Page,
@@ -8,7 +8,7 @@ export async function createPollInLocalStorage(
     id: string;
     slug: string;
     title: string;
-    type: 'availability' | 'form' | 'date';
+    type: "availability" | "form" | "date";
     status?: string;
     created_at?: string;
     updated_at?: string;
@@ -20,15 +20,18 @@ export async function createPollInLocalStorage(
     validatedSlot?: any;
   },
 ): Promise<void> {
-  await page.evaluate((data) => {
-    try {
-      const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-      polls.push(data.poll);
-      localStorage.setItem('doodates_polls', JSON.stringify(polls));
-    } catch (e) {
-      console.error('Failed to seed poll:', e);
-    }
-  }, { poll: pollData });
+  await page.evaluate(
+    (data) => {
+      try {
+        const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+        polls.push(data.poll);
+        localStorage.setItem("doodates_polls", JSON.stringify(polls));
+      } catch (e) {
+        console.error("Failed to seed poll:", e);
+      }
+    },
+    { poll: pollData },
+  );
 }
 
 /**
@@ -42,7 +45,7 @@ export async function createPollsAndVerifyInDashboard(
     id: string;
     slug: string;
     title: string;
-    type: 'availability' | 'form' | 'date';
+    type: "availability" | "form" | "date";
     status?: string;
     created_at?: string;
     updated_at?: string;
@@ -51,7 +54,7 @@ export async function createPollsAndVerifyInDashboard(
   }>,
   dashboardRoute: string,
   expectedVisible: string[],
-  expectedNotVisible: string[] = []
+  expectedNotVisible: string[] = [],
 ): Promise<void> {
   // 1. Créer les polls si fournis (sinon ils sont déjà créés dans beforeEach)
   if (polls.length > 0) {
@@ -60,17 +63,17 @@ export async function createPollsAndVerifyInDashboard(
       await createPollInLocalStorage(page, poll);
     }
   }
-  
+
   // 2. Naviguer vers le dashboard (comme product-isolation.spec.ts)
-  await page.goto(dashboardRoute, { waitUntil: 'domcontentloaded' });
+  await page.goto(dashboardRoute, { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // 3. Vérifier que les polls attendus sont visibles
   for (const title of expectedVisible) {
-    await page.getByText(title).waitFor({ state: 'visible', timeout: 5000 });
+    await page.getByText(title).waitFor({ state: "visible", timeout: 5000 });
   }
-  
+
   // 4. Vérifier que les polls non attendus ne sont pas visibles
   for (const title of expectedNotVisible) {
     const locator = page.getByText(title);
@@ -83,25 +86,28 @@ export async function createPollInStorage(
   pollData: {
     slug: string;
     title: string;
-    type: 'form' | 'availability';
-    resultsVisibility?: 'creator-only' | 'voters' | 'public';
+    type: "form" | "availability";
+    resultsVisibility?: "creator-only" | "voters" | "public";
     questions?: any[];
     dates?: any[];
     creator_id?: string;
   },
 ): Promise<void> {
-  await page.addInitScript(({ poll }) => {
-    try {
-      const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-      const newPoll = {
-        id: poll.slug,
-        status: 'active',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        ...poll,
-      };
-      polls.push(newPoll);
-      localStorage.setItem('doodates_polls', JSON.stringify(polls));
-    } catch { }
-  }, { poll: pollData });
+  await page.addInitScript(
+    ({ poll }) => {
+      try {
+        const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+        const newPoll = {
+          id: poll.slug,
+          status: "active",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ...poll,
+        };
+        polls.push(newPoll);
+        localStorage.setItem("doodates_polls", JSON.stringify(polls));
+      } catch {}
+    },
+    { poll: pollData },
+  );
 }

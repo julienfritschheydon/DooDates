@@ -1,6 +1,5 @@
 # PROMPTS GÉNÉRÉS POUR GOOGLE AI STUDIO
 
-
 ## Input: "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats."
 
 ```text
@@ -83,7 +82,6 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
 ```
 
 ---
-
 
 ## Input: "Calcule un brunch samedi 23 ou dimanche 24."
 
@@ -168,7 +166,6 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
 
 ---
 
-
 ## Input: "Bloque un créneau vendredi soir ou samedi matin pour un footing."
 
 ```text
@@ -246,7 +243,6 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
 ```
 
 ---
-
 
 ## Input: "Organise un dîner avec les cousins courant avril, plutôt le week-end."
 
@@ -330,4 +326,3 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.
 ```
 
 ---
-

@@ -1,7 +1,7 @@
 // Deno Edge Function with different runtime
 // @ts-expect-error - Deno modules
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error - Deno modules  
+// @ts-expect-error - Deno modules
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // @ts-expect-error - Deno modules
 import { Resend } from "https://esm.sh/resend@2.0.0";
@@ -90,21 +90,22 @@ serve(async (req: Request) => {
     // Check for authorization (admin only)
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
 
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid authentication" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid authentication" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Check if user is admin
@@ -115,10 +116,10 @@ serve(async (req: Request) => {
       .single();
 
     if (profile?.role !== "admin") {
-      return new Response(
-        JSON.stringify({ error: "Admin access required" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const { method } = req;
@@ -126,7 +127,7 @@ serve(async (req: Request) => {
     if (method === "POST") {
       // Trigger quota alert check
       const alerts = await checkQuotaAlerts(supabase);
-      
+
       if (alerts.length > 0) {
         await sendAlertEmails(resend, alerts, adminEmail);
       }
@@ -137,7 +138,7 @@ serve(async (req: Request) => {
           alerts_found: alerts.length,
           alerts: alerts,
         }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -151,20 +152,19 @@ serve(async (req: Request) => {
           alerts_count: alerts.length,
           alerts: alerts,
         }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
     console.error("Quota alerts error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
@@ -177,8 +177,10 @@ async function checkQuotaAlerts(supabase: SupabaseClient): Promise<QuotaAlert[]>
     .from("quota_tracking")
     .select("*")
     .gte("total_credits_consumed", 50);
-  
-  const { data: userQuotas, error: userError } = await userQuotasResponse as SupabaseResponse<QuotaData[]>;
+
+  const { data: userQuotas, error: userError } = (await userQuotasResponse) as SupabaseResponse<
+    QuotaData[]
+  >;
 
   if (!userError && userQuotas) {
     userQuotas.forEach((quota: QuotaData) => {
@@ -197,7 +199,9 @@ async function checkQuotaAlerts(supabase: SupabaseClient): Promise<QuotaAlert[]>
     .select("*")
     .gte("total_credits_consumed", 50);
 
-  const { data: guestQuotas, error: guestError } = await guestQuotasResponse as SupabaseResponse<GuestQuotaData[]>;
+  const { data: guestQuotas, error: guestError } = (await guestQuotasResponse) as SupabaseResponse<
+    GuestQuotaData[]
+  >;
 
   if (!guestError && guestQuotas) {
     guestQuotas.forEach((quota: GuestQuotaData) => {
@@ -213,14 +217,15 @@ async function checkQuotaAlerts(supabase: SupabaseClient): Promise<QuotaAlert[]>
 
   // Check for suspicious activity (rapid consumption)
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  
+
   const recentActivityResponse = await supabase
     .from("guest_quota_journal")
     .select("user_id, action, credits, created_at")
     .gte("created_at", oneHourAgo)
     .order("created_at", { ascending: false });
 
-  const { data: recentActivity, error: activityError } = await recentActivityResponse as SupabaseResponse<ActivityEntry[]>;
+  const { data: recentActivity, error: activityError } =
+    (await recentActivityResponse) as SupabaseResponse<ActivityEntry[]>;
 
   if (!activityError && recentActivity) {
     // Group by user and count total credits in last hour
@@ -235,28 +240,26 @@ async function checkQuotaAlerts(supabase: SupabaseClient): Promise<QuotaAlert[]>
     }, {});
 
     // Alert on users with > 30 credits in 1 hour
-    Object.entries(userActivity).forEach(([userId, activity]: [string, { totalCredits: number; entries: ActivityEntry[] }]) => {
-      if (activity.totalCredits > 30) {
-        alerts.push({
-          user_id: userId,
-          total_credits_consumed: activity.totalCredits,
-          threshold: 30,
-          alert_type: "suspicious_activity",
-        });
-      }
-    });
+    Object.entries(userActivity).forEach(
+      ([userId, activity]: [string, { totalCredits: number; entries: ActivityEntry[] }]) => {
+        if (activity.totalCredits > 30) {
+          alerts.push({
+            user_id: userId,
+            total_credits_consumed: activity.totalCredits,
+            threshold: 30,
+            alert_type: "suspicious_activity",
+          });
+        }
+      },
+    );
   }
 
   return alerts;
 }
 
-async function sendAlertEmails(
-  resend: Resend,
-  alerts: QuotaAlert[],
-  adminEmail: string
-) {
-  const highUsageAlerts = alerts.filter(a => a.alert_type === "high_usage");
-  const suspiciousAlerts = alerts.filter(a => a.alert_type === "suspicious_activity");
+async function sendAlertEmails(resend: Resend, alerts: QuotaAlert[], adminEmail: string) {
+  const highUsageAlerts = alerts.filter((a) => a.alert_type === "high_usage");
+  const suspiciousAlerts = alerts.filter((a) => a.alert_type === "suspicious_activity");
 
   if (highUsageAlerts.length === 0 && suspiciousAlerts.length === 0) {
     return; // No alerts to send
@@ -281,11 +284,11 @@ async function sendAlertEmails(
         <tbody>
     `;
 
-    highUsageAlerts.forEach(alert => {
+    highUsageAlerts.forEach((alert) => {
       emailContent += `
         <tr>
           <td style="padding: 8px;">${alert.user_id.substring(0, 8)}...</td>
-          <td style="padding: 8px;">${alert.fingerprint || 'N/A'}</td>
+          <td style="padding: 8px;">${alert.fingerprint || "N/A"}</td>
           <td style="padding: 8px; font-weight: bold;">${alert.total_credits_consumed}</td>
         </tr>
       `;
@@ -310,7 +313,7 @@ async function sendAlertEmails(
         <tbody>
     `;
 
-    suspiciousAlerts.forEach(alert => {
+    suspiciousAlerts.forEach((alert) => {
       emailContent += `
         <tr>
           <td style="padding: 8px;">${alert.user_id.substring(0, 8)}...</td>

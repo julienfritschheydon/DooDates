@@ -6,6 +6,7 @@
 ## Executive Summary
 
 Analysis of slow queries shows:
+
 - **45%** from system queries (dashboard, metadata) - cannot be optimized
 - **19.7%** from `pg_timezone_names` - system query, needs investigation
 - **18%** from conversations queries - **OPTIMIZED** ✅
@@ -16,18 +17,21 @@ Analysis of slow queries shows:
 ### ✅ 1. Conversations Query with poll_data Filter (12.8% → Expected <5%)
 
 **Query Pattern:**
+
 ```sql
-SELECT * FROM conversations 
+SELECT * FROM conversations
 WHERE user_id = $1 AND poll_data IS NOT NULL
 LIMIT $2 OFFSET $3
 ```
 
 **Metrics:**
+
 - 33,861 calls
 - 0.9ms mean (already good, but can be better)
 - 12.8% of total time
 
 **Optimization:**
+
 - Created composite index: `idx_conversations_user_poll_data(user_id, updated_at DESC) WHERE poll_data IS NOT NULL`
 - This index covers the exact query pattern and ordering
 
@@ -36,19 +40,22 @@ LIMIT $2 OFFSET $3
 ### ✅ 2. Conversations Query with updated_at Ordering (5.2% → Expected <2%)
 
 **Query Pattern:**
+
 ```sql
-SELECT * FROM conversations 
+SELECT * FROM conversations
 WHERE user_id = $1
 ORDER BY updated_at DESC
 LIMIT $2 OFFSET $3
 ```
 
 **Metrics:**
+
 - 4,137 calls
 - 3ms mean
 - 5.2% of total time
 
 **Optimization:**
+
 - Created composite index: `idx_conversations_user_updated_at(user_id, updated_at DESC) WHERE user_id IS NOT NULL`
 - This index covers user filtering and ordering in one index
 
@@ -59,34 +66,39 @@ LIMIT $2 OFFSET $3
 ### 🔴 pg_timezone_names Query (19.7% of total time)
 
 **Query:**
+
 ```sql
 SELECT name FROM pg_timezone_names
 ```
 
 **Metrics:**
+
 - 168 calls
 - 278ms mean (52ms - 1115ms)
 - **0% cache hit rate** ⚠️
 - 200,592 rows read per call
 
 **Analysis:**
+
 - This is a PostgreSQL system catalog query
 - Called by Supabase dashboard or system functions
 - 0% cache hit indicates different query contexts
 - Cannot be optimized directly
 
 **Recommendations:**
+
 1. **Investigate origin:** Check Supabase logs to identify caller
 2. **If from dashboard:** Contact Supabase support
-3. **If from application:** 
+3. **If from application:**
    - Cache timezone list client-side
    - Use browser's `Intl.DateTimeFormat().resolvedOptions().timeZone` instead
    - Only fetch timezones when needed
 
 **Monitoring:**
+
 ```sql
 -- Check if query is called from application
-SELECT * FROM pg_stat_statements 
+SELECT * FROM pg_stat_statements
 WHERE query LIKE '%pg_timezone_names%'
 ORDER BY total_time DESC;
 ```
@@ -96,11 +108,13 @@ ORDER BY total_time DESC;
 **Query:** Complex function metadata query from Supabase dashboard
 
 **Metrics:**
+
 - 381 calls
 - 157ms mean
 - **100% cache hit rate** ✅
 
 **Analysis:**
+
 - System query from Supabase dashboard
 - Already optimized (100% cache hit)
 - No action needed
@@ -152,11 +166,11 @@ ORDER BY total_time DESC;
 
 After applying optimizations:
 
-| Query | Before | Expected After | Improvement |
-|-------|--------|-----------------|-------------|
-| Conversations + poll_data | 12.8% | ~5-7% | 40-50% reduction |
-| Conversations + updated_at | 5.2% | ~1.5-2% | 60-70% reduction |
-| **Total Application Queries** | **18%** | **~7-9%** | **50% reduction** |
+| Query                         | Before  | Expected After | Improvement       |
+| ----------------------------- | ------- | -------------- | ----------------- |
+| Conversations + poll_data     | 12.8%   | ~5-7%          | 40-50% reduction  |
+| Conversations + updated_at    | 5.2%    | ~1.5-2%        | 60-70% reduction  |
+| **Total Application Queries** | **18%** | **~7-9%**      | **50% reduction** |
 
 ## Monitoring Recommendations
 
@@ -164,7 +178,7 @@ After applying optimizations:
 
 ```sql
 -- Check if new indexes are being used
-SELECT 
+SELECT
   schemaname,
   tablename,
   indexname,
@@ -180,7 +194,7 @@ ORDER BY idx_scan DESC;
 
 ```sql
 -- Check slow queries after optimization
-SELECT 
+SELECT
   query,
   calls,
   mean_exec_time,
@@ -197,7 +211,7 @@ LIMIT 10;
 ```sql
 -- Test query plans
 EXPLAIN (ANALYZE, BUFFERS)
-SELECT * FROM conversations 
+SELECT * FROM conversations
 WHERE user_id = 'test-uuid' AND poll_data IS NOT NULL
 ORDER BY updated_at DESC
 LIMIT 10;
@@ -206,18 +220,21 @@ LIMIT 10;
 ## Action Items
 
 ### Immediate (This Week)
+
 - [x] Create composite indexes for conversations queries
 - [ ] Apply migration to production
 - [ ] Monitor query performance after migration
 - [ ] Verify index usage with pg_stat_user_indexes
 
 ### Short Term (This Month)
+
 - [ ] Investigate pg_timezone_names query origin
 - [ ] If from application, implement client-side caching
 - [ ] Review consume_quota_credits function if call frequency increases
 - [ ] Set up automated monitoring for slow queries
 
 ### Long Term (Ongoing)
+
 - [ ] Quarterly review of slow queries
 - [ ] Proactive index optimization based on query patterns
 - [ ] Performance regression testing
@@ -227,6 +244,7 @@ LIMIT 10;
 **File:** `supabase/migrations/20250111_optimize_slow_queries.sql`
 
 **Changes:**
+
 1. Created `idx_conversations_user_poll_data` composite index
 2. Created `idx_conversations_user_updated_at` composite index
 3. Created `idx_conversations_has_poll_data` partial index
@@ -238,4 +256,3 @@ LIMIT 10;
 - [PostgreSQL Partial Indexes](https://www.postgresql.org/docs/current/indexes-partial.html)
 - [Supabase Performance Tuning](https://supabase.com/docs/guides/platform/performance)
 - [Query Performance Tips](https://www.postgresql.org/docs/current/performance-tips.html)
-

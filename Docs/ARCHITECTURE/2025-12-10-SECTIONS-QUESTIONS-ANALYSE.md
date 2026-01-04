@@ -18,7 +18,7 @@ L'objectif est d'implémenter des sections de questions pour améliorer l'organi
 ## 🎯 Objectifs
 
 1. **Améliorer la lisibilité** des formulaires longs
-2. **Faciliter la navigation** dans les questionnaires complexes  
+2. **Faciliter la navigation** dans les questionnaires complexes
 3. **Supporter les deux modes** (classique et multi-step)
 4. **Maintenir la rétrocompatibilité** avec les formulaires existants
 5. **Permettre une implémentation progressive** sans refonte majeure
@@ -30,6 +30,7 @@ L'objectif est d'implémenter des sections de questions pour améliorer l'organi
 ### **Approche 1: Sections intégrées (proposée initialement)**
 
 #### Architecture
+
 ```typescript
 type FormItem = FormQuestion | FormSection;
 
@@ -46,23 +47,26 @@ interface FormQuestion {
 ```
 
 #### Structure des données
+
 ```typescript
 questions: [
   { id: "s1", type: "section", title: "Informations personnelles" },
   { id: "q1", kind: "text", title: "Nom" },
   { id: "q2", kind: "email", title: "Email" },
   { id: "s2", type: "section", title: "Feedback" },
-  { id: "q3", kind: "rating", title: "Satisfaction" }
-]
+  { id: "q3", kind: "rating", title: "Satisfaction" },
+];
 ```
 
 #### Avantages
+
 - ✅ **Simple à implémenter** - Extension minimale du code existant
 - ✅ **Flexible** - Questions et sections peuvent être mélangées librement
 - ✅ **Compatible** - Fonctionne avec l'architecture actuelle de `FormEditor`
 - ✅ **Logique intuitive** - Une section = juste un autre élément dans la liste
 
 #### Inconvénients
+
 - ❌ **Moins structuré** - Pas de hiérarchie claire entre sections et questions
 - ❌ **Navigation complexe** - Dans les formulaires longs, difficile de sauter à une section spécifique
 - ❌ **Export désorganisé** - Les résultats ne sont pas groupés par section
@@ -73,6 +77,7 @@ questions: [
 ### **Approche 2: Structure hiérarchique**
 
 #### Architecture
+
 ```typescript
 interface FormSection {
   id: string;
@@ -89,6 +94,7 @@ interface FormPoll {
 ```
 
 #### Structure des données
+
 ```typescript
 {
   sections: [
@@ -98,21 +104,20 @@ interface FormPoll {
       description: "Vos coordonnées de base",
       questions: [
         { id: "q1", kind: "text", title: "Nom" },
-        { id: "q2", kind: "email", title: "Email" }
-      ]
+        { id: "q2", kind: "email", title: "Email" },
+      ],
     },
     {
-      id: "s2", 
+      id: "s2",
       title: "Feedback",
-      questions: [
-        { id: "q3", kind: "rating", title: "Satisfaction" }
-      ]
-    }
-  ]
+      questions: [{ id: "q3", kind: "rating", title: "Satisfaction" }],
+    },
+  ];
 }
 ```
 
 #### Avantages
+
 - ✅ **Très structuré** - Hiérarchie claire et explicite
 - ✅ **Parfait pour multi-step** - Les sections deviennent naturellement des étapes
 - ✅ **Export organisé** - Les résultats sont groupés par section
@@ -120,6 +125,7 @@ interface FormPoll {
 - ✅ **Analytics améliorées** - Taux de réponse par section
 
 #### Inconvénients
+
 - ❌ **Refacto majeure** - Nécessite de modifier profondément l'architecture existante
 - ❌ **Migration complexe** - Les formulaires existants doivent être migrés
 - ❌ **Moins flexible** - Une question appartient forcément à une section
@@ -130,6 +136,7 @@ interface FormPoll {
 ### **Approche 3: Sections comme propriété des questions (RECOMMANDÉE)**
 
 #### Architecture
+
 ```typescript
 interface FormQuestion {
   // ... champs existants
@@ -151,6 +158,7 @@ interface FormPoll {
 ```
 
 #### Structure des données
+
 ```typescript
 {
   sections: [
@@ -166,6 +174,7 @@ interface FormPoll {
 ```
 
 #### Avantages
+
 - ✅ **Rétrocompatibilité totale** - Les formulaires existants continuent de fonctionner (`sectionId = undefined`)
 - ✅ **Migration en douceur** - Pas besoin de modifier les données existantes
 - ✅ **Flexibilité maximale** - Une question peut changer de section facilement
@@ -174,6 +183,7 @@ interface FormPoll {
 - ✅ **Performance** - Structure de données optimisée pour les requêtes
 
 #### Inconvénients
+
 - ❌ **Gestion des ordres** - Nécessite de maintenir `order` global + `sectionOrder`
 - ❌ **Complexité de tri** - Algorithme de tri plus complexe (section puis sectionOrder)
 - ❌ **Validation accrue** - Vérifier la cohérence des sectionOrder
@@ -275,6 +285,7 @@ interface FormPoll {
 ### **Phase 1: Types et données (30 minutes)**
 
 #### Modifications dans `pollStorage.ts`
+
 ```typescript
 // Ajouter interface FormSection
 export interface FormSection {
@@ -303,6 +314,7 @@ export type FormPollDraft = {
 ```
 
 #### Helpers de tri
+
 ```typescript
 // Helper pour trier les questions par section
 export function sortQuestionsBySection(questions: Question[], sections: FormSection[]): Question[] {
@@ -314,12 +326,14 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 ### **Phase 2: Interface d'édition (45 minutes)**
 
 #### Modifications dans `FormEditor.tsx`
+
 - Ajouter affichage des sections
 - Ajouter boutons "Ajouter section"
 - Permettre drag & drop entre sections
 - Gérer les ordres (sectionOrder)
 
 #### Nouveau composant `SectionEditor.tsx`
+
 - Interface pour éditer titre/description
 - Boutons supprimer/déplacer section
 - Affichage des questions de la section
@@ -327,11 +341,13 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 ### **Phase 3: Rendu vote (15 minutes)**
 
 #### Modifications dans `FormPollVote.tsx`
+
 - Regrouper les questions par section
 - Afficher les titres de sections
 - Maintenir compatibilité questions sans section
 
 #### Modifications dans `MultiStepFormVote.tsx`
+
 - Les sections deviennent des étapes
 - Navigation entre sections
 - Progress indicator par section
@@ -340,16 +356,16 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 
 ## 📊 Comparaison des Approches
 
-| Critère | Approche 1 (Intégrée) | Approche 2 (Hiérarchique) | Approche 3 (Propriété) ⭐ |
-|---------|----------------------|---------------------------|--------------------------|
-| **Rétrocompatibilité** | ⚠️ Moyenne | ❌ Faible | ✅ **Excellente** |
-| **Complexité implémentation** | ✅ Faible | ❌ Élevée | ✅ **Moyenne** |
-| **Flexibilité** | ✅ Bonne | ⚠️ Moyenne | ✅ **Excellente** |
-| **Mode multi-step** | ⚠️ Moyen | ✅ **Excellent** | ✅ **Excellent** |
-| **Export organisé** | ⚠️ Moyen | ✅ **Excellent** | ✅ **Excellent** |
-| **Migration données** | ⚠️ Moyenne | ❌ Complexe | ✅ **Triviale** |
-| **Performance** | ✅ Bonne | ⚠️ Moyenne | ✅ **Excellente** |
-| **Maintenance** | ✅ Simple | ❌ Complexe | ✅ **Simple** |
+| Critère                       | Approche 1 (Intégrée) | Approche 2 (Hiérarchique) | Approche 3 (Propriété) ⭐ |
+| ----------------------------- | --------------------- | ------------------------- | ------------------------- |
+| **Rétrocompatibilité**        | ⚠️ Moyenne            | ❌ Faible                 | ✅ **Excellente**         |
+| **Complexité implémentation** | ✅ Faible             | ❌ Élevée                 | ✅ **Moyenne**            |
+| **Flexibilité**               | ✅ Bonne              | ⚠️ Moyenne                | ✅ **Excellente**         |
+| **Mode multi-step**           | ⚠️ Moyen              | ✅ **Excellent**          | ✅ **Excellent**          |
+| **Export organisé**           | ⚠️ Moyen              | ✅ **Excellent**          | ✅ **Excellent**          |
+| **Migration données**         | ⚠️ Moyenne            | ❌ Complexe               | ✅ **Triviale**           |
+| **Performance**               | ✅ Bonne              | ⚠️ Moyenne                | ✅ **Excellente**         |
+| **Maintenance**               | ✅ Simple             | ❌ Complexe               | ✅ **Simple**             |
 
 ---
 
@@ -358,23 +374,27 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 **Approche 3 (Sections comme propriété) est fortement recommandée** pour les raisons suivantes :
 
 ### 1. **Rétrocompatibilité garantie**
+
 - Les formulaires existants continuent de fonctionner sans modification
 - Migration transparente et sans risque
 - Déploiement progressif possible
 
 ### 2. **Flexibilité maximale**
+
 - Une question peut exister sans section
 - Une question peut changer de section facilement
 - Support des workflows complexes (réorganisation, fusion de sections)
 
 ### 3. **Performance optimisée**
+
 - Structure de données plate et efficace
 - Requêtes simples pour récupérer les questions
 - Tri côté client (rapide pour les formulaires < 100 questions)
 
 ### 4. **Compatible avec tous les modes**
+
 - **Mode classique:** Sections comme séparateurs visuels
-- **Mode multi-step:** Sections comme étapes naturelles  
+- **Mode multi-step:** Sections comme étapes naturelles
 - **Mode analytics:** Groupement par section trivial
 - **Mode export:** Organisation automatique
 
@@ -383,21 +403,25 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 ## 🚀 Prochaines Étapes
 
 ### **Immédiat (Décision utilisateur)**
+
 1. Valider l'approche 3
 2. Approuver le design visuel proposé
 3. Confirmer le plan d'implémentation
 
 ### **Développement (1h30 estimé)**
+
 1. **Phase 1 (30min):** Types et helpers
-2. **Phase 2 (45min):** Interface d'édition  
+2. **Phase 2 (45min):** Interface d'édition
 3. **Phase 3 (15min):** Rendu vote
 
 ### **Tests et validation (30min)**
+
 1. Tests manuels des trois modes
 2. Vérification rétrocompatibilité
 3. Validation exports et analytics
 
 ### **Documentation (15min)**
+
 1. Mise à jour documentation utilisateur
 2. Guide d'utilisation des sections
 3. Examples et templates
@@ -407,22 +431,23 @@ export function sortQuestionsBySection(questions: Question[], sections: FormSect
 ## 📝 Notes Techniques
 
 ### **Gestion des ordres**
+
 ```typescript
 // Algorithme de tri proposé
 function sortQuestions(questions: Question[], sections: FormSection[]): Question[] {
-  const sectionMap = new Map(sections.map(s => [s.id, s.order]));
-  
+  const sectionMap = new Map(sections.map((s) => [s.id, s.order]));
+
   return questions.sort((a, b) => {
     // Questions sans section: utiliser order global
     if (!a.sectionId && !b.sectionId) return (a.order || 0) - (b.order || 0);
     if (!a.sectionId) return -1; // Sans section en premier
     if (!b.sectionId) return 1;
-    
+
     // Même section: comparer sectionOrder
     if (a.sectionId === b.sectionId) {
       return (a.sectionOrder || 0) - (b.sectionOrder || 0);
     }
-    
+
     // Sections différentes: comparer order des sections
     return (sectionMap.get(a.sectionId) || 0) - (sectionMap.get(b.sectionId) || 0);
   });
@@ -430,28 +455,29 @@ function sortQuestions(questions: Question[], sections: FormSection[]): Question
 ```
 
 ### **Migration automatique**
+
 ```typescript
 // Helper pour migrer les formulaires existants
 function migrateFormToSections(poll: FormPoll): FormPoll {
   if (poll.sections && poll.sections.length > 0) return poll;
-  
+
   // Créer une section par défaut pour toutes les questions
   const defaultSection: FormSection = {
-    id: 'default-section',
-    title: 'Questions',
-    order: 1
+    id: "default-section",
+    title: "Questions",
+    order: 1,
   };
-  
+
   const questionsWithSection = poll.questions.map((q, index) => ({
     ...q,
-    sectionId: 'default-section',
-    sectionOrder: index + 1
+    sectionId: "default-section",
+    sectionOrder: index + 1,
   }));
-  
+
   return {
     ...poll,
     sections: [defaultSection],
-    questions: questionsWithSection
+    questions: questionsWithSection,
   };
 }
 ```

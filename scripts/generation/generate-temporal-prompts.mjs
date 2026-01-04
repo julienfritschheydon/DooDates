@@ -297,7 +297,7 @@ const constraintTemplates = [
       "avec rappel automatique la veille",
       "avec replanification automatique si conflit",
       "avec un résumé à envoyer après",
-      "en laissant la possibilité de répondre \"préférences\"",
+      'en laissant la possibilité de répondre "préférences"',
     ],
   },
   {
@@ -527,7 +527,9 @@ function ensureDirectoryExists(targetPath) {
 function writeOutputFile(options, sentences) {
   ensureDirectoryExists(options.output);
   const header = `# Dataset généré automatiquement le ${new Date().toISOString()}`;
-  const content = [header, "# Usage : tests de compréhension temporelle", ""].concat(sentences).join("\n");
+  const content = [header, "# Usage : tests de compréhension temporelle", ""]
+    .concat(sentences)
+    .join("\n");
   fs.writeFileSync(options.output, content, { encoding: "utf-8" });
 }
 

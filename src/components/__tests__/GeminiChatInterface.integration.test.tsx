@@ -27,7 +27,9 @@ vi.mock("../../components/modals/AuthIncentiveModal", () => {
     isOpen ? (
       <div data-testid="auth-incentive-modal">
         <div>Modal: {trigger}</div>
-        <button onClick={onClose} data-testid="geminichatinterface.integration.test-button">Close</button>
+        <button onClick={onClose} data-testid="geminichatinterface.integration.test-button">
+          Close
+        </button>
       </div>
     ) : null;
 
@@ -53,7 +55,9 @@ vi.mock("../../components/ui/QuotaIndicator", () => {
 vi.mock("../../components/PollCreator", () => ({
   PollCreator: ({ onClose }: any) => (
     <div data-testid="poll-creator">
-      <button onClick={onClose} data-testid="geminichatinterface.integration.test-button">Close Poll Creator</button>
+      <button onClick={onClose} data-testid="geminichatinterface.integration.test-button">
+        Close Poll Creator
+      </button>
     </div>
   ),
 }));

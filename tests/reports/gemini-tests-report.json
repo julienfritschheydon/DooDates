@@ -35,59 +35,41 @@
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           }
         ],
-        "dates": [
-          "2025-12-09",
-          "2025-12-10"
-        ],
+        "dates": ["2025-12-09", "2025-12-10"],
         "generatedTitle": "Créneaux pour démo client",
         "generatedDescription": "Proposition de trois créneaux horaires pour la démo client mardi ou mercredi prochain.",
         "rawResponse": {
           "title": "Créneaux pour démo client",
           "description": "Proposition de trois créneaux horaires pour la démo client mardi ou mercredi prochain.",
-          "dates": [
-            "2025-12-09",
-            "2025-12-10"
-          ],
+          "dates": ["2025-12-09", "2025-12-10"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             }
           ],
           "type": "date",
@@ -120,29 +102,21 @@
           {
             "start": "09:30",
             "end": "10:00",
-            "dates": [
-              "2025-12-20"
-            ]
+            "dates": ["2025-12-20"]
           }
         ],
-        "dates": [
-          "2025-12-20"
-        ],
+        "dates": ["2025-12-20"],
         "generatedTitle": "Point budget",
         "generatedDescription": "Point budget dans deux semaines autour de 9h30",
         "rawResponse": {
           "title": "Point budget",
           "description": "Point budget dans deux semaines autour de 9h30",
-          "dates": [
-            "2025-12-20"
-          ],
+          "dates": ["2025-12-20"],
           "timeSlots": [
             {
               "start": "09:30",
               "end": "10:00",
-              "dates": [
-                "2025-12-20"
-              ]
+              "dates": ["2025-12-20"]
             }
           ],
           "type": "date",
@@ -175,133 +149,91 @@
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-18"
-            ]
+            "dates": ["2025-12-18"]
           },
           {
             "start": "17:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-18"
-            ]
+            "dates": ["2025-12-18"]
           },
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-19"
-            ]
+            "dates": ["2025-12-19"]
           },
           {
             "start": "17:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-19"
-            ]
+            "dates": ["2025-12-19"]
           },
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-20"
-            ]
+            "dates": ["2025-12-20"]
           },
           {
             "start": "17:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-20"
-            ]
+            "dates": ["2025-12-20"]
           },
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-21"
-            ]
+            "dates": ["2025-12-21"]
           },
           {
             "start": "17:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-21"
-            ]
+            "dates": ["2025-12-21"]
           }
         ],
-        "dates": [
-          "2025-12-18",
-          "2025-12-19",
-          "2025-12-20",
-          "2025-12-21"
-        ],
+        "dates": ["2025-12-18", "2025-12-19", "2025-12-20", "2025-12-21"],
         "generatedTitle": "Réunion Projet",
         "generatedDescription": "Réunion projet planifiée en fin de journée la semaine du 18 décembre.",
         "rawResponse": {
           "title": "Réunion Projet",
           "description": "Réunion projet planifiée en fin de journée la semaine du 18 décembre.",
-          "dates": [
-            "2025-12-18",
-            "2025-12-19",
-            "2025-12-20",
-            "2025-12-21"
-          ],
+          "dates": ["2025-12-18", "2025-12-19", "2025-12-20", "2025-12-21"],
           "timeSlots": [
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-18"
-              ]
+              "dates": ["2025-12-18"]
             },
             {
               "start": "17:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-18"
-              ]
+              "dates": ["2025-12-18"]
             },
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-19"
-              ]
+              "dates": ["2025-12-19"]
             },
             {
               "start": "17:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-19"
-              ]
+              "dates": ["2025-12-19"]
             },
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-20"
-              ]
+              "dates": ["2025-12-20"]
             },
             {
               "start": "17:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-20"
-              ]
+              "dates": ["2025-12-20"]
             },
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-21"
-              ]
+              "dates": ["2025-12-21"]
             },
             {
               "start": "17:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-21"
-              ]
+              "dates": ["2025-12-21"]
             }
           ],
           "type": "date",
@@ -409,29 +341,21 @@
           {
             "start": "09:00",
             "end": "09:15",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-07"],
         "generatedTitle": "Stand-up express équipe support",
         "generatedDescription": "Stand-up rapide pour l'équipe support.",
         "rawResponse": {
           "title": "Stand-up express équipe support",
           "description": "Stand-up rapide pour l'équipe support.",
-          "dates": [
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-07"],
           "timeSlots": [
             {
               "start": "09:00",
               "end": "09:15",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -466,45 +390,31 @@
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           }
         ],
-        "dates": [
-          "2025-12-10",
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-10", "2025-12-12"],
         "generatedTitle": "Réunion de lancement",
         "generatedDescription": "Planification de la réunion de lancement la semaine prochaine.",
         "rawResponse": {
           "title": "Réunion de lancement",
           "description": "Planification de la réunion de lancement la semaine prochaine.",
-          "dates": [
-            "2025-12-10",
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-10", "2025-12-12"],
           "timeSlots": [
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             }
           ],
           "type": "date",
@@ -537,29 +447,21 @@
           {
             "start": "17:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-07"],
         "generatedTitle": "Créneau client canadien",
         "generatedDescription": "Créneau en fin d'après-midi pour un client au fuseau horaire -5h (EST).",
         "rawResponse": {
           "title": "Créneau client canadien",
           "description": "Créneau en fin d'après-midi pour un client au fuseau horaire -5h (EST).",
-          "dates": [
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-07"],
           "timeSlots": [
             {
               "start": "17:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -592,157 +494,111 @@
           {
             "start": "08:00",
             "end": "08:45",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "08:45",
             "end": "09:30",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "09:30",
             "end": "10:15",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "10:15",
             "end": "11:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "11:00",
             "end": "11:45",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "08:00",
             "end": "08:45",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "08:45",
             "end": "09:30",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "09:30",
             "end": "10:15",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "10:15",
             "end": "11:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "11:00",
             "end": "11:45",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           }
         ],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09"
-        ],
+        "dates": ["2025-12-08", "2025-12-09"],
         "generatedTitle": "Point Prod",
         "generatedDescription": "",
         "rawResponse": {
           "title": "Point Prod",
           "description": null,
-          "dates": [
-            "2025-12-08",
-            "2025-12-09"
-          ],
+          "dates": ["2025-12-08", "2025-12-09"],
           "timeSlots": [
             {
               "start": "08:00",
               "end": "08:45",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "08:45",
               "end": "09:30",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "09:30",
               "end": "10:15",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "10:15",
               "end": "11:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "11:00",
               "end": "11:45",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "08:00",
               "end": "08:45",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "08:45",
               "end": "09:30",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "09:30",
               "end": "10:15",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "10:15",
               "end": "11:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "11:00",
               "end": "11:45",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             }
           ],
           "type": "date",
@@ -775,29 +631,21 @@
           {
             "start": "11:00",
             "end": "13:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           }
         ],
-        "dates": [
-          "2025-12-10"
-        ],
+        "dates": ["2025-12-10"],
         "generatedTitle": "Déjeuner partenariats",
         "generatedDescription": "Créneau pour déjeuner partenariats mercredi entre 11h et 13h.",
         "rawResponse": {
           "title": "Déjeuner partenariats",
           "description": "Créneau pour déjeuner partenariats mercredi entre 11h et 13h.",
-          "dates": [
-            "2025-12-10"
-          ],
+          "dates": ["2025-12-10"],
           "timeSlots": [
             {
               "start": "11:00",
               "end": "13:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             }
           ],
           "type": "date",
@@ -827,19 +675,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-21",
-          "2025-12-22"
-        ],
+        "dates": ["2025-12-21", "2025-12-22"],
         "generatedTitle": "Répétition présentation",
         "generatedDescription": "Proposition de deux dates dans quinze jours pour répéter la présentation.",
         "rawResponse": {
           "title": "Répétition présentation",
           "description": "Proposition de deux dates dans quinze jours pour répéter la présentation.",
-          "dates": [
-            "2025-12-21",
-            "2025-12-22"
-          ],
+          "dates": ["2025-12-21", "2025-12-22"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -871,19 +713,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-23",
-          "2025-12-24"
-        ],
+        "dates": ["2025-12-23", "2025-12-24"],
         "generatedTitle": "Brunch Samedi/Dimanche",
         "generatedDescription": "Brunch le samedi 23 ou dimanche 24 décembre 2025",
         "rawResponse": {
           "title": "Brunch Samedi/Dimanche",
           "description": "Brunch le samedi 23 ou dimanche 24 décembre 2025",
-          "dates": [
-            "2025-12-23",
-            "2025-12-24"
-          ],
+          "dates": ["2025-12-23", "2025-12-24"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -915,61 +751,41 @@
           {
             "start": "19:00",
             "end": "21:00",
-            "dates": [
-              "2026-03-27"
-            ]
+            "dates": ["2026-03-27"]
           },
           {
             "start": "19:00",
             "end": "21:00",
-            "dates": [
-              "2026-03-28"
-            ]
+            "dates": ["2026-03-28"]
           },
           {
             "start": "19:00",
             "end": "21:00",
-            "dates": [
-              "2026-03-29"
-            ]
+            "dates": ["2026-03-29"]
           }
         ],
-        "dates": [
-          "2026-03-27",
-          "2026-03-28",
-          "2026-03-29"
-        ],
+        "dates": ["2026-03-27", "2026-03-28", "2026-03-29"],
         "generatedTitle": "Soirées Escape Game - Fin Mars",
         "generatedDescription": "Propositions de dates pour un escape game fin mars.",
         "rawResponse": {
           "title": "Soirées Escape Game - Fin Mars",
           "description": "Propositions de dates pour un escape game fin mars.",
-          "dates": [
-            "2026-03-27",
-            "2026-03-28",
-            "2026-03-29"
-          ],
+          "dates": ["2026-03-27", "2026-03-28", "2026-03-29"],
           "timeSlots": [
             {
               "start": "19:00",
               "end": "21:00",
-              "dates": [
-                "2026-03-27"
-              ]
+              "dates": ["2026-03-27"]
             },
             {
               "start": "19:00",
               "end": "21:00",
-              "dates": [
-                "2026-03-28"
-              ]
+              "dates": ["2026-03-28"]
             },
             {
               "start": "19:00",
               "end": "21:00",
-              "dates": [
-                "2026-03-29"
-              ]
+              "dates": ["2026-03-29"]
             }
           ],
           "type": "date",
@@ -1002,45 +818,21 @@
           {
             "start": "14:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-09",
-              "2025-12-10",
-              "2025-12-11",
-              "2025-12-12",
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12", "2025-12-13"]
           }
         ],
-        "dates": [
-          "2025-12-09",
-          "2025-12-10",
-          "2025-12-11",
-          "2025-12-12",
-          "2025-12-13"
-        ],
+        "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12", "2025-12-13"],
         "generatedTitle": "Visite au musée",
         "generatedDescription": "Trouver un après-midi libre la semaine prochaine",
         "rawResponse": {
           "title": "Visite au musée",
           "description": "Trouver un après-midi libre la semaine prochaine",
-          "dates": [
-            "2025-12-09",
-            "2025-12-10",
-            "2025-12-11",
-            "2025-12-12",
-            "2025-12-13"
-          ],
+          "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12", "2025-12-13"],
           "timeSlots": [
             {
               "start": "14:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-09",
-                "2025-12-10",
-                "2025-12-11",
-                "2025-12-12",
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12", "2025-12-13"]
             }
           ],
           "type": "date",
@@ -1073,45 +865,31 @@
           {
             "start": "18:00",
             "end": "19:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           },
           {
             "start": "08:00",
             "end": "09:00",
-            "dates": [
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-13"]
           }
         ],
-        "dates": [
-          "2025-12-12",
-          "2025-12-13"
-        ],
+        "dates": ["2025-12-12", "2025-12-13"],
         "generatedTitle": "Footing",
         "generatedDescription": "Créneau pour footing",
         "rawResponse": {
           "title": "Footing",
           "description": "Créneau pour footing",
-          "dates": [
-            "2025-12-12",
-            "2025-12-13"
-          ],
+          "dates": ["2025-12-12", "2025-12-13"],
           "timeSlots": [
             {
               "start": "18:00",
               "end": "19:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             },
             {
               "start": "08:00",
               "end": "09:00",
-              "dates": [
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-13"]
             }
           ],
           "type": "date",
@@ -1224,17 +1002,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2026-05-16"
-        ],
+        "dates": ["2026-05-16"],
         "generatedTitle": "Anniversaire de Léa",
         "generatedDescription": "Trouver un samedi autour du 15 mai pour l'anniversaire de Léa.",
         "rawResponse": {
           "title": "Anniversaire de Léa",
           "description": "Trouver un samedi autour du 15 mai pour l'anniversaire de Léa.",
-          "dates": [
-            "2026-05-16"
-          ],
+          "dates": ["2026-05-16"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -1263,19 +1037,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2026-06-06",
-          "2026-06-07"
-        ],
+        "dates": ["2026-06-06", "2026-06-07"],
         "generatedTitle": "Week-end de deux jours en juin 2026",
         "generatedDescription": "Proposition de week-end de deux jours en juin 2026.",
         "rawResponse": {
           "title": "Week-end de deux jours en juin 2026",
           "description": "Proposition de week-end de deux jours en juin 2026.",
-          "dates": [
-            "2026-06-06",
-            "2026-06-07"
-          ],
+          "dates": ["2026-06-06", "2026-06-07"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -1296,9 +1064,7 @@
         "timeSlotsCount": 4,
         "datesCount": 4,
         "type": "date",
-        "violations": [
-          "Créneaux: 1 créneaux obtenus (attendu: 2-6)"
-        ],
+        "violations": ["Créneaux: 1 créneaux obtenus (attendu: 2-6)"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 1,
@@ -1309,41 +1075,21 @@
           {
             "start": "09:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-07",
-              "2025-12-14",
-              "2025-12-21",
-              "2025-12-28"
-            ]
+            "dates": ["2025-12-07", "2025-12-14", "2025-12-21", "2025-12-28"]
           }
         ],
-        "dates": [
-          "2025-12-07",
-          "2025-12-14",
-          "2025-12-21",
-          "2025-12-28"
-        ],
+        "dates": ["2025-12-07", "2025-12-14", "2025-12-21", "2025-12-28"],
         "generatedTitle": "Séance photo familiale en décembre",
         "generatedDescription": "Planification d'une séance photo familiale un dimanche matin avant la fin du mois de décembre.",
         "rawResponse": {
           "title": "Séance photo familiale en décembre",
           "description": "Planification d'une séance photo familiale un dimanche matin avant la fin du mois de décembre.",
-          "dates": [
-            "2025-12-07",
-            "2025-12-14",
-            "2025-12-21",
-            "2025-12-28"
-          ],
+          "dates": ["2025-12-07", "2025-12-14", "2025-12-21", "2025-12-28"],
           "timeSlots": [
             {
               "start": "09:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-07",
-                "2025-12-14",
-                "2025-12-21",
-                "2025-12-28"
-              ]
+              "dates": ["2025-12-07", "2025-12-14", "2025-12-21", "2025-12-28"]
             }
           ],
           "type": "date",
@@ -1496,9 +1242,7 @@
         "timeSlotsCount": 0,
         "datesCount": 1,
         "type": "date",
-        "violations": [
-          "Créneaux: aucun créneau généré malgré l'attente"
-        ],
+        "violations": ["Créneaux: aucun créneau généré malgré l'attente"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 1,
@@ -1506,17 +1250,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-16"
-        ],
+        "dates": ["2025-12-16"],
         "generatedTitle": "Call visio avec les parents",
         "generatedDescription": "Créneau pour un appel visio avec les parents",
         "rawResponse": {
           "title": "Call visio avec les parents",
           "description": "Créneau pour un appel visio avec les parents",
-          "dates": [
-            "2025-12-16"
-          ],
+          "dates": ["2025-12-16"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -1548,21 +1288,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-09",
-          "2025-12-10",
-          "2025-12-11"
-        ],
+        "dates": ["2025-12-09", "2025-12-10", "2025-12-11"],
         "generatedTitle": "Réunion parents-profs",
         "generatedDescription": "Planification de la réunion parents-profs entre mardi et jeudi prochains.",
         "rawResponse": {
           "title": "Réunion parents-profs",
           "description": "Planification de la réunion parents-profs entre mardi et jeudi prochains.",
-          "dates": [
-            "2025-12-09",
-            "2025-12-10",
-            "2025-12-11"
-          ],
+          "dates": ["2025-12-09", "2025-12-10", "2025-12-11"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -1594,73 +1326,51 @@
           {
             "start": "10:00",
             "end": "11:30",
-            "dates": [
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-13"]
           },
           {
             "start": "14:00",
             "end": "15:30",
-            "dates": [
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-13"]
           },
           {
             "start": "10:00",
             "end": "11:30",
-            "dates": [
-              "2025-12-14"
-            ]
+            "dates": ["2025-12-14"]
           },
           {
             "start": "14:00",
             "end": "15:30",
-            "dates": [
-              "2025-12-14"
-            ]
+            "dates": ["2025-12-14"]
           }
         ],
-        "dates": [
-          "2025-12-13",
-          "2025-12-14"
-        ],
+        "dates": ["2025-12-13", "2025-12-14"],
         "generatedTitle": "Créneau de 90 minutes pour le bureau de l'asso",
         "generatedDescription": "Proposition de créneaux de 90 minutes en fin de semaine prochaine pour le bureau de l'association.",
         "rawResponse": {
           "title": "Créneau de 90 minutes pour le bureau de l'asso",
           "description": "Proposition de créneaux de 90 minutes en fin de semaine prochaine pour le bureau de l'association.",
-          "dates": [
-            "2025-12-13",
-            "2025-12-14"
-          ],
+          "dates": ["2025-12-13", "2025-12-14"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "11:30",
-              "dates": [
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-13"]
             },
             {
               "start": "14:00",
               "end": "15:30",
-              "dates": [
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-13"]
             },
             {
               "start": "10:00",
               "end": "11:30",
-              "dates": [
-                "2025-12-14"
-              ]
+              "dates": ["2025-12-14"]
             },
             {
               "start": "14:00",
               "end": "15:30",
-              "dates": [
-                "2025-12-14"
-              ]
+              "dates": ["2025-12-14"]
             }
           ],
           "type": "date",
@@ -1693,45 +1403,31 @@
           {
             "start": "18:00",
             "end": "21:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           },
           {
             "start": "18:00",
             "end": "21:00",
-            "dates": [
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-13"]
           }
         ],
-        "dates": [
-          "2025-12-12",
-          "2025-12-13"
-        ],
+        "dates": ["2025-12-12", "2025-12-13"],
         "generatedTitle": "Soirées pour atelier bénévoles",
         "generatedDescription": "Proposition de deux dates en soirée pour l'atelier des bénévoles durant la semaine du 12.",
         "rawResponse": {
           "title": "Soirées pour atelier bénévoles",
           "description": "Proposition de deux dates en soirée pour l'atelier des bénévoles durant la semaine du 12.",
-          "dates": [
-            "2025-12-12",
-            "2025-12-13"
-          ],
+          "dates": ["2025-12-12", "2025-12-13"],
           "timeSlots": [
             {
               "start": "18:00",
               "end": "21:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             },
             {
               "start": "18:00",
               "end": "21:00",
-              "dates": [
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-13"]
             }
           ],
           "type": "date",
@@ -1753,9 +1449,7 @@
         "timeSlotsCount": 2,
         "datesCount": 2,
         "type": "date",
-        "violations": [
-          "Mauvais jours (attendu: samedi/dimanche): 2025-12-08 (lundi)"
-        ],
+        "violations": ["Mauvais jours (attendu: samedi/dimanche): 2025-12-08 (lundi)"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 1,
@@ -1766,45 +1460,31 @@
           {
             "start": "09:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "13:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           }
         ],
-        "dates": [
-          "2025-12-07",
-          "2025-12-08"
-        ],
+        "dates": ["2025-12-07", "2025-12-08"],
         "generatedTitle": "Répétition chorale",
         "generatedDescription": "Répétition chorale samedi matin ou dimanche après-midi.",
         "rawResponse": {
           "title": "Répétition chorale",
           "description": "Répétition chorale samedi matin ou dimanche après-midi.",
-          "dates": [
-            "2025-12-07",
-            "2025-12-08"
-          ],
+          "dates": ["2025-12-07", "2025-12-08"],
           "timeSlots": [
             {
               "start": "09:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "13:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             }
           ],
           "type": "date",
@@ -1826,9 +1506,7 @@
         "timeSlotsCount": 0,
         "datesCount": 7,
         "type": "date",
-        "violations": [
-          "Créneaux: aucun créneau généré malgré l'attente"
-        ],
+        "violations": ["Créneaux: aucun créneau généré malgré l'attente"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 1,
@@ -1890,29 +1568,21 @@
           {
             "start": "18:00",
             "end": "20:00",
-            "dates": [
-              "2025-12-21"
-            ]
+            "dates": ["2025-12-21"]
           }
         ],
-        "dates": [
-          "2025-12-21"
-        ],
+        "dates": ["2025-12-21"],
         "generatedTitle": "Réunion du comité de quartier",
         "generatedDescription": "Réunion du comité de quartier dans quinze jours, sur 2 heures, en début de soirée.",
         "rawResponse": {
           "title": "Réunion du comité de quartier",
           "description": "Réunion du comité de quartier dans quinze jours, sur 2 heures, en début de soirée.",
-          "dates": [
-            "2025-12-21"
-          ],
+          "dates": ["2025-12-21"],
           "timeSlots": [
             {
               "start": "18:00",
               "end": "20:00",
-              "dates": [
-                "2025-12-21"
-              ]
+              "dates": ["2025-12-21"]
             }
           ],
           "type": "date",
@@ -1945,29 +1615,21 @@
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-13"
-            ]
+            "dates": ["2025-12-13"]
           }
         ],
-        "dates": [
-          "2025-12-13"
-        ],
+        "dates": ["2025-12-13"],
         "generatedTitle": "Réunion de préparation kermesse",
         "generatedDescription": "Proposition de créneau pour la réunion de préparation de la kermesse.",
         "rawResponse": {
           "title": "Réunion de préparation kermesse",
           "description": "Proposition de créneau pour la réunion de préparation de la kermesse.",
-          "dates": [
-            "2025-12-13"
-          ],
+          "dates": ["2025-12-13"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-13"
-              ]
+              "dates": ["2025-12-13"]
             }
           ],
           "type": "date",
@@ -2000,157 +1662,111 @@
           {
             "start": "18:00",
             "end": "19:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "19:00",
             "end": "20:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "20:00",
             "end": "21:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "21:00",
             "end": "22:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "22:00",
             "end": "23:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "18:00",
             "end": "19:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "19:00",
             "end": "20:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "20:00",
             "end": "21:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "21:00",
             "end": "22:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "22:00",
             "end": "23:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-06",
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-06", "2025-12-07"],
         "generatedTitle": "Point trésorerie (visio)",
         "generatedDescription": "Créneau en visio pour le point trésorerie",
         "rawResponse": {
           "title": "Point trésorerie (visio)",
           "description": "Créneau en visio pour le point trésorerie",
-          "dates": [
-            "2025-12-06",
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-06", "2025-12-07"],
           "timeSlots": [
             {
               "start": "18:00",
               "end": "19:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "19:00",
               "end": "20:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "20:00",
               "end": "21:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "21:00",
               "end": "22:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "22:00",
               "end": "23:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "18:00",
               "end": "19:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "19:00",
               "end": "20:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "20:00",
               "end": "21:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "21:00",
               "end": "22:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "22:00",
               "end": "23:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -2183,73 +1799,51 @@
           {
             "start": "10:00",
             "end": "13:00",
-            "dates": [
-              "2026-04-25"
-            ]
+            "dates": ["2026-04-25"]
           },
           {
             "start": "14:00",
             "end": "17:00",
-            "dates": [
-              "2026-04-25"
-            ]
+            "dates": ["2026-04-25"]
           },
           {
             "start": "10:00",
             "end": "13:00",
-            "dates": [
-              "2026-04-26"
-            ]
+            "dates": ["2026-04-26"]
           },
           {
             "start": "14:00",
             "end": "17:00",
-            "dates": [
-              "2026-04-26"
-            ]
+            "dates": ["2026-04-26"]
           }
         ],
-        "dates": [
-          "2026-04-25",
-          "2026-04-26"
-        ],
+        "dates": ["2026-04-25", "2026-04-26"],
         "generatedTitle": "Distribution de flyers - Week-end fin avril",
         "generatedDescription": "Planification pour la distribution de flyers un week-end fin avril.",
         "rawResponse": {
           "title": "Distribution de flyers - Week-end fin avril",
           "description": "Planification pour la distribution de flyers un week-end fin avril.",
-          "dates": [
-            "2026-04-25",
-            "2026-04-26"
-          ],
+          "dates": ["2026-04-25", "2026-04-26"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "13:00",
-              "dates": [
-                "2026-04-25"
-              ]
+              "dates": ["2026-04-25"]
             },
             {
               "start": "14:00",
               "end": "17:00",
-              "dates": [
-                "2026-04-25"
-              ]
+              "dates": ["2026-04-25"]
             },
             {
               "start": "10:00",
               "end": "13:00",
-              "dates": [
-                "2026-04-26"
-              ]
+              "dates": ["2026-04-26"]
             },
             {
               "start": "14:00",
               "end": "17:00",
-              "dates": [
-                "2026-04-26"
-              ]
+              "dates": ["2026-04-26"]
             }
           ],
           "type": "date",
@@ -2271,9 +1865,7 @@
         "timeSlotsCount": 10,
         "datesCount": 5,
         "type": "date",
-        "violations": [
-          "Créneaux: 2 créneaux obtenus (attendu: 1-1)"
-        ],
+        "violations": ["Créneaux: 2 créneaux obtenus (attendu: 1-1)"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 1,
@@ -2284,67 +1876,31 @@
           {
             "start": "12:00",
             "end": "13:00",
-            "dates": [
-              "2025-12-08",
-              "2025-12-09",
-              "2025-12-10",
-              "2025-12-11",
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"]
           },
           {
             "start": "13:00",
             "end": "14:00",
-            "dates": [
-              "2025-12-08",
-              "2025-12-09",
-              "2025-12-10",
-              "2025-12-11",
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"]
           }
         ],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09",
-          "2025-12-10",
-          "2025-12-11",
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
         "generatedTitle": "Déjeuner la semaine prochaine",
         "generatedDescription": "Sondage pour organiser un déjeuner la semaine prochaine entre midi et deux.",
         "rawResponse": {
           "title": "Déjeuner la semaine prochaine",
           "description": "Sondage pour organiser un déjeuner la semaine prochaine entre midi et deux.",
-          "dates": [
-            "2025-12-08",
-            "2025-12-09",
-            "2025-12-10",
-            "2025-12-11",
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
           "timeSlots": [
             {
               "start": "12:00",
               "end": "13:00",
-              "dates": [
-                "2025-12-08",
-                "2025-12-09",
-                "2025-12-10",
-                "2025-12-11",
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"]
             },
             {
               "start": "13:00",
               "end": "14:00",
-              "dates": [
-                "2025-12-08",
-                "2025-12-09",
-                "2025-12-10",
-                "2025-12-11",
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"]
             }
           ],
           "type": "date",
@@ -2377,19 +1933,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-07",
-          "2025-12-08"
-        ],
+        "dates": ["2025-12-07", "2025-12-08"],
         "generatedTitle": "Brunch ce week-end",
         "generatedDescription": "Proposition pour un brunch samedi ou dimanche.",
         "rawResponse": {
           "title": "Brunch ce week-end",
           "description": "Proposition pour un brunch samedi ou dimanche.",
-          "dates": [
-            "2025-12-07",
-            "2025-12-08"
-          ],
+          "dates": ["2025-12-07", "2025-12-08"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -2723,29 +2273,21 @@
           {
             "start": "09:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-07"],
         "generatedTitle": "Réunion",
         "generatedDescription": "Réunion planifiée pour demain matin.",
         "rawResponse": {
           "title": "Réunion",
           "description": "Réunion planifiée pour demain matin.",
-          "dates": [
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-07"],
           "timeSlots": [
             {
               "start": "09:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -2775,17 +2317,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-08"
-        ],
+        "dates": ["2025-12-08"],
         "generatedTitle": "Événement après-demain",
         "generatedDescription": "Événement planifié pour après-demain.",
         "rawResponse": {
           "title": "Événement après-demain",
           "description": "Événement planifié pour après-demain.",
-          "dates": [
-            "2025-12-08"
-          ],
+          "dates": ["2025-12-08"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -2817,72 +2355,52 @@
           {
             "start": "09:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "09:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-11"
-            ]
+            "dates": ["2025-12-11"]
           },
           {
             "start": "16:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-11"
-            ]
+            "dates": ["2025-12-11"]
           },
           {
             "start": "09:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           }
         ],
         "dates": [
@@ -2912,72 +2430,52 @@
             {
               "start": "09:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "09:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-11"
-              ]
+              "dates": ["2025-12-11"]
             },
             {
               "start": "16:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-11"
-              ]
+              "dates": ["2025-12-11"]
             },
             {
               "start": "09:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             }
           ],
           "type": "date",
@@ -3007,17 +2505,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-20"
-        ],
+        "dates": ["2025-12-20"],
         "generatedTitle": "Réunion dans deux semaines",
         "generatedDescription": "Planification d'une réunion dans deux semaines",
         "rawResponse": {
           "title": "Réunion dans deux semaines",
           "description": "Planification d'une réunion dans deux semaines",
-          "dates": [
-            "2025-12-20"
-          ],
+          "dates": ["2025-12-20"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -3046,17 +2540,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2026-01-15"
-        ],
+        "dates": ["2026-01-15"],
         "generatedTitle": "Événement le mois prochain",
         "generatedDescription": "Événement à organiser le mois prochain (janvier 2026)",
         "rawResponse": {
           "title": "Événement le mois prochain",
           "description": "Événement à organiser le mois prochain (janvier 2026)",
-          "dates": [
-            "2026-01-15"
-          ],
+          "dates": ["2026-01-15"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -3088,129 +2578,91 @@
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "15:00",
             "end": "16:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "15:00",
             "end": "16:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-06",
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-06", "2025-12-07"],
         "generatedTitle": "Créneaux disponibles ce week-end",
         "generatedDescription": "Proposition de créneaux pour ce week-end (samedi 2025-12-06 et dimanche 2025-12-07).",
         "rawResponse": {
           "title": "Créneaux disponibles ce week-end",
           "description": "Proposition de créneaux pour ce week-end (samedi 2025-12-06 et dimanche 2025-12-07).",
-          "dates": [
-            "2025-12-06",
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-06", "2025-12-07"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "15:00",
               "end": "16:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "15:00",
               "end": "16:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -3240,19 +2692,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-06",
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-06", "2025-12-07"],
         "generatedTitle": "Créneau fin de semaine",
         "generatedDescription": "Créneaux disponibles pour la fin de semaine",
         "rawResponse": {
           "title": "Créneau fin de semaine",
           "description": "Créneaux disponibles pour la fin de semaine",
-          "dates": [
-            "2025-12-06",
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-06", "2025-12-07"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -3281,21 +2727,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09",
-          "2025-12-10"
-        ],
+        "dates": ["2025-12-08", "2025-12-09", "2025-12-10"],
         "generatedTitle": "Réunion début de semaine prochaine",
         "generatedDescription": "Planification d'une réunion en début de semaine prochaine.",
         "rawResponse": {
           "title": "Réunion début de semaine prochaine",
           "description": "Planification d'une réunion en début de semaine prochaine.",
-          "dates": [
-            "2025-12-08",
-            "2025-12-09",
-            "2025-12-10"
-          ],
+          "dates": ["2025-12-08", "2025-12-09", "2025-12-10"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -3402,57 +2840,41 @@
           {
             "start": "09:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "11:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           }
         ],
-        "dates": [
-          "2025-12-08"
-        ],
+        "dates": ["2025-12-08"],
         "generatedTitle": "Réunion d'équipe",
         "generatedDescription": "Réunion d'équipe lundi matin prochain",
         "rawResponse": {
           "title": "Réunion d'équipe",
           "description": "Réunion d'équipe lundi matin prochain",
-          "dates": [
-            "2025-12-08"
-          ],
+          "dates": ["2025-12-08"],
           "timeSlots": [
             {
               "start": "09:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "11:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             }
           ],
           "type": "date",
@@ -3624,29 +3046,21 @@
           {
             "start": "14:00",
             "end": "17:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           }
         ],
-        "dates": [
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-12"],
         "generatedTitle": "Entretien client",
         "generatedDescription": "Entretien client vendredi entre 14h et 17h",
         "rawResponse": {
           "title": "Entretien client",
           "description": "Entretien client vendredi entre 14h et 17h",
-          "dates": [
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-12"],
           "timeSlots": [
             {
               "start": "14:00",
               "end": "17:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             }
           ],
           "type": "date",
@@ -3679,133 +3093,91 @@
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-11"
-            ]
+            "dates": ["2025-12-11"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-11"
-            ]
+            "dates": ["2025-12-11"]
           },
           {
             "start": "10:00",
             "end": "11:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           },
           {
             "start": "14:00",
             "end": "15:00",
-            "dates": [
-              "2025-12-12"
-            ]
+            "dates": ["2025-12-12"]
           }
         ],
-        "dates": [
-          "2025-12-09",
-          "2025-12-10",
-          "2025-12-11",
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
         "generatedTitle": "Visioconférence avec les partenaires",
         "generatedDescription": "Proposition de créneaux pour visioconférence cette semaine.",
         "rawResponse": {
           "title": "Visioconférence avec les partenaires",
           "description": "Proposition de créneaux pour visioconférence cette semaine.",
-          "dates": [
-            "2025-12-09",
-            "2025-12-10",
-            "2025-12-11",
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-11"
-              ]
+              "dates": ["2025-12-11"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-11"
-              ]
+              "dates": ["2025-12-11"]
             },
             {
               "start": "10:00",
               "end": "11:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             },
             {
               "start": "14:00",
               "end": "15:00",
-              "dates": [
-                "2025-12-12"
-              ]
+              "dates": ["2025-12-12"]
             }
           ],
           "type": "date",
@@ -4082,9 +3454,7 @@
         "timeSlotsCount": 1,
         "datesCount": 1,
         "type": "date",
-        "violations": [
-          "Dates: 1 dates obtenues (attendu: 2-2)"
-        ],
+        "violations": ["Dates: 1 dates obtenues (attendu: 2-2)"],
         "scoreBreakdown": {
           "type": 1,
           "dates": 0,
@@ -4095,29 +3465,21 @@
           {
             "start": "12:00",
             "end": "14:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-07"],
         "generatedTitle": "Déjeuner d'équipe ce weekend",
         "generatedDescription": "Proposition de dates pour un déjeuner d'équipe ce weekend.",
         "rawResponse": {
           "title": "Déjeuner d'équipe ce weekend",
           "description": "Proposition de dates pour un déjeuner d'équipe ce weekend.",
-          "dates": [
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-07"],
           "timeSlots": [
             {
               "start": "12:00",
               "end": "14:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -4150,29 +3512,21 @@
           {
             "start": "19:00",
             "end": "23:00",
-            "dates": [
-              "2025-12-06"
-            ]
+            "dates": ["2025-12-06"]
           }
         ],
-        "dates": [
-          "2025-12-06"
-        ],
+        "dates": ["2025-12-06"],
         "generatedTitle": "Soirée entre amis",
         "generatedDescription": "Planifions une soirée sympa samedi soir!",
         "rawResponse": {
           "title": "Soirée entre amis",
           "description": "Planifions une soirée sympa samedi soir!",
-          "dates": [
-            "2025-12-06"
-          ],
+          "dates": ["2025-12-06"],
           "timeSlots": [
             {
               "start": "19:00",
               "end": "23:00",
-              "dates": [
-                "2025-12-06"
-              ]
+              "dates": ["2025-12-06"]
             }
           ],
           "type": "date",
@@ -4202,25 +3556,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09",
-          "2025-12-10",
-          "2025-12-11",
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
         "generatedTitle": "Team building la semaine prochaine",
         "generatedDescription": "Organisation d'un événement de team building pour la semaine prochaine.",
         "rawResponse": {
           "title": "Team building la semaine prochaine",
           "description": "Organisation d'un événement de team building pour la semaine prochaine.",
-          "dates": [
-            "2025-12-08",
-            "2025-12-09",
-            "2025-12-10",
-            "2025-12-11",
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -4339,43 +3681,31 @@
           {
             "start": "12:00",
             "end": "16:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           },
           {
             "start": "14:00",
             "end": "18:00",
-            "dates": [
-              "2025-12-07"
-            ]
+            "dates": ["2025-12-07"]
           }
         ],
-        "dates": [
-          "2025-12-07"
-        ],
+        "dates": ["2025-12-07"],
         "generatedTitle": "Barbecue dimanche après-midi",
         "generatedDescription": "Sondage pour déterminer la date idéale pour un barbecue dimanche après-midi.",
         "rawResponse": {
           "title": "Barbecue dimanche après-midi",
           "description": "Sondage pour déterminer la date idéale pour un barbecue dimanche après-midi.",
-          "dates": [
-            "2025-12-07"
-          ],
+          "dates": ["2025-12-07"],
           "timeSlots": [
             {
               "start": "12:00",
               "end": "16:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             },
             {
               "start": "14:00",
               "end": "18:00",
-              "dates": [
-                "2025-12-07"
-              ]
+              "dates": ["2025-12-07"]
             }
           ],
           "type": "date",
@@ -4408,29 +3738,21 @@
           {
             "start": "08:00",
             "end": "10:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           }
         ],
-        "dates": [
-          "2025-12-09"
-        ],
+        "dates": ["2025-12-09"],
         "generatedTitle": "Formation sécurité",
         "generatedDescription": "Formation sécurité de 2h mardi matin",
         "rawResponse": {
           "title": "Formation sécurité",
           "description": "Formation sécurité de 2h mardi matin",
-          "dates": [
-            "2025-12-09"
-          ],
+          "dates": ["2025-12-09"],
           "timeSlots": [
             {
               "start": "08:00",
               "end": "10:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             }
           ],
           "type": "date",
@@ -4463,29 +3785,21 @@
           {
             "start": "15:00",
             "end": "16:00",
-            "dates": [
-              "2025-12-10"
-            ]
+            "dates": ["2025-12-10"]
           }
         ],
-        "dates": [
-          "2025-12-10"
-        ],
+        "dates": ["2025-12-10"],
         "generatedTitle": "Atelier créatif",
         "generatedDescription": "Atelier créatif mercredi après-midi",
         "rawResponse": {
           "title": "Atelier créatif",
           "description": "Atelier créatif mercredi après-midi",
-          "dates": [
-            "2025-12-10"
-          ],
+          "dates": ["2025-12-10"],
           "timeSlots": [
             {
               "start": "15:00",
               "end": "16:00",
-              "dates": [
-                "2025-12-10"
-              ]
+              "dates": ["2025-12-10"]
             }
           ],
           "type": "date",
@@ -4515,17 +3829,13 @@
           "requiredWords": 1
         },
         "timeSlots": [],
-        "dates": [
-          "2025-12-12"
-        ],
+        "dates": ["2025-12-12"],
         "generatedTitle": "Brainstorming - Vendredi",
         "generatedDescription": "Sondage pour déterminer le meilleur moment pour une session de brainstorming vendredi.",
         "rawResponse": {
           "title": "Brainstorming - Vendredi",
           "description": "Sondage pour déterminer le meilleur moment pour une session de brainstorming vendredi.",
-          "dates": [
-            "2025-12-12"
-          ],
+          "dates": ["2025-12-12"],
           "timeSlots": [],
           "type": "date",
           "participants": []
@@ -4557,45 +3867,31 @@
           {
             "start": "10:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-08"
-            ]
+            "dates": ["2025-12-08"]
           },
           {
             "start": "10:00",
             "end": "12:00",
-            "dates": [
-              "2025-12-09"
-            ]
+            "dates": ["2025-12-09"]
           }
         ],
-        "dates": [
-          "2025-12-08",
-          "2025-12-09"
-        ],
+        "dates": ["2025-12-08", "2025-12-09"],
         "generatedTitle": "Webinaire technique",
         "generatedDescription": "Webinaire technique planifié lundi ou mardi entre 10h et 12h",
         "rawResponse": {
           "title": "Webinaire technique",
           "description": "Webinaire technique planifié lundi ou mardi entre 10h et 12h",
-          "dates": [
-            "2025-12-08",
-            "2025-12-09"
-          ],
+          "dates": ["2025-12-08", "2025-12-09"],
           "timeSlots": [
             {
               "start": "10:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-08"
-              ]
+              "dates": ["2025-12-08"]
             },
             {
               "start": "10:00",
               "end": "12:00",
-              "dates": [
-                "2025-12-09"
-              ]
+              "dates": ["2025-12-09"]
             }
           ],
           "type": "date",

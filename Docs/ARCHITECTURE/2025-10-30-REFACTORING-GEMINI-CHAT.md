@@ -10,13 +10,13 @@
 
 ### Métriques
 
-| Métrique | Avant | Après | Amélioration |
-|----------|-------|-------|--------------|
-| **Lignes GeminiChatInterface** | 1663 | **790** | **-52%** |
-| **Hooks créés** | 0 | **6** | +6 modules |
-| **Lignes extraites** | 0 | **~1136** | Réutilisables |
-| **Tests E2E** | 4/4 | **4/4** | ✅ 0 régression |
-| **Erreurs TypeScript** | ? | **0** | ✅ Clean |
+| Métrique                       | Avant | Après     | Amélioration    |
+| ------------------------------ | ----- | --------- | --------------- |
+| **Lignes GeminiChatInterface** | 1663  | **790**   | **-52%**        |
+| **Hooks créés**                | 0     | **6**     | +6 modules      |
+| **Lignes extraites**           | 0     | **~1136** | Réutilisables   |
+| **Tests E2E**                  | 4/4   | **4/4**   | ✅ 0 régression |
+| **Erreurs TypeScript**         | ?     | **0**     | ✅ Clean        |
 
 ### Objectif
 
@@ -31,9 +31,11 @@
 ### Hooks créés
 
 #### 1. `ChatMessageList.tsx` (330 lignes)
+
 **Responsabilité :** Affichage de la liste des messages avec suggestions de polls
 
 **Props :**
+
 ```typescript
 interface ChatMessageListProps {
   messages: Message[];
@@ -43,6 +45,7 @@ interface ChatMessageListProps {
 ```
 
 **Fonctionnalités :**
+
 - Rendu messages utilisateur/IA
 - Affichage suggestions de polls (Date/Form)
 - Gestion du scroll automatique
@@ -51,9 +54,11 @@ interface ChatMessageListProps {
 ---
 
 #### 2. `ChatInput.tsx` (150 lignes)
+
 **Responsabilité :** Zone de saisie avec support voice et mobile
 
 **Props :**
+
 ```typescript
 interface ChatInputProps {
   value: string;
@@ -68,6 +73,7 @@ interface ChatInputProps {
 ```
 
 **Fonctionnalités :**
+
 - Textarea auto-resize
 - Bouton voice recognition
 - Gestion Enter/Shift+Enter
@@ -76,9 +82,11 @@ interface ChatInputProps {
 ---
 
 #### 3. `useConnectionStatus.ts` (130 lignes)
+
 **Responsabilité :** Gestion de l'état de connexion à Gemini
 
 **API :**
+
 ```typescript
 interface ConnectionStatus {
   isConnected: boolean;
@@ -87,10 +95,11 @@ interface ConnectionStatus {
   checkConnection: () => Promise<void>;
 }
 
-function useConnectionStatus(geminiAPI: GeminiAPI): ConnectionStatus
+function useConnectionStatus(geminiAPI: GeminiAPI): ConnectionStatus;
 ```
 
 **Fonctionnalités :**
+
 - Test de connexion au démarrage
 - Retry automatique (3 tentatives)
 - Gestion des erreurs réseau
@@ -99,9 +108,11 @@ function useConnectionStatus(geminiAPI: GeminiAPI): ConnectionStatus
 ---
 
 #### 4. `useIntentDetection.ts` (240 lignes)
+
 **Responsabilité :** Détection et traitement des intentions de modification
 
 **API :**
+
 ```typescript
 interface IntentResult {
   handled: boolean;
@@ -118,10 +129,11 @@ function useIntentDetection(options: {
   onDispatchAction: (action: PollAction) => void;
 }): {
   detectIntent: (text: string) => Promise<IntentResult>;
-}
+};
 ```
 
 **Fonctionnalités :**
+
 - Détection intentions Date Poll (ajout/suppression dates)
 - Détection intentions Form Poll (ajout/suppression/modification questions)
 - Parsing langage naturel
@@ -131,9 +143,11 @@ function useIntentDetection(options: {
 ---
 
 #### 5. `usePollManagement.ts` (76 lignes)
+
 **Responsabilité :** Gestion de l'affichage du créateur de poll
 
 **API :**
+
 ```typescript
 interface PollManagement {
   showPollCreator: boolean;
@@ -144,10 +158,11 @@ interface PollManagement {
   getFormDraft: () => FormPollDraft | null;
 }
 
-function usePollManagement(): PollManagement
+function usePollManagement(): PollManagement;
 ```
 
 **Fonctionnalités :**
+
 - État showPollCreator/selectedPollData
 - Détection type poll (Form vs Date)
 - Conversion FormPollSuggestion → FormPollDraft
@@ -156,9 +171,11 @@ function usePollManagement(): PollManagement
 ---
 
 #### 6. `useMessageSender.ts` (210 lignes)
+
 **Responsabilité :** Logique d'envoi de messages et appel Gemini
 
 **API :**
+
 ```typescript
 interface MessageSender {
   sendMessage: (text: string, notifyParent: boolean) => Promise<void>;
@@ -177,10 +194,11 @@ function useMessageSender(options: {
   setIsLoading: (loading: boolean) => void;
   setLastAIProposal: (proposal: any) => void;
   setModifiedQuestion: (id: string, field: string) => void;
-}): MessageSender
+}): MessageSender;
 ```
 
 **Fonctionnalités :**
+
 - Vérification quotas (conversation + AI messages)
 - Détection intentions (via useIntentDetection)
 - Détection markdown long (questionnaires)
@@ -196,12 +214,14 @@ function useMessageSender(options: {
 ### Responsabilités légitimes
 
 **1. Orchestration des hooks (15 hooks)**
+
 - Hooks métier : `useAutoSave`, `useQuota`, `useAiMessageQuota`, `useGeminiAPI`
 - Hooks UI : `useVoiceRecognition`, `useToast`, `useNavigate`
 - Hooks custom : `useIntentDetection`, `usePollManagement`, `useMessageSender`
 - Hooks state : `useConversationMessages`, `useEditorState`, `useUIState`
 
 **2. Gestion d'état local (6 useEffect)**
+
 - Auto-focus textarea mobile (~10 lignes)
 - Nettoyage poll sur nouvelle conversation (~15 lignes)
 - Feedback visuel modifications (~10 lignes)
@@ -210,11 +230,13 @@ function useMessageSender(options: {
 - Initialisation/resume conversation (~100 lignes)
 
 **3. Rendu conditionnel (~80 lignes)**
+
 - Routing Form vs Date Poll
 - Gestion callbacks onSave/onFinalize
 - URL management
 
 **4. Rendu principal (~200 lignes)**
+
 - Layout flex
 - ChatMessageList
 - ChatInput
@@ -231,7 +253,7 @@ function useMessageSender(options: {
 
 ```bash
 ✅ RÉGRESSION #1 : Créer Form Poll avec 1 question via IA
-✅ RÉGRESSION #2 : Ajouter une question via IA  
+✅ RÉGRESSION #2 : Ajouter une question via IA
 ✅ RÉGRESSION #3 : Supprimer une question
 ✅ RÉGRESSION #4 : Reprendre conversation après refresh
 
@@ -289,16 +311,19 @@ Exit code: 0
 ## 🚀 Prochaines étapes
 
 ### Documentation (30min)
+
 - [x] README architecture
 - [ ] JSDoc pour chaque hook
 - [ ] Diagramme des dépendances
 
 ### Tests unitaires (2h)
+
 - [ ] `useIntentDetection.test.ts`
 - [ ] `usePollManagement.test.ts`
 - [ ] `useMessageSender.test.ts`
 
 ### Optimisations (1h)
+
 - [ ] Mémoïsation callbacks
 - [ ] Lazy loading composants
 - [ ] Code splitting
@@ -318,6 +343,7 @@ Exit code: 0
 **790 lignes est un excellent résultat pour un composant central.**
 
 La décision d'arrêter l'extraction est **stratégique et justifiée** :
+
 - Évite la sur-fragmentation
 - Maintient la lisibilité
 - Préserve le contexte

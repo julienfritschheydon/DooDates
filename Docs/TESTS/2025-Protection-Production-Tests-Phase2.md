@@ -21,15 +21,15 @@ Les **198 `vi.mock()` dans 39 fichiers** masquaient les vrais problèmes d'inté
 
 ## 📊 Comparaison Phase 1 vs Phase 2
 
-| Aspect | Phase 1 (Smoke) | Phase 2 (Intégration) |
-|--------|----------------|----------------------|
+| Aspect               | Phase 1 (Smoke)                   | Phase 2 (Intégration)         |
+| -------------------- | --------------------------------- | ----------------------------- |
 | **Ce qui est testé** | Application (UI, assets, routing) | Supabase (auth, DB, RLS, RPC) |
-| **Environnement** | Build production local | Production réelle |
-| **Données** | Aucune (lecture seule) | Compte de test + nettoyage |
-| **Mocks** | Aucun ✅ | Aucun ✅ |
-| **Durée** | ~2-3 min | ~5 min |
-| **Détecte** | App cassée | Intégration Supabase cassée |
-| **Bloque merge** | ✅ Oui | ✅ Oui |
+| **Environnement**    | Build production local            | Production réelle             |
+| **Données**          | Aucune (lecture seule)            | Compte de test + nettoyage    |
+| **Mocks**            | Aucun ✅                          | Aucun ✅                      |
+| **Durée**            | ~2-3 min                          | ~5 min                        |
+| **Détecte**          | App cassée                        | Intégration Supabase cassée   |
+| **Bloque merge**     | ✅ Oui                            | ✅ Oui                        |
 
 ---
 
@@ -72,6 +72,7 @@ Les **198 `vi.mock()` dans 39 fichiers** masquaient les vrais problèmes d'inté
 ## 🧪 Tests Implémentés (26 Tests)
 
 ### 1. Authentification (3 tests)
+
 ```typescript
 ✅ AUTH-01: Compte de test connecté
 ✅ AUTH-02: Token Supabase valide
@@ -79,6 +80,7 @@ Les **198 `vi.mock()` dans 39 fichiers** masquaient les vrais problèmes d'inté
 ```
 
 ### 2. Conversations CRUD (5 tests)
+
 ```typescript
 ✅ CONV-01: Créer une conversation via Supabase
 ✅ CONV-02: Lire une conversation depuis Supabase
@@ -88,6 +90,7 @@ Les **198 `vi.mock()` dans 39 fichiers** masquaient les vrais problèmes d'inté
 ```
 
 ### 3. Row Level Security (3 tests)
+
 ```typescript
 ✅ RLS-01: Utilisateur voit uniquement SES conversations
 ✅ RLS-02: Utilisateur ne peut PAS modifier conversation d'un autre
@@ -95,24 +98,28 @@ Les **198 `vi.mock()` dans 39 fichiers** masquaient les vrais problèmes d'inté
 ```
 
 ### 4. Messages (2 tests)
+
 ```typescript
 ✅ MSG-01: Ajouter un message à une conversation
 ✅ MSG-02: Lister les messages d'une conversation
 ```
 
 ### 5. Quotas (2 tests)
+
 ```typescript
 ✅ QUOTA-01: Lire les quotas d'un utilisateur
 ✅ QUOTA-02: Consommer un crédit de conversation
 ```
 
 ### 6. Beta Keys & RPC (2 tests)
+
 ```typescript
 ✅ RPC-01: Appeler fonction generate_beta_key (vérifier existence)
 ✅ RPC-02: Lister les beta keys actives
 ```
 
 ### 7. Performance (2 tests)
+
 ```typescript
 ✅ PERF-01: Lecture conversations < 2s
 ✅ PERF-02: Création conversation < 1s
@@ -208,17 +215,20 @@ Chaque test suit ce cycle :
 ```typescript
 async function cleanupTestData(userId: string) {
   // Supprimer conversations
-  await supabase.from('conversations').delete().eq('user_id', userId);
-  
+  await supabase.from("conversations").delete().eq("user_id", userId);
+
   // Supprimer messages
-  await supabase.from('conversation_messages').delete().eq('user_id', userId);
-  
+  await supabase.from("conversation_messages").delete().eq("user_id", userId);
+
   // Réinitialiser quotas
-  await supabase.from('user_quotas').update({
-    conversations_created_this_month: 0,
-    polls_created_this_month: 0,
-    ai_messages_this_month: 0,
-  }).eq('user_id', userId);
+  await supabase
+    .from("user_quotas")
+    .update({
+      conversations_created_this_month: 0,
+      polls_created_this_month: 0,
+      ai_messages_this_month: 0,
+    })
+    .eq("user_id", userId);
 }
 ```
 
@@ -230,24 +240,26 @@ async function cleanupTestData(userId: string) {
 
 ### Objectifs Phase 2
 
-| Métrique | Objectif | Résultat |
-|----------|---------|----------|
-| Réduction mocks | 80% | ✅ 100% (0 mocks dans tests intégration) |
-| Fonctionnalités critiques testées | 10 | ✅ 26 tests |
-| Temps d'exécution | < 5 min | ✅ ~3-4 min |
-| Détection problèmes RLS | Oui | ✅ 3 tests dédiés |
-| Détection problèmes auth | Oui | ✅ 3 tests dédiés |
-| Nettoyage automatique | Oui | ✅ Implémenté |
+| Métrique                          | Objectif | Résultat                                 |
+| --------------------------------- | -------- | ---------------------------------------- |
+| Réduction mocks                   | 80%      | ✅ 100% (0 mocks dans tests intégration) |
+| Fonctionnalités critiques testées | 10       | ✅ 26 tests                              |
+| Temps d'exécution                 | < 5 min  | ✅ ~3-4 min                              |
+| Détection problèmes RLS           | Oui      | ✅ 3 tests dédiés                        |
+| Détection problèmes auth          | Oui      | ✅ 3 tests dédiés                        |
+| Nettoyage automatique             | Oui      | ✅ Implémenté                            |
 
 ### Impact Mesurable
 
 **AVANT Phase 2 :**
+
 - ❌ Tests sur-mockés (198 `vi.mock()`)
 - ❌ Problèmes Supabase détectés en production
 - ❌ Pas de test de RLS
 - ❌ Pas de test de vraies requêtes
 
 **APRÈS Phase 2 :**
+
 - ✅ 26 tests sans mocks
 - ✅ Problèmes détectés AVANT déploiement
 - ✅ Tests RLS complets
@@ -262,21 +274,21 @@ async function cleanupTestData(userId: string) {
 ```typescript
 // tests/integration/real-supabase.test.ts
 
-test.describe('Nouvelle Fonctionnalité', () => {
-  test('TEST-XX: Description du test', async () => {
+test.describe("Nouvelle Fonctionnalité", () => {
+  test("TEST-XX: Description du test", async () => {
     // 1. Préparer les données
     const testData = await createTestConversation(testUserId);
-    
+
     // 2. Exécuter l'action
     const { data, error } = await supabaseClient
-      .from('your_table')
-      .select('*')
-      .eq('id', testData.id);
-    
+      .from("your_table")
+      .select("*")
+      .eq("id", testData.id);
+
     // 3. Vérifier le résultat
     expect(error).toBeNull();
     expect(data).toBeTruthy();
-    
+
     // 4. Nettoyage automatique (afterEach)
   });
 });
@@ -306,12 +318,14 @@ test.describe('Nouvelle Fonctionnalité', () => {
 ### Bonnes Pratiques
 
 ✅ **Faire :**
+
 - Utiliser un compte dédié pour les tests
 - Nettoyer les données après chaque test
 - Stocker le mot de passe dans GitHub Secrets
 - Tester sur production (pas de staging)
 
 ❌ **Ne PAS faire :**
+
 - Utiliser un compte utilisateur réel
 - Stocker le mot de passe dans le code
 - Créer trop de données de test
@@ -320,6 +334,7 @@ test.describe('Nouvelle Fonctionnalité', () => {
 ### Isolation
 
 Les tests d'intégration s'exécutent **séquentiellement** (pas en parallèle) pour éviter :
+
 - Conflits de données
 - Race conditions sur le compte de test
 - Problèmes de nettoyage
@@ -329,7 +344,7 @@ Configuration dans le workflow :
 ```yaml
 concurrency:
   group: integration-tests
-  cancel-in-progress: false  # Pas d'annulation
+  cancel-in-progress: false # Pas d'annulation
 ```
 
 ---
@@ -370,11 +385,11 @@ npx playwright show-report
 
 ### Protection Production Complète
 
-| Phase | Objectif | Tests | Durée | Status |
-|-------|---------|-------|-------|--------|
-| **Phase 1** | App fonctionnelle | 10 smoke tests | ~2-3 min | ✅ Actif |
-| **Phase 2** | Supabase fonctionnel | 26 intégration tests | ~3-4 min | ✅ Actif |
-| **Total** | Zéro régression | 36 tests critiques | ~5-7 min | ✅ Opérationnel |
+| Phase       | Objectif             | Tests                | Durée    | Status          |
+| ----------- | -------------------- | -------------------- | -------- | --------------- |
+| **Phase 1** | App fonctionnelle    | 10 smoke tests       | ~2-3 min | ✅ Actif        |
+| **Phase 2** | Supabase fonctionnel | 26 intégration tests | ~3-4 min | ✅ Actif        |
+| **Total**   | Zéro régression      | 36 tests critiques   | ~5-7 min | ✅ Opérationnel |
 
 ### Garanties
 
@@ -382,7 +397,7 @@ npx playwright show-report
 ✅ **Detection < 5 minutes** (vs heures/jours avant)  
 ✅ **Blocage automatique** si problème  
 ✅ **Issue auto créée** pour suivi  
-✅ **Rollback clair** si échec en prod  
+✅ **Rollback clair** si échec en prod
 
 ### Impact Business
 
@@ -432,4 +447,3 @@ Si vous rencontrez des problèmes :
 **Dernière mise à jour :** 7 novembre 2025  
 **Maintenu par :** Julien Fritsch  
 **Version :** 1.0.0
-

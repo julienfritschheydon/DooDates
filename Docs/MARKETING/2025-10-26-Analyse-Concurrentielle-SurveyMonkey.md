@@ -16,16 +16,19 @@ Le marché des enquêtes en ligne est **fragmenté et mature**, avec plusieurs a
 ### 2.1 Forces Identifiées
 
 #### Reconnaissance de marque
+
 - Leader historique du marché
 - Première référence mentale pour "outil d'enquête"
 - Forte présence marketing
 
 #### Facilité d'utilisation
+
 - Interface intuitive unanimement saluée
 - Courbe d'apprentissage minimale
 - Bibliothèque de modèles et questions pré-rédigées
 
 #### Fonctionnalités avancées
+
 - **IA "SurveyMonkey Genius"** : Génération de sondages complets à partir de texte
 - **Logique de branchement** : Questions conditionnelles sophistiquées
 - **Randomisation** : Réduction des biais
@@ -34,11 +37,13 @@ Le marché des enquêtes en ligne est **fragmenté et mature**, avec plusieurs a
 - **Analyse multi-sondages** : Suivi des tendances long terme
 
 #### Intégrations professionnelles
+
 - 200+ applications (Slack, Teams, Salesforce)
 - Automatisation des workflows
 - Outils de collaboration (plans Équipe)
 
 #### Panel "Audience"
+
 - Accès à un panel mondial de répondants
 - **Avantage concurrentiel majeur** difficile à répliquer
 
@@ -56,6 +61,7 @@ Le marché des enquêtes en ligne est **fragmenté et mature**, avec plusieurs a
 **💡 Opportunité DooDates** : Plan gratuit généreux (50Q, 500R, illimité) + tarification transparente 50% moins chère
 
 #### Pratiques commerciales controversées
+
 - Renouvellement automatique agressif
 - Support client inefficace sur litiges financiers
 - Complexité tarifaire créant de la méfiance
@@ -64,6 +70,7 @@ Le marché des enquêtes en ligne est **fragmenté et mature**, avec plusieurs a
 **💡 Opportunité DooDates** : Éthique, confiance, simplicité, paiement unique (pas d'abonnement)
 
 #### Positionnement intermédiaire problématique
+
 - Trop cher pour les petites structures (vs Google Forms, Jotform)
 - Pas assez spécialisé pour les grandes entreprises (vs Qualtrics)
 - Pas de différenciation claire sur design/UX (vs Typeform)
@@ -88,8 +95,9 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 3.2 Analyse des Concurrents Clés
 
 #### Google Forms
+
 - **Positionnement** : Gratuit, simple, intégré
-- **Forces** : 
+- **Forces** :
   - Gratuit sans limitations critiques
   - Intégration Google Workspace
   - Établit l'attente de gratuité pour fonctionnalités de base
@@ -97,6 +105,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 - **Cible** : Particuliers, éducation, PME avec besoins simples
 
 #### Typeform
+
 - **Positionnement** : Design premium, expérience conversationnelle
 - **Forces** :
   - Interface visuellement exceptionnelle
@@ -106,6 +115,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 - **Cible** : Marketing, branding, engagement client
 
 #### Jotform
+
 - **Positionnement** : Meilleur rapport qualité-prix
 - **Forces** :
   - Plan gratuit généreux
@@ -116,6 +126,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 - **Cible** : PME cherchant polyvalence sans coût prohibitif
 
 #### Qualtrics
+
 - **Positionnement** : Enterprise XM (Experience Management)
 - **Forces** :
   - Analyses extrêmement avancées
@@ -131,17 +142,20 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 4.1 Tendances Technologiques
 
 #### Intelligence Artificielle
+
 - Génération automatique de questions pertinentes
 - Analyse sémantique et sentiment analysis
 - Détection automatique de biais et réponses de faible qualité
 - Suggestions d'amélioration en temps réel
 
 #### Mobile-First Impératif
+
 - 60%+ des réponses sur mobile
 - Design conversationnel adapté aux petits écrans
 - Notifications push pour augmenter taux de réponse
 
 #### Feedback Multimédia
+
 - Réponses vidéo et vocales
 - Analyse qualitative enrichie
 - Engagement accru des répondants
@@ -149,12 +163,14 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 4.2 Frustrations Utilisateurs Non Résolues
 
 #### Problèmes persistants
+
 1. **Fatigue des enquêtes** : Taux de réponse en chute libre
 2. **Qualité des données** : Réponses bâclées, bots, incohérences
 3. **Complexité analytique** : Difficulté à extraire insights actionnables
 4. **Coût vs Valeur** : Impression de payer pour des fonctionnalités inutilisées
 
 #### Gap d'opportunité
+
 > "Les utilisateurs ne veulent pas un outil d'enquête de plus. Ils veulent des **résultats garantis** : meilleurs taux de réponse, données de qualité, insights actionnables."
 
 ---
@@ -164,16 +180,19 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 5.1 Opportunités Verticales
 
 #### Santé
+
 - Conformité HIPAA/RGPD native
 - Questionnaires médicaux pré-validés
 - Intégration dossiers patients
 
 #### Organisations à but non lucratif
+
 - Tarification solidaire
 - Modèles impact social
 - Reporting donateurs
 
 #### Recherche UX/Produit
+
 - Intégration outils design (Figma, Miro)
 - Tests utilisateurs intégrés
 - Analyse parcours utilisateur
@@ -181,11 +200,13 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 5.2 Opportunités Technologiques
 
 #### API-First / Développeurs
+
 - Plateforme headless
 - Webhooks avancés
 - Personnalisation totale
 
 #### Intégrations Profondes
+
 - CRM natif (Salesforce, HubSpot)
 - Slack/Teams conversationnel
 - Automatisation no-code (Zapier, Make)
@@ -197,9 +218,11 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 6.1 Positionnement Stratégique (3 Options Identifiées)
 
 #### Option A : L'Accélérateur d'Insights (IA-First)
+
 **Promesse** : "De la question à l'action en 10 minutes, pas 10 heures"
 
 **Différenciateurs**
+
 - IA qui guide la création (évite les erreurs méthodologiques)
 - Analyse automatique avec recommandations actionnables
 - Détection automatique de patterns et anomalies
@@ -209,9 +232,11 @@ Google Forms            Jotform             Typeform            Qualtrics
 ---
 
 #### Option B : Le Champion de la Juste Valeur (Transparence/UX)
+
 **Promesse** : "Toute la puissance de SurveyMonkey, sans les pièges tarifaires"
 
 **Différenciateurs**
+
 - Plan gratuit réellement utilisable (50 questions, 500 réponses)
 - Tarification transparente et prévisible
 - Pas de renouvellement automatique par défaut
@@ -222,9 +247,11 @@ Google Forms            Jotform             Typeform            Qualtrics
 ---
 
 #### Option C : Le Spécialiste du Workflow (Niche Verticale)
+
 **Promesse** : "L'outil d'enquête qui vit dans votre workflow quotidien"
 
 **Différenciateurs**
+
 - Intégration native profonde (ex: Slack-first)
 - Automatisations métier pré-configurées
 - Templates sectoriels validés
@@ -234,9 +261,11 @@ Google Forms            Jotform             Typeform            Qualtrics
 ### 6.2 Feuille de Route Produit (3 Phases Génériques)
 
 #### Phase 1 : MVP (3-4 mois)
+
 **Objectif** : Résoudre les frustrations fondamentales
 
 **Fonctionnalités**
+
 - Constructeur intuitif (drag & drop)
 - Mobile-first par défaut
 - Plan gratuit généreux (50Q, 500R)
@@ -245,21 +274,25 @@ Google Forms            Jotform             Typeform            Qualtrics
 - Partage public/privé
 
 **Différenciateur Phase 1**
+
 - Interface 2x plus rapide que SurveyMonkey
 - Zéro dark patterns tarifaires
 
 ---
 
 #### Phase 2 : Parité & Différenciation (4-6 mois)
+
 **Objectif** : Égaler les fonctionnalités avancées + introduire USP
 
 **Fonctionnalités**
+
 - Logique conditionnelle (branchement)
 - Personnalisation (branding, domaine custom)
 - Intégrations (Slack, Teams, Zapier)
 - Collaboration équipe
 
 **Différenciateur Phase 2** (selon option choisie)
+
 - **Option A** : IA Assistant de création + analyse automatique
 - **Option B** : Tarification usage-based + support premium inclus
 - **Option C** : Workflows sectoriels pré-configurés
@@ -267,9 +300,11 @@ Google Forms            Jotform             Typeform            Qualtrics
 ---
 
 #### Phase 3 : Innovation (6-12 mois)
+
 **Objectif** : Avantage concurrentiel durable
 
 **Fonctionnalités**
+
 - Suite IA complète (génération, analyse, insights)
 - Feedback vidéo/vocal
 - Analyse multi-sondages
@@ -277,6 +312,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 - Intégrations enterprise (SSO, SAML)
 
 **Différenciateur Phase 3**
+
 - Plateforme de "Continuous Feedback" vs simple outil d'enquête
 
 ---
@@ -285,14 +321,15 @@ Google Forms            Jotform             Typeform            Qualtrics
 
 #### Tarification Recommandée (Exemple Générique)
 
-| Plan | Prix/mois | Fonctionnalités | Positionnement |
-|------|-----------|-----------------|----------------|
-| **Gratuit** | 0€ | 50Q, 500R, export, analyse basique | **Réellement utilisable** |
-| **Pro** | 19€ | Illimité, logique conditionnelle, branding | **50% moins cher que SurveyMonkey Avantage** |
-| **Équipe** | 39€/user | Collaboration, intégrations, IA avancée | **Parité SurveyMonkey, meilleure valeur** |
-| **Enterprise** | Custom | SSO, SLA, support dédié | **Compétitif vs Qualtrics** |
+| Plan           | Prix/mois | Fonctionnalités                            | Positionnement                               |
+| -------------- | --------- | ------------------------------------------ | -------------------------------------------- |
+| **Gratuit**    | 0€        | 50Q, 500R, export, analyse basique         | **Réellement utilisable**                    |
+| **Pro**        | 19€       | Illimité, logique conditionnelle, branding | **50% moins cher que SurveyMonkey Avantage** |
+| **Équipe**     | 39€/user  | Collaboration, intégrations, IA avancée    | **Parité SurveyMonkey, meilleure valeur**    |
+| **Enterprise** | Custom    | SSO, SLA, support dédié                    | **Compétitif vs Qualtrics**                  |
 
 **Principes tarifaires**
+
 - Transparence totale (pas de frais cachés)
 - Facturation mensuelle ET annuelle (choix utilisateur)
 - Pas de renouvellement automatique par défaut
@@ -301,16 +338,19 @@ Google Forms            Jotform             Typeform            Qualtrics
 #### Marché Cible Initial
 
 **Segment primaire** : PME 10-50 employés
+
 - Budget limité mais besoins professionnels
 - Frustrées par SurveyMonkey
 - Recherchent activement alternatives
 
 **Segment secondaire** : Startups/Scale-ups
+
 - Sensibles au prix
 - Adopteurs précoces de nouvelles solutions
 - Influenceurs (bouche-à-oreille)
 
 **Segment tertiaire** : Agences marketing
+
 - Utilisateurs intensifs
 - Besoin de marque blanche
 - Prescripteurs pour leurs clients
@@ -318,16 +358,19 @@ Google Forms            Jotform             Typeform            Qualtrics
 #### Canaux d'Acquisition
 
 **SEO/Content Marketing** (Priorité 1)
+
 - Mots-clés : "alternative SurveyMonkey", "meilleur outil enquête gratuit"
 - Comparatifs détaillés (SurveyMonkey vs X)
 - Guides méthodologiques (comment créer une bonne enquête)
 
 **Communautés en ligne** (Priorité 2)
+
 - Reddit (r/startups, r/marketing, r/SaaS)
 - Product Hunt (lancement stratégique)
 - Indie Hackers, Hacker News
 
 **Partenariats** (Priorité 3)
+
 - Intégrations natives (Slack, Notion, Airtable)
 - Co-marketing avec outils complémentaires
 - Programme d'affiliation généreux
@@ -337,6 +380,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 ## 7. Conclusion de l'Analyse
 
 **Le marché est mûr pour un disrupteur** qui combine :
+
 1. **Valeur de Google Forms** (gratuit, simple)
 2. **UX de Typeform** (design, engagement)
 3. **Puissance de SurveyMonkey** (fonctionnalités avancées)
@@ -350,6 +394,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 ## 9. Sources et Méthodologie
 
 **Analyse basée sur** :
+
 - Étude des fonctionnalités et tarifs de SurveyMonkey (octobre 2025)
 - Analyse comparative des concurrents (Google Forms, Typeform, Jotform, Qualtrics)
 - Revue des avis utilisateurs et frustrations documentées
@@ -357,6 +402,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 - Analyse des niches mal desservies et opportunités stratégiques
 
 **Limites de l'analyse** :
+
 - Analyse générique ne tenant pas compte des fonctionnalités spécifiques de DooDates
 - Recommandations stratégiques à adapter selon le contexte et les objectifs du projet
 - Nécessite validation par interviews utilisateurs et tests marché
@@ -369,51 +415,53 @@ Google Forms            Jotform             Typeform            Qualtrics
 
 **Objectif** : Attirer la base d'utilisateurs frustrés par SurveyMonkey et Google Forms
 
-| Feature | Google Forms | SurveyMonkey Free | **DooDates Free** |
-|---------|--------------|-------------------|-------------------|
-| **Sondages/mois** | Illimité | 10 | **20** |
-| **Questions/sondage** | Illimité | 10 | **Illimité** |
-| **Réponses/sondage** | Illimité | 40 | **Illimité** |
-| **Types de questions** | 9 basiques | 15 | **15+ (avec IA)** |
-| **Questions conditionnelles** | ❌ Non | ❌ Non | **✅ Oui** |
-| **Export** | CSV, XLSX | ❌ Non | **✅ CSV, PDF, JSON, Markdown** |
-| **Création par IA** | ❌ Non | ❌ Non | **✅ Oui (illimité)** |
-| **Mobile-first** | ❌ Adapté | ❌ Adapté | **✅ Natif** |
-| **Branding** | Google | SurveyMonkey | DooDates |
+| Feature                       | Google Forms | SurveyMonkey Free | **DooDates Free**               |
+| ----------------------------- | ------------ | ----------------- | ------------------------------- |
+| **Sondages/mois**             | Illimité     | 10                | **20**                          |
+| **Questions/sondage**         | Illimité     | 10                | **Illimité**                    |
+| **Réponses/sondage**          | Illimité     | 40                | **Illimité**                    |
+| **Types de questions**        | 9 basiques   | 15                | **15+ (avec IA)**               |
+| **Questions conditionnelles** | ❌ Non       | ❌ Non            | **✅ Oui**                      |
+| **Export**                    | CSV, XLSX    | ❌ Non            | **✅ CSV, PDF, JSON, Markdown** |
+| **Création par IA**           | ❌ Non       | ❌ Non            | **✅ Oui (illimité)**           |
+| **Mobile-first**              | ❌ Adapté    | ❌ Adapté         | **✅ Natif**                    |
+| **Branding**                  | Google       | SurveyMonkey      | DooDates                        |
 
 **Message marketing :**
+
 > "DooDates Free : Tout ce que Google Forms devrait être, avec l'IA en plus."
 
 #### Offre Pro (10€ one-time)
 
 **Positionnement** : Alternative abordable à SurveyMonkey Standard (39€/mois)
 
-| Feature | SurveyMonkey Standard | **DooDates Pro** |
-|---------|----------------------|------------------|
-| **Prix** | 468€/an | **10€ à vie** |
-| **Sondages** | Illimité | **100** |
-| **Réponses** | Illimité | **Illimité** |
-| **Questions conditionnelles** | ✅ | **✅** |
-| **Export avancé** | ✅ XLSX | **✅ CSV, PDF, JSON, Markdown, XLSX** |
-| **Branding personnalisé** | ❌ | **✅** |
-| **Support prioritaire** | ❌ | **✅** |
-| **IA avancée** | ❌ | **✅ Simulation réponses + Analyse continue** |
+| Feature                       | SurveyMonkey Standard | **DooDates Pro**                              |
+| ----------------------------- | --------------------- | --------------------------------------------- |
+| **Prix**                      | 468€/an               | **10€ à vie**                                 |
+| **Sondages**                  | Illimité              | **100**                                       |
+| **Réponses**                  | Illimité              | **Illimité**                                  |
+| **Questions conditionnelles** | ✅                    | **✅**                                        |
+| **Export avancé**             | ✅ XLSX               | **✅ CSV, PDF, JSON, Markdown, XLSX**         |
+| **Branding personnalisé**     | ❌                    | **✅**                                        |
+| **Support prioritaire**       | ❌                    | **✅**                                        |
+| **IA avancée**                | ❌                    | **✅ Simulation réponses + Analyse continue** |
 
 **Message marketing :**
+
 > "SurveyMonkey vous coûte 468€/an. DooDates Pro : 10€ une fois, à vie."
 
 #### Offre Premium (100€ one-time)
 
 **Positionnement** : Alternative aux plans Équipe/Entreprise
 
-| Feature | SurveyMonkey Advantage | **DooDates Premium** |
-|---------|------------------------|----------------------|
-| **Prix** | 1 428€/an | **100€ à vie** |
-| **Tout Pro +** | ✅ | **✅** |
-| **White-label** | ✅ | **✅** |
-| **Intégrations** | 200+ | **API + Webhooks + Zapier** |
-| **Analyse multi-sondages** | ✅ | **✅ + Analyse temporelle IA** |
-| **Domaine personnalisé** | ✅ | **✅** |
+| Feature                    | SurveyMonkey Advantage | **DooDates Premium**           |
+| -------------------------- | ---------------------- | ------------------------------ |
+| **Prix**                   | 1 428€/an              | **100€ à vie**                 |
+| **Tout Pro +**             | ✅                     | **✅**                         |
+| **White-label**            | ✅                     | **✅**                         |
+| **Intégrations**           | 200+                   | **API + Webhooks + Zapier**    |
+| **Analyse multi-sondages** | ✅                     | **✅ + Analyse temporelle IA** |
+| **Domaine personnalisé**   | ✅                     | **✅**                         |
 
 ### 10.3 Fonctionnalités à NE PAS Implémenter
 
@@ -423,7 +471,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 ❌ **200+ intégrations** : Trop de maintenance, focus sur API ouverte  
 ❌ **Certification HIPAA/SOC 2** : Overkill pour particuliers/PME  
 ❌ **A/B Testing avancé** : Complexité excessive pour le marché cible  
-❌ **Analyse multi-sondages complexe** : Remplacé par IA temporelle  
+❌ **Analyse multi-sondages complexe** : Remplacé par IA temporelle
 
 ### 10.4 Fonctionnalités Différenciantes à Développer
 
@@ -432,6 +480,7 @@ Google Forms            Jotform             Typeform            Qualtrics
 **Concept** : L'IA génère des réponses fictives pour tester le questionnaire
 
 **Cas d'usage :**
+
 ```
 Utilisateur : "Crée un questionnaire satisfaction client"
 IA : [Génère 5 questions]
@@ -444,6 +493,7 @@ IA : [Génère 50 réponses réalistes basées sur des patterns]
 ```
 
 **Valeur ajoutée :**
+
 - Validation du questionnaire AVANT envoi
 - Détection de questions mal formulées
 - Prévision de la qualité des données
@@ -454,12 +504,14 @@ IA : [Génère 50 réponses réalistes basées sur des patterns]
 **Concept** : L'IA analyse l'évolution des réponses en temps réel
 
 **Fonctionnalités :**
+
 - **Snapshots automatiques** : Capture état à intervalles réguliers
 - **Détection de tendances** : "Les réponses négatives augmentent depuis hier"
 - **Alertes intelligentes** : "Taux de réponse en baisse, suggestions d'actions"
 - **Analyse comparative** : "Semaine 1 vs Semaine 2"
 
 **Cas d'usage :**
+
 ```
 Sondage satisfaction employés (2 semaines)
 → Jour 3 : IA détecte baisse satisfaction département X
@@ -469,6 +521,7 @@ Sondage satisfaction employés (2 semaines)
 ```
 
 **Valeur ajoutée :**
+
 - Réactivité en cours d'enquête (vs analyse post-mortem)
 - Détection précoce de problèmes
 - Optimisation continue du taux de réponse
@@ -479,6 +532,7 @@ Sondage satisfaction employés (2 semaines)
 **Concept** : L'utilisateur définit l'objectif, l'IA valide l'adéquation
 
 **Workflow :**
+
 ```
 1. Utilisateur définit objectif :
    "Mesurer satisfaction client et identifier points d'amélioration"
@@ -499,6 +553,7 @@ Sondage satisfaction employés (2 semaines)
 ```
 
 **Valeur ajoutée :**
+
 - Garantit alignement questionnaire ↔ objectifs
 - Évite collecte de données inutiles
 - Maximise ROI de l'enquête
@@ -511,12 +566,14 @@ Sondage satisfaction employés (2 semaines)
 **Objectif** : Rendre les Form Polls aussi solides que les Date Polls
 
 ✅ **Déjà fait :**
+
 - Création par IA conversationnelle
 - Questions conditionnelles
 - Questions matrices
 - Export 4 formats (CSV, PDF, JSON, Markdown)
 
 🔜 **À compléter :**
+
 - Export XLSX (feature Pro)
 - Templates prédéfinis (satisfaction, feedback, inscription)
 - Modification de sondages via IA
@@ -531,6 +588,7 @@ Sondage satisfaction employés (2 semaines)
 #### Phase 3 : Marketing Différencié (3-6 mois)
 
 **Canaux prioritaires :**
+
 1. **SEO** : "Alternative SurveyMonkey gratuite", "Alternative Google Forms avec IA"
 2. **Product Hunt** : "First AI-powered dual-mode polling tool with response simulation"
 3. **Reddit** : r/productivity, r/startups, r/SampleSize
@@ -539,18 +597,21 @@ Sondage satisfaction employés (2 semaines)
 ### 10.6 Métriques de Succès
 
 **Objectifs Year 1 :**
+
 - **1 000 utilisateurs Free** (vs 100 initialement prévu)
 - **200 ventes Pro** (10€) = 2 000€
 - **50 ventes Premium** (100€) = 5 000€
 - **Total Y1** : 7 000€ (vs 2 550€ scénario conservateur initial)
 
 **KPIs Qualité :**
+
 - Taux d'utilisation IA : **>20%** (vs 15% objectif initial)
 - Taux de conversion Free → Pro : **>10%**
 - NPS (Net Promoter Score) : **>40**
 - Taux de rétention : **>70%** à 6 mois
 
 **KPIs Innovations :**
+
 - **Simulation réponses** : Utilisé par >30% des utilisateurs Pro
 - **Analyse temporelle** : Activée sur >50% des sondages actifs
 - **Validation objectifs** : Utilisée par >40% des créations
@@ -560,15 +621,18 @@ Sondage satisfaction employés (2 semaines)
 **DooDates ne doit PAS être "SurveyMonkey moins cher"**
 
 **DooDates doit être :**
+
 1. **L'outil 2-en-1** (dates + forms) que personne d'autre n'offre
 2. **L'outil avec IA la plus avancée** (simulation, validation, analyse temporelle)
 3. **L'outil mobile-first** pour la génération 2025+
 4. **L'outil au paiement unique** (pas d'abonnement)
 
 **Avantage compétitif :**
+
 > "DooDates garantit de meilleurs résultats (taux de réponse, qualité des données, insights actionnables) plutôt que de simplement fournir des fonctionnalités."
 
 **Positionnement final :**
+
 > "DooDates : Planifiez des dates ET créez des sondages intelligents, en une conversation. Validé par l'IA, analysé en temps réel, payé une fois."
 
 ---

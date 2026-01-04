@@ -56,12 +56,24 @@ function getCorsHeaders(origin: string | null): HeadersInit {
 }
 
 interface CheckQuotaRequest {
-  action: "conversation_created" | "poll_created" | "ai_message" | "analytics_query" | "simulation" | "other";
+  action:
+    | "conversation_created"
+    | "poll_created"
+    | "ai_message"
+    | "analytics_query"
+    | "simulation"
+    | "other";
   credits: number;
 }
 
 interface ConsumeCreditsRequest {
-  action: "conversation_created" | "poll_created" | "ai_message" | "analytics_query" | "simulation" | "other";
+  action:
+    | "conversation_created"
+    | "poll_created"
+    | "ai_message"
+    | "analytics_query"
+    | "simulation"
+    | "other";
   credits: number;
   metadata?: Record<string, unknown>;
 }
@@ -114,13 +126,10 @@ serve(async (req: Request) => {
 
   try {
     if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Method not allowed" }),
-        {
-          status: 405,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        },
-      );
+      return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), {
+        status: 405,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     // Initialiser Supabase client
@@ -138,17 +147,17 @@ serve(async (req: Request) => {
     // Vérifier l'authentification (OBLIGATOIRE pour cette fonction)
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Authentication required" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        },
-      );
+      return new Response(JSON.stringify({ success: false, error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       console.log(`[${timestamp}] [${requestId}] ❌ Authentification échouée`);
@@ -183,13 +192,10 @@ serve(async (req: Request) => {
 
         if (quotaError && quotaError.code !== "PGRST116") {
           console.log(`[${timestamp}] [${requestId}] ❌ Erreur récupération quota:`, quotaError);
-          return new Response(
-            JSON.stringify({ success: false, error: "Failed to fetch quota" }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json", ...corsHeaders },
-            },
-          );
+          return new Response(JSON.stringify({ success: false, error: "Failed to fetch quota" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
         }
 
         // Si pas de quota, créer un
@@ -197,7 +203,7 @@ serve(async (req: Request) => {
         if (!quota) {
           const { data: newQuota, error: createError } = await supabase.rpc(
             "ensure_quota_tracking_exists",
-            { p_user_id: userId }
+            { p_user_id: userId },
           );
 
           if (createError) {
@@ -223,51 +229,59 @@ serve(async (req: Request) => {
 
         // Vérifier les limites (valeurs par défaut pour l'instant)
         const totalLimit = 100;
-        const actionLimit = {
-          conversation_created: 100,
-          poll_created: 50,
-          ai_message: 100,
-          analytics_query: 100,
-          simulation: 20,
-          other: 100,
-        }[action] || 100;
+        const actionLimit =
+          {
+            conversation_created: 100,
+            poll_created: 50,
+            ai_message: 100,
+            analytics_query: 100,
+            simulation: 20,
+            other: 100,
+          }[action] || 100;
 
         const currentTotal = currentQuota?.total_credits_consumed || 0;
-        const currentActionCount = (function () {
-          const q = currentQuota;
-          if (!q) return 0;
-          switch (action) {
-            case "conversation_created": return q.conversations_created || 0;
-            case "poll_created": return (q.date_polls_created || 0) + (q.form_polls_created || 0);
-            case "ai_message": return q.ai_messages || 0;
-            case "analytics_query": return q.analytics_queries || 0;
-            case "simulation": return q.simulations || 0;
-            default: return 0;
-          }
-        })() || 0;
+        const currentActionCount =
+          (function () {
+            const q = currentQuota;
+            if (!q) return 0;
+            switch (action) {
+              case "conversation_created":
+                return q.conversations_created || 0;
+              case "poll_created":
+                return (q.date_polls_created || 0) + (q.form_polls_created || 0);
+              case "ai_message":
+                return q.ai_messages || 0;
+              case "analytics_query":
+                return q.analytics_queries || 0;
+              case "simulation":
+                return q.simulations || 0;
+              default:
+                return 0;
+            }
+          })() || 0;
 
-        const allowed =
-          currentTotal + credits <= totalLimit &&
-          currentActionCount < actionLimit;
+        const allowed = currentTotal + credits <= totalLimit && currentActionCount < actionLimit;
 
         return new Response(
           JSON.stringify({
             success: true,
             allowed,
-            currentQuota: currentQuota ? {
-              conversationsCreated: currentQuota.conversations_created,
-              datePollsCreated: currentQuota.date_polls_created || 0,
-              formPollsCreated: currentQuota.form_polls_created || 0,
-              quizzCreated: currentQuota.quizz_created || 0,
-              availabilityPollsCreated: currentQuota.availability_polls_created || 0,
-              aiMessages: currentQuota.ai_messages,
-              analyticsQueries: currentQuota.analytics_queries,
-              simulations: currentQuota.simulations,
-              totalCreditsConsumed: currentQuota.total_credits_consumed,
-              subscriptionStartDate: currentQuota.subscription_start_date,
-              lastResetDate: currentQuota.last_reset_date,
-              userId: currentQuota.user_id,
-            } : null,
+            currentQuota: currentQuota
+              ? {
+                  conversationsCreated: currentQuota.conversations_created,
+                  datePollsCreated: currentQuota.date_polls_created || 0,
+                  formPollsCreated: currentQuota.form_polls_created || 0,
+                  quizzCreated: currentQuota.quizz_created || 0,
+                  availabilityPollsCreated: currentQuota.availability_polls_created || 0,
+                  aiMessages: currentQuota.ai_messages,
+                  analyticsQueries: currentQuota.analytics_queries,
+                  simulations: currentQuota.simulations,
+                  totalCreditsConsumed: currentQuota.total_credits_consumed,
+                  subscriptionStartDate: currentQuota.subscription_start_date,
+                  lastResetDate: currentQuota.last_reset_date,
+                  userId: currentQuota.user_id,
+                }
+              : null,
             reason: allowed ? undefined : "Quota limit reached",
           }),
           {
@@ -279,31 +293,29 @@ serve(async (req: Request) => {
 
       case "consumeCredits": {
         const { action, credits, metadata }: ConsumeCreditsRequest = body;
-        console.log(`[${timestamp}] [${requestId}] 💳 Consume credits: ${action}, ${credits} crédits`);
+        console.log(
+          `[${timestamp}] [${requestId}] 💳 Consume credits: ${action}, ${credits} crédits`,
+        );
 
         // Log du mode de test pour debugging
         if (isTestMode) {
-          console.log(`[${timestamp}] [${requestId}] 🧪 TEST MODE ACTIVATED - Using low hourly limits`);
+          console.log(
+            `[${timestamp}] [${requestId}] 🧪 TEST MODE ACTIVATED - Using low hourly limits`,
+          );
         }
 
         // 1) Vérifier le rate limiting horaire (userId + IP) avant de consommer les crédits
         const hourlyLimit = HOURLY_LIMITS[action] ?? DEFAULT_HOURLY_LIMIT;
 
-        const { data: rateLimit, error: rateError } = await supabase.rpc(
-          "can_consume_rate_limit",
-          {
-            p_user_id: userId,
-            p_ip: ip,
-            p_action: action,
-            p_limit_per_hour: hourlyLimit,
-          },
-        );
+        const { data: rateLimit, error: rateError } = await supabase.rpc("can_consume_rate_limit", {
+          p_user_id: userId,
+          p_ip: ip,
+          p_action: action,
+          p_limit_per_hour: hourlyLimit,
+        });
 
         if (rateError) {
-          console.log(
-            `[${timestamp}] [${requestId}] ❌ Erreur rate limit:`,
-            rateError,
-          );
+          console.log(`[${timestamp}] [${requestId}] ❌ Erreur rate limit:`, rateError);
           return new Response(
             JSON.stringify({
               success: false,
@@ -352,27 +364,21 @@ serve(async (req: Request) => {
 
         if (error) {
           console.log(`[${timestamp}] [${requestId}] ❌ Erreur consommation:`, error);
-          return new Response(
-            JSON.stringify({ success: false, error: error.message }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json", ...corsHeaders },
-            },
-          );
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
         }
 
         // Parse JSONB response
-        const result = typeof data === 'string' ? JSON.parse(data) : data;
+        const result = typeof data === "string" ? JSON.parse(data) : data;
 
         if (!result.success) {
           console.log(`[${timestamp}] [${requestId}] ⚠️  Consommation refusée:`, result.error);
-          return new Response(
-            JSON.stringify({ success: false, error: result.error }),
-            {
-              status: 403,
-              headers: { "Content-Type": "application/json", ...corsHeaders },
-            },
-          );
+          return new Response(JSON.stringify({ success: false, error: result.error }), {
+            status: 403,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
         }
 
         const quota = result.quota;
@@ -413,13 +419,10 @@ serve(async (req: Request) => {
           .single();
 
         if (!quota) {
-          return new Response(
-            JSON.stringify({ success: true, journal: [] }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json", ...corsHeaders },
-            },
-          );
+          return new Response(JSON.stringify({ success: true, journal: [] }), {
+            status: 200,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
         }
 
         const { data: journal, error: journalError } = await supabase
@@ -430,7 +433,10 @@ serve(async (req: Request) => {
           .limit(limit);
 
         if (journalError) {
-          console.log(`[${timestamp}] [${requestId}] ❌ Erreur récupération journal:`, journalError);
+          console.log(
+            `[${timestamp}] [${requestId}] ❌ Erreur récupération journal:`,
+            journalError,
+          );
           return new Response(
             JSON.stringify({ success: false, error: "Failed to fetch journal" }),
             {
@@ -443,14 +449,23 @@ serve(async (req: Request) => {
         return new Response(
           JSON.stringify({
             success: true,
-            journal: (journal || []).map((entry: { id: string; created_at: string; action: string; credits: number; user_id: string; metadata: Record<string, unknown> }) => ({
-              id: entry.id,
-              timestamp: entry.created_at,
-              action: entry.action,
-              credits: entry.credits,
-              userId: entry.user_id,
-              metadata: entry.metadata,
-            })),
+            journal: (journal || []).map(
+              (entry: {
+                id: string;
+                created_at: string;
+                action: string;
+                credits: number;
+                user_id: string;
+                metadata: Record<string, unknown>;
+              }) => ({
+                id: entry.id,
+                timestamp: entry.created_at,
+                action: entry.action,
+                credits: entry.credits,
+                userId: entry.user_id,
+                metadata: entry.metadata,
+              }),
+            ),
           }),
           {
             status: 200,
@@ -460,20 +475,17 @@ serve(async (req: Request) => {
       }
 
       default:
-        return new Response(
-          JSON.stringify({ success: false, error: "Invalid endpoint" }),
-          {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          },
-        );
+        return new Response(JSON.stringify({ success: false, error: "Invalid endpoint" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
     }
   } catch (error) {
     console.error(`[${timestamp}] [${requestId}] ❌ Erreur Edge Function:`, error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : "Internal server error"
+        error: error instanceof Error ? error.message : "Internal server error",
       }),
       {
         status: 500,
@@ -482,4 +494,3 @@ serve(async (req: Request) => {
     );
   }
 });
-

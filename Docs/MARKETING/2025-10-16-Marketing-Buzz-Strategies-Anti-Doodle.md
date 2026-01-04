@@ -20,12 +20,14 @@
 ```
 
 **Pourquoi ça marche :**
+
 - **Émotionnel** : Les gens adorent les histoires de rupture
 - **Relatability** : Tout le monde connaît Doodle et ses frustrations
 - **Viral** : Format thread = partages + commentaires
 - **SEO** : "Alternative Doodle" = recherches massives
 
 **Risques :**
+
 - Doodle pourrait réagir (= encore plus de buzz!)
 - Peut être perçu comme agressif (assumez-le)
 
@@ -57,12 +59,14 @@ Hashtag : #60SecondChallenge #DooDateschallenge
 ```
 
 **Mécanisme viral :**
+
 1. **Invitez les gens à poster leur propre comparaison**
 2. **Récompensez** : Les 10 meilleures vidéos gagnent 1 an de Pro gratuit
 3. **Relayez** tous les participants
 4. **Créez un leaderboard** : "Hall of Fame des fastest poll creators"
 
 **Pourquoi ça marche :**
+
 - **Format natif** des plateformes (vidéos courtes)
 - **Proof tangible** de votre valeur (vitesse)
 - **User-generated content** = croissance exponentielle
@@ -97,11 +101,13 @@ Témoignages (style satirique) :
 ```
 
 **Assets marketing :**
+
 - **Certificat de "Doodle Refugee"** téléchargeable
 - **Badge LinkedIn** : "Proud Doodle Refugee"
 - **Stickers** : "I survived Doodle and all I got was this sticker"
 
 **Viralité :**
+
 - **Humour absurde** = partages massifs
 - **Communauté** = sentiment d'appartenance
 - **Badge social** = gens qui affichent fièrement leur "statut"
@@ -134,11 +140,13 @@ Streamer sur Twitch :
 ```
 
 **Communauté gaming :**
+
 - **Reddit** : r/speedrun, r/gaming
 - **Twitch** : Streamers qui font des speedruns absurdes
 - **YouTube** : Compilations "Best speedrun fails"
 
 **Pourquoi c'est brillant :**
+
 - **Culture gaming** = millions de gens
 - **Contenu infini** : Chaque tentative est une vidéo
 - **Memes** : "Doodle WR is unbeatable" → DooDates le détruit
@@ -171,11 +179,13 @@ This is what we call: Stockholm Syndrome."
 ```
 
 **Expansion :**
+
 - **Podcast** : "The Doodle Therapist Show"
 - **Newsletter** : Weekly advice column
 - **Merchandise** : T-shirts "I'm in therapy for Doodle trauma"
 
 **Viralité :**
+
 - **Persona forte** = following loyal
 - **Humour relateable** = partages constants
 - **Content machine** : Infinite material
@@ -195,23 +205,25 @@ Setup alerts :
 - Reviews négatives de Doodle sur App Store
 
 Réaction IMMÉDIATE (< 15 min) :
-Tweet: "Doodle is down? DooDates is up. 
+Tweet: "Doodle is down? DooDates is up.
 Free migration for anyone affected today. DM us."
 
-Reddit comment: "Hey, DooDates creator here. 
+Reddit comment: "Hey, DooDates creator here.
 If you're blocked, we can help. Here's 3 months free."
 
 App Store: Répondre aux reviews négatives de Doodle
-"Sorry to hear about your experience. We built DooDates 
+"Sorry to hear about your experience. We built DooDates
 specifically to solve these issues. Would love your feedback."
 ```
 
 **Toolkit :**
+
 - **Status page** : status.doodates.com (toujours vert quand Doodle est rouge)
 - **Emergency landing page** : doodates.com/doodle-down
 - **Twitter bot** : Auto-reply aux mentions "Doodle problems"
 
 **Résultats :**
+
 - **Acquisition ciblée** : Gens frustrés = plus réceptifs
 - **Timing parfait** : Moment de vulabilité
 - **Press coverage** : "Startup capitalizes on competitor's downtime"
@@ -243,11 +255,13 @@ Audio guide satirique :
 ```
 
 **Marketing :**
+
 - **Press release** : "Startup opens world's first UX museum"
 - **Virtual tour** sur YouTube
 - **NFT collection** satirique des pires screens de Doodle
 
 **Viralité :**
+
 - **Concept unique** = presse tech garantie
 - **Shareable** : Chaque "salle" est un post social media
 - **Educational** : Montre vraiment pourquoi vous êtes meilleurs
@@ -276,11 +290,13 @@ MAIS :
 ```
 
 **Distribution :**
+
 - **Chrome Store** : "10,000+ Doodle users can't be wrong"
 - **Reddit** : r/productivity "I made Doodle actually usable"
 - **Product Hunt** : "Make Doodle suck less"
 
 **Conversion :**
+
 - Users utilisent l'extension = voient vos messages daily
 - Migration 1-click = path of least resistance
 - **Trojan horse** : Ils viennent pour Doodle, restent pour DooDates
@@ -317,11 +333,13 @@ MAIS :
 ```
 
 **Distribution intelligente :**
+
 - **Post sur Reddit** chaque article avec alt account
 - **Quora answers** avec liens vers vos comparisons
 - **YouTube videos** reading the articles (voice over + screenshots)
 
 **SEO Impact :**
+
 - **100+ pages** = domination Google
 - **Long-tail keywords** = traffic qualifié
 - **Reddit/Quora** = backlinks + trust
@@ -354,6 +372,7 @@ Dress code : Noir (mais avec touches de couleurs DooDates)
 ```
 
 **Press coverage garanti :**
+
 - **Tech press** : "Startup holds funeral for competitor"
 - **General press** : "Bizarre marketing stunt goes viral"
 - **Photo ops** : Influencers devant le cercueil
@@ -367,18 +386,21 @@ Dress code : Noir (mais avec touches de couleurs DooDates)
 Si je devais choisir **3 stratégies** pour maximum impact/effort :
 
 ### 🥇 #1 : "Doodle Therapist" (Quick Win)
+
 - **Coût** : 0€
 - **Temps** : 2h/semaine
 - **Impact** : Viral potential élevé
 - **Démarrage** : Aujourd'hui
 
 ### 🥈 #2 : "60-Second Challenge" (Growth Engine)
+
 - **Coût** : 1000€ prizes
 - **Temps** : Setup 1 semaine
 - **Impact** : User-generated content machine
 - **Démarrage** : Semaine prochaine
 
 ### 🥉 #3 : "Hijack Doodle's Failures" (Opportuniste)
+
 - **Coût** : 0€
 - **Temps** : Setup 1 jour, monitoring ongoing
 - **Impact** : Acquisition ciblée continue
@@ -389,6 +411,7 @@ Si je devais choisir **3 stratégies** pour maximum impact/effort :
 ## 🚀 Plan d'Exécution Immédiat
 
 ### Semaine 1 : Foundation
+
 ```
 Lundi : Créer @TheDoodleTherapist Twitter/TikTok
 Mardi : Premiers 10 posts satiriques
@@ -398,6 +421,7 @@ Vendredi : Launch #60SecondChallenge
 ```
 
 ### Semaine 2-4 : Amplification
+
 ```
 - Daily posts Doodle Therapist
 - Respond à toutes les frustrations Doodle

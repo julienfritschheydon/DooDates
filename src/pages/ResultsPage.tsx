@@ -11,7 +11,12 @@ export default function ResultsPage() {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4" data-testid="results-page-back">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-4"
+            data-testid="results-page-back"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
@@ -25,7 +30,11 @@ export default function ResultsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">Page en cours de développement...</p>
-            <Button onClick={() => navigate("/date-polls/dashboard")} className="mt-4" data-testid="results-page-dashboard">
+            <Button
+              onClick={() => navigate("/date-polls/dashboard")}
+              className="mt-4"
+              data-testid="results-page-dashboard"
+            >
               Voir le dashboard
             </Button>
           </CardContent>

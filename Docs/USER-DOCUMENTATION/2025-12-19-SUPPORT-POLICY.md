@@ -102,12 +102,14 @@ DooDates s'engage à fournir un support de qualité à tous ses utilisateurs. Ce
 ### GitHub Issues Public
 
 **Avantages :**
+
 - **Transparence** : Tous les bugs sont visibles publiquement
 - **Suivi** : Statut en temps réel (ouvert, en cours, résolu)
 - **Communauté** : Contribution de la communauté possible
 - **Historique** : Traçabilité complète des problèmes
 
 **Types d'issues :**
+
 - 🐛 **Bug** : Problème technique à corriger
 - ✨ **Feature** : Nouvelle fonctionnalité demandée
 - 📝 **Documentation** : Amélioration de la documentation
@@ -116,11 +118,12 @@ DooDates s'engage à fournir un support de qualité à tous ses utilisateurs. Ce
 ### Métriques Publiques
 
 Nous publions régulièrement :
+
 - **Taux de résolution** : % de problèmes résolus
 - **Délai moyen de résolution** : Temps moyen pour résoudre un problème
 - **Taux de satisfaction** : Feedback des utilisateurs
 
-*Note : Les métriques seront publiées après le lancement public*
+_Note : Les métriques seront publiées après le lancement public_
 
 ---
 
@@ -153,6 +156,7 @@ Nous publions régulièrement :
 ### Escalade
 
 Si vous n'êtes pas satisfait de la réponse :
+
 - **Niveau 2** : Escalade vers l'équipe technique senior
 - **Délai** : Réponse sous 72h
 - **Médiation** : Si nécessaire, médiation externe (post-lancement)
@@ -208,6 +212,7 @@ Si vous n'êtes pas satisfait de la réponse :
 ### Feedback
 
 Nous encourageons vos retours sur notre support :
+
 - **Satisfaction** : Questionnaire après résolution
 - **Suggestions** : Amélioration des processus
 - **Transparence** : Publication des améliorations
@@ -215,6 +220,7 @@ Nous encourageons vos retours sur notre support :
 ### Évolution
 
 Cette politique évolue avec le service :
+
 - **Révision** : Révision trimestrielle
 - **Mise à jour** : Notification des changements importants
 - **Historique** : Versioning des modifications
@@ -232,9 +238,9 @@ Cette politique évolue avec le service :
 ## 📝 Mises à Jour
 
 **Historique des versions :**
+
 - **v1.0** (Janvier 2026) : Version initiale
 
 ---
 
-*Dernière mise à jour : Janvier 2026*
-
+_Dernière mise à jour : Janvier 2026_

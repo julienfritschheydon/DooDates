@@ -3,6 +3,7 @@
 Ce document décrit la configuration complète de Supabase pour l'environnement de production.
 
 **✅ Statut : Configuration terminée (Décembre 2024)**
+
 - Toutes les configurations critiques sont en place
 - RLS, Index, Edge Functions : tous configurés et vérifiés
 - Voir section 7 pour le statut détaillé
@@ -10,6 +11,7 @@ Ce document décrit la configuration complète de Supabase pour l'environnement 
 ## 📋 Vue d'ensemble
 
 La configuration Supabase production comprend :
+
 1. Variables d'environnement
 2. Configuration du Dashboard Supabase
 3. Sécurité et monitoring
@@ -94,17 +96,20 @@ Les workflows utilisent automatiquement ces secrets lors du build.
 **Pour choisir la région (nouveau projet uniquement) :**
 
 Lors de la création d'un nouveau projet Supabase :
+
 1. Choisissez la région la plus proche de vos utilisateurs :
    - **Recommandé pour l'Europe** : `Europe West (London)` ou `Europe Central (Frankfurt)`
    - **Recommandé pour l'Amérique** : `US East (North Virginia)` ou `US West (Oregon)`
    - **Recommandé pour l'Asie** : `Asia Pacific (Singapore)` ou `Asia Pacific (Tokyo)`
 
-**⚠️ Note importante :** 
+**⚠️ Note importante :**
+
 - La région **ne peut pas être changée** après la création du projet
 - Le changement de région nécessiterait de créer un nouveau projet et migrer toutes les données
 - Choisissez la région dès la création du projet
 
 **Si vous devez changer de région :**
+
 1. Créer un nouveau projet dans la région souhaitée
 2. Exporter toutes les données de l'ancien projet
 3. Importer les données dans le nouveau projet
@@ -138,6 +143,7 @@ Pour un déploiement mondial, choisissez une région qui minimise la latence moy
 **2. Optimiser avec les Edge Functions (Déjà implémenté ✅)**
 
 Les Supabase Edge Functions sont **automatiquement distribuées globalement** via Cloudflare :
+
 - ✅ Réduction de la latence pour les utilisateurs éloignés
 - ✅ Détection géographique automatique (headers Cloudflare)
 - ✅ Votre fonction `geo-detection` bénéficie déjà de cette distribution
@@ -145,6 +151,7 @@ Les Supabase Edge Functions sont **automatiquement distribuées globalement** vi
 **3. Utiliser un CDN pour les assets statiques**
 
 Votre application est déjà déployée sur **GitHub Pages**, qui utilise un CDN global :
+
 - ✅ Assets statiques (JS, CSS, images) servis depuis le point de présence le plus proche
 - ✅ Latence minimale pour le chargement initial
 - ✅ Pas de configuration supplémentaire nécessaire
@@ -152,14 +159,17 @@ Votre application est déjà déployée sur **GitHub Pages**, qui utilise un CDN
 **4. Optimisations supplémentaires**
 
 **Connection Pooling :**
+
 - Déjà configuré dans `src/lib/supabase.ts`
 - Réduit la latence de connexion pour toutes les régions
 
 **Caching côté client :**
+
 - Utilisez React Query (déjà implémenté) pour mettre en cache les données
 - Réduit le nombre de requêtes vers Supabase
 
 **Requêtes optimisées :**
+
 - Limitez les données retournées (utilisez `.select()` au lieu de `SELECT *`)
 - Utilisez la pagination pour les grandes listes
 - Évitez les requêtes N+1
@@ -167,17 +177,20 @@ Votre application est déjà déployée sur **GitHub Pages**, qui utilise un CDN
 **5. Architecture multi-régions (Avancé - Non recommandé pour le lancement)**
 
 Pour une latence optimale partout, vous pourriez :
+
 - Créer plusieurs projets Supabase (un par région)
 - Synchroniser les données entre projets
 - Router les utilisateurs vers le projet le plus proche
 
 **⚠️ Inconvénients :**
+
 - ❌ Coût multiplié (plusieurs projets Pro = plusieurs × 25$/mois)
 - ❌ Complexité de synchronisation
 - ❌ Gestion de la cohérence des données
 - ❌ Maintenance complexe
 
 **Recommandation :** Commencez avec **une seule région centrale** (Europe West ou US East selon votre marché principal). Passez à une architecture multi-régions uniquement si :
+
 - Vous avez > 100k utilisateurs actifs
 - La latence devient un problème mesurable
 - Le budget le permet
@@ -185,6 +198,7 @@ Pour une latence optimale partout, vous pourriez :
 **6. Monitoring de la latence**
 
 Surveillez la latence par région :
+
 - Utilisez les logs Supabase pour voir les temps de réponse
 - Intégrez des métriques de performance (Web Vitals)
 - Surveillez les plaintes utilisateurs concernant la lenteur
@@ -192,6 +206,7 @@ Surveillez la latence par région :
 **Recommandation finale pour DooDates :**
 
 Comme vous êtes en Europe et que votre marché initial sera probablement européen :
+
 - ✅ **Choisissez : Europe West (London)** ou **Europe Central (Frankfurt)**
 - ✅ Les Edge Functions sont déjà distribuées globalement
 - ✅ GitHub Pages sert les assets depuis un CDN global
@@ -202,6 +217,7 @@ Comme vous êtes en Europe et que votre marché initial sera probablement europ�
 #### Plan recommandé : Pro (JANVIER)
 
 Pour la production, le plan Pro est recommandé pour :
+
 - ✅ Backups quotidiens automatiques
 - ✅ Point-in-time recovery (PITR)
 - ✅ Support prioritaire
@@ -223,7 +239,7 @@ RLS doit être activé sur **toutes les tables sensibles**.
 
 ```sql
 -- Vérifier que RLS est activé sur toutes les tables
-SELECT 
+SELECT
   schemaname,
   tablename,
   rowsecurity
@@ -233,6 +249,7 @@ ORDER BY tablename;
 ```
 
 **✅ Statut actuel (vérifié le 19/12/2024) :** Toutes les tables du schéma `public` ont RLS activé (`rowsecurity: true`). Les 20 tables suivantes sont protégées :
+
 - `analytics_events`, `beta_keys`, `conversations`, `country_region_map`
 - `guest_quota_journal`, `guest_quotas`, `messages`, `performance_alerts`
 - `performance_metrics`, `poll_options`, `polls`, `price_lists`
@@ -270,11 +287,9 @@ WITH CHECK (auth.uid() = id);
 
 ```typescript
 // Dans votre code React, avec un utilisateur connecté
-const { data: profiles, error } = await supabase
-  .from('profiles')
-  .select('*');
+const { data: profiles, error } = await supabase.from("profiles").select("*");
 
-console.log('Profils visibles:', profiles?.length);
+console.log("Profils visibles:", profiles?.length);
 // Devrait être 1 (votre propre profil)
 ```
 
@@ -282,10 +297,10 @@ console.log('Profils visibles:', profiles?.length);
 
 ```sql
 -- Vérifier que les politiques sont correctement configurées
-SELECT 
+SELECT
   policyname,
   cmd as operation,
-  CASE 
+  CASE
     WHEN cmd = 'SELECT' AND qual LIKE '%auth.uid()%' THEN '✅ Utilise auth.uid()'
     WHEN cmd = 'UPDATE' AND qual LIKE '%auth.uid()%' THEN '✅ Utilise auth.uid()'
     WHEN cmd = 'INSERT' AND with_check LIKE '%auth.uid()%' THEN '✅ Utilise auth.uid()'
@@ -300,6 +315,7 @@ ORDER BY policyname;
 **Note :** Le SQL Editor utilise `service_role` par défaut, qui bypass RLS. Pour tester RLS, utilisez le client Supabase avec la clé `anon` ou testez depuis votre application React.
 
 **Scripts de correction disponibles :**
+
 - `sql-scripts/fix-profiles-rls-policies.sql` - Corriger les politiques profiles
 - `sql-scripts/fix-quota-tracking-rls.sql` - Corriger les politiques quota_tracking
 - `sql-scripts/fix-user-quotas-rls.sql` - Corriger les politiques user_quotas
@@ -333,6 +349,7 @@ supabase functions deploy send-quota-report
 #### Statut actuel (6/8 déployées)
 
 ✅ **Déployées :**
+
 1. `geo-detection` - Détection géographique
 2. `health-check` - Vérification de santé
 3. `hyper-task` - Tâches AI
@@ -340,9 +357,7 @@ supabase functions deploy send-quota-report
 5. `quota-tracking` - Suivi des quotas
 6. `send-quota-report` - Rapports de quotas
 
-⚠️ **Manquantes (présentes dans le code mais pas déployées) :**
-7. `data-retention-warnings` - Avertissements de rétention
-8. `send-poll-confirmation-email` - Emails de confirmation
+⚠️ **Manquantes (présentes dans le code mais pas déployées) :** 7. `data-retention-warnings` - Avertissements de rétention 8. `send-poll-confirmation-email` - Emails de confirmation
 
 #### Déployer les fonctions manquantes
 
@@ -359,11 +374,13 @@ supabase functions deploy send-poll-confirmation-email
 #### Configurer les secrets pour les fonctions email
 
 Les fonctions suivantes nécessitent `RESEND_API_KEY` pour envoyer des emails :
+
 - `data-retention-warnings`
 - `send-poll-confirmation-email`
 - `quota-alerts`
 
 **Configuration :**
+
 1. Allez dans Supabase Dashboard > **Edge Functions** > [nom-fonction] > **Settings** > **Secrets**
 2. Cliquez sur **Add Secret**
 3. **Name** : `RESEND_API_KEY`
@@ -390,6 +407,7 @@ curl -X POST "https://outmbbisrrdiumlweira.supabase.co/functions/v1/geo-detectio
 **Statut :** ✅ **Aucun bucket requis actuellement**
 
 **Analyse :**
+
 - Les avatars sont stockés comme URLs externes dans `profiles.avatar_url` (pas d'upload vers Supabase Storage)
 - Les pièces jointes des sondages ne sont pas stockées (utilisées uniquement pour l'API Gemini, pas persistées)
 
@@ -412,11 +430,13 @@ curl -X POST "https://outmbbisrrdiumlweira.supabase.co/functions/v1/geo-detectio
    - **Team/Enterprise** : Limites personnalisées
 
 **Limites automatiques par plan :**
+
 - **API requests** : 500 req/min (Free), plus élevé (Pro+)
 - **Database requests** : Limité par le plan et la taille de l'instance
 - **Bandwidth** : 2 GB/mois (Free), illimité (Pro+)
 
 **Note :** La page "Data API Settings" (visible dans Settings → Project Settings → Data API) permet de configurer :
+
 - Les schémas exposés
 - Le nombre maximum de lignes retournées (`Max rows`)
 - La taille du pool de connexions (`Pool size`)
@@ -434,12 +454,12 @@ const rateLimiter = new Map<string, number[]>();
 function checkRateLimit(userId: string, maxRequests: number, windowMs: number): boolean {
   const now = Date.now();
   const requests = rateLimiter.get(userId) || [];
-  const recentRequests = requests.filter(time => now - time < windowMs);
-  
+  const recentRequests = requests.filter((time) => now - time < windowMs);
+
   if (recentRequests.length >= maxRequests) {
     return false; // Rate limit dépassé
   }
-  
+
   recentRequests.push(now);
   rateLimiter.set(userId, recentRequests);
   return true;
@@ -487,11 +507,13 @@ Planifiez la rotation régulière des clés :
 **Option A : Utiliser votre Edge Function quota-alerts (Recommandé ✅)**
 
 Vous avez déjà une Edge Function `quota-alerts` qui surveille les quotas :
+
 - Détection d'usage élevé (>50 crédits)
 - Détection d'activité suspecte (>30 crédits/heure)
 - Envoi d'emails d'alerte automatiques
 
 **Configuration :**
+
 1. Allez dans **Edge Functions** (sidebar)
 2. Sélectionnez `quota-alerts`
 3. Allez dans **Settings** → **Secrets**
@@ -509,6 +531,7 @@ Vous avez déjà une Edge Function `quota-alerts` qui surveille les quotas :
 **Où :** Supabase Dashboard > **Settings** → **Project Settings** → **Usage**
 
 **Métriques à surveiller :**
+
 - Database size
 - API requests
 - Storage usage
@@ -527,11 +550,13 @@ Supabase gère automatiquement le connection pooling via l'URL de l'API.
 #### Utilisation du pool de connexions
 
 L'URL standard utilise déjà le pool :
+
 ```
 https://[project-ref].supabase.co/rest/v1/
 ```
 
 Pour un pool dédié (plan Pro), utilisez :
+
 ```
 https://[project-ref].supabase.co:6543/rest/v1/
 ```
@@ -544,7 +569,7 @@ Vérifiez que tous les index nécessaires sont créés :
 
 ```sql
 -- Vérifier tous les index existants
-SELECT 
+SELECT
   tablename,
   indexname,
   indexdef
@@ -556,6 +581,7 @@ ORDER BY tablename, indexname;
 #### Indexes critiques (vérifiés le 19/12/2024)
 
 ✅ **Tous présents :**
+
 - `polls.creator_id` → `idx_polls_creator`
 - `polls.slug` → `polls_slug_key` (UNIQUE)
 - `votes.poll_id` → `idx_votes_poll_id_fkey`
@@ -568,15 +594,16 @@ ORDER BY tablename, indexname;
 
 ```sql
 -- Exemple : Index sur polls.creator_id pour les requêtes fréquentes
-CREATE INDEX IF NOT EXISTS idx_polls_creator_id 
+CREATE INDEX IF NOT EXISTS idx_polls_creator_id
 ON polls(creator_id);
 
 -- Exemple : Index sur analytics_events.created_at pour requêtes temporelles
-CREATE INDEX IF NOT EXISTS idx_analytics_events_created_at 
+CREATE INDEX IF NOT EXISTS idx_analytics_events_created_at
 ON analytics_events(created_at DESC);
 ```
 
 **Scripts disponibles :**
+
 - `sql-scripts/add-foreign-key-indexes.sql` - Ajouter les index FK
 - `sql-scripts/verify-critical-indexes.sql` - Vérifier les index critiques
 
@@ -589,7 +616,7 @@ ON analytics_events(created_at DESC);
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
 -- Voir les requêtes les plus lentes
-SELECT 
+SELECT
   query,
   calls,
   total_exec_time,
@@ -614,11 +641,13 @@ LIMIT 10;
 ### ✅ Configuration terminée (Décembre 2024)
 
 #### Variables d'environnement
+
 - [x] Toutes les variables d'environnement sont définies (code prêt)
 - [x] Les secrets GitHub Actions sont configurés (1 manquant : `SUPABASE_SERVICE_KEY`)
 - [x] `.env.production` existe localement (non commité)
 
 #### Configuration Supabase
+
 - [x] RLS est activé sur toutes les tables sensibles ✅ (10/10 tables)
 - [x] Les politiques RLS sont testées et fonctionnelles ✅
 - [ ] Backups automatiques configurés (après upgrade Pro en janvier)
@@ -626,22 +655,26 @@ LIMIT 10;
 - [ ] CORS restreint aux domaines de production (janvier - quand URL finale connue)
 
 #### Sécurité
+
 - [x] Rate limiting configuré (automatique Supabase)
 - [x] Clés API sécurisées (pas de clés dans le code)
 - [x] SUPABASE_SERVICE_KEY jamais exposée au client
 - [x] Plan de rotation des clés établi (voir `Docs/10. A faire régulièrement.md`)
 
 #### Performance
+
 - [x] Connection pooling configuré ✅
 - [x] Tous les index nécessaires créés ✅ (50+ index, tous critiques présents)
 - [x] Requêtes optimisées (pas de N+1)
 - [x] Tests de charge effectués ✅ (k6 configuré)
 
 #### Edge Functions
+
 - [x] Toutes les Edge Functions déployées ✅ (8/8 déployées le 19/12/2024)
 - [ ] Secrets `RESEND_API_KEY` configurés pour les fonctions email (à faire)
 
 #### Documentation
+
 - [x] Documentation de la configuration créée ✅
 - [ ] Procédures de rollback documentées (optionnel)
 - [ ] Contacts d'urgence identifiés (optionnel)
@@ -667,6 +700,7 @@ LIMIT 10;
 ### Support
 
 En cas de problème :
+
 1. Vérifier les logs Supabase Dashboard
 2. Consulter la documentation Supabase
 3. Contacter le support Supabase (plan Pro)
@@ -684,24 +718,28 @@ En cas de problème :
 **Toutes les configurations critiques sont en place :**
 
 #### Code et configuration
+
 - ✅ Configuration client Supabase optimisée (`src/lib/supabase.ts`)
 - ✅ Validation des variables d'environnement (`src/lib/env.ts`)
 - ✅ Connection pooling configuré
 - ✅ Documentation complète créée
 
 #### Sécurité
+
 - ✅ **RLS complètement configuré** (10/10 tables avec politiques complètes)
   - Toutes les tables sensibles protégées
   - Politiques vérifiées et corrigées le 19/12/2024
 - ✅ Tests de charge mis en place (k6 configuré)
 
 #### Performance
+
 - ✅ **Index DB vérifiés** (50+ index présents, tous les index critiques OK)
   - Tous les index critiques présents
   - Index Foreign Keys présents
   - Vérification effectuée le 19/12/2024
 
 #### Edge Functions
+
 - ✅ **8/8 fonctions déployées** (19/12/2024)
   - `geo-detection`, `health-check`, `hyper-task`
   - `quota-alerts`, `quota-tracking`, `send-quota-report`
@@ -710,6 +748,7 @@ En cas de problème :
 ### 📅 À faire en janvier (Planification)
 
 #### Avant lancement public
+
 - [ ] Upgrade plan Pro (~25$/mois)
 - [ ] Configurer backups automatiques (après upgrade Pro)
 - [ ] Restreindre CORS aux domaines de production (quand URL finale connue)
@@ -717,6 +756,7 @@ En cas de problème :
 - [ ] Activer monitoring/alertes (logs API + quota-alerts Edge Function)
 
 #### Tâches récurrentes
+
 - [ ] Rotation des clés API (tous les 90 jours) - Voir `Docs/10. A faire régulièrement.md`
 
 ### 📚 Documentation
@@ -724,4 +764,3 @@ En cas de problème :
 - **Configuration complète :** Ce document (`Docs/Database/2025-12-19-SUPABASE_PRODUCTION_CONFIG.md`)
 - **Installation CLI :** `Docs/Database/INSTALL-SUPABASE-CLI.md`
 - **Tâches récurrentes :** `Docs/10. A faire régulièrement.md`
-

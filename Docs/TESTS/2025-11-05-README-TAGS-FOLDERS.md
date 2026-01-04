@@ -17,6 +17,7 @@ Cette fonctionnalité permet aux utilisateurs d'organiser leurs conversations av
 ### Fichier : `tests/e2e/tags-folders.spec.ts`
 
 **6 tests E2E** couvrant :
+
 - ✅ Ouverture du dialogue de gestion
 - ✅ Assignation de tags
 - ✅ Assignation de dossiers
@@ -37,6 +38,7 @@ npx playwright test
 ### Tags de test
 
 Les tests utilisent les tags Playwright suivants :
+
 - `@smoke` : Tests de base critiques
 - `@critical` : Tests critiques pour la fonctionnalité
 - `@functional` : Tests fonctionnels complets
@@ -94,6 +96,7 @@ Les tests utilisent les tags Playwright suivants :
 ### Fichier : `public/docs/10-Tableau-Bord.md`
 
 Section **"Organisation"** mise à jour avec :
+
 - ✅ Guide complet pour assigner des tags
 - ✅ Guide complet pour assigner des dossiers
 - ✅ Exemples d'organisation
@@ -107,12 +110,14 @@ Section **"Organisation"** mise à jour avec :
 Avant de considérer la fonctionnalité comme prête :
 
 ### Tests Automatisés
+
 - [ ] Tous les tests E2E passent (6/6)
 - [ ] Tests exécutés sur Chrome
 - [ ] Tests exécutés sur Firefox (optionnel)
 - [ ] Aucune erreur console
 
 ### Tests Manuels Critiques
+
 - [ ] Test 1 : Ouvrir le dialogue ✅
 - [ ] Test 2 : Assigner des tags ✅
 - [ ] Test 4 : Assigner un dossier ✅
@@ -122,11 +127,13 @@ Avant de considérer la fonctionnalité comme prête :
 - [ ] Test 11 : Filtrer par dossier ✅
 
 ### Documentation
+
 - [ ] Documentation utilisateur complète
 - [ ] Exemples clairs et complets
 - [ ] Instructions étape par étape
 
 ### Performance
+
 - [ ] Dialogue s'ouvre rapidement (< 1s)
 - [ ] Pas de lag avec 20+ tags/dossiers
 - [ ] Affichage fluide sur mobile

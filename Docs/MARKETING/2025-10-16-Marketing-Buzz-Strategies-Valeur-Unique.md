@@ -9,6 +9,7 @@
 ### Concept : Première IA au monde qui organise votre vie par conversation
 
 **Positionnement :**
+
 > "Et si organiser un événement était aussi simple qu'envoyer un message ?"
 
 **Campagne narrative :**
@@ -17,7 +18,7 @@
 🎬 Série de vidéos "Real Conversations, Real Results"
 
 Épisode 1 : La Maman Débordée
-"Hey DooDates, organise l'anniversaire de ma fille samedi prochain, 
+"Hey DooDates, organise l'anniversaire de ma fille samedi prochain,
 10 enfants, entre 14h et 17h"
 → DONE en 30 secondes
 
@@ -33,12 +34,14 @@ Tagline : "Stop planning. Start talking."
 ```
 
 **Pourquoi c'est puissant :**
+
 - **Premier du genre** : Personne ne fait ça dans la coordination
 - **Émotionnel** : Montre la vie réelle, pas des features
 - **Démocratique** : Tout le monde peut parler à une IA
 - **Futuriste** : Vous montrez le futur de la coordination
 
 **Distribution :**
+
 - **YouTube Shorts / TikTok** : Format natif, viral potential
 - **LinkedIn** : B2B (freelancers, entrepreneurs)
 - **Instagram** : Stories format, relatable
@@ -73,12 +76,14 @@ Tagline : "Behind every plan, there's a moment that matters."
 ```
 
 **Format :**
+
 - **Mini-documentaires** (3-5 min) sur YouTube
 - **Photo essays** sur Instagram
 - **Podcast episodes** : Interviews approfondies
 - **Blog posts** avec photos, textes, émotions
 
 **Impact émotionnel :**
+
 - Les gens ne se souviennent pas de features
 - Ils se souviennent de **moments**
 - DooDates = l'outil qui crée ces moments
@@ -114,12 +119,14 @@ Real-world scenarios :
 ```
 
 **Angle presse :**
+
 - **Étude** : "French workers lose 40 hours/year to bad coordination"
 - **Press release** avec vraies données
 - **Infographies** partageables
 - **White paper** téléchargeable
 
 **Viralité :**
+
 - **Chiffres choquants** = partages
 - **Relatable** : Tout le monde s'identifie
 - **Call-to-action clair** : "Stop losing time"
@@ -157,6 +164,7 @@ Exposition :
 ```
 
 **Impact :**
+
 - **Presse culture + tech** : Cross-over unique
 - **Instagram gold** : Visuels magnifiques
 - **Différenciation totale** : Aucun concurrent ne fait ça
@@ -201,6 +209,7 @@ Ambassadeurs :
 ```
 
 **Pourquoi c'est puissant :**
+
 - **Mouvement > Produit** : Plus grand que vous
 - **PR mondiale** : Presse internationale
 - **Purpose-driven** : Charity component
@@ -243,11 +252,13 @@ Show AI improvements through DOO's personality
 ```
 
 **Références :**
+
 - Clippy (mais en mieux)
 - Duolingo Owl (success story)
 - Character.ai (engagement insane)
 
 **Impact :**
+
 - **Attachement émotionnel** : Les gens aiment DOO
 - **Mémorable** : Brand recall élevé
 - **Content machine** : DOO peut tout faire
@@ -291,6 +302,7 @@ Monétisation :
 ```
 
 **Positioning :**
+
 - **Thought leader** : Vous êtes LES experts
 - **SEO monster** : Domination Google
 - **Trust building** : Éducation = crédibilité
@@ -310,13 +322,13 @@ Monétisation :
 Disciplines :
 1. Speed Planning
    - Coordonner 10 personnes le plus vite possible
-   
+
 2. Complexity Challenge
    - Coordonner l'événement le plus complexe
-   
+
 3. Creativity Award
    - L'événement coordonné le plus original
-   
+
 4. Impact Medal
    - Coordination qui a le plus aidé les autres
 
@@ -343,6 +355,7 @@ Streaming :
 ```
 
 **Engagement :**
+
 - **Viral mechanics** : Compétition = partages
 - **User-generated content** : Infinite material
 - **Community building** : Teams = belonging
@@ -362,10 +375,10 @@ Streaming :
 Real stories :
 1. Long Distance Love
    "Coordinating time zones for our first date... then our wedding"
-   
+
 2. Busy Professionals
    "Both working 60h/week. DooDates found us time for each other."
-   
+
 3. Blended Families
    "Coordinating 2 families, 5 kids. DooDates saved our relationship."
 
@@ -383,6 +396,7 @@ Wedding Feature :
 ```
 
 **Émotionnel x1000 :**
+
 - **Tears guaranteed** : Emotional stories
 - **Press love** : Human interest stories
 - **Word of mouth** : People share love stories
@@ -429,6 +443,7 @@ Impact social :
 ```
 
 **Stratégie risquée mais...**
+
 - **Prestige énorme** si succès
 - **PR value** = millions
 - **Thought leadership** ultime
@@ -448,16 +463,16 @@ Impact social :
 Situations relatable :
 1. Le message WhatsApp de groupe avec 47 réponses
    → Cut to DooDates solving it
-   
+
 2. "Quand êtes-vous libres?" → 10 screenshots d'agendas
    → Cut to DooDates instant solution
-   
+
 3. L'email "reply-all" cauchemar
    → Cut to DooDates clean interface
-   
+
 4. Les 15 apps ouvertes pour organiser UNE sortie
    → Cut to DooDates one app
-   
+
 5. "On fait comment pour..." → Stress visible
    → Cut to DooDates calm user
 
@@ -475,6 +490,7 @@ Hashtags :
 ```
 
 **Viralité TikTok :**
+
 - **Relatable AF** : Everyone has been there
 - **Quick payoff** : 15 seconds = complete story
 - **Duets/Stitches** : User participation
@@ -519,6 +535,7 @@ Developer community :
 ```
 
 **Positioning :**
+
 - **Trust** : Transparency = credibility
 - **Innovation** : Show you're cutting-edge
 - **Community** : Developers love this
@@ -529,31 +546,41 @@ Developer community :
 ## 🎯 Ma Recommandation TOP 5 (Sans Compétition)
 
 ### 🥇 #1 : "Talk to Your Calendar" (IA Show-off)
+
 **Pourquoi :** C'est votre VRAIE différenciation
+
 - Coût : 500€ (videos)
 - Impact : Maximum (unique selling point)
 - Démarrage : Immédiat
 
 ### 🥈 #2 : "Invisible Coordination" (Émotionnel)
+
 **Pourquoi :** Crée attachement émotionnel fort
+
 - Coût : 0€ (user stories)
 - Impact : Viral potential
 - Démarrage : Cette semaine
 
 ### 🥉 #3 : "AI Character DOO" (Community)
+
 **Pourquoi :** Long-term brand building
+
 - Coût : 0€ (just creativity)
 - Impact : Community forte
 - Démarrage : Aujourd'hui
 
 ### 🏅 #4 : "Micro-Moments" (Viral Machine)
+
 **Pourquoi :** TikTok/Instagram growth engine
+
 - Coût : 0€ (DIY videos)
 - Impact : Explosive si viral
 - Démarrage : Weekend
 
 ### 🏅 #5 : "Coordination Crisis" (Data Credibility)
+
 **Pourquoi :** Crédibilité + press
+
 - Coût : 500€ (infographics)
 - Impact : Thought leadership
 - Démarrage : 2 semaines
@@ -614,6 +641,7 @@ Mixer 3 angles simultanément :
 ## 🎯 Quelle approche vous parle le plus ?
 
 Ces stratégies se concentrent sur :
+
 - ✅ Votre vraie innovation (IA conversationnelle)
 - ✅ L'impact humain (émotions, moments)
 - ✅ La création de mouvement (plus grand que vous)

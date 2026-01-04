@@ -17,40 +17,44 @@ Ce document décrit le système de design cohérent implémenté pour améliorer
 Système centralisé de tokens de design pour garantir la cohérence visuelle.
 
 #### Espacement cohérent
+
 ```typescript
 spacing = {
-  xs: "1",   // 4px - Espacement minimal
-  sm: "2",   // 8px - Éléments liés
-  md: "3",   // 12px - Espacement standard
-  lg: "4",   // 16px - Entre sections
-  xl: "6",   // 24px - Groupes majeurs
+  xs: "1", // 4px - Espacement minimal
+  sm: "2", // 8px - Éléments liés
+  md: "3", // 12px - Espacement standard
+  lg: "4", // 16px - Entre sections
+  xl: "6", // 24px - Groupes majeurs
   "2xl": "8", // 32px - Sections principales
-  "3xl": "12" // 48px - Espacement très large
-}
+  "3xl": "12", // 48px - Espacement très large
+};
 ```
 
 #### Gaps pour flexbox/grid
+
 ```typescript
 gaps = {
   xs: "gap-1", // 4px - Badges, chips
   sm: "gap-2", // 8px - Icône + texte
   md: "gap-3", // 12px - Éléments dans un groupe
   lg: "gap-4", // 16px - Sections
-  xl: "gap-6"  // 24px - Groupes majeurs
-}
+  xl: "gap-6", // 24px - Groupes majeurs
+};
 ```
 
 #### Transitions
+
 ```typescript
 transitions = {
-  fast: "duration-150",   // Hover, focus
+  fast: "duration-150", // Hover, focus
   normal: "duration-200", // Standard
-  slow: "duration-300",   // Animations complexes
-  slower: "duration-500"  // Modals, slides
-}
+  slow: "duration-300", // Animations complexes
+  slower: "duration-500", // Modals, slides
+};
 ```
 
 #### Helpers utilitaires
+
 - `getCardClasses()` - Classes pour cards (default, elevated, outlined)
 - `getContainerSpacing()` - Espacement de conteneurs
 - `getGroupSpacing()` - Espacement de groupes
@@ -60,6 +64,7 @@ transitions = {
 ### 2. Toasts améliorés (`src/components/ui/toast.tsx` + `toaster.tsx`)
 
 #### Nouvelles variantes
+
 - `default` - Gris (notifications générales)
 - `success` - Vert (actions réussies)
 - `warning` - Orange (avertissements)
@@ -67,6 +72,7 @@ transitions = {
 - `info` - Bleu (informations)
 
 #### Icônes automatiques
+
 - ✅ `CheckCircle2` pour success
 - ❌ `AlertCircle` pour error
 - ⚠️ `AlertTriangle` pour warning
@@ -74,6 +80,7 @@ transitions = {
 - 🔔 `Bell` pour default
 
 #### Utilisation
+
 ```typescript
 import { useToast } from "@/hooks/use-toast";
 
@@ -101,8 +108,9 @@ toast({
 #### Composants disponibles
 
 **LoadingSpinner** - Spinner principal
+
 ```typescript
-<LoadingSpinner 
+<LoadingSpinner
   size="md"           // sm | md | lg | xl
   text="Chargement..."
   centered={true}     // Centrer dans le conteneur
@@ -110,6 +118,7 @@ toast({
 ```
 
 **ButtonSpinner** - Pour les boutons
+
 ```typescript
 <button disabled={isLoading}>
   {isLoading && <ButtonSpinner />}
@@ -118,6 +127,7 @@ toast({
 ```
 
 **LoadingOverlay** - Overlay plein écran
+
 ```typescript
 <LoadingOverlay text="Sauvegarde en cours..." />
 ```
@@ -127,6 +137,7 @@ toast({
 ### 4. Messages d'erreur (`src/components/ui/error-message.tsx`)
 
 #### ErrorMessage - Message complet
+
 ```typescript
 <ErrorMessage
   variant="error"     // error | warning | info | success
@@ -137,11 +148,13 @@ toast({
 ```
 
 #### InlineError - Erreur inline
+
 ```typescript
 <InlineError message="Ce champ est requis" />
 ```
 
 #### FieldError - Erreur de champ de formulaire
+
 ```typescript
 <input {...props} />
 <FieldError message={errors.email} />
@@ -154,6 +167,7 @@ toast({
 Animations réutilisables pour Framer Motion.
 
 #### Animations de base
+
 ```typescript
 import { fadeIn, slideUp, scaleIn } from "@/lib/motion-variants";
 
@@ -163,6 +177,7 @@ import { fadeIn, slideUp, scaleIn } from "@/lib/motion-variants";
 ```
 
 #### Animations disponibles
+
 - **fadeIn** - Fade in simple
 - **slideUp** - Slide depuis le bas
 - **slideDown** - Slide depuis le haut
@@ -177,6 +192,7 @@ import { fadeIn, slideUp, scaleIn } from "@/lib/motion-variants";
 - **bounce** - Bounce (succès)
 
 #### Animations pour listes
+
 ```typescript
 import { staggerContainer, staggerItem } from "@/lib/motion-variants";
 
@@ -190,6 +206,7 @@ import { staggerContainer, staggerItem } from "@/lib/motion-variants";
 ```
 
 #### Animations pour modals
+
 ```typescript
 import { backdropFade, modalContent } from "@/lib/motion-variants";
 
@@ -201,6 +218,7 @@ import { backdropFade, modalContent } from "@/lib/motion-variants";
 ```
 
 #### Animations pour drawers
+
 ```typescript
 import { drawerRight, drawerLeft } from "@/lib/motion-variants";
 
@@ -213,51 +231,63 @@ import { drawerRight, drawerLeft } from "@/lib/motion-variants";
 ## 🎯 Bonnes pratiques
 
 ### Espacement
+
 ✅ **À FAIRE**
+
 - Utiliser les tokens de `design-tokens.ts`
 - `gap-2` pour icône + texte
 - `gap-4` entre sections
 - `space-y-4` pour listes verticales
 
 ❌ **À ÉVITER**
+
 - Valeurs arbitraires (`gap-[13px]`)
 - Espacement incohérent
 - Mélanger gap et space-y
 
 ### Feedback visuel
+
 ✅ **À FAIRE**
+
 - Toast pour confirmations d'actions
 - Loading spinner pendant les requêtes
 - Messages d'erreur clairs avec icônes
 - Transitions fluides (200-300ms)
 
 ❌ **À ÉVITER**
+
 - Actions silencieuses
 - Pas de feedback de chargement
 - Messages d'erreur techniques
 - Animations trop longues (>500ms)
 
 ### Messages d'erreur
+
 ✅ **À FAIRE**
+
 - Utiliser `FieldError` pour les champs
 - Utiliser `ErrorMessage` pour les erreurs globales
 - Messages clairs et actionnables
 - Icônes selon le type d'erreur
 
 ❌ **À ÉVITER**
+
 - Messages techniques (stack traces)
 - Pas d'indication visuelle
 - Messages trop longs
 - Pas d'action proposée
 
 ### Animations
+
 ✅ **À FAIRE**
+
 - Utiliser les variants de `motion-variants.ts`
 - Animations cohérentes (même durée, même easing)
 - Stagger pour les listes
 - Animations subtiles
 
 ❌ **À ÉVITER**
+
 - Animations différentes pour même action
 - Trop d'animations simultanées
 - Animations trop rapides (<150ms)
@@ -270,21 +300,25 @@ import { drawerRight, drawerLeft } from "@/lib/motion-variants";
 Pour intégrer ces améliorations dans un composant existant :
 
 ### 1. Espacement
+
 - [ ] Remplacer les valeurs arbitraires par les tokens
 - [ ] Utiliser `gaps` pour flexbox/grid
 - [ ] Utiliser `padding` et `margin` cohérents
 
 ### 2. Feedback visuel
+
 - [ ] Ajouter toasts pour les actions importantes
 - [ ] Ajouter loading spinner pendant les requêtes
 - [ ] Utiliser `ButtonSpinner` dans les boutons
 
 ### 3. Messages d'erreur
+
 - [ ] Remplacer les `<p className="text-red-...">` par `<FieldError>`
 - [ ] Utiliser `<ErrorMessage>` pour les erreurs globales
 - [ ] Ajouter des icônes aux messages
 
 ### 4. Transitions
+
 - [ ] Importer les variants de `motion-variants.ts`
 - [ ] Appliquer `slideUp` aux éléments qui apparaissent
 - [ ] Utiliser `staggerContainer` pour les listes
@@ -295,16 +329,19 @@ Pour intégrer ces améliorations dans un composant existant :
 ## 🔄 Prochaines étapes
 
 ### Court terme (1-2h)
+
 - [ ] Appliquer aux composants de vote (VoterForm, VotingInterface)
 - [ ] Appliquer aux formulaires de création (PollCreator, FormPollCreator)
 - [ ] Tester sur mobile
 
 ### Moyen terme (2-3h)
+
 - [ ] Créer un Storybook pour documenter les composants
 - [ ] Ajouter des tests visuels (Chromatic)
 - [ ] Audit complet de l'espacement
 
 ### Long terme (4-5h)
+
 - [ ] Système de thèmes (light/dark)
 - [ ] Animations avancées (micro-interactions)
 - [ ] Accessibilité (ARIA, focus management)
@@ -323,16 +360,19 @@ Pour intégrer ces améliorations dans un composant existant :
 ## ✅ Résumé
 
 **Fichiers créés :**
+
 1. `src/lib/design-tokens.ts` - Tokens de design
 2. `src/lib/motion-variants.ts` - Variants Framer Motion
 3. `src/components/ui/loading-spinner.tsx` - Spinners de chargement
 4. `src/components/ui/error-message.tsx` - Messages d'erreur
 
 **Fichiers modifiés :**
+
 1. `src/components/ui/toast.tsx` - Nouvelles variantes
 2. `src/components/ui/toaster.tsx` - Icônes automatiques
 
 **Bénéfices :**
+
 - ✅ Espacement cohérent à travers l'app
 - ✅ Feedback visuel amélioré (toasts, loading, erreurs)
 - ✅ Transitions fluides et cohérentes

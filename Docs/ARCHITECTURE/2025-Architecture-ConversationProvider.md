@@ -11,25 +11,27 @@
 `ConversationProvider.tsx` est le contexte central de l'UX IA-First. Il gère l'état partagé entre tous les composants de l'application.
 
 ### Problème actuel
+
 **État monolithique** : Trop d'états mélangés → re-renders en cascade
 
 ---
 
 ## 📊 Métriques de complexité
 
-| Métrique | Valeur | Seuil recommandé | Statut |
-|----------|--------|------------------|--------|
-| Lignes de code | 411 | < 300 | 🟠 ÉLEVÉ |
-| Nombre d'états | 15+ | < 8 | 🟠 ÉLEVÉ |
-| Responsabilités | 8 | 1-2 | 🟠 ÉLEVÉ |
-| Composants dépendants | 7 | < 5 | 🟠 ÉLEVÉ |
-| Reducers | 2 | 1 | ✅ OK |
+| Métrique              | Valeur | Seuil recommandé | Statut   |
+| --------------------- | ------ | ---------------- | -------- |
+| Lignes de code        | 411    | < 300            | 🟠 ÉLEVÉ |
+| Nombre d'états        | 15+    | < 8              | 🟠 ÉLEVÉ |
+| Responsabilités       | 8      | 1-2              | 🟠 ÉLEVÉ |
+| Composants dépendants | 7      | < 5              | 🟠 ÉLEVÉ |
+| Reducers              | 2      | 1                | ✅ OK    |
 
 ---
 
 ## 🏗️ États gérés
 
 ### 1. **État conversation** (Business Logic)
+
 ```typescript
 const [conversationId, setConversationId] = useState<string | null>(null);
 const [messages, setMessages] = useState<Message[]>([]);
@@ -38,6 +40,7 @@ const [messages, setMessages] = useState<Message[]>([]);
 **Responsabilité** : Historique de la conversation avec l'IA
 
 ### 2. **État éditeur** (Business Logic)
+
 ```typescript
 const [isEditorOpen, setIsEditorOpen] = useState(false);
 const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
@@ -46,6 +49,7 @@ const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
 **Responsabilité** : Sondage en cours d'édition
 
 ### 3. **État UI - Highlights** (UI State)
+
 ```typescript
 const [highlightedId, setHighlightedId] = useState<string | null>(null);
 const [highlightType, setHighlightType] = useState<"add" | "remove" | "modify" | null>(null);
@@ -54,14 +58,18 @@ const [highlightType, setHighlightType] = useState<"add" | "remove" | "modify" |
 **Responsabilité** : Animations visuelles
 
 ### 4. **État UI - Modifications** (UI State)
+
 ```typescript
 const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
-const [modifiedField, setModifiedField] = useState<"title" | "type" | "options" | "required" | null>(null);
+const [modifiedField, setModifiedField] = useState<
+  "title" | "type" | "options" | "required" | null
+>(null);
 ```
 
 **Responsabilité** : Feedback visuel des modifications
 
 ### 5. **État UI - Sidebar** (UI State)
+
 ```typescript
 const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 const isMobile = useMediaQuery("(max-width: 767px)");
@@ -74,6 +82,7 @@ const isMobile = useMediaQuery("(max-width: 767px)");
 ## 🔗 Composants dépendants
 
 ### Consommateurs du contexte
+
 ```typescript
 // 7 composants utilisent useConversation()
 1. GeminiChatInterface.tsx       // Chat principal
@@ -141,41 +150,49 @@ QuestionCard affiche animation
 ## 🎯 Responsabilités actuelles
 
 ### 1. **Gestion de la conversation**
+
 - Messages (ajout, suppression, restauration)
 - ID de conversation
 - Synchronisation localStorage
 
 ### 2. **Gestion de l'éditeur**
+
 - État ouvert/fermé
 - Sondage actuel (Date ou Form)
 - Dispatch actions vers reducers
 
 ### 3. **Gestion des highlights**
+
 - ID de l'élément surligné
 - Type d'action (add, remove, modify)
 - Timeout automatique (3s)
 
 ### 4. **Gestion des modifications**
+
 - Question modifiée
 - Champ modifié
 - Feedback visuel temporaire
 
 ### 5. **Gestion de la sidebar**
+
 - État ouvert/fermé
 - Détection mobile
 - Navigation
 
 ### 6. **Persistence**
+
 - Sauvegarde messages dans localStorage
 - Restauration au démarrage
 - Synchronisation avec poll
 
 ### 7. **Initialisation**
+
 - Chargement poll depuis localStorage
 - Ouverture automatique éditeur
 - Gestion des erreurs
 
 ### 8. **Navigation**
+
 - Intégration avec React Router
 - Gestion des paramètres URL
 - Redirection
@@ -185,6 +202,7 @@ QuestionCard affiche animation
 ## 🐛 Points de fragilité
 
 ### 1. **Re-renders en cascade**
+
 ```typescript
 // Modifier currentPoll → re-render de TOUS les composants
 const { currentPoll } = useConversation();
@@ -197,6 +215,7 @@ const { messages } = useConversation();
 **Impact** : Performance dégradée, animations saccadées
 
 ### 2. **Synchronisation localStorage complexe**
+
 ```typescript
 useEffect(() => {
   // Sauvegarder messages à chaque changement
@@ -214,6 +233,7 @@ useEffect(() => {
 **Risque** : Race conditions, données incohérentes
 
 ### 3. **Couplage fort avec reducers**
+
 ```typescript
 const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
 
@@ -224,11 +244,12 @@ const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
 **Risque** : Modifier un reducer → impact sur l'autre
 
 ### 4. **Gestion des highlights temporaire**
+
 ```typescript
 const setModifiedQuestion = useCallback((questionId, field) => {
   setModifiedQuestionId(questionId);
   setModifiedField(field);
-  
+
   // Clear après 3 secondes
   if (questionId) {
     setTimeout(() => {
@@ -306,7 +327,7 @@ const ChatDisplay = () => {
 // Créer un hook dédié
 const useConversationPersistence = () => {
   const { messages, conversationId } = useConversation();
-  
+
   useEffect(() => {
     // Logique de sauvegarde isolée
     persistConversation(conversationId, messages);
@@ -343,6 +364,7 @@ useHighlightState()        // Seulement highlights
 ```
 
 **Avantages** :
+
 - ✅ Re-renders optimisés
 - ✅ Responsabilités séparées
 - ✅ Testable indépendamment
@@ -353,6 +375,7 @@ useHighlightState()        // Seulement highlights
 ## 🚨 Règles strictes
 
 ### ❌ NE PAS FAIRE
+
 1. Ajouter de nouveaux états sans justification
 2. Mélanger UI state et business logic
 3. Créer des timeouts sans cleanup
@@ -360,6 +383,7 @@ useHighlightState()        // Seulement highlights
 5. Ajouter des dépendances circulaires
 
 ### ✅ FAIRE
+
 1. Séparer les responsabilités
 2. Utiliser des sélecteurs pour optimiser
 3. Documenter les changements d'état

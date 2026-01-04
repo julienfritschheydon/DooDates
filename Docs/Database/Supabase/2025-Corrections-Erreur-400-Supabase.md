@@ -9,6 +9,7 @@ outmbbisrrdiumlweira.supabase.co/rest/v1/polls:1  Failed to load resource: the s
 ```
 
 **Cause** : Le code essayait d'accéder à la table `polls` qui :
+
 - N'a pas les bonnes colonnes (manque `type`, `questions`, `dates`, etc.)
 - Est obsolète dans votre architecture
 
@@ -21,7 +22,7 @@ outmbbisrrdiumlweira.supabase.co/rest/v1/polls:1  Failed to load resource: the s
 ```
 conversations
 ├── Sondages créés via IA ✅
-├── Sondages créés manuellement ✅  
+├── Sondages créés manuellement ✅
 └── Formulaires personnalisés ✅
 ```
 
@@ -33,10 +34,7 @@ Voir documentation complète : [`Docs/Database/DATABASE-SCHEMA-COMPLETE.md`](./D
 
 ```typescript
 // ❌ AVANT (générait erreur 400)
-const response = await fetch(
-  `${SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}`,
-  { headers }
-);
+const response = await fetch(`${SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}`, { headers });
 
 // ✅ APRÈS (désactivé temporairement)
 logger.info("Using localStorage for polls (table polls disabled)", "poll");
@@ -44,6 +42,7 @@ userPolls = getAllPolls();
 ```
 
 **Changements** :
+
 - Désactivé le chargement depuis la table `polls` obsolète
 - Utilisation de `localStorage` qui contient déjà les données via `conversations`
 - Ajout de commentaires pour migration future vers `conversations`
@@ -69,6 +68,7 @@ userPolls = getAllPolls();
 **Fichier créé** : `sql-scripts/upgrade-conversations-for-polls.sql`
 
 Ce script ajoute les colonnes manquantes à la table `conversations` :
+
 - `poll_data` (JSONB) - données complètes du sondage
 - `poll_type` (TEXT) - type : 'date' ou 'form'
 - `poll_status` (TEXT) - statut : draft/active/closed/archived
@@ -77,6 +77,7 @@ Ce script ajoute les colonnes manquantes à la table `conversations` :
 - Fonction de génération de slug
 
 **À exécuter dans Supabase** :
+
 ```bash
 # Supabase Dashboard → SQL Editor → Coller le contenu du fichier
 ```
@@ -84,12 +85,14 @@ Ce script ajoute les colonnes manquantes à la table `conversations` :
 ## 🧪 Vérification
 
 ### Avant la Correction
+
 ```
 ❌ Erreur 400 sur /rest/v1/polls
 ❌ Messages d'erreur dans la console
 ```
 
 ### Après la Correction
+
 ```
 ✅ Plus d'erreur 400
 ✅ Logs : "Using localStorage for polls (table polls disabled)"
@@ -106,6 +109,7 @@ Ce script ajoute les colonnes manquantes à la table `conversations` :
 ## 📋 Structure de la Table Conversations
 
 ### Colonnes Existantes
+
 ```sql
 id              UUID PRIMARY KEY
 user_id         UUID (référence auth.users)
@@ -117,6 +121,7 @@ updated_at      TIMESTAMP
 ```
 
 ### Colonnes à Ajouter (via script SQL)
+
 ```sql
 poll_data       JSONB (données du sondage/formulaire)
 poll_type       TEXT ('date' ou 'form')
@@ -145,8 +150,8 @@ poll_slug       TEXT UNIQUE (pour partage)
     }
   },
   "messages": [
-    {"role": "user", "content": "Je veux créer un sondage"},
-    {"role": "assistant", "content": "D'accord, pour quelles dates ?"}
+    { "role": "user", "content": "Je veux créer un sondage" },
+    { "role": "assistant", "content": "D'accord, pour quelles dates ?" }
   ]
 }
 ```
@@ -166,7 +171,7 @@ Le code commenté dans `usePolls.ts` contient déjà l'implémentation pour char
 ```typescript
 const response = await fetch(
   `${SUPABASE_URL}/rest/v1/conversations?user_id=eq.${user.id}&poll_data=not.is.null`,
-  { headers }
+  { headers },
 );
 ```
 
@@ -188,4 +193,3 @@ const response = await fetch(
 
 **Date** : 7 Novembre 2025
 **Testez maintenant** : Rechargez l'app et créez un sondage !
-

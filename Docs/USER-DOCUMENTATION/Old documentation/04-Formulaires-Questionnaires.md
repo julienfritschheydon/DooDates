@@ -37,6 +37,7 @@ Les **formulaires DooDates** vous permettent de créer des enquêtes, questionna
 **Usage :** Sélectionner **une seule** option
 
 **Exemple :**
+
 ```
 Question : Quelle est votre boisson préférée ?
 ⚫ Café
@@ -46,6 +47,7 @@ Question : Quelle est votre boisson préférée ?
 ```
 
 **Configuration :**
+
 ```
 Type : Choix unique
 Options : Café, Thé, Jus de fruits, Eau
@@ -54,6 +56,7 @@ Options : Café, Thé, Jus de fruits, Eau
 ```
 
 **Quand l'utiliser :**
+
 - Préférences exclusives
 - Classification (âge, catégorie)
 - Oui/Non/Peut-être
@@ -66,6 +69,7 @@ Options : Café, Thé, Jus de fruits, Eau
 **Usage :** Sélectionner **plusieurs options**
 
 **Exemple :**
+
 ```
 Question : Quels langages de programmation maîtrisez-vous ?
 ☑ JavaScript
@@ -77,6 +81,7 @@ Question : Quels langages de programmation maîtrisez-vous ?
 ```
 
 **Configuration :**
+
 ```
 Type : Choix multiples
 Options : JavaScript, Python, Java, TypeScript, Go, Rust
@@ -86,6 +91,7 @@ Maximum sélections : Illimité (ou 3 max)
 ```
 
 **Quand l'utiliser :**
+
 - Compétences multiples
 - Intérêts variés
 - Sélection de features souhaitées
@@ -98,12 +104,14 @@ Maximum sélections : Illimité (ou 3 max)
 **Usage :** Réponse courte sur une seule ligne
 
 **Exemple :**
+
 ```
 Question : Quelle est votre ville ?
 [_____________________]
 ```
 
 **Configuration :**
+
 ```
 Type : Texte court
 Longueur max : 300 caractères (par défaut)
@@ -111,6 +119,7 @@ Validation : Aucune / Email / Téléphone / URL / Nombre / Date
 ```
 
 **Quand l'utiliser :**
+
 - Nom, prénom
 - Email, téléphone
 - Ville, code postal
@@ -124,6 +133,7 @@ Validation : Aucune / Email / Téléphone / URL / Nombre / Date
 **Usage :** Réponse ouverte détaillée sur plusieurs lignes
 
 **Exemple :**
+
 ```
 Question : Que pourrions-nous améliorer ?
 ┌─────────────────────────────┐
@@ -137,6 +147,7 @@ Question : Que pourrions-nous améliorer ?
 ```
 
 **Configuration :**
+
 ```
 Type : Texte long
 Lignes affichées : 6
@@ -146,6 +157,7 @@ Validation : Optionnelle (Email / URL / etc.)
 ```
 
 **Quand l'utiliser :**
+
 - Commentaires libres
 - Suggestions détaillées
 - Descriptions
@@ -160,6 +172,7 @@ Validation : Optionnelle (Email / URL / etc.)
 **Usage :** Évaluer plusieurs items selon les mêmes critères
 
 **Exemple :**
+
 ```
 Question : Évaluez notre service :
 
@@ -171,6 +184,7 @@ Livraison                ○           ⚫        ○      ○       ○
 ```
 
 **Configuration :**
+
 ```
 Type : Matrix
 Lignes (items à évaluer) :
@@ -188,6 +202,7 @@ Colonnes (échelle) :
 ```
 
 **Quand l'utiliser :**
+
 - Satisfaction multi-critères
 - Évaluation de performance
 - Échelles de Likert classiques
@@ -200,17 +215,20 @@ Colonnes (échelle) :
 **Usage :** Évaluation sur une échelle de 1 à 5
 
 **Exemple :**
+
 ```
 Question : Notez votre expérience globale
 ★★★★☆ (4/5)
 ```
 
 **Rendu visuel :**
+
 ```
 ☆☆☆☆☆ → Cliquez sur la 4ème étoile → ★★★★☆
 ```
 
 **Configuration :**
+
 ```
 Type : Rating
 Échelle : 1-5 étoiles (fixe)
@@ -220,6 +238,7 @@ Texte aide :
 ```
 
 **Quand l'utiliser :**
+
 - Satisfaction globale
 - Qualité d'un service/produit
 - Note d'une expérience
@@ -232,6 +251,7 @@ Texte aide :
 **Usage :** Mesurer la fidélité client (échelle 0-10)
 
 **Exemple :**
+
 ```
 Question : Recommanderiez-vous DooDates à un ami ?
 
@@ -241,6 +261,7 @@ Pas du tout                                    Absolument
 ```
 
 **Calcul NPS :**
+
 ```
 Promoteurs (9-10) : 50%
 Passifs (7-8) : 30%
@@ -250,6 +271,7 @@ NPS = 50% - 20% = +30
 ```
 
 **Configuration :**
+
 ```
 Type : NPS
 Échelle : 0-10 (fixe)
@@ -259,6 +281,7 @@ Labels :
 ```
 
 **Quand l'utiliser :**
+
 - Mesure de fidélité stratégique
 - Benchmark industrie
 - Suivi dans le temps (trimestriel)
@@ -271,6 +294,7 @@ Labels :
 ### Méthode 1 : Avec l'Assistant IA
 
 **Exemple :**
+
 ```
 Vous : "Crée une enquête de satisfaction pour mon restaurant"
 
@@ -301,15 +325,17 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
 **Étapes :**
 
 1. **Dashboard → Nouveau formulaire**
+
    ```
    Titre : "Enquête Satisfaction Client"
    Description : "Aidez-nous à améliorer nos services"
    ```
 
 2. **Ajouter des questions**
+
    ```
    [+ Ajouter une question]
-   
+
    → Sélectionnez le type
    → Rédigez la question
    → Configurez les options
@@ -317,6 +343,7 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
    ```
 
 3. **Réorganiser (Drag & Drop)**
+
    ```
    Q1. Note globale         ☰ [Glisser pour réordonner]
    Q2. NPS                  ☰
@@ -324,6 +351,7 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
    ```
 
 4. **Paramètres globaux**
+
    ```
    Mode : ○ Classique  ⚫ Multi-étapes
    Thème : Nature / Minimaliste / Par défaut
@@ -342,6 +370,7 @@ La **logique conditionnelle** permet d'afficher ou masquer des questions selon l
 ### Cas d'Usage
 
 **Exemple : Satisfaction Client**
+
 ```
 Q1. Êtes-vous satisfait de notre service ?
     ○ Oui
@@ -364,6 +393,7 @@ Q3. [Visible si Q1 = Oui]
 ### Créer une Règle Conditionnelle
 
 **Interface de configuration :**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Règle conditionnelle pour Q2               │
@@ -387,6 +417,7 @@ Q3. [Visible si Q1 = Oui]
 Toutes les conditions doivent être remplies pour que la question s'affiche.
 
 **Exemple :**
+
 ```
 Afficher Q5 si :
   (Q1 = "Non")
@@ -401,11 +432,13 @@ Afficher Q5 si :
 ### Bonnes Pratiques
 
 ✅ **À Faire :**
+
 - Testez toutes les branches avec la simulation
 - Maximum 3 niveaux de profondeur
 - Questions conditionnelles = optionnelles (pas obligatoires)
 
 ❌ **À Éviter :**
+
 - Boucles infinies (Q2 dépend de Q1, Q1 dépend de Q2)
 - Trop de règles cumulées (complexité de gestion)
 - Conditions sur questions texte (imprécis)
@@ -419,6 +452,7 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Différences Visuelles
 
 **Mode Classique :**
+
 ```
 ┌─────────────────────────────────┐
 │ Q1. Question 1                  │
@@ -435,6 +469,7 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ```
 
 **Mode Multi-Étapes :**
+
 ```
 ┌─────────────────────────────────┐
 │  ████░░░░░░░░░░ 25%             │ ← Progression
@@ -456,17 +491,20 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Avantages du Multi-Étapes
 
 **Statistiques DooDates :**
+
 - 📊 **Taux de complétion** : +15% vs mode classique
 - ⏱️ **Temps par question** : -20% (meilleur focus)
 - 📱 **UX mobile** : 90% préfèrent vs 60% classique
 
 **Quand l'utiliser :**
+
 - ✅ Formulaires longs (10+ questions)
 - ✅ Public mobile-first
 - ✅ Questions nécessitant de la réflexion
 - ✅ Expérience conversationnelle souhaitée
 
 **Quand éviter :**
+
 - ❌ Formulaires courts (< 5 questions)
 - ❌ Besoin de vue d'ensemble
 - ❌ Questions interdépendantes à comparer
@@ -476,16 +514,19 @@ Le **mode multi-étapes** affiche une question par écran pour une meilleure UX 
 ### Navigation Multi-Étapes
 
 **Boutons :**
+
 ```
 [← Précédent]  [Suivant →]  [Passer]
 ```
 
 **Raccourcis clavier :**
+
 - `Entrée` : Question suivante
 - `Tab` : Entre les options
 - `Espace` : Sélectionner une option
 
 **Barre de progression :**
+
 ```
 ████████░░░░░░░░░░░░░░ 40%
 Question 4 sur 10
@@ -498,18 +539,21 @@ Question 4 sur 10
 ### Thèmes Disponibles
 
 #### 1. Bleu Océan (Par défaut)
+
 ```
 Couleurs : Bleu & Gris
 Usage : Professionnel, rassurant, B2B
 ```
 
 #### 2. Vert Nature
+
 ```
 Couleurs : Vert & Émeraude
 Usage : Écologie, santé, bien-être, apaisant
 ```
 
 #### 3. Violet Créatif
+
 ```
 Couleurs : Violet & Indigo
 Usage : Innovation, design, startups, moderne
@@ -522,6 +566,7 @@ Usage : Innovation, design, startups, moderne
 ### Prévisualisation
 
 **Bouton "Aperçu" dans l'éditeur :**
+
 ```
 → Ouvre le formulaire en mode lecture
 → Testez toutes les questions
@@ -534,6 +579,7 @@ Usage : Innovation, design, startups, moderne
 ### Simulation de Réponses IA
 
 **Fonctionnalité puissante :**
+
 ```
 1. Cliquez sur "Simuler des réponses"
 2. Choisissez le nombre : 20, 50, ou 100
@@ -544,6 +590,7 @@ Usage : Innovation, design, startups, moderne
 ```
 
 **Avantages :**
+
 - ✅ Teste la logique conditionnelle
 - ✅ Prévisualise les graphiques
 - ✅ Identifie les questions ambiguës
@@ -571,6 +618,7 @@ Description : "5 minutes pour nous aider à nous améliorer"
 ### Paramètres Avancés
 
 **Réponses :**
+
 ```
 ☑ Autoriser les réponses anonymes
 ☐ Connexion requise (compte Google)
@@ -579,12 +627,14 @@ Description : "5 minutes pour nous aider à nous améliorer"
 ```
 
 **Collecte :**
+
 ```
 Deadline : [15/11/2025 23:59]
 Limite réponses : [Illimité] ou [100 max]
 ```
 
 **Email confirmation :**
+
 ```
 ☑ Proposer copie par email au répondant
 Texte checkbox : "Recevoir une copie de mes réponses"
@@ -608,6 +658,7 @@ Qui peut voir les résultats ?
 **Avant de partager votre formulaire :**
 
 ### Contenu
+
 - [ ] Titre clair et engageant
 - [ ] Description avec durée estimée
 - [ ] Toutes les questions ont un libellé clair
@@ -615,18 +666,21 @@ Qui peut voir les résultats ?
 - [ ] Pas de fautes d'orthographe
 
 ### Structure
+
 - [ ] Ordre logique (facile → difficile)
 - [ ] Maximum 15 questions
 - [ ] Logique conditionnelle testée
 - [ ] Questions obligatoires ≤ 30%
 
 ### Technique
+
 - [ ] Simulation effectuée (30+ réponses)
 - [ ] Prévisualisation mobile testée
 - [ ] Tous les types de questions fonctionnent
 - [ ] Temps de complétion < 5 minutes
 
 ### Diffusion
+
 - [ ] Lien de partage testé
 - [ ] Message d'accompagnement rédigé
 - [ ] Deadline configurée
@@ -637,6 +691,7 @@ Qui peut voir les résultats ?
 ## 📚 Ressources Complémentaires
 
 **Guides connexes :**
+
 - [Assistant IA](./05-Assistant-IA.md) - Créer avec l'IA
 - [Simulation](./07-Simulation-Reponses.md) - Tester avant publication
 - [Analytics](./06-Analytics-IA.md) - Analyser les résultats
@@ -649,4 +704,3 @@ Qui peut voir les résultats ?
 ---
 
 **© 2025 DooDates - Formulaires v1.0**
-

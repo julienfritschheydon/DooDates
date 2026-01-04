@@ -5,6 +5,7 @@
 > Objectif : document interne de référence pour le bloc « Socle commun RGPD (tous produits) ».
 >
 > Produits couverts :
+>
 > - Produit 1 – Sondages de dates
 > - Produit 2 – Formulaires / Form Polls
 > - Produit 3 – Quizz
@@ -14,16 +15,16 @@
 
 ## 1. Vue d’ensemble par type de données
 
-| Type de donnée                      | Exemple                                    | Produits concernés                  | Localisation principale                           | Durée cible (à affiner)             | Finalités principales                                      |
-|------------------------------------|--------------------------------------------|-------------------------------------|---------------------------------------------------|-------------------------------------|-----------------------------------------------------------|
-| Identité légère                    | Nom / pseudo                               | Dates, Forms, Quizz, Chat IA        | Supabase (tables polls/réponses), localStorage    | 12 mois après fin d’usage du sondage/quizz/chat | Affichage des réponses, personnalisation minimale, suivi des participations |
-| Coordonnées                        | Email (créateur / participant)             | Dates, Forms, Quizz, Support        | Supabase (profils, réponses), fournisseur email   | 24 mois après dernier contact actif | Contact, envoi de liens de sondage, reset compte, support |
-| Données de réponse aux sondages   | Choix, texte libre, matrices, dates, scores| Dates, Forms, Quizz                 | Supabase (tables réponses), exports locaux        | 12 mois après clôture / dernière activité       | Analyse de résultats, exports, amélioration produit       |
-| Données de disponibilité          | Dates choisies, créneaux horaires          | Sondages de dates, Availability     | Supabase (réponses), localStorage                 | 12 mois après date de l’événement   | Organisation d’événements, coordination                   |
-| Données techniques client         | DeviceId/fingerprint, user-agent, IP (proxy)| Tous produits / quotas / sécurité  | Supabase (quotas, logs), localStorage             | 12 mois (logs) / 24 mois (quota anti-abus)      | Anti-abus, quotas invités, sécurité                          |
-| Données IA (contenu chat)         | Messages, prompts, contexte sondage        | Chat IA, création/modification      | Fournisseur IA (Gemini), logs internes limités    | 12 mois max, voire moins si possible           | Assistance à la création, suggestions IA                  |
-| Données analytics                 | Pages vues, funnels, conversions           | Tous produits                       | Outil analytics (Plausible/Posthog, etc.)         | 25 mois (fenêtre d’analyse standard)           | Amélioration UX, product analytics                         |
-| Données support                   | Emails support, tickets, résumés IA        | Tous produits                       | Supabase (support_*), fournisseur email           | 24 mois après clôture du ticket               | Support client, diagnostic problèmes                      |
+| Type de donnée                  | Exemple                                      | Produits concernés                | Localisation principale                         | Durée cible (à affiner)                         | Finalités principales                                                       |
+| ------------------------------- | -------------------------------------------- | --------------------------------- | ----------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| Identité légère                 | Nom / pseudo                                 | Dates, Forms, Quizz, Chat IA      | Supabase (tables polls/réponses), localStorage  | 12 mois après fin d’usage du sondage/quizz/chat | Affichage des réponses, personnalisation minimale, suivi des participations |
+| Coordonnées                     | Email (créateur / participant)               | Dates, Forms, Quizz, Support      | Supabase (profils, réponses), fournisseur email | 24 mois après dernier contact actif             | Contact, envoi de liens de sondage, reset compte, support                   |
+| Données de réponse aux sondages | Choix, texte libre, matrices, dates, scores  | Dates, Forms, Quizz               | Supabase (tables réponses), exports locaux      | 12 mois après clôture / dernière activité       | Analyse de résultats, exports, amélioration produit                         |
+| Données de disponibilité        | Dates choisies, créneaux horaires            | Sondages de dates, Availability   | Supabase (réponses), localStorage               | 12 mois après date de l’événement               | Organisation d’événements, coordination                                     |
+| Données techniques client       | DeviceId/fingerprint, user-agent, IP (proxy) | Tous produits / quotas / sécurité | Supabase (quotas, logs), localStorage           | 12 mois (logs) / 24 mois (quota anti-abus)      | Anti-abus, quotas invités, sécurité                                         |
+| Données IA (contenu chat)       | Messages, prompts, contexte sondage          | Chat IA, création/modification    | Fournisseur IA (Gemini), logs internes limités  | 12 mois max, voire moins si possible            | Assistance à la création, suggestions IA                                    |
+| Données analytics               | Pages vues, funnels, conversions             | Tous produits                     | Outil analytics (Plausible/Posthog, etc.)       | 25 mois (fenêtre d’analyse standard)            | Amélioration UX, product analytics                                          |
+| Données support                 | Emails support, tickets, résumés IA          | Tous produits                     | Supabase (support\_\*), fournisseur email       | 24 mois après clôture du ticket                 | Support client, diagnostic problèmes                                        |
 
 > Remarque : les durées sont des cibles raisonnables pour démarrer. Elles devront être confirmées et recoupées avec les besoins business et légaux avant mise en production.
 
@@ -34,15 +35,18 @@
 ### 2.1 Produit 1 – Sondages de dates
 
 **Données collectées (invités / votants)**
+
 - Identité légère : nom ou pseudo (champ libre, souvent facultatif)
 - Réponses au sondage : choix de dates, statuts (oui / non / peut-être), éventuellement créneaux horaires
 - Métadonnées techniques : deviceId/fingerprint invité, timestamps de vote
 
 **Créateur de sondage**
+
 - Identité : email, nom / pseudo (via compte ou mode invité)
 - Paramètres du sondage : titre, description, dates proposées, options d’affichage
 
 **Stockage / flux**
+
 - Front (navigateur) :
   - localStorage pour brouillons / préférences (ex : derniers sondages, deviceId)
 - Backend / Base de données :
@@ -51,6 +55,7 @@
   - CSV / PDF / autres formats générés côté client à partir des données de Supabase
 
 **Risques principaux / points RGPD**
+
 - Noms des participants visibles dans les résultats
 - Conservation trop longue des réponses liées à un événement passé
 - Corrélation potentielle via deviceId/fingerprint entre plusieurs sondages
@@ -60,6 +65,7 @@
 ### 2.2 Produit 2 – Formulaires / Form Polls
 
 **Données collectées (répondants)**
+
 - Identité légère : nom ou pseudo (champ « Votre nom »)
 - Coordonnées facultatives : email (champ dédié si configuré)
 - Réponses de formulaire :
@@ -70,10 +76,12 @@
 - Métadonnées : deviceId/fingerprint, date/heure de réponse
 
 **Créateur de formulaire**
+
 - Identité : compte Supabase (email, éventuellement nom)
 - Contenu : structure des questions, règles conditionnelles, paramètres de visibilité des résultats
 
 **Stockage / flux**
+
 - Front :
   - localStorage pour brouillons de formulaire, état d’édition, éventuellement autosave des réponses invitées
 - Backend :
@@ -82,10 +90,12 @@
   - CSV, JSON, Markdown, PDF (exports déjà implémentés)
 
 **Spécificités RGPD déjà en place**
+
 - Notice RGPD concise avant le formulaire (texte explicite sur conservation / droits à finaliser dans la doc publique)
 - Fonction d’anonymisation des réponses : suppression des noms/emails dans les réponses stockées + bouton créateur dans l’écran de résultats
 
 **Risques principaux / points RGPD**
+
 - Réponses libres pouvant contenir des données sensibles non prévues
 - Couplage nom + email + contenu des réponses si conservation longue
 - Exports envoyés par email ou stockés localement sans contrôle de durée
@@ -95,6 +105,7 @@
 ### 2.3 Produit 3 – Quizz
 
 **Données collectées (participants)**
+
 - Identité : pseudo ou nom saisi dans le champ « prénom de l'enfant » (`respondentName`),
   éventuellement email (`respondentEmail` – non encore utilisé dans l'UI mais prévu par le modèle)
 - Réponses au quizz (structure `QuizzResponse`) :
@@ -110,6 +121,7 @@
   - liste des réponses associées (`responses[]`)
 
 **Métadonnées techniques**
+
 - Identifiant de device (`deviceId`) : généré via `getDeviceId()` et stocké dans
   `localStorage["doodates_device_id"]` sous la forme `device_<timestamp>_<random>`.
   Utilisé pour :
@@ -117,10 +129,12 @@
   - éviter les collisions d'ID invités.
 
 **Créateur de quizz**
+
 - Identité : compte Supabase (email)
 - Contenu : questions, réponses correctes, logique de score, paramètres d’affichage des scores
 
 **Stockage / flux (implémentation actuelle MVP)**
+
 - Front / navigateur uniquement (pas encore de persistance Supabase pour les quizz) :
   - `localStorage["doodates_quizz"]` : tableau de `Quizz` (structure complète du quizz :
     `id`, `creator_id`, `title`, `description`, `slug`, `settings`, `status`, `expires_at` (facultatif),
@@ -141,6 +155,7 @@
   - Statistiques et classements calculés côté client à partir de `doodates_quizz_responses`.
 
 **Risques principaux / points RGPD**
+
 - Scores associés à des pseudonymes identifiables ou à des emails (même si l'usage cible est
   familial, un pseudo peut identifier un enfant au sein d'un foyer ou d'une classe)
 - Conservation potentiellement longue dans `localStorage` si aucun mécanisme de purge ou de
@@ -159,6 +174,7 @@
 ### 2.4 Produit 4 – Chat IA (Gemini)
 
 **Données collectées**
+
 - Contenu des messages utilisateur :
   - texte libre pouvant contenir noms, emails, numéros de téléphone, détails d’événements, etc.
 - Contexte technique :
@@ -166,17 +182,20 @@
 - Métadonnées : timestamps, deviceId/fingerprint, langue, type de poll associé
 
 **Flux vers le fournisseur IA**
+
 - Envoi des prompts vers Gemini (Google) via API, incluant :
   - message utilisateur
   - contexte de sondage (structure, extraits anonymisés autant que possible)
 
 **Stockage / logs**
+
 - Côté DooDates :
   - historique de conversation (selon implémentation actuelle) éventuellement stocké côté Supabase ou localStorage
 - Côté fournisseur IA :
   - logs de requêtes selon politique du fournisseur (à documenter précisément dans la Policy)
 
 **Risques principaux / points RGPD**
+
 - Transmission de données personnelles et/ou sensibles au fournisseur IA
 - Utilisation des données par le fournisseur à des fins d’entraînement (à désactiver si possible)
 - Manque de transparence sans documentation claire dans la Politique de confidentialité
@@ -192,6 +211,7 @@
 - Préférences UI (thème, langue, derniers écrans)
 
 **Risques** :
+
 - Données qui persistent indéfiniment sur l’appareil si aucune politique de purge n’est implémentée
 - Partage de machine (PC partagé) → exposition à des tiers
 
@@ -204,6 +224,7 @@
 - Support : tickets, messages, résumés IA
 
 **Risques** :
+
 - Conservation trop longue si aucune durée de rétention globale n’est définie
 - Agrégation d’informations permettant de profiler des utilisateurs au-delà du besoin
 
@@ -214,6 +235,7 @@
 - **Analytics** : mesure d’usage, conversion, funnels
 
 **Risques** :
+
 - Transferts hors UE (surtout IA / analytics)
 - DPA manquants ou non archivés
 - Utilisation secondaire des données par les fournisseurs (training, publicité)
@@ -237,15 +259,15 @@
 
 Ce tableau sert de référence commune pour les 4 produits et leurs futurs sites dédiés. Chaque site pourra en reprendre les éléments pertinents dans sa propre Politique de confidentialité.
 
-| Finalité principale                                | Catégories de données clés                              | Produits concernés                   | Base légale principale                          | Commentaires |
-|----------------------------------------------------|---------------------------------------------------------|--------------------------------------|--------------------------------------------------|-------------|
-| Fonctionnement du service & gestion de compte      | Identité légère créateur, email, paramètres de sondage  | Tous (créateurs)                     | **Contrat** (exécution du service)              | Nécessaire pour créer, modifier, fermer des sondages/formulaires/quizz. |
-| Participation à un sondage / formulaire / quizz    | Nom/pseudo, éventuellement email, réponses, scores      | Dates, Forms, Quizz                  | **Intérêt légitime** de l’organisateur          | Intérêt légitime à organiser un événement / collecter des réponses, avec information claire et possibilité de demander suppression/anonymisation. |
-| Fonctionnement des quotas invités / anti-abus      | deviceId/fingerprint, compteurs, timestamps             | Tous produits (mode invité)          | **Intérêt légitime** (sécurité, lutte anti-abus)| Limiter le spam et les abus, équilibrer l’usage du service. |
-| Analytics produit (mesure d’usage agrégée)         | Données analytics pseudonymisées/agrégées               | Tous produits                        | **Intérêt légitime** ou **consentement** selon l’outil | Objectif d’amélioration du produit ; à basculer vers consentement explicite si l’outil ou la granularité le requiert. |
-| Assistance IA à la création / modification          | Messages chat IA, contexte de sondage                   | Produit 4 (Chat IA) + éditeurs IA    | **Contrat** / **intérêt légitime**             | L’IA est utilisée pour fournir la fonctionnalité demandée (aide à la création) ; nécessite transparence et possibilité d’usage sans IA pour certains cas. |
-| Support client                                    | Emails, contenu des tickets, résumés IA                 | Tous produits                        | **Intérêt légitime** (support)                  | Traitements limités au diagnostic et à la résolution des problèmes. |
-| Communication transactionnelle                     | Emails de confirmation, liens de sondage, notifications | Tous produits                        | **Contrat** / **intérêt légitime**             | Emails nécessaires au fonctionnement (lien d’accès, confirmations). |
+| Finalité principale                             | Catégories de données clés                              | Produits concernés                | Base légale principale                                 | Commentaires                                                                                                                                              |
+| ----------------------------------------------- | ------------------------------------------------------- | --------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonctionnement du service & gestion de compte   | Identité légère créateur, email, paramètres de sondage  | Tous (créateurs)                  | **Contrat** (exécution du service)                     | Nécessaire pour créer, modifier, fermer des sondages/formulaires/quizz.                                                                                   |
+| Participation à un sondage / formulaire / quizz | Nom/pseudo, éventuellement email, réponses, scores      | Dates, Forms, Quizz               | **Intérêt légitime** de l’organisateur                 | Intérêt légitime à organiser un événement / collecter des réponses, avec information claire et possibilité de demander suppression/anonymisation.         |
+| Fonctionnement des quotas invités / anti-abus   | deviceId/fingerprint, compteurs, timestamps             | Tous produits (mode invité)       | **Intérêt légitime** (sécurité, lutte anti-abus)       | Limiter le spam et les abus, équilibrer l’usage du service.                                                                                               |
+| Analytics produit (mesure d’usage agrégée)      | Données analytics pseudonymisées/agrégées               | Tous produits                     | **Intérêt légitime** ou **consentement** selon l’outil | Objectif d’amélioration du produit ; à basculer vers consentement explicite si l’outil ou la granularité le requiert.                                     |
+| Assistance IA à la création / modification      | Messages chat IA, contexte de sondage                   | Produit 4 (Chat IA) + éditeurs IA | **Contrat** / **intérêt légitime**                     | L’IA est utilisée pour fournir la fonctionnalité demandée (aide à la création) ; nécessite transparence et possibilité d’usage sans IA pour certains cas. |
+| Support client                                  | Emails, contenu des tickets, résumés IA                 | Tous produits                     | **Intérêt légitime** (support)                         | Traitements limités au diagnostic et à la résolution des problèmes.                                                                                       |
+| Communication transactionnelle                  | Emails de confirmation, liens de sondage, notifications | Tous produits                     | **Contrat** / **intérêt légitime**                     | Emails nécessaires au fonctionnement (lien d’accès, confirmations).                                                                                       |
 
 ### 5.1 Principes transverses
 
@@ -257,6 +279,7 @@ Ce tableau sert de référence commune pour les 4 produits et leurs futurs sites
 - **Limitation des transferts** : les données envoyées à des fournisseurs (IA, analytics, email) doivent être limitées à ce qui est strictement nécessaire ; les DPA doivent couvrir ces traitements.
 
 ---
+
 ## 6. Durées de conservation (règles internes)
 
 Les durées ci‑dessous prolongent le tableau du §1 et servent de base pour les futures politiques publiques des 4 sites produits.
@@ -300,6 +323,7 @@ Les durées ci‑dessous prolongent le tableau du §1 et servent de base pour le
 - Prévoir des **exceptions documentées** si une conservation plus longue est exigée (ex. obligations légales, litiges), en dehors du flux normal produit.
 
 ---
+
 ## 7. Processus d’export / suppression / anonymisation (droits des personnes)
 
 Ce processus décrit le socle interne commun. Chaque produit/site devra exposer une version simplifiée de ces étapes dans sa propre Politique de confidentialité.

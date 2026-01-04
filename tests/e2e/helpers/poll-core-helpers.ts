@@ -1,7 +1,7 @@
-import type { Page } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 // Type commun de navigateur pour les tests E2E
-export type BrowserName = 'chromium' | 'firefox' | 'webkit';
+export type BrowserName = "chromium" | "firefox" | "webkit";
 
 // Timeouts communs, alignés sur les implémentations existantes dans les helpers de polls
 export function getTimeouts(browserName: BrowserName) {
@@ -13,9 +13,9 @@ export function getTimeouts(browserName: BrowserName) {
   } as const;
 
   switch (browserName) {
-    case 'webkit':
+    case "webkit":
       return { ...timeouts, navigation: 45000, element: 20000 };
-    case 'firefox':
+    case "firefox":
       return { ...timeouts, navigation: 35000 };
     default:
       return timeouts;

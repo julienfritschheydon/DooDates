@@ -7,6 +7,7 @@
 **Cause :** React Router `BrowserRouter` n'avait pas le `basename` configuré pour GitHub Pages.
 
 **Solution :**
+
 ```tsx
 // src/App.tsx
 <BrowserRouter basename={import.meta.env.BASE_URL}>
@@ -21,9 +22,10 @@
 **Cause :** Les chemins dans `public/sw.js` pointaient vers `/` au lieu de `/DooDates/`.
 
 **Solution :**
+
 ```javascript
 // public/sw.js
-const BASE_PATH = self.location.pathname.includes('/DooDates') ? '/DooDates' : '';
+const BASE_PATH = self.location.pathname.includes("/DooDates") ? "/DooDates" : "";
 const urlsToCache = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
@@ -48,7 +50,6 @@ const urlsToCache = [
 
 - [ ] **GitHub Pages activé** : https://github.com/julienfritschheydon/DooDates/settings/pages
   - Source : `GitHub Actions`
-  
 - [ ] **Secrets configurés** : https://github.com/julienfritschheydon/DooDates/settings/secrets/actions
   - `VITE_GEMINI_API_KEY` : Clé API Gemini (requis)
   - `VITE_SUPABASE_URL` : URL Supabase (optionnel, localStorage si absent)
@@ -85,11 +86,13 @@ const urlsToCache = [
 
 ### Page 404 sur les routes
 
-**Symptômes :** 
+**Symptômes :**
+
 - Page d'accueil charge
 - Autres routes (e.g. `/poll/abc`) donnent 404
 
 **Solutions :**
+
 1. Vérifier que `404.html` est présent dans `dist/` après build
 2. Vérifier que `basename` est configuré dans `BrowserRouter`
 3. Hard refresh : `Ctrl+Shift+R` (vider le cache)
@@ -97,11 +100,13 @@ const urlsToCache = [
 ### Service Worker errors dans la console
 
 **Symptômes :**
+
 ```
 Uncaught (in promise) TypeError: Failed to execute 'addAll' on 'cache'
 ```
 
 **Solutions :**
+
 1. Vider le cache du Service Worker :
    - DevTools > Application > Storage > Clear site data
 2. Désinstaller le Service Worker :
@@ -111,10 +116,12 @@ Uncaught (in promise) TypeError: Failed to execute 'addAll' on 'cache'
 ### API Gemini ne fonctionne pas
 
 **Symptômes :**
+
 - Impossible de générer des sondages avec l'IA
 - Erreur 401 ou 403
 
 **Solutions :**
+
 1. Vérifier que `VITE_GEMINI_API_KEY` est dans les secrets GitHub
 2. Re-déployer après avoir ajouté le secret
 3. Vérifier la console : `import.meta.env.VITE_GEMINI_API_KEY` ne doit pas être `undefined`
@@ -124,6 +131,7 @@ Uncaught (in promise) TypeError: Failed to execute 'addAll' on 'cache'
 **Par défaut :** L'app fonctionne en mode localStorage (pas besoin de Supabase).
 
 **Pour activer Supabase :**
+
 1. Ajouter `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` dans les secrets
 2. Re-déployer
 3. Vérifier `src/lib/supabase.ts` : `supabaseUrl` ne doit pas être vide
@@ -177,4 +185,3 @@ git push origin main
 - ⏳ En attente : Test sur https://julienfritschheydon.github.io/DooDates/
 
 **Prochaine étape :** Commit, push, et vérifier le déploiement ! 🚀
-

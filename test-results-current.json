@@ -14,11 +14,7 @@
       "actualWorkers": 9
     },
     "preserveOutput": "always",
-    "reporter": [
-      [
-        "json"
-      ]
-    ],
+    "reporter": [["json"]],
     "reportSlowTests": {
       "max": 5,
       "threshold": 300000
@@ -35,10 +31,7 @@
         "id": "chromium",
         "name": "chromium",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -57,10 +50,7 @@
         "id": "firefox",
         "name": "firefox",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -79,10 +69,7 @@
         "id": "webkit",
         "name": "webkit",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -101,10 +88,7 @@
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -123,10 +107,7 @@
         "id": "Mobile Safari",
         "name": "Mobile Safari",
         "testDir": "C:/Users/Julien Fritsch/Documents/GitHub/DooDates-staging/tests",
-        "testIgnore": [
-          "**/OLD/**",
-          "temporal-prompts-validation.test.ts"
-        ],
+        "testIgnore": ["**/OLD/**", "temporal-prompts-validation.test.ts"],
         "testMatch": [
           "**/*.spec.ts",
           "e2e/**/*.test.ts",
@@ -6348,10 +6329,7 @@
             {
               "title": "1. Setup: Créer et clôturer un FormPoll avec 3 réponses (optimisé) @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6403,9 +6381,7 @@
             {
               "title": "2. Quick Queries et Query Personnalisée (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6457,9 +6433,7 @@
             {
               "title": "3. Quotas et Cache (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6511,10 +6485,7 @@
             {
               "title": "1. Setup: Créer et clôturer un FormPoll avec 3 réponses (optimisé) @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6566,9 +6537,7 @@
             {
               "title": "2. Quick Queries et Query Personnalisée (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6620,9 +6589,7 @@
             {
               "title": "3. Quotas et Cache (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6674,10 +6641,7 @@
             {
               "title": "1. Setup: Créer et clôturer un FormPoll avec 3 réponses (optimisé) @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6729,9 +6693,7 @@
             {
               "title": "2. Quick Queries et Query Personnalisée (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6783,9 +6745,7 @@
             {
               "title": "3. Quotas et Cache (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6837,10 +6797,7 @@
             {
               "title": "1. Setup: Créer et clôturer un FormPoll avec 3 réponses (optimisé) @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6892,9 +6849,7 @@
             {
               "title": "2. Quick Queries et Query Personnalisée (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -6946,9 +6901,7 @@
             {
               "title": "3. Quotas et Cache (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -7000,10 +6953,7 @@
             {
               "title": "1. Setup: Créer et clôturer un FormPoll avec 3 réponses (optimisé) @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -7055,9 +7005,7 @@
             {
               "title": "2. Quick Queries et Query Personnalisée (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -7109,9 +7057,7 @@
             {
               "title": "3. Quotas et Cache (combiné) @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -14966,9 +14912,7 @@
             {
               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15002,9 +14946,7 @@
             {
               "title": "devrait ne pas avoir de warnings React Hooks @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15069,9 +15011,7 @@
             {
               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15125,9 +15065,7 @@
             {
               "title": "devrait ne pas avoir de warnings React Hooks @critical",
               "ok": true,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15181,9 +15119,7 @@
             {
               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15237,9 +15173,7 @@
             {
               "title": "devrait ne pas avoir de warnings React Hooks @critical",
               "ok": true,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15293,9 +15227,7 @@
             {
               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15329,9 +15261,7 @@
             {
               "title": "devrait ne pas avoir de warnings React Hooks @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15396,9 +15326,7 @@
             {
               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15452,9 +15380,7 @@
             {
               "title": "devrait ne pas avoir de warnings React Hooks @critical",
               "ok": true,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15525,9 +15451,7 @@
             {
               "title": "@functional - Navigation dashboard de base",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15581,9 +15505,7 @@
             {
               "title": "@functional - Tests complexes skippés",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15635,9 +15557,7 @@
             {
               "title": "@functional - Navigation dashboard de base",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15691,9 +15611,7 @@
             {
               "title": "@functional - Tests complexes skippés",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15745,9 +15663,7 @@
             {
               "title": "@functional - Navigation dashboard de base",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15801,9 +15717,7 @@
             {
               "title": "@functional - Tests complexes skippés",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15855,9 +15769,7 @@
             {
               "title": "@functional - Navigation dashboard de base",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15911,9 +15823,7 @@
             {
               "title": "@functional - Tests complexes skippés",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -15965,9 +15875,7 @@
             {
               "title": "@functional - Navigation dashboard de base",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -16021,9 +15929,7 @@
             {
               "title": "@functional - Tests complexes skippés",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18083,9 +17989,7 @@
             {
               "title": "Documentation works with production base path /DooDates/ @production",
               "ok": true,
-              "tags": [
-                "production"
-              ],
+              "tags": ["production"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18137,9 +18041,7 @@
             {
               "title": "Documentation works with production base path /DooDates/ @production",
               "ok": true,
-              "tags": [
-                "production"
-              ],
+              "tags": ["production"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18191,9 +18093,7 @@
             {
               "title": "Documentation works with production base path /DooDates/ @production",
               "ok": true,
-              "tags": [
-                "production"
-              ],
+              "tags": ["production"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18245,9 +18145,7 @@
             {
               "title": "Documentation works with production base path /DooDates/ @production",
               "ok": true,
-              "tags": [
-                "production"
-              ],
+              "tags": ["production"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18299,9 +18197,7 @@
             {
               "title": "Documentation works with production base path /DooDates/ @production",
               "ok": true,
-              "tags": [
-                "production"
-              ],
+              "tags": ["production"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18370,9 +18266,7 @@
             {
               "title": "Documentation page loads without errors @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18410,9 +18304,7 @@
             {
               "title": "Documentation page loads a specific document @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18446,9 +18338,7 @@
             {
               "title": "Documentation page handles 404 gracefully @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18482,9 +18372,7 @@
             {
               "title": "Documentation assets load correctly (no 404 errors) @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18522,9 +18410,7 @@
             {
               "title": "Product-specific documentation pages load correctly @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18576,9 +18462,7 @@
             {
               "title": "Documentation page loads without errors @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18616,9 +18500,7 @@
             {
               "title": "Documentation page loads a specific document @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18652,9 +18534,7 @@
             {
               "title": "Documentation page handles 404 gracefully @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18688,9 +18568,7 @@
             {
               "title": "Documentation assets load correctly (no 404 errors) @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18728,9 +18606,7 @@
             {
               "title": "Product-specific documentation pages load correctly @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18782,9 +18658,7 @@
             {
               "title": "Documentation page loads without errors @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18822,9 +18696,7 @@
             {
               "title": "Documentation page loads a specific document @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18858,9 +18730,7 @@
             {
               "title": "Documentation page handles 404 gracefully @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18894,9 +18764,7 @@
             {
               "title": "Documentation assets load correctly (no 404 errors) @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18934,9 +18802,7 @@
             {
               "title": "Product-specific documentation pages load correctly @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -18988,9 +18854,7 @@
             {
               "title": "Documentation page loads without errors @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19028,9 +18892,7 @@
             {
               "title": "Documentation page loads a specific document @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19064,9 +18926,7 @@
             {
               "title": "Documentation page handles 404 gracefully @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19100,9 +18960,7 @@
             {
               "title": "Documentation assets load correctly (no 404 errors) @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19140,9 +18998,7 @@
             {
               "title": "Product-specific documentation pages load correctly @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19194,9 +19050,7 @@
             {
               "title": "Documentation page loads without errors @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19234,9 +19088,7 @@
             {
               "title": "Documentation page loads a specific document @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19270,9 +19122,7 @@
             {
               "title": "Documentation page handles 404 gracefully @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19306,9 +19156,7 @@
             {
               "title": "Documentation assets load correctly (no 404 errors) @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -19346,9 +19194,7 @@
             {
               "title": "Product-specific documentation pages load correctly @functional",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -22409,9 +22255,7 @@
             {
               "title": "Questions de type date - Serveur accessible @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -22452,9 +22296,7 @@
             {
               "title": "Questions de type date - Serveur accessible @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -22495,9 +22337,7 @@
             {
               "title": "Questions de type date - Serveur accessible @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -22538,9 +22378,7 @@
             {
               "title": "Questions de type date - Serveur accessible @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -22581,9 +22419,7 @@
             {
               "title": "Questions de type date - Serveur accessible @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30648,9 +30484,7 @@
             {
               "title": "should display closure screen for expired Date Poll @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30688,9 +30522,7 @@
             {
               "title": "should display closure screen for Form Poll that reached max responses @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30728,9 +30560,7 @@
             {
               "title": "should allow voting on an active poll without reaching limits @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30768,9 +30598,7 @@
             {
               "title": "should display closure screen for expired Date Poll @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30808,9 +30636,7 @@
             {
               "title": "should display closure screen for Form Poll that reached max responses @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30848,9 +30674,7 @@
             {
               "title": "should allow voting on an active poll without reaching limits @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30888,9 +30712,7 @@
             {
               "title": "should display closure screen for expired Date Poll @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30928,9 +30750,7 @@
             {
               "title": "should display closure screen for Form Poll that reached max responses @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -30968,9 +30788,7 @@
             {
               "title": "should allow voting on an active poll without reaching limits @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31008,9 +30826,7 @@
             {
               "title": "should display closure screen for expired Date Poll @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31048,9 +30864,7 @@
             {
               "title": "should display closure screen for Form Poll that reached max responses @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31088,9 +30902,7 @@
             {
               "title": "should allow voting on an active poll without reaching limits @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31128,9 +30940,7 @@
             {
               "title": "should display closure screen for expired Date Poll @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31168,9 +30978,7 @@
             {
               "title": "should display closure screen for Form Poll that reached max responses @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -31208,9 +31016,7 @@
             {
               "title": "should allow voting on an active poll without reaching limits @smoke",
               "ok": true,
-              "tags": [
-                "smoke"
-              ],
+              "tags": ["smoke"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35027,9 +34833,7 @@
             {
               "title": "@edge - Dashboard vide - Affiche message approprié",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35063,10 +34867,7 @@
             {
               "title": "@edge @stability - Beaucoup de sondages (50+) - Dashboard performant",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35100,9 +34901,7 @@
             {
               "title": "@edge - Sondages avec titres très longs (100+ caractères) - Affichage correct",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35136,9 +34935,7 @@
             {
               "title": "@edge - Sondages avec données invalides - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35172,9 +34969,7 @@
             {
               "title": "@edge - Filtres et recherche avec beaucoup de données - Performance correcte",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35208,10 +35003,7 @@
             {
               "title": "@edge @responsive - Dashboard mobile vs desktop - Affichage adapté",
               "ok": true,
-              "tags": [
-                "edge",
-                "responsive"
-              ],
+              "tags": ["edge", "responsive"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35245,10 +35037,7 @@
             {
               "title": "@edge @stability - Navigation rapide - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35282,9 +35071,7 @@
             {
               "title": "@edge - Dashboard vide - Affiche message approprié",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35318,10 +35105,7 @@
             {
               "title": "@edge @stability - Beaucoup de sondages (50+) - Dashboard performant",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35355,9 +35139,7 @@
             {
               "title": "@edge - Sondages avec titres très longs (100+ caractères) - Affichage correct",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35391,9 +35173,7 @@
             {
               "title": "@edge - Sondages avec données invalides - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35427,9 +35207,7 @@
             {
               "title": "@edge - Filtres et recherche avec beaucoup de données - Performance correcte",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35463,10 +35241,7 @@
             {
               "title": "@edge @responsive - Dashboard mobile vs desktop - Affichage adapté",
               "ok": true,
-              "tags": [
-                "edge",
-                "responsive"
-              ],
+              "tags": ["edge", "responsive"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35500,10 +35275,7 @@
             {
               "title": "@edge @stability - Navigation rapide - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35537,9 +35309,7 @@
             {
               "title": "@edge - Dashboard vide - Affiche message approprié",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35573,10 +35343,7 @@
             {
               "title": "@edge @stability - Beaucoup de sondages (50+) - Dashboard performant",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35610,9 +35377,7 @@
             {
               "title": "@edge - Sondages avec titres très longs (100+ caractères) - Affichage correct",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35646,9 +35411,7 @@
             {
               "title": "@edge - Sondages avec données invalides - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35682,9 +35445,7 @@
             {
               "title": "@edge - Filtres et recherche avec beaucoup de données - Performance correcte",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35718,10 +35479,7 @@
             {
               "title": "@edge @responsive - Dashboard mobile vs desktop - Affichage adapté",
               "ok": true,
-              "tags": [
-                "edge",
-                "responsive"
-              ],
+              "tags": ["edge", "responsive"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35755,10 +35513,7 @@
             {
               "title": "@edge @stability - Navigation rapide - Dashboard stable",
               "ok": false,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35832,9 +35587,7 @@
             {
               "title": "@edge - Dashboard vide - Affiche message approprié",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35868,10 +35621,7 @@
             {
               "title": "@edge @stability - Beaucoup de sondages (50+) - Dashboard performant",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35905,9 +35655,7 @@
             {
               "title": "@edge - Sondages avec titres très longs (100+ caractères) - Affichage correct",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -35941,9 +35689,7 @@
             {
               "title": "@edge - Sondages avec données invalides - Dashboard stable",
               "ok": false,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36017,9 +35763,7 @@
             {
               "title": "@edge - Filtres et recherche avec beaucoup de données - Performance correcte",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36053,10 +35797,7 @@
             {
               "title": "@edge @responsive - Dashboard mobile vs desktop - Affichage adapté",
               "ok": true,
-              "tags": [
-                "edge",
-                "responsive"
-              ],
+              "tags": ["edge", "responsive"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36090,10 +35831,7 @@
             {
               "title": "@edge @stability - Navigation rapide - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36127,9 +35865,7 @@
             {
               "title": "@edge - Dashboard vide - Affiche message approprié",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36163,10 +35899,7 @@
             {
               "title": "@edge @stability - Beaucoup de sondages (50+) - Dashboard performant",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36200,9 +35933,7 @@
             {
               "title": "@edge - Sondages avec titres très longs (100+ caractères) - Affichage correct",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36236,9 +35967,7 @@
             {
               "title": "@edge - Sondages avec données invalides - Dashboard stable",
               "ok": false,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36312,9 +36041,7 @@
             {
               "title": "@edge - Filtres et recherche avec beaucoup de données - Performance correcte",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36348,10 +36075,7 @@
             {
               "title": "@edge @responsive - Dashboard mobile vs desktop - Affichage adapté",
               "ok": true,
-              "tags": [
-                "edge",
-                "responsive"
-              ],
+              "tags": ["edge", "responsive"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36385,10 +36109,7 @@
             {
               "title": "@edge @stability - Navigation rapide - Dashboard stable",
               "ok": true,
-              "tags": [
-                "edge",
-                "stability"
-              ],
+              "tags": ["edge", "stability"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36439,9 +36160,7 @@
             {
               "title": "@simple - Dashboard vide - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36475,9 +36194,7 @@
             {
               "title": "@simple - Dashboard avec un poll - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36511,9 +36228,7 @@
             {
               "title": "@simple - Test direct du composant ProductDashboard",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36547,9 +36262,7 @@
             {
               "title": "@simple - Dashboard vide - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36583,9 +36296,7 @@
             {
               "title": "@simple - Dashboard avec un poll - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36619,9 +36330,7 @@
             {
               "title": "@simple - Test direct du composant ProductDashboard",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36655,9 +36364,7 @@
             {
               "title": "@simple - Dashboard vide - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36691,9 +36398,7 @@
             {
               "title": "@simple - Dashboard avec un poll - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36727,9 +36432,7 @@
             {
               "title": "@simple - Test direct du composant ProductDashboard",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36763,9 +36466,7 @@
             {
               "title": "@simple - Dashboard vide - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36799,9 +36500,7 @@
             {
               "title": "@simple - Dashboard avec un poll - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36835,9 +36534,7 @@
             {
               "title": "@simple - Test direct du composant ProductDashboard",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36871,9 +36568,7 @@
             {
               "title": "@simple - Dashboard vide - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36907,9 +36602,7 @@
             {
               "title": "@simple - Dashboard avec un poll - Vérification de base",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -36943,9 +36636,7 @@
             {
               "title": "@simple - Test direct du composant ProductDashboard",
               "ok": true,
-              "tags": [
-                "simple"
-              ],
+              "tags": ["simple"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58538,10 +58229,7 @@
             {
               "title": "Basic navigation security - no crashes @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58588,10 +58276,7 @@
             {
               "title": "should handle authentication token security @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58635,10 +58320,7 @@
             {
               "title": "Basic navigation security - no crashes @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58685,10 +58367,7 @@
             {
               "title": "should handle authentication token security @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58732,10 +58411,7 @@
             {
               "title": "Basic navigation security - no crashes @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58782,10 +58458,7 @@
             {
               "title": "should handle authentication token security @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58829,10 +58502,7 @@
             {
               "title": "Basic navigation security - no crashes @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58879,10 +58549,7 @@
             {
               "title": "should handle authentication token security @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58926,10 +58593,7 @@
             {
               "title": "Basic navigation security - no crashes @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -58976,10 +58640,7 @@
             {
               "title": "should handle authentication token security @smoke @critical",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63056,10 +62717,7 @@
             {
               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63093,9 +62751,7 @@
             {
               "title": "@functional - Assigner des tags à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63133,9 +62789,7 @@
             {
               "title": "@functional - Assigner un dossier à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63173,9 +62827,7 @@
             {
               "title": "@functional - Retirer des tags et dossier d'une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63213,9 +62865,7 @@
             {
               "title": "@functional - Afficher les tags et dossiers sur les cartes",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63249,9 +62899,7 @@
             {
               "title": "@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63289,10 +62937,7 @@
             {
               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63326,9 +62971,7 @@
             {
               "title": "@functional - Assigner des tags à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63366,9 +63009,7 @@
             {
               "title": "@functional - Assigner un dossier à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63406,9 +63047,7 @@
             {
               "title": "@functional - Retirer des tags et dossier d'une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63446,9 +63085,7 @@
             {
               "title": "@functional - Afficher les tags et dossiers sur les cartes",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63482,9 +63119,7 @@
             {
               "title": "@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63522,10 +63157,7 @@
             {
               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
               "ok": true,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63559,9 +63191,7 @@
             {
               "title": "@functional - Assigner des tags à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63599,9 +63229,7 @@
             {
               "title": "@functional - Assigner un dossier à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63639,9 +63267,7 @@
             {
               "title": "@functional - Retirer des tags et dossier d'une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63679,9 +63305,7 @@
             {
               "title": "@functional - Afficher les tags et dossiers sur les cartes",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63715,9 +63339,7 @@
             {
               "title": "@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63755,10 +63377,7 @@
             {
               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
               "ok": false,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63832,9 +63451,7 @@
             {
               "title": "@functional - Assigner des tags à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63868,9 +63485,7 @@
             {
               "title": "@functional - Assigner un dossier à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63904,9 +63519,7 @@
             {
               "title": "@functional - Retirer des tags et dossier d'une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63940,9 +63553,7 @@
             {
               "title": "@functional - Afficher les tags et dossiers sur les cartes",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -63976,9 +63587,7 @@
             {
               "title": "@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64012,10 +63621,7 @@
             {
               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
               "ok": false,
-              "tags": [
-                "smoke",
-                "critical"
-              ],
+              "tags": ["smoke", "critical"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64089,9 +63695,7 @@
             {
               "title": "@functional - Assigner des tags à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64125,9 +63729,7 @@
             {
               "title": "@functional - Assigner un dossier à une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64161,9 +63763,7 @@
             {
               "title": "@functional - Retirer des tags et dossier d'une conversation",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64197,9 +63797,7 @@
             {
               "title": "@functional - Afficher les tags et dossiers sur les cartes",
               "ok": true,
-              "tags": [
-                "functional"
-              ],
+              "tags": ["functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64233,9 +63831,7 @@
             {
               "title": "@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants",
               "ok": true,
-              "tags": [
-                "edge"
-              ],
+              "tags": ["edge"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64286,10 +63882,7 @@
             {
               "title": "Workflow complet Availability Poll : création → dashboard @smoke @functional",
               "ok": false,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -64403,10 +63996,7 @@
             {
               "title": "Workflow complet Availability Poll : création → dashboard @smoke @functional",
               "ok": false,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -64494,10 +64084,7 @@
             {
               "title": "Workflow complet Availability Poll : création → dashboard @smoke @functional",
               "ok": false,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -64611,10 +64198,7 @@
             {
               "title": "Workflow complet Availability Poll : création → dashboard @smoke @functional",
               "ok": false,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -64728,10 +64312,7 @@
             {
               "title": "Workflow complet Availability Poll : création → dashboard @smoke @functional",
               "ok": false,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -64862,10 +64443,7 @@
             {
               "title": "Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64917,10 +64495,7 @@
             {
               "title": "Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -64972,10 +64547,7 @@
             {
               "title": "Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -65027,10 +64599,7 @@
             {
               "title": "Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -65082,10 +64651,7 @@
             {
               "title": "Workflow complet Form Poll : création → ajout → suppression → reprise → vote → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 60000,
@@ -65154,9 +64720,7 @@
             {
               "title": "Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65276,9 +64840,7 @@
             {
               "title": "Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65398,9 +64960,7 @@
             {
               "title": "Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65520,9 +65080,7 @@
             {
               "title": "Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65642,9 +65200,7 @@
             {
               "title": "Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical",
               "ok": false,
-              "tags": [
-                "critical"
-              ],
+              "tags": ["critical"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65781,10 +65337,7 @@
             {
               "title": "Workflow complet Quizz : création → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65855,10 +65408,7 @@
             {
               "title": "Workflow complet Quizz : création → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -65929,10 +65479,7 @@
             {
               "title": "Workflow complet Quizz : création → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -66003,10 +65550,7 @@
             {
               "title": "Workflow complet Quizz : création → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,
@@ -66077,10 +65621,7 @@
             {
               "title": "Workflow complet Quizz : création → dashboard @smoke @functional",
               "ok": true,
-              "tags": [
-                "smoke",
-                "functional"
-              ],
+              "tags": ["smoke", "functional"],
               "tests": [
                 {
                   "timeout": 180000,

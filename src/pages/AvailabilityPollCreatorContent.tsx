@@ -181,7 +181,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     <Check className="w-7 h-7 text-green-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-white">
+                    <CardTitle className="text-2xl text-white" data-testid="success-message">
                       Sondage Disponibilités créé !
                     </CardTitle>
                     <p className="text-gray-300 mt-1">
@@ -305,6 +305,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </Label>
               <Input
                 id="title"
+                data-testid="availability-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Planification rendez-vous - Novembre 2025"
@@ -319,6 +320,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
               </Label>
               <Textarea
                 id="description"
+                data-testid="poll-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Indiquez vos disponibilités pour planifier notre prochain rendez-vous..."

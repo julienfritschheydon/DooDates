@@ -76,6 +76,7 @@ npm run supabase:login
 ```
 
 This will:
+
 1. Open your browser to authenticate with Supabase
 2. Save your access token locally for future CLI operations
 
@@ -91,6 +92,7 @@ $env:SUPABASE_ACCESS_TOKEN = "your-access-token-here"
 ```
 
 To get your access token:
+
 1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
 2. Navigate to Account Settings → Access Tokens
 3. Create a new access token if needed
@@ -111,12 +113,14 @@ npm run supabase:link -- --project-ref outmbbisrrdiumlweira
 ```
 
 You can find your project ref in your Supabase dashboard URL:
+
 - URL: `https://supabase.com/dashboard/project/abcdefghijklmnop`
 - Project ref: `abcdefghijklmnop`
 
 ### 2. Set Up Database Connection
 
 After linking, the CLI will prompt you for:
+
 - Database password (found in Project Settings → Database)
 - Or use the access token from authentication
 
@@ -170,6 +174,7 @@ This file is automatically picked up by the Supabase CLI when running `supabase 
 ### Dashboard Linter
 
 The Supabase dashboard linter **should automatically pick up** the `splinter.toml` file if:
+
 1. The file is in your project root
 2. Your project is linked to the Supabase dashboard
 3. The dashboard has access to your repository (if using GitHub integration)
@@ -198,6 +203,7 @@ supabase db lint
 If `supabase` command is not found:
 
 **If using local installation (npx):**
+
 - Use `npx supabase` instead of `supabase`
 - Or use the npm scripts: `npm run supabase:lint`, `npm run supabase:link`, etc.
 
@@ -209,15 +215,16 @@ If `supabase` command is not found:
    - For Scoop: Usually `C:\Users\<username>\scoop\shims\`
    - For Chocolatey: Usually `C:\ProgramData\chocolatey\bin\`
 3. **Reinstall**: Use the same package manager you used for installation
+
    ```powershell
    # For winget
    winget uninstall Supabase.CLI
    winget install Supabase.CLI
-   
+
    # For Scoop
    scoop uninstall supabase
    scoop install supabase
-   
+
    # For Chocolatey
    choco uninstall supabase
    choco install supabase
@@ -232,10 +239,11 @@ If you see an error like: `failed to connect to postgres: failed to connect to h
 **Solutions**:
 
 1. **Lint Remote Database** (recommended if you just want to lint your linked project):
+
    ```powershell
    # Use --linked flag
    npm run supabase:lint
-   
+
    # Or directly
    npx supabase db lint --linked
    ```
@@ -260,15 +268,17 @@ If you see the error: `Access token not provided. Supply an access token by runn
 **Solution:**
 
 1. **Login via CLI** (recommended):
+
    ```powershell
    # Using local installation
    npm run supabase:login
-   
+
    # Or directly
    npx supabase login
    ```
 
 2. **Set Environment Variable**:
+
    ```powershell
    $env:SUPABASE_ACCESS_TOKEN = "your-access-token"
    ```
@@ -333,4 +343,3 @@ npm run supabase:lint:local:check  # Lint local database (errors only)
 - [Supabase CLI Documentation](https://supabase.com/docs/reference/cli)
 - [Splinter Documentation](https://supabase.github.io/splinter/)
 - [Supabase Database Linter Guide](https://supabase.com/docs/guides/database/database-linter)
-

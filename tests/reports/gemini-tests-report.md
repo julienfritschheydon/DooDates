@@ -10,68 +10,68 @@
 
 ## 📋 Détail des Tests
 
-| Test ID | Catégorie | Score | Status | Détails |
-|---------|-----------|--------|--------|----------|
-| demo-client-mardi-mercredi | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| point-budget-deux-semaines | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| reunion-projet-semaine-18 | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| revue-slides-vendredi | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| standup-demain-matin | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| reunion-lancement-mardi-jeudi | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| client-canadien-fuseau | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| point-prod-lundi-mardi | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| dejeuner-partenariats-mercredi | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| repetition-presentation | professionnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| brunch-samedi-23-dimanche-24 | personnel | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| escape-game-fin-mars | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| visite-musee-semaine-prochaine | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| footing-vendredi-samedi | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| diner-cousins-avril | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| anniversaire-lea-15-mai | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| weekend-escapade-juin | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| seance-photo-decembre | personnel | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| apero-amis-trois-semaines | personnel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| call-visio-parents | personnel | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| reunion-parents-profs | associatif | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| bureau-asso-30min | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| atelier-benevoles-semaine-12 | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| repetition-chorale | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| aide-devoirs-mercredi-vendredi | associatif | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| comite-quartier-quinze-jours | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| kermesse-samedi-10h | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| visio-tresorerie-apres-18h | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| distribution-flyers-fin-avril | associatif | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| bug-dejeuner-midi-deux | bug | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| bug-brunch-samedi-ou-dimanche | bug | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| bug1-1 | bug | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| bug1-2 | bug | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| bug1-3 | bug | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| bug1-6 | bug | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-1 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-2 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-3 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-4 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-5 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-6 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-7 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| temporal-8 | temporel | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| edge-input-vide | edge | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| edge-caracteres-speciaux | edge | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-reunion-1 | reunions | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-reunion-2 | reunions | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-reunion-3 | reunions | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-reunion-4 | reunions | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-reunion-5 | reunions | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-event-1 | evenements | 3.0/4 | ✅ | Score: 3.0/4 - RÉUSSI |
-| date-event-2 | evenements | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-event-3 | evenements | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-event-4 | evenements | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-event-5 | evenements | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-formation-1 | formations | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-formation-2 | formations | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-formation-3 | formations | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-formation-4 | formations | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| date-formation-5 | formations | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
+| Test ID                        | Catégorie     | Score | Status | Détails               |
+| ------------------------------ | ------------- | ----- | ------ | --------------------- |
+| demo-client-mardi-mercredi     | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| point-budget-deux-semaines     | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| reunion-projet-semaine-18      | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| revue-slides-vendredi          | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| standup-demain-matin           | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| reunion-lancement-mardi-jeudi  | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| client-canadien-fuseau         | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| point-prod-lundi-mardi         | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| dejeuner-partenariats-mercredi | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| repetition-presentation        | professionnel | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| brunch-samedi-23-dimanche-24   | personnel     | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| escape-game-fin-mars           | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| visite-musee-semaine-prochaine | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| footing-vendredi-samedi        | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| diner-cousins-avril            | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| anniversaire-lea-15-mai        | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| weekend-escapade-juin          | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| seance-photo-decembre          | personnel     | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| apero-amis-trois-semaines      | personnel     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| call-visio-parents             | personnel     | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| reunion-parents-profs          | associatif    | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| bureau-asso-30min              | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| atelier-benevoles-semaine-12   | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| repetition-chorale             | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| aide-devoirs-mercredi-vendredi | associatif    | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| comite-quartier-quinze-jours   | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| kermesse-samedi-10h            | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| visio-tresorerie-apres-18h     | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| distribution-flyers-fin-avril  | associatif    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| bug-dejeuner-midi-deux         | bug           | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| bug-brunch-samedi-ou-dimanche  | bug           | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| bug1-1                         | bug           | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| bug1-2                         | bug           | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| bug1-3                         | bug           | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| bug1-6                         | bug           | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-1                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-2                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-3                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-4                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-5                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-6                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-7                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| temporal-8                     | temporel      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| edge-input-vide                | edge          | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| edge-caracteres-speciaux       | edge          | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-reunion-1                 | reunions      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-reunion-2                 | reunions      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-reunion-3                 | reunions      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-reunion-4                 | reunions      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-reunion-5                 | reunions      | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-event-1                   | evenements    | 3.0/4 | ✅     | Score: 3.0/4 - RÉUSSI |
+| date-event-2                   | evenements    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-event-3                   | evenements    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-event-4                   | evenements    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-event-5                   | evenements    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-formation-1               | formations    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-formation-2               | formations    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-formation-3               | formations    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-formation-4               | formations    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| date-formation-5               | formations    | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
 
 ## 📊 Détails Complets de Tous les Tests
 
@@ -695,7 +695,7 @@
 
 ### ✅ edge-input-vide (edge)
 
-**Prompt:** 
+**Prompt:**
 
 **Score:** 4.0/4 (100.0%)
 
@@ -928,7 +928,6 @@
 **Type:** date | **Dates:** 6 | **Créneaux:** 6
 
 ---
-
 
 ## 📈 Recommandations
 

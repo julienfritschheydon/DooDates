@@ -3,7 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
 import CloseButton from "@/components/ui/CloseButton";
 import PollActions from "@/components/polls/PollActions";
-import { Poll, getPollBySlugOrId, getCurrentUserId, getVoterId, getAllPolls } from "@/lib/pollStorage";
+import {
+  Poll,
+  getPollBySlugOrId,
+  getCurrentUserId,
+  getVoterId,
+  getAllPolls,
+} from "@/lib/pollStorage";
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
@@ -78,7 +84,8 @@ const Results: React.FC = () => {
       const userHasVoted = pollVotes.some((vote: VoteData) => {
         // Vérifier par voter_email ou par un identifiant stocké
         return (
-          vote.voter_email === currentUserId || localStorage.getItem(`voted-${foundPoll.id}`) === "true"
+          vote.voter_email === currentUserId ||
+          localStorage.getItem(`voted-${foundPoll.id}`) === "true"
         );
       });
       setHasVoted(userHasVoted);

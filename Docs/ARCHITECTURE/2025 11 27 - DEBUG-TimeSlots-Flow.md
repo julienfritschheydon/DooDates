@@ -3,12 +3,16 @@
 ## ✅ RÉSOLU
 
 ### Cause racine identifiée
+
 Dans `usePolls.ts`, lors de la création du poll via Supabase :
+
 - Les `timeSlotsByDate` sont sauvegardés dans `poll_data.timeSlots` (ligne 275)
 - Mais lors de la reconstruction du poll (lignes 478-481), on ne récupérait PAS `timeSlotsByDate` depuis `poll_data.timeSlots`
 
 ### Fix appliqué
+
 **Fichier:** `src/hooks/usePolls.ts` (ligne 481)
+
 ```typescript
 settings: {
   ...conversation.poll_data?.settings,
@@ -20,11 +24,13 @@ settings: {
 ---
 
 ## Problème (historique)
+
 Les créneaux horaires générés par Gemini ne s'affichaient pas dans le PollCreator après un refresh de la page.
 
 ## Flux de données identifié
 
 ### 1. Génération par Gemini
+
 **Fichier:** `GeminiChatInterface.tsx` (lignes 1019-1037)
 
 ```
@@ -36,6 +42,7 @@ initialData = { timeSlots: suggestion.timeSlots, dates: suggestion.dates, ... }
 ```
 
 ### 2. PollCreator reçoit initialData
+
 **Fichier:** `PollCreator.tsx` (lignes 47-78)
 
 ```
@@ -48,6 +55,7 @@ useTimeSlots({ state, initialData, currentPoll })
 ```
 
 ### 3. Création du poll via EditorStateProvider
+
 **Fichier:** `EditorStateProvider.tsx` (lignes 284-340, 449-493)
 
 ```
@@ -66,6 +74,7 @@ setCurrentPoll(poll) → sauvegarde dans localStorage
 ```
 
 ### 4. Sauvegarde dans usePolls
+
 **Fichier:** `usePolls.ts` (lignes 175-184)
 
 ```
@@ -82,6 +91,7 @@ Poll créé avec settings.timeSlotsByDate
 ```
 
 ### 5. Restauration après refresh
+
 **Fichier:** `EditorStateProvider.tsx` (lignes 96-103)
 
 ```
@@ -94,6 +104,7 @@ Au chargement de la page:
 ```
 
 ### 6. useTimeSlots tente de charger les timeSlots
+
 **Fichier:** `useTimeSlots.ts` (lignes 94-114)
 
 ```
@@ -114,16 +125,19 @@ if (currentPoll?.settings?.timeSlotsByDate) {
 Le problème est probablement dans l'une de ces étapes:
 
 ### Hypothèse 1: Poll retourné par createPoll n'a pas settings.timeSlotsByDate
+
 Le poll retourné par `createPoll` pourrait ne pas inclure `settings.timeSlotsByDate` dans sa structure.
 
 **Vérification:** Log ajouté dans `EditorStateProvider.tsx` ligne 484-491
 
 ### Hypothèse 2: localStorage ne sauvegarde pas settings.timeSlotsByDate
+
 Le poll sauvegardé dans localStorage pourrait avoir une structure différente.
 
 **Vérification:** Log ajouté dans `useTimeSlots.ts` ligne 97-104
 
 ### Hypothèse 3: currentPoll n'est pas passé à useTimeSlots
+
 Le `currentPoll` pourrait être `null` ou `undefined` quand `useTimeSlots` est appelé.
 
 **Vérification:** Log ajouté dans `useTimeSlots.ts` ligne 97-104
@@ -145,6 +159,7 @@ Le `currentPoll` pourrait être `null` ou `undefined` quand `useTimeSlots` est a
 ## Résultat attendu des logs
 
 ### Avant refresh (création):
+
 ```
 [EditorStateProvider] 🔍 Conversion timeSlots { hasTimeSlots: true, timeSlots: [...] }
 [EditorStateProvider] 🔍 Poll créé via IA { hasTimeSlotsByDate: true, timeSlotsByDate: {...} }
@@ -152,6 +167,7 @@ Le `currentPoll` pourrait être `null` ou `undefined` quand `useTimeSlots` est a
 ```
 
 ### Après refresh:
+
 ```
 [useTimeSlots] 🔍 currentPoll debug { hasTimeSlotsByDate: ??? }
 ```

@@ -1,5 +1,6 @@
 import React from "react";
 import AICreator from "@/pages/AICreator";
+import { AvailabilityPollCreatorContent } from "@/pages/AvailabilityPollCreatorContent";
 import { ProductSidebar } from "@/components/layout/products/ProductSidebar";
 
 interface WorkspaceLayoutProps {
@@ -14,7 +15,11 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({ productType }) => {
 
       {/* Contenu principal sans marges fixes */}
       <div className="flex-1 ml-0 mr-0">
-        <AICreator hideSidebar={false} />
+        {productType === "availability" ? (
+          <AvailabilityPollCreatorContent />
+        ) : (
+          <AICreator hideSidebar={false} />
+        )}
       </div>
     </div>
   );

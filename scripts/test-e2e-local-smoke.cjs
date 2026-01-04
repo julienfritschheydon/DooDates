@@ -6,96 +6,96 @@
  * Utilisation: node scripts/test-e2e-local-smoke.cjs
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require("playwright");
 
 async function runLocalSmokeTests() {
-  console.log('🔥 E2E Smoke Tests Local');
-  console.log('================================');
-  
+  console.log("🔥 E2E Smoke Tests Local");
+  console.log("================================");
+
   let browser;
   let context;
   let page;
-  
+
   const results = {
     passed: 0,
     failed: 0,
-    errors: []
+    errors: [],
   };
 
   try {
     // Vérifier serveur
-    console.log('🌐 Vérification serveur...');
+    console.log("🌐 Vérification serveur...");
     try {
-      const response = await fetch('http://localhost:8080/DooDates/');
+      const response = await fetch("http://localhost:8080/DooDates/");
       if (!response.ok) {
         throw new Error(`Serveur répond: ${response.status}`);
       }
-      console.log('✅ Serveur accessible');
+      console.log("✅ Serveur accessible");
     } catch (error) {
-      console.log('❌ Serveur non accessible');
-      console.log('💡 Lancez: npm run dev:e2e');
+      console.log("❌ Serveur non accessible");
+      console.log("💡 Lancez: npm run dev:e2e");
       process.exit(1);
     }
 
     // Initialiser Playwright
-    console.log('🚀 Initialisation Playwright...');
-    browser = await chromium.launch({ 
+    console.log("🚀 Initialisation Playwright...");
+    browser = await chromium.launch({
       headless: true, // Mode headless pour rapidité
-      timeout: 30000
+      timeout: 30000,
     });
-    
+
     context = await browser.newContext({
-      viewport: { width: 1280, height: 720 }
+      viewport: { width: 1280, height: 720 },
     });
-    
+
     page = await context.newPage();
 
     // Activer logging
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
         console.log(`❌ [CONSOLE] ${msg.text()}`);
         results.errors.push(`Console error: ${msg.text()}`);
       }
     });
 
     // Tests rapides
-    await runTest('Chargement page d\'accueil', async () => {
-      await page.goto('http://localhost:8080/DooDates/', { timeout: 30000 });
-      await page.waitForSelector('body', { timeout: 10000 });
-      
+    await runTest("Chargement page d'accueil", async () => {
+      await page.goto("http://localhost:8080/DooDates/", { timeout: 30000 });
+      await page.waitForSelector("body", { timeout: 10000 });
+
       const title = await page.title();
-      if (!title.includes('DooDates')) {
+      if (!title.includes("DooDates")) {
         throw new Error(`Titre inattendu: ${title}`);
       }
     });
 
-    await runTest('Navigation workspace', async () => {
+    await runTest("Navigation workspace", async () => {
       if (page.isClosed()) {
         page = await context.newPage();
       }
-      
-      await page.goto('http://localhost:8080/DooDates/chat', { timeout: 30000 });
-      
+
+      await page.goto("http://localhost:8080/DooDates/chat", { timeout: 30000 });
+
       // Attendre que le DOM soit chargé
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState("domcontentloaded");
       await page.waitForTimeout(2000); // Attendre React
-      
+
       // Attendre que le chat input soit disponible
       try {
         await page.waitForSelector('[data-testid="chat-input"]', { timeout: 15000 });
-        console.log('✅ Chat input trouvé');
+        console.log("✅ Chat input trouvé");
       } catch (error) {
-        console.log('⚠️ Chat input non trouvé immédiatement, essais fallbacks...');
-        
+        console.log("⚠️ Chat input non trouvé immédiatement, essais fallbacks...");
+
         // Essayer d'autres sélecteurs
         const selectors = [
           'textarea[placeholder*="message"]',
           'textarea[placeholder*="Message"]',
-          'textarea',
+          "textarea",
           'input[type="text"]',
-          '[contenteditable="true"]'
+          '[contenteditable="true"]',
         ];
-        
+
         let found = false;
         for (const selector of selectors) {
           try {
@@ -109,72 +109,72 @@ async function runLocalSmokeTests() {
             continue;
           }
         }
-        
+
         if (!found) {
           // Debug: lister tous les éléments interactifs
-          const allInputs = await page.locator('input, textarea, [contenteditable]').all();
+          const allInputs = await page.locator("input, textarea, [contenteditable]").all();
           console.log(`🔍 ${allInputs.length} éléments input/textarea trouvés`);
-          
+
           if (allInputs.length === 0) {
-            throw new Error('Aucun input de chat trouvé');
+            throw new Error("Aucun input de chat trouvé");
           } else {
-            console.log('✅ Inputs trouvés mais pas de chat input spécifique');
+            console.log("✅ Inputs trouvés mais pas de chat input spécifique");
           }
         }
       }
     });
 
-    await runTest('Stabilité après rechargement', async () => {
+    await runTest("Stabilité après rechargement", async () => {
       if (page.isClosed()) {
         page = await context.newPage();
       }
-      
-      await page.goto('http://localhost:8080/DooDates/', { timeout: 30000 });
+
+      await page.goto("http://localhost:8080/DooDates/", { timeout: 30000 });
       await page.reload({ timeout: 30000 });
-      
+
       // Vérifier que la page est toujours fonctionnelle
-      await page.waitForSelector('body', { timeout: 10000 });
-      
+      await page.waitForSelector("body", { timeout: 10000 });
+
       // Prendre screenshot pour debug
-      await page.screenshot({ path: 'test-smoke-local.png', fullPage: true });
-      console.log('📸 Screenshot: test-smoke-local.png');
+      await page.screenshot({ path: "test-smoke-local.png", fullPage: true });
+      console.log("📸 Screenshot: test-smoke-local.png");
     });
 
-    await runTest('Navigation dashboard date-polls', async () => {
+    await runTest("Navigation dashboard date-polls", async () => {
       if (page.isClosed()) {
         page = await context.newPage();
       }
-      
-      await page.goto('http://localhost:8080/DooDates/date-polls/dashboard', { timeout: 30000 });
-      
+
+      await page.goto("http://localhost:8080/DooDates/date-polls/dashboard", { timeout: 30000 });
+
       // Attendre chargement
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState("domcontentloaded");
       await page.waitForTimeout(1000);
-      
+
       // Vérifier pas d'erreur 404 (plus robuste)
       const title = await page.title();
       const url = page.url();
-      
+
       console.log(`📍 URL: ${url}`);
       console.log(`📄 Titre: ${title}`);
-      
+
       // Vérifier que c'est bien la page dashboard et pas une erreur
-      if (title.includes('404') || title.includes('Not Found') || url.includes('404')) {
-        throw new Error('Page 404 détectée');
+      if (title.includes("404") || title.includes("Not Found") || url.includes("404")) {
+        throw new Error("Page 404 détectée");
       }
-      
+
       // Vérifier qu'il y a du contenu dashboard
       try {
-        await page.waitForSelector('body', { timeout: 5000 });
-        
+        await page.waitForSelector("body", { timeout: 5000 });
+
         // Chercher des éléments dashboard typiques
         const dashboardSelectors = [
           '[data-testid*="dashboard"]',
-          '.dashboard',
-          'h1, h2, h3',
-          '.container, .main, .content'
+          ".dashboard",
+          "h1, h2, h3",
+          ".container, .main, .content",
         ];
-        
+
         let hasContent = false;
         for (const selector of dashboardSelectors) {
           try {
@@ -188,44 +188,41 @@ async function runLocalSmokeTests() {
             continue;
           }
         }
-        
+
         if (!hasContent) {
-          console.log('⚠️ Dashboard accessible mais contenu minimal');
+          console.log("⚠️ Dashboard accessible mais contenu minimal");
         }
-        
       } catch (contentError) {
         console.log(`⚠️ Erreur vérification contenu: ${contentError.message}`);
       }
-      
-      console.log('✅ Dashboard accessible');
+
+      console.log("✅ Dashboard accessible");
     });
 
     // Résultats
-    console.log('\n📊 RÉSULTATS');
-    console.log('=============');
+    console.log("\n📊 RÉSULTATS");
+    console.log("=============");
     console.log(`✅ Tests passés: ${results.passed}`);
     console.log(`❌ Tests échoués: ${results.failed}`);
-    
+
     if (results.errors.length > 0) {
-      console.log('\n🚨 Erreurs détectées:');
+      console.log("\n🚨 Erreurs détectées:");
       results.errors.forEach((error, i) => {
         console.log(`${i + 1}. ${error}`);
       });
     }
-    
+
     if (results.failed > 0) {
-      console.log('\n❌ Certains tests ont échoué - Corrigez avant de pusher');
+      console.log("\n❌ Certains tests ont échoué - Corrigez avant de pusher");
       process.exit(1);
     } else {
-      console.log('\n✅ Tous les tests passent - Safe to push !');
+      console.log("\n✅ Tous les tests passent - Safe to push !");
     }
-
   } catch (error) {
-    console.error('💥 ERREUR CRITIQUE:', error.message);
+    console.error("💥 ERREUR CRITIQUE:", error.message);
     results.failed++;
     results.errors.push(`Critical: ${error.message}`);
     process.exit(1);
-    
   } finally {
     // Nettoyage
     try {
@@ -239,7 +236,7 @@ async function runLocalSmokeTests() {
 
   async function runTest(name, testFn) {
     console.log(`\n🧪 ${name}...`);
-    
+
     try {
       await testFn();
       results.passed++;

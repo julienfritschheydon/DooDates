@@ -3,17 +3,22 @@
  * Factorise le code commun pour créer des polls via IA et gérer les polls dans localStorage
  */
 
-import { Page, expect, Locator } from '@playwright/test';
-import { setupAllMocksWithoutNavigation } from '../global-setup';
-import { robustFill, waitForPageLoad, robustClick } from '../utils';
-import { waitForElementReady, waitForReactStable, waitForNetworkIdle, waitForChatInputReady } from '../helpers/wait-helpers';
+import { Page, expect, Locator } from "@playwright/test";
+import { setupAllMocksWithoutNavigation } from "../global-setup";
+import { robustFill, waitForPageLoad, robustClick } from "../utils";
+import {
+  waitForElementReady,
+  waitForReactStable,
+  waitForNetworkIdle,
+  waitForChatInputReady,
+} from "../helpers/wait-helpers";
 
-import { fillFormTitle } from './form-helpers';
-import { safeIsVisible } from './safe-helpers';
-import { getPollSlugFromPage } from './poll-navigation-helpers';
-import { type BrowserName, getTimeouts } from './poll-core-helpers';
+import { fillFormTitle } from "./form-helpers";
+import { safeIsVisible } from "./safe-helpers";
+import { getPollSlugFromPage } from "./poll-navigation-helpers";
+import { type BrowserName, getTimeouts } from "./poll-core-helpers";
 
-export { createFormPollViaAI, voteOnFormPoll } from './poll-form-helpers';
+export { createFormPollViaAI, voteOnFormPoll } from "./poll-form-helpers";
 
 // ... (le reste du fichier reste inchangé)
 
@@ -43,12 +48,12 @@ export async function sendChatCommand(
   page: Page,
   browserName: string,
   inputLocator: Locator,
-  message: string
+  message: string,
 ): Promise<void> {
   const timeouts = getTimeouts(browserName as BrowserName);
 
   // 1. S'assurer que l'élément est attaché au DOM, même s'il n'est pas encore visible
-  await inputLocator.waitFor({ state: 'attached', timeout: timeouts.element }).catch(() => { });
+  await inputLocator.waitFor({ state: "attached", timeout: timeouts.element }).catch(() => {});
 
   // 2. Essayer de le rendre visible (notamment sur mobile où il peut être hors viewport)
   try {
@@ -76,10 +81,10 @@ export async function sendChatCommand(
 
   // 5. Envoi du message via "Entrée", avec fallback force
   try {
-    await inputLocator.press('Enter', { timeout: timeouts.action });
+    await inputLocator.press("Enter", { timeout: timeouts.action });
   } catch {
-    await inputLocator.press('Enter', { timeout: timeouts.action } as any).catch(async () => {
-      await inputLocator.press('Enter', { timeout: timeouts.action, force: true } as any);
+    await inputLocator.press("Enter", { timeout: timeouts.action } as any).catch(async () => {
+      await inputLocator.press("Enter", { timeout: timeouts.action, force: true } as any);
     });
   }
 
@@ -96,20 +101,23 @@ async function clickViewFormButton(page: Page): Promise<void> {
   console.log('Recherche du bouton "Voir le formulaire"...');
 
   // Ce sélecteur a prouvé être le plus fiable dans les tests
-  const button = page.locator('a:has-text("Voir le formulaire"), a:has-text("Voir le sondage")').first();
+  const button = page
+    .locator('a:has-text("Voir le formulaire"), a:has-text("Voir le sondage")')
+    .first();
 
   try {
-    await button.waitFor({ state: 'visible', timeout: 10000 });
-    console.log('Bouton trouvé, clic en cours...');
+    await button.waitFor({ state: "visible", timeout: 10000 });
+    console.log("Bouton trouvé, clic en cours...");
     await button.click();
-    console.log('Clic effectué avec succès');
+    console.log("Clic effectué avec succès");
   } catch (error) {
-    console.error('Échec du clic sur le bouton, tentative avec JavaScript...');
+    console.error("Échec du clic sur le bouton, tentative avec JavaScript...");
     await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll('a'));
-      const targetButton = buttons.find(btn =>
-        btn.textContent?.includes('Voir le formulaire') ||
-        btn.textContent?.includes('Voir le sondage')
+      const buttons = Array.from(document.querySelectorAll("a"));
+      const targetButton = buttons.find(
+        (btn) =>
+          btn.textContent?.includes("Voir le formulaire") ||
+          btn.textContent?.includes("Voir le sondage"),
       );
       if (targetButton) {
         (targetButton as HTMLElement).click();
@@ -128,14 +136,14 @@ async function submitVoteAndVerifyConfirmation(
   page: Page,
   browserName: BrowserName,
   voterName: string,
-  answer: string
+  answer: string,
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
   console.log(`[DEBUG] ${voterName} - Soumission du vote...`);
 
   // Remplir le nom du votant
-  const nameInput = page.locator('#voter-name-input').first();
+  const nameInput = page.locator("#voter-name-input").first();
   await expect(nameInput).toBeVisible({ timeout: timeouts.element });
   await nameInput.fill(voterName);
 
@@ -176,10 +184,10 @@ async function submitVoteAndVerifyConfirmation(
 
   // Vérifier la confirmation avec plusieurs alternatives de texte possibles
   const confirmationSelectors = [
-    'text=/merci|enregistrée|enregistré|confirmation|votre réponse|votre vote/i',
+    "text=/merci|enregistrée|enregistré|confirmation|votre réponse|votre vote/i",
     'div[role="alert"]',
-    '.confirmation-message',
-    '.alert-success'
+    ".confirmation-message",
+    ".alert-success",
   ];
 
   let confirmationVisible = false;
@@ -198,8 +206,8 @@ async function submitVoteAndVerifyConfirmation(
 
   if (!confirmationVisible) {
     // Prendre une capture d'écran pour le débogage
-    await page.screenshot({ path: 'debug-confirmation-missing.png', fullPage: true });
-    throw new Error('Impossible de trouver le message de confirmation après le vote');
+    await page.screenshot({ path: "debug-confirmation-missing.png", fullPage: true });
+    throw new Error("Impossible de trouver le message de confirmation après le vote");
   }
 
   console.log(`[SUCCÈS] Le vote de ${voterName} a été correctement enregistré.`);
@@ -214,12 +222,14 @@ export async function openResultsAndCheckDates(
   page: Page,
   browserName: BrowserName,
 ): Promise<void> {
-  const resultsTab = await waitForElementReady(page, 'button[role="tab"]:has-text("Résultats")', { browserName });
+  const resultsTab = await waitForElementReady(page, 'button[role="tab"]:has-text("Résultats")', {
+    browserName,
+  });
   await resultsTab.click();
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
-  const dateElements = page.locator('text=/lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche/i');
+  const dateElements = page.locator("text=/lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche/i");
   const dateCount = await dateElements.count();
   await expect(dateCount).toBeGreaterThan(0);
 }
@@ -230,16 +240,16 @@ export async function openResultsAndCheckDates(
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur
  */
-async function simplifyFormToSingleQuestion(
-  page: Page,
-  browserName: BrowserName
-): Promise<void> {
+async function simplifyFormToSingleQuestion(page: Page, browserName: BrowserName): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
-  console.log('[INFO] Simplification du formulaire pour les tests...');
+  console.log("[INFO] Simplification du formulaire pour les tests...");
 
   // Attendre que l'éditeur soit visible
-  const editor = await waitForElementReady(page, '[data-poll-preview]', { browserName, timeout: timeouts.element });
+  const editor = await waitForElementReady(page, "[data-poll-preview]", {
+    browserName,
+    timeout: timeouts.element,
+  });
 
   // Trouver tous les onglets de questions (Q1, Q2, etc.)
   const questionTabs = page.locator('button[data-testid*="question"], button:has-text(/^Q\\d+$/i)');
@@ -259,12 +269,16 @@ async function simplifyFormToSingleQuestion(
         await page.waitForTimeout(500);
 
         // Chercher et cliquer sur le bouton de suppression
-        const deleteButton = page.locator('button:has-text("Supprimer"), button[aria-label*="supprimer" i]').first();
+        const deleteButton = page
+          .locator('button:has-text("Supprimer"), button[aria-label*="supprimer" i]')
+          .first();
         if (await deleteButton.isVisible({ timeout: 2000 }).catch(() => false)) {
           await deleteButton.click();
 
           // Confirmer la suppression si nécessaire
-          const confirmButton = page.locator('button:has-text("Confirmer"), button:has-text("Oui")').first();
+          const confirmButton = page
+            .locator('button:has-text("Confirmer"), button:has-text("Oui")')
+            .first();
           if (await confirmButton.isVisible({ timeout: 2000 }).catch(() => false)) {
             await confirmButton.click();
           }
@@ -278,7 +292,7 @@ async function simplifyFormToSingleQuestion(
   }
 
   // Maintenant modifier la première question pour en faire une question texte simple
-  console.log('[INFO] Modification de la première question en question texte simple...');
+  console.log("[INFO] Modification de la première question en question texte simple...");
 
   try {
     // S'assurer que le premier onglet est actif
@@ -291,19 +305,25 @@ async function simplifyFormToSingleQuestion(
     // Trouver le select de type de question et le changer en "text"
     const typeSelect = page.locator('select[data-testid="question-kind-select"]').first();
     if (await typeSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await typeSelect.selectOption('text');
+      await typeSelect.selectOption("text");
       await waitForReactStable(page, { browserName });
     }
 
     // Modifier le titre de la question
-    const titleInput = page.locator('input[placeholder*="titre" i], input[placeholder*="question" i]').first();
+    const titleInput = page
+      .locator('input[placeholder*="titre" i], input[placeholder*="question" i]')
+      .first();
     if (await titleInput.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await titleInput.fill('Comment avez-vous trouvé ce formulaire ?');
+      await titleInput.fill("Comment avez-vous trouvé ce formulaire ?");
       await page.waitForTimeout(300);
     }
 
     // S'assurer que la question est marquée comme obligatoire
-    const requiredCheckbox = page.locator('input[type="checkbox"][aria-label*="obligatoire" i], input[type="checkbox"]:has-text("Obligatoire")').first();
+    const requiredCheckbox = page
+      .locator(
+        'input[type="checkbox"][aria-label*="obligatoire" i], input[type="checkbox"]:has-text("Obligatoire")',
+      )
+      .first();
     if (await requiredCheckbox.isVisible({ timeout: 2000 }).catch(() => false)) {
       const isChecked = await requiredCheckbox.isChecked();
       if (!isChecked) {
@@ -311,10 +331,9 @@ async function simplifyFormToSingleQuestion(
       }
     }
 
-    console.log('[SUCCÈS] Formulaire simplifié avec une seule question texte obligatoire');
-
+    console.log("[SUCCÈS] Formulaire simplifié avec une seule question texte obligatoire");
   } catch (e) {
-    console.log('[WARN] Impossible de modifier la première question, mais on continue:', e);
+    console.log("[WARN] Impossible de modifier la première question, mais on continue:", e);
   }
 
   // Attendre que les changements soient stabilisés
@@ -324,7 +343,7 @@ async function simplifyFormToSingleQuestion(
 /**
  * Crée un formulaire complet avec question de type date, sélectionne des dates et publie automatiquement
  * Helper réutilisable pour tous les tests qui ont besoin d'un formulaire avec dates
- * 
+ *
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur
  * @param formTitle - Le titre du formulaire (défaut: "Test Formulaire avec Question Date")
@@ -333,23 +352,27 @@ async function simplifyFormToSingleQuestion(
 export async function createFormWithDateQuestion(
   page: Page,
   browserName: BrowserName,
-  formTitle: string = 'Test Formulaire avec Question Date'
+  formTitle: string = "Test Formulaire avec Question Date",
 ): Promise<string> {
   const timeouts = getTimeouts(browserName);
 
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
 
   // Aller sur la page de création
-  await page.goto('/DooDates/form-polls/workspace/form', { waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/form-polls/workspace/form", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
   // Attendre que l'interface soit prête
   // Attendre que l'interface soit prête
-  const titleInput = await waitForElementReady(page, 'input[placeholder*="Titre"], input[placeholder*="Questionnaire"]', {
-    browserName,
-    timeout: timeouts.element * 1.5 // Augmenter un peu le timeout pour la CI
-  });
+  const titleInput = await waitForElementReady(
+    page,
+    'input[placeholder*="Titre"], input[placeholder*="Questionnaire"]',
+    {
+      browserName,
+      timeout: timeouts.element * 1.5, // Augmenter un peu le timeout pour la CI
+    },
+  );
 
   // Mettre le titre
   console.log(`[DEBUG] Définition du titre: ${formTitle}`);
@@ -357,14 +380,16 @@ export async function createFormWithDateQuestion(
   await robustFill(titleInput, formTitle);
 
   // Changer la question existante en type "date"
-  console.log('[DEBUG] Recherche du select de type de question');
-  const typeSelect = await waitForElementReady(page, 'select[data-testid="question-kind-select"]', { browserName });
+  console.log("[DEBUG] Recherche du select de type de question");
+  const typeSelect = await waitForElementReady(page, 'select[data-testid="question-kind-select"]', {
+    browserName,
+  });
   console.log('[DEBUG] Changement du type de question en "date"');
-  await typeSelect.selectOption('date');
+  await typeSelect.selectOption("date");
   await waitForReactStable(page, { browserName });
 
   // Attendre le calendrier
-  console.log('[DEBUG] Attente du calendrier');
+  console.log("[DEBUG] Attente du calendrier");
   const calendar = await waitForElementReady(page, '[data-testid="calendar"]', { browserName });
 
   // Sélectionner des dates futures (7 et 14 jours)
@@ -374,59 +399,65 @@ export async function createFormWithDateQuestion(
   const futureDate2 = new Date(today);
   futureDate2.setDate(today.getDate() + 14);
 
-  const dateStr1 = futureDate1.toISOString().split('T')[0];
-  const dateStr2 = futureDate2.toISOString().split('T')[0];
+  const dateStr1 = futureDate1.toISOString().split("T")[0];
+  const dateStr2 = futureDate2.toISOString().split("T")[0];
 
   console.log(`[DEBUG] Sélection des dates: ${dateStr1} et ${dateStr2}`);
 
   // Approche directe : utiliser JavaScript pour déclencher onDateToggle
-  console.log('[DEBUG] Utilisation approche JavaScript directe pour sélectionner les dates');
+  console.log("[DEBUG] Utilisation approche JavaScript directe pour sélectionner les dates");
 
-  const datesSelected = await page.evaluate(async (datesToSelect) => {
-    try {
-      // Trouver le composant DateQuestionEditor
-      const dateEditor = document.querySelector('[data-testid="calendar"]')?.closest('[data-testid]');
-      if (!dateEditor) {
-        console.error('DateQuestionEditor non trouvé');
+  const datesSelected = await page.evaluate(
+    async (datesToSelect) => {
+      try {
+        // Trouver le composant DateQuestionEditor
+        const dateEditor = document
+          .querySelector('[data-testid="calendar"]')
+          ?.closest("[data-testid]");
+        if (!dateEditor) {
+          console.error("DateQuestionEditor non trouvé");
+          return false;
+        }
+
+        // Simuler les appels onDateToggle pour chaque date
+        // On cherche dans le DOM des éléments qui pourraient avoir les handlers
+        const calendarButtons = document.querySelectorAll(
+          '[data-testid="calendar"] button[data-date]',
+        );
+
+        let selectedCount = 0;
+        for (const button of calendarButtons) {
+          const dateAttr = button.getAttribute("data-date");
+          if (dateAttr && datesToSelect.includes(dateAttr)) {
+            // Simuler un clic qui devrait déclencher onDateToggle
+            (button as HTMLElement).click();
+            console.log(`Clic simulé sur date: ${dateAttr}`);
+            selectedCount++;
+
+            // Attendre un peu entre les clics
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+
+        console.log(`Dates sélectionnées via JavaScript: ${selectedCount}`);
+        return selectedCount > 0;
+      } catch (error) {
+        console.error("Erreur lors de la sélection JavaScript:", error);
         return false;
       }
-
-      // Simuler les appels onDateToggle pour chaque date
-      // On cherche dans le DOM des éléments qui pourraient avoir les handlers
-      const calendarButtons = document.querySelectorAll('[data-testid="calendar"] button[data-date]');
-
-      let selectedCount = 0;
-      for (const button of calendarButtons) {
-        const dateAttr = button.getAttribute('data-date');
-        if (dateAttr && datesToSelect.includes(dateAttr)) {
-          // Simuler un clic qui devrait déclencher onDateToggle
-          (button as HTMLElement).click();
-          console.log(`Clic simulé sur date: ${dateAttr}`);
-          selectedCount++;
-
-          // Attendre un peu entre les clics
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-      }
-
-      console.log(`Dates sélectionnées via JavaScript: ${selectedCount}`);
-      return selectedCount > 0;
-
-    } catch (error) {
-      console.error('Erreur lors de la sélection JavaScript:', error);
-      return false;
-    }
-  }, [dateStr1, dateStr2]);
+    },
+    [dateStr1, dateStr2],
+  );
 
   console.log(`[DEBUG] Résultat sélection JavaScript: ${datesSelected}`);
 
   // Fallback : utiliser les clics traditionnels si JavaScript échoue
   if (!datesSelected) {
-    console.log('[WARN] Approche JavaScript échouée, utilisation fallback clics traditionnels');
+    console.log("[WARN] Approche JavaScript échouée, utilisation fallback clics traditionnels");
     // ... code des clics traditionnels ...
   }
 
-  console.log('[DEBUG] Dates sélectionnées, publication du formulaire');
+  console.log("[DEBUG] Dates sélectionnées, publication du formulaire");
 
   // Attendre un peu pour que l'état se mette à jour
   await page.waitForTimeout(1000);
@@ -434,7 +465,7 @@ export async function createFormWithDateQuestion(
   // Vérifier combien de dates sont sélectionnées dans l'état après les clics
   const selectedDatesCount = await page.evaluate(() => {
     try {
-      const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       const lastPoll = polls[polls.length - 1];
       if (lastPoll?.questions?.[0]?.selectedDates) {
         return lastPoll.questions[0].selectedDates.length;
@@ -444,34 +475,40 @@ export async function createFormWithDateQuestion(
       return -1;
     }
   });
-  console.log(`[DEBUG] Nombre de dates sélectionnées dans l'état après clics: ${selectedDatesCount}`);
+  console.log(
+    `[DEBUG] Nombre de dates sélectionnées dans l'état après clics: ${selectedDatesCount}`,
+  );
 
   // Si aucune date n'est sélectionnée, prendre une capture d'écran pour déboguer
   if (selectedDatesCount === 0) {
-    console.log('[ERROR] Aucune date sélectionnée - prise de capture d\'écran');
-    await page.screenshot({ path: 'debug-no-dates-selected.png', fullPage: true });
+    console.log("[ERROR] Aucune date sélectionnée - prise de capture d'écran");
+    await page.screenshot({ path: "debug-no-dates-selected.png", fullPage: true });
   }
 
   // Vérifier que le bouton de publication est bien visible et activé
-  console.log('[DEBUG] Recherche du bouton de publication...');
-  const publishButton = await waitForElementReady(page, '[data-testid="publish-button"]', { browserName });
-  console.log('[DEBUG] Bouton de publication trouvé');
+  console.log("[DEBUG] Recherche du bouton de publication...");
+  const publishButton = await waitForElementReady(page, '[data-testid="publish-button"]', {
+    browserName,
+  });
+  console.log("[DEBUG] Bouton de publication trouvé");
 
   // Vérifier si le bouton est activé
   const isEnabled = await publishButton.isEnabled();
   console.log(`[DEBUG] Bouton de publication activé: ${isEnabled}`);
 
   if (!isEnabled) {
-    console.log('[ERROR] Bouton de publication désactivé - validation échoue probablement');
+    console.log("[ERROR] Bouton de publication désactivé - validation échoue probablement");
     // Prendre une capture d'écran pour déboguer
-    await page.screenshot({ path: 'debug-publish-disabled.png', fullPage: true });
-    throw new Error('Le bouton de publication est désactivé - vérifiez que les dates sont sélectionnées');
+    await page.screenshot({ path: "debug-publish-disabled.png", fullPage: true });
+    throw new Error(
+      "Le bouton de publication est désactivé - vérifiez que les dates sont sélectionnées",
+    );
   }
 
-  console.log('[DEBUG] Clic sur le bouton de publication...');
+  console.log("[DEBUG] Clic sur le bouton de publication...");
   await publishButton.click();
 
-  console.log('[DEBUG] Publication en cours...');
+  console.log("[DEBUG] Publication en cours...");
 
   // Attendre que la page de confirmation soit stabilisée
   await waitForNetworkIdle(page, { browserName });
@@ -492,12 +529,12 @@ export async function createFormWithDateQuestion(
 async function openFormFromDashboard(
   page: Page,
   formTitle: string,
-  timeout = 15000
+  timeout = 15000,
 ): Promise<void> {
   console.log(`[INFO] Navigation vers le tableau de bord...`);
 
   // Aller au tableau de bord
-  await page.goto('/DooDates/form-polls/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/form-polls/dashboard", { waitUntil: "domcontentloaded" });
 
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
 
@@ -529,14 +566,14 @@ export async function voteOnPollComplete(
   page: Page,
   browserName: BrowserName,
   pollSlug: string,
-  voterName: string = 'Test Voter'
+  voterName: string = "Test Voter",
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
 
   // Navigation vers page de vote
-  await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -544,7 +581,11 @@ export async function voteOnPollComplete(
   await expect(page).toHaveURL(/.*\/poll\/[^\/]+/, { timeout: timeouts.navigation });
 
   // Remplir le nom du votant
-  const nameInput = page.locator('#voter-name-input, input[placeholder*="nom" i], input[placeholder*="Nom" i], input[placeholder*="name" i], input[placeholder*="Name" i], input[type="text"]:visible').first();
+  const nameInput = page
+    .locator(
+      '#voter-name-input, input[placeholder*="nom" i], input[placeholder*="Nom" i], input[placeholder*="name" i], input[placeholder*="Name" i], input[type="text"]:visible',
+    )
+    .first();
   await expect(nameInput).toBeVisible({ timeout: timeouts.element });
   await nameInput.fill(voterName);
 
@@ -552,17 +593,19 @@ export async function voteOnPollComplete(
   await waitForReactStable(page, { browserName });
 
   // 1. Gérer les questions de date (boutons de vote Oui/Non/Peut-être)
-  const dateVoteButtons = page.locator('button:has-text("Oui"), button:has-text("Non"), button:has-text("Peut-être")');
+  const dateVoteButtons = page.locator(
+    'button:has-text("Oui"), button:has-text("Non"), button:has-text("Peut-être")',
+  );
   const dateButtonCount = await dateVoteButtons.count();
 
   if (dateButtonCount > 0) {
     console.log(`[VOTE] Trouvé ${dateButtonCount} boutons de vote pour dates`);
     // Voter "Oui" sur la première date disponible
-    const yesButton = dateVoteButtons.filter({ hasText: 'Oui' }).first();
+    const yesButton = dateVoteButtons.filter({ hasText: "Oui" }).first();
     if (await safeIsVisible(yesButton)) {
       await yesButton.click();
       await waitForReactStable(page, { browserName });
-      console.log('[VOTE] Vote effectué sur date');
+      console.log("[VOTE] Vote effectué sur date");
     }
   }
 
@@ -572,7 +615,7 @@ export async function voteOnPollComplete(
     document.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((input) => {
       if (!input.name || input.disabled) return;
       const styles = window.getComputedStyle(input);
-      if (styles.display === 'none' || styles.visibility === 'hidden') return;
+      if (styles.display === "none" || styles.visibility === "hidden") return;
       names.add(input.name);
     });
     return Array.from(names);
@@ -580,7 +623,7 @@ export async function voteOnPollComplete(
 
   for (const groupName of radioGroupNames) {
     const groupLocator = page.locator(`input[type="radio"][name="${groupName}"]`);
-    const firstVisible = groupLocator.filter({ hasNotText: '' }).first();
+    const firstVisible = groupLocator.filter({ hasNotText: "" }).first();
     if (await safeIsVisible(firstVisible)) {
       await firstVisible.check();
       console.log(`[VOTE] Option sélectionnée pour le groupe ${groupName}`);
@@ -588,7 +631,7 @@ export async function voteOnPollComplete(
   }
 
   // 3. Gérer les checkboxes
-  const checkboxes = page.locator('input[type="checkbox"]').filter({ hasNotText: '' });
+  const checkboxes = page.locator('input[type="checkbox"]').filter({ hasNotText: "" });
   const checkboxCount = await checkboxes.count();
 
   if (checkboxCount > 0) {
@@ -597,7 +640,7 @@ export async function voteOnPollComplete(
     const firstCheckbox = checkboxes.first();
     if (await safeIsVisible(firstCheckbox)) {
       await firstCheckbox.check();
-      console.log('[VOTE] Checkbox cochée');
+      console.log("[VOTE] Checkbox cochée");
     }
   }
 
@@ -616,15 +659,17 @@ export async function voteOnPollComplete(
   // 5. Gérer un champ email obligatoire si présent (ex. copie des réponses par email)
   const emailInput = page.locator('input[type="email"], input[inputmode="email"]').first();
   if (await safeIsVisible(emailInput)) {
-    await emailInput.fill('test@example.com');
-    console.log('[VOTE] Champ email rempli pour permettre la soumission');
+    await emailInput.fill("test@example.com");
+    console.log("[VOTE] Champ email rempli pour permettre la soumission");
   }
 
   // Prendre une capture d'écran avant soumission
-  await page.screenshot({ path: 'debug-before-submit.png', fullPage: true });
+  await page.screenshot({ path: "debug-before-submit.png", fullPage: true });
 
   // Soumettre le formulaire
-  const submitButton = page.locator('button[type="submit"], button:has-text("Envoyer"), button:has-text("Soumettre")').first();
+  const submitButton = page
+    .locator('button[type="submit"], button:has-text("Envoyer"), button:has-text("Soumettre")')
+    .first();
   await expect(submitButton).toBeVisible({ timeout: timeouts.element });
   await submitButton.click();
 
@@ -633,11 +678,11 @@ export async function voteOnPollComplete(
 
   // Vérifier la confirmation (plusieurs patterns possibles)
   const confirmationSelectors = [
-    'text=/merci|enregistré|confirmé|participation/i',
-    'text=/vote.*enregistré|réponse.*enregistrée/i',
+    "text=/merci|enregistré|confirmé|participation/i",
+    "text=/vote.*enregistré|réponse.*enregistrée/i",
     '[role="alert"]',
-    '.confirmation-message',
-    '[data-testid="vote-confirmation-message"]'
+    ".confirmation-message",
+    '[data-testid="vote-confirmation-message"]',
   ];
 
   let confirmationFound = false;
@@ -655,9 +700,9 @@ export async function voteOnPollComplete(
 
   if (!confirmationFound) {
     // Fallback: texte global sur la page
-    const bodyText = await page.locator('body').innerText();
+    const bodyText = await page.locator("body").innerText();
     if (/merci|réponse(s)?.*enregistrée|vote.*confirmé/i.test(bodyText)) {
-      console.log('[VOTE] Confirmation implicite détectée via le contenu de la page');
+      console.log("[VOTE] Confirmation implicite détectée via le contenu de la page");
       confirmationFound = true;
     }
   }
@@ -666,7 +711,7 @@ export async function voteOnPollComplete(
     // Dernier recours: vérifier disparition du bouton submit
     try {
       await expect(submitButton).not.toBeVisible({ timeout: 3000 });
-      console.log('[VOTE] Bouton de soumission disparu, confirmation supposée');
+      console.log("[VOTE] Bouton de soumission disparu, confirmation supposée");
       confirmationFound = true;
     } catch {
       // ignore, on lèvera une erreur juste après
@@ -674,8 +719,10 @@ export async function voteOnPollComplete(
   }
 
   if (!confirmationFound) {
-    await page.screenshot({ path: 'debug-confirmation-missing.png', fullPage: true });
-    throw new Error('Impossible de confirmer l’enregistrement du vote (aucun message ou signal détecté)');
+    await page.screenshot({ path: "debug-confirmation-missing.png", fullPage: true });
+    throw new Error(
+      "Impossible de confirmer l’enregistrement du vote (aucun message ou signal détecté)",
+    );
   }
 
   console.log(`[VOTE] ✅ Vote complet terminé pour ${voterName} sur poll ${pollSlug}`);
@@ -686,17 +733,21 @@ export async function voteOnPollComplete(
  */
 export async function publishPollAndNavigateToVote(
   page: Page,
-  browserName: BrowserName
+  browserName: BrowserName,
 ): Promise<string | null> {
   const timeouts = getTimeouts(browserName);
 
-  console.log('[PUBLISH] Début publication du poll');
+  console.log("[PUBLISH] Début publication du poll");
 
   // Attendre et cliquer sur le bouton de publication
-  const publishButton = await waitForElementReady(page, '[data-testid="publish-button"], button:has-text("Publier")', { browserName });
+  const publishButton = await waitForElementReady(
+    page,
+    '[data-testid="publish-button"], button:has-text("Publier")',
+    { browserName },
+  );
   await publishButton.click();
 
-  console.log('[PUBLISH] Bouton de publication cliqué');
+  console.log("[PUBLISH] Bouton de publication cliqué");
 
   // Attendre la redirection vers la page de succès
   await page.waitForURL(/\/poll\/[^\/]+/, { timeout: 15000 });
@@ -723,16 +774,19 @@ export async function verifyPollInDashboard(
   page: Page,
   browserName: BrowserName,
   expectedTitle: string,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   console.log(`[DASHBOARD] Vérification présence du poll "${expectedTitle}" dans dashboard`);
 
   // Aller au dashboard
-  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Attendre et vérifier que le poll apparaît
-  const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout });
+  const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
+    browserName,
+    timeout,
+  });
   await expect(pollItem).toContainText(expectedTitle, { timeout });
 
   console.log(`[DASHBOARD] ✅ Poll "${expectedTitle}" trouvé dans dashboard`);
@@ -746,35 +800,38 @@ export async function createPollInStorage(
   pollData: {
     slug: string;
     title: string;
-    type: 'form' | 'availability';
-    resultsVisibility?: 'creator-only' | 'voters' | 'public';
+    type: "form" | "availability";
+    resultsVisibility?: "creator-only" | "voters" | "public";
     questions?: any[];
     dates?: any[];
     creator_id?: string;
-  }
+  },
 ): Promise<void> {
   const deviceId = pollData.creator_id || `dev-${Date.now()}`;
 
-  await page.evaluate(({ poll, deviceId }) => {
-    const fullPoll = {
-      id: poll.slug,
-      slug: poll.slug,
-      title: poll.title,
-      type: poll.type,
-      status: 'active',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      creator_id: deviceId,
-      resultsVisibility: poll.resultsVisibility || 'creator-only',
-      dates: poll.dates || [],
-      questions: poll.questions || []
-    };
+  await page.evaluate(
+    ({ poll, deviceId }) => {
+      const fullPoll = {
+        id: poll.slug,
+        slug: poll.slug,
+        title: poll.title,
+        type: poll.type,
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        creator_id: deviceId,
+        resultsVisibility: poll.resultsVisibility || "creator-only",
+        dates: poll.dates || [],
+        questions: poll.questions || [],
+      };
 
-    const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-    polls.push(fullPoll);
-    localStorage.setItem('doodates_polls', JSON.stringify(polls));
-    localStorage.setItem('dd-device-id', deviceId);
-  }, { poll: pollData, deviceId });
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+      polls.push(fullPoll);
+      localStorage.setItem("doodates_polls", JSON.stringify(polls));
+      localStorage.setItem("dd-device-id", deviceId);
+    },
+    { poll: pollData, deviceId },
+  );
 
   console.log(`[STORAGE] ✅ Poll "${pollData.title}" créé dans localStorage`);
 }
@@ -791,13 +848,15 @@ export async function verifyPollBySlugInDashboard(
   expectedSlug: string,
   timeout = 10000,
 ): Promise<void> {
-  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   const pollItems = page.locator('[data-testid="poll-item"]');
   const itemCount = await pollItems.count();
 
-  console.log(`[DASHBOARD] Recherche du poll avec slug "${expectedSlug}" (poll-items: ${itemCount})`);
+  console.log(
+    `[DASHBOARD] Recherche du poll avec slug "${expectedSlug}" (poll-items: ${itemCount})`,
+  );
 
   // 1. Chercher dans tous les poll-item
   for (let i = 0; i < itemCount; i++) {
@@ -818,12 +877,12 @@ export async function verifyPollBySlugInDashboard(
 
   // 3. Si toujours rien : log détaillé et échec explicite
   const hrefs = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('a'))
-      .map(a => (a as HTMLAnchorElement).href)
+    Array.from(document.querySelectorAll("a"))
+      .map((a) => (a as HTMLAnchorElement).href)
       .filter(Boolean),
   );
 
-  console.log('[DASHBOARD] ❌ Aucun lien de poll trouvé pour ce slug', {
+  console.log("[DASHBOARD] ❌ Aucun lien de poll trouvé pour ce slug", {
     expectedSlug,
     hrefSamples: hrefs.slice(0, 10),
   });
@@ -844,9 +903,9 @@ export async function setupTestWithWorkspace(
     warmup?: boolean;
     consoleGuard?: boolean;
     mocks?: { all?: boolean; gemini?: boolean };
-  } = {}
+  } = {},
 ): Promise<void> {
-  const { setupTestEnvironment } = await import('../helpers/test-setup');
+  const { setupTestEnvironment } = await import("../helpers/test-setup");
 
   await setupTestEnvironment(page, browserName, {
     enableE2ELocalMode: options.enableE2ELocalMode ?? true,
@@ -855,12 +914,12 @@ export async function setupTestWithWorkspace(
     mocks: options.mocks || { all: true },
   });
 
-  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto("/DooDates/workspace", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
   // Attendre que le chat input soit prêt via le helper résilient
   await waitForChatInputReady(page, browserName);
 
-  console.log('[SETUP] ✅ Page workspace prête pour les tests');
+  console.log("[SETUP] ✅ Page workspace prête pour les tests");
 }

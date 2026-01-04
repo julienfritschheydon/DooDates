@@ -24,4 +24,3 @@ repos:
       #   stages: [pre-commit]
       #   pass_filenames: false
       #   always_run: true
-

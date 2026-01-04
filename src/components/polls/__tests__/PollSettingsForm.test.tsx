@@ -8,8 +8,8 @@ import type { FormPollSettings } from "@/lib/products/form-polls/form-polls-serv
 vi.mock("./ThemeSelector", () => ({
   ThemeSelector: ({ selectedThemeId, onThemeChange }: any) => (
     <div data-testid="theme-selector">
-      <select 
-        value={selectedThemeId} 
+      <select
+        value={selectedThemeId}
         onChange={(e) => onThemeChange(e.target.value)}
         data-testid="theme-select"
       >
@@ -59,14 +59,14 @@ describe("PollSettingsForm", () => {
           settings={defaultDateSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       expect(screen.getByText("Basique")).toBeInTheDocument();
       expect(screen.getByText("Avancé")).toBeInTheDocument();
       expect(screen.getByText("Email")).toBeInTheDocument();
       expect(screen.getByText("Visibilité")).toBeInTheDocument();
-      
+
       // Vérifier que les onglets spécifiques aux formulaires ne sont pas présents
       expect(screen.queryByText("Affichage")).not.toBeInTheDocument();
       expect(screen.queryByText("Thème")).not.toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("PollSettingsForm", () => {
           settings={defaultDateSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Vérifier que le composant s'affiche correctement
@@ -92,7 +92,7 @@ describe("PollSettingsForm", () => {
           settings={defaultDateSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Cliquer sur l'onglet avancé et vérifier qu'il est cliquable
@@ -106,7 +106,7 @@ describe("PollSettingsForm", () => {
           settings={defaultDateSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Cliquer sur l'onglet email et vérifier qu'il est cliquable
@@ -120,12 +120,15 @@ describe("PollSettingsForm", () => {
           settings={defaultDateSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Cliquer sur l'onglet visibilité et vérifier qu'il est cliquable
       fireEvent.click(screen.getByText("Visibilité"));
-      expect(screen.getByRole("tab", { name: "Visibilité" })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tab", { name: "Visibilité" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
     });
   });
 
@@ -154,7 +157,7 @@ describe("PollSettingsForm", () => {
           onThemeChange={mockOnThemeChange}
           displayMode="all-at-once"
           onDisplayModeChange={mockOnDisplayModeChange}
-        />
+        />,
       );
 
       expect(screen.getByText("Basique")).toBeInTheDocument();
@@ -171,7 +174,7 @@ describe("PollSettingsForm", () => {
           settings={defaultFormSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="form"
-        />
+        />,
       );
 
       // Cliquer sur l'onglet avancé et vérifier qu'il est cliquable
@@ -187,12 +190,15 @@ describe("PollSettingsForm", () => {
           pollType="form"
           displayMode="all-at-once"
           onDisplayModeChange={mockOnDisplayModeChange}
-        />
+        />,
       );
 
       // Cliquer sur l'onglet affichage et vérifier qu'il est cliquable
       fireEvent.click(screen.getByText("Affichage"));
-      expect(screen.getByRole("tab", { name: "Affichage" })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tab", { name: "Affichage" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
     });
 
     it("devrait gérer le sélecteur de thème", () => {
@@ -203,7 +209,7 @@ describe("PollSettingsForm", () => {
           pollType="form"
           themeId=""
           onThemeChange={mockOnThemeChange}
-        />
+        />,
       );
 
       // Cliquer sur l'onglet thème et vérifier qu'il est cliquable
@@ -231,7 +237,7 @@ describe("PollSettingsForm", () => {
           settings={defaultSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Vérifier que l'onglet basique est actif par défaut
@@ -242,7 +248,10 @@ describe("PollSettingsForm", () => {
 
       // Vérifier que l'onglet avancé est maintenant actif
       expect(screen.getByRole("tab", { name: "Avancé" })).toHaveAttribute("aria-selected", "true");
-      expect(screen.getByRole("tab", { name: "Basique" })).toHaveAttribute("aria-selected", "false");
+      expect(screen.getByRole("tab", { name: "Basique" })).toHaveAttribute(
+        "aria-selected",
+        "false",
+      );
     });
 
     it("devrait avoir les attributs ARIA corrects", () => {
@@ -251,13 +260,13 @@ describe("PollSettingsForm", () => {
           settings={defaultSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Vérifier la structure tablist/tabpanel
       expect(screen.getByRole("tablist")).toBeInTheDocument();
       expect(screen.getByRole("tabpanel")).toBeInTheDocument();
-      
+
       // Vérifier que chaque onglet a les bons attributs
       const tabs = screen.getAllByRole("tab");
       tabs.forEach((tab) => {
@@ -274,12 +283,15 @@ describe("PollSettingsForm", () => {
           pollType="date"
           resultsVisibility="creator-only"
           onResultsVisibilityChange={mockOnResultsVisibilityChange}
-        />
+        />,
       );
 
       // Cliquer sur l'onglet visibilité et vérifier qu'il est cliquable
       fireEvent.click(screen.getByText("Visibilité"));
-      expect(screen.getByRole("tab", { name: "Visibilité" })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tab", { name: "Visibilité" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
     });
   });
 
@@ -315,7 +327,7 @@ describe("PollSettingsForm", () => {
           settings={formSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="form"
-        />
+        />,
       );
 
       // Vérifier que le composant s'affiche correctement
@@ -329,7 +341,7 @@ describe("PollSettingsForm", () => {
           settings={defaultSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Cliquer sur l'onglet email et vérifier qu'il est cliquable
@@ -345,7 +357,7 @@ describe("PollSettingsForm", () => {
           settings={minimalSettings}
           onSettingsChange={mockOnSettingsChange}
           pollType="date"
-        />
+        />,
       );
 
       // Le composant devrait quand même s'afficher sans erreur

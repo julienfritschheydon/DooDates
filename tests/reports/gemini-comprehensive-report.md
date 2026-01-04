@@ -10,10 +10,10 @@
 
 ## 📋 Détail des Tests
 
-| Test ID | Catégorie | Score | Status | Détails |
-|---------|-----------|--------|--------|----------|
-| bug1-4 | Bug #1 - Mois Explicite | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
-| bug1-5 | Bug #1 - Référence Correcte | 4.0/4 | ✅ | Score: 4.0/4 - RÉUSSI |
+| Test ID | Catégorie                   | Score | Status | Détails               |
+| ------- | --------------------------- | ----- | ------ | --------------------- |
+| bug1-4  | Bug #1 - Mois Explicite     | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
+| bug1-5  | Bug #1 - Référence Correcte | 4.0/4 | ✅     | Score: 4.0/4 - RÉUSSI |
 
 ## 📈 Recommandations
 

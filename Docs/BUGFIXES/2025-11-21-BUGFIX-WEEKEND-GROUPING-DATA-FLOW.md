@@ -5,6 +5,7 @@
 Le chat affichait correctement les week-ends groupés (ex: "Week-end du 7-8 mars"), mais le sondage créé ne les affichait pas groupés. Les dates individuelles étaient affichées avec les horaires visibles, alors qu'elles auraient dû être masquées pour les groupes de dates.
 
 ### Symptômes
+
 - ✅ Chat : "Week-end du 7-8 mars", "Week-end du 14-15 mars" (OK)
 - ❌ Sondage : Dates individuelles avec horaires visibles (KO)
 - ❌ Log console : `hasDateGroups: false, dateGroups: undefined`
@@ -33,12 +34,14 @@ PollCreator (❌ reçoit dateGroups = undefined)
 ### Pourquoi les tests unitaires n'ont pas détecté le bug
 
 Le test `date-utils.weekendGrouping.test.ts` testait uniquement :
+
 ```typescript
-groupConsecutiveDates(['2025-12-06', '2025-12-07'], true)
+groupConsecutiveDates(["2025-12-06", "2025-12-07"], true);
 // ✅ Retourne correct DateGroup
 ```
 
 **Mais il ne testait PAS :**
+
 - ❌ L'intégration avec la réponse Gemini
 - ❌ La persistance via `createPoll`
 - ❌ La récupération depuis storage (Supabase/localStorage)
@@ -66,7 +69,8 @@ export interface DatePollData {
   selectedDates: string[];
   timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
   participantEmails: string[];
-  dateGroups?: Array<{  // 🔧 AJOUTÉ
+  dateGroups?: Array<{
+    // 🔧 AJOUTÉ
     dates: string[];
     label: string;
     type: "weekend" | "week" | "fortnight" | "custom";
@@ -131,6 +135,7 @@ if (pollData.type === "date") {
 ```
 
 **Mode local (localStorage) :**
+
 ```typescript
 const mockPoll: StoragePoll = {
   ...basePoll,
@@ -153,7 +158,8 @@ interface SupabaseConversation {
     title?: string;
     description?: string | null;
     dates?: string[];
-    dateGroups?: Array<{  // 🔧 AJOUTÉ
+    dateGroups?: Array<{
+      // 🔧 AJOUTÉ
       dates: string[];
       label: string;
       type: "weekend" | "week" | "fortnight" | "custom";
@@ -215,6 +221,7 @@ userPolls = conversations.map((c) => ({
 **Fichier 1 :** `src/lib/__tests__/weekend-grouping-integration.test.ts`
 
 Ce test vérifie le flux complet :
+
 1. ✅ Gemini génère `dateGroups`
 2. ✅ `DatePollData` accepte `dateGroups`
 3. ✅ `createPoll` sauvegarde `dateGroups`
@@ -224,6 +231,7 @@ Ce test vérifie le flux complet :
 **Fichier 2 :** `src/hooks/__tests__/usePolls.dateGroups.test.ts`
 
 Ce test vérifie la fiabilité de la chaîne complète :
+
 1. ✅ Interface `DatePollData` inclut `dateGroups`
 2. ✅ Interface `SupabaseConversation.poll_data` inclut `dateGroups`
 3. ✅ Conversion `poll_data → Poll` préserve `dateGroups`
@@ -231,6 +239,7 @@ Ce test vérifie la fiabilité de la chaîne complète :
 5. ✅ Scénario complet : Gemini → createPoll → storage → getPoll → PollCreator
 
 **Résultats des tests :**
+
 ```
 ✓ 11 tests d'intégration passent
 ✓ 5 tests unitaires passent
@@ -281,20 +290,23 @@ UI (✅ affiche "Dates groupées détectées" + masque horaires)
 ## Tests
 
 ### Tests unitaires (existants)
+
 ```bash
 npm test -- date-utils.weekendGrouping
 ✓ 5 tests passent
 ```
 
 ### Tests d'intégration (nouveaux)
+
 ```bash
 npm test -- weekend-grouping-integration
 ✓ 11 tests passent
 ```
 
 ### Scénario complet testé
+
 ```typescript
-it('✅ SCÉNARIO COMPLET: Prompt utilisateur → Gemini → createPoll → PollCreator', () => {
+it("✅ SCÉNARIO COMPLET: Prompt utilisateur → Gemini → createPoll → PollCreator", () => {
   // 1. Utilisateur : "Crée un sondage pour un week-end jeux"
   // 2. Gemini génère dateGroups
   // 3. EditorStateProvider passe dateGroups
@@ -336,11 +348,13 @@ Pour tester manuellement :
 ### Bonnes pratiques
 
 ✅ **DO:**
+
 - Créer des tests d'intégration pour les flux de données critiques
 - Tester le parcours complet : API → Service → Storage → UI
 - Utiliser des logs de debug pour tracer les données
 
 ❌ **DON'T:**
+
 - Se fier uniquement aux tests unitaires pour valider un flux complet
 - Assumer que si une fonction marche, l'intégration marchera
 - Oublier de tester la persistance et la récupération des données

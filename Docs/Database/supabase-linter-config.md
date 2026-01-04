@@ -9,7 +9,7 @@ This document explains how to handle unused index warnings for foreign key index
 The Supabase database linter reports foreign key indexes as "unused" because it only tracks SELECT query usage. However, these indexes are critical for:
 
 - Foreign key constraint checks during DELETE/UPDATE on referenced tables
-- Cascading DELETE/UPDATE operations  
+- Cascading DELETE/UPDATE operations
 - Referential integrity validation
 
 ### Affected Indexes
@@ -52,7 +52,7 @@ Add `-- splinter-ignore-next-line unused_index` comments before each CREATE INDE
 
 ```sql
 -- splinter-ignore-next-line unused_index
-CREATE INDEX IF NOT EXISTS idx_analytics_events_user_id_fkey 
+CREATE INDEX IF NOT EXISTS idx_analytics_events_user_id_fkey
   ON analytics_events(user_id);
 ```
 
@@ -87,6 +87,7 @@ If Supabase adds linter configuration in the dashboard:
 #### Option 5: Pattern-Based Suppression (Already Configured)
 
 If Supabase supports pattern-based suppression, configure the linter to ignore indexes matching:
+
 - Pattern: `*_fkey`
 - Rule: `unused_index`
 
@@ -96,7 +97,7 @@ To verify these indexes exist and are properly documented:
 
 ```sql
 -- List all foreign key indexes with their comments
-SELECT 
+SELECT
   i.indexname,
   t.tablename,
   obj_description(i.indexrelid, 'pg_class') as comment
@@ -127,4 +128,3 @@ ORDER BY t.tablename, i.indexname;
 1. **Use the configuration file** (easiest): The `splinter.toml` file is already created in the project root
 2. **Run migrations**: Execute `sql-scripts/add-foreign-key-indexes.sql` if indexes don't exist yet
 3. **Verify**: Run `supabase db lint` to check if warnings are suppressed
-

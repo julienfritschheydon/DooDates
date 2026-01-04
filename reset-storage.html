@@ -1,180 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset localStorage</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 600px;
-      margin: 100px auto;
-      padding: 40px;
-      background: #0a0a0a;
-      color: #fff;
-      text-align: center;
-    }
-    h1 { color: #ef4444; margin-bottom: 30px; }
-    .warning {
-      background: #7f1d1d;
-      border: 2px solid #ef4444;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 30px 0;
-    }
-    button {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 10px;
-    }
-    button:hover { background: #dc2626; }
-    button.safe {
-      background: #3b82f6;
-    }
-    button.safe:hover {
-      background: #2563eb;
-    }
-    #result {
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 8px;
-      display: none;
-    }
-    .success {
-      background: #065f46;
-      border: 2px solid #10b981;
-      color: #10b981;
-    }
-  </style>
-</head>
-<body>
-  <h1>🗑️ Reset localStorage DooDates</h1>
-  
-  <div class="warning">
-    <h2>⚠️ ATTENTION</h2>
-    <p>Cette action va supprimer <strong>TOUTES</strong> les données suivantes :</p>
-    <ul style="text-align: left; display: inline-block;">
-      <li>Tous les sondages</li>
-      <li>Toutes les conversations</li>
-      <li>Tous les votes</li>
-      <li>Toutes les réponses aux formulaires</li>
-    </ul>
-    <p><strong>Cette action est IRRÉVERSIBLE !</strong></p>
-  </div>
-  
-  <button class="safe" onclick="showKeys()">📋 Voir les clés localStorage</button>
-  <button onclick="confirmReset()">🗑️ TOUT EFFACER</button>
-  
-  <div id="result"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset localStorage</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 600px;
+        margin: 100px auto;
+        padding: 40px;
+        background: #0a0a0a;
+        color: #fff;
+        text-align: center;
+      }
+      h1 {
+        color: #ef4444;
+        margin-bottom: 30px;
+      }
+      .warning {
+        background: #7f1d1d;
+        border: 2px solid #ef4444;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 30px 0;
+      }
+      button {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px;
+      }
+      button:hover {
+        background: #dc2626;
+      }
+      button.safe {
+        background: #3b82f6;
+      }
+      button.safe:hover {
+        background: #2563eb;
+      }
+      #result {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+      }
+      .success {
+        background: #065f46;
+        border: 2px solid #10b981;
+        color: #10b981;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🗑️ Reset localStorage DooDates</h1>
 
-  <script>
-    function showKeys() {
-      const result = document.getElementById('result');
-      result.style.display = 'block';
-      result.className = '';
-      result.style.background = '#1e1e1e';
-      result.style.border = '1px solid #333';
-      
-      const keys = Object.keys(localStorage).filter(key => 
-        key.startsWith('doodates') || key.startsWith('dd-') || 
-        key.includes('poll') || key.includes('conversation') || key.includes('vote')
-      );
-      
-      result.innerHTML = `
+    <div class="warning">
+      <h2>⚠️ ATTENTION</h2>
+      <p>Cette action va supprimer <strong>TOUTES</strong> les données suivantes :</p>
+      <ul style="text-align: left; display: inline-block">
+        <li>Tous les sondages</li>
+        <li>Toutes les conversations</li>
+        <li>Tous les votes</li>
+        <li>Toutes les réponses aux formulaires</li>
+      </ul>
+      <p><strong>Cette action est IRRÉVERSIBLE !</strong></p>
+    </div>
+
+    <button class="safe" onclick="showKeys()">📋 Voir les clés localStorage</button>
+    <button onclick="confirmReset()">🗑️ TOUT EFFACER</button>
+
+    <div id="result"></div>
+
+    <script>
+      function showKeys() {
+        const result = document.getElementById("result");
+        result.style.display = "block";
+        result.className = "";
+        result.style.background = "#1e1e1e";
+        result.style.border = "1px solid #333";
+
+        const keys = Object.keys(localStorage).filter(
+          (key) =>
+            key.startsWith("doodates") ||
+            key.startsWith("dd-") ||
+            key.includes("poll") ||
+            key.includes("conversation") ||
+            key.includes("vote"),
+        );
+
+        result.innerHTML = `
         <h3>🔑 Clés localStorage DooDates (${keys.length})</h3>
         <ul style="text-align: left; font-family: monospace; font-size: 12px;">
-          ${keys.map(key => {
-            const value = localStorage.getItem(key);
-            const size = new Blob([value]).size;
-            return `<li><strong>${key}</strong> (${(size / 1024).toFixed(2)} KB)</li>`;
-          }).join('')}
+          ${keys
+            .map((key) => {
+              const value = localStorage.getItem(key);
+              const size = new Blob([value]).size;
+              return `<li><strong>${key}</strong> (${(size / 1024).toFixed(2)} KB)</li>`;
+            })
+            .join("")}
         </ul>
       `;
-    }
-    
-    function confirmReset() {
-      const confirmed = confirm(
-        '⚠️ ÊTES-VOUS SÛR ?\n\n' +
-        'Cette action va supprimer TOUTES vos données DooDates :\n' +
-        '- Tous les sondages\n' +
-        '- Toutes les conversations\n' +
-        '- Tous les votes\n' +
-        '- Toutes les réponses\n\n' +
-        'Cette action est IRRÉVERSIBLE !\n\n' +
-        'Voulez-vous vraiment continuer ?'
-      );
-      
-      if (!confirmed) return;
-      
-      // Double confirmation
-      const doubleConfirm = confirm(
-        '🚨 DERNIÈRE CONFIRMATION\n\n' +
-        'Tapez OK pour confirmer la suppression définitive de toutes les données.'
-      );
-      
-      if (!doubleConfirm) return;
-      
-      resetStorage();
-    }
-    
-    function resetStorage() {
-      const result = document.getElementById('result');
-      result.style.display = 'block';
-      
-      // Liste des clés à supprimer
-      const keysToDelete = [
-        'doodates_polls',
-        'doodates_form_polls',
-        'doodates_votes',
-        'doodates_form_responses',
-        'doodates-conversations',
-        'doodates-messages',
-        'dd-device-id',
-        'dev-polls',
-        'dev-votes',
-        'conversations',
-      ];
-      
-      let deleted = 0;
-      const deletedKeys = [];
-      
-      keysToDelete.forEach(key => {
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
-          deleted++;
-          deletedKeys.push(key);
-        }
-      });
-      
-      // Supprimer aussi toutes les clés qui commencent par doodates ou dd-
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('doodates') || key.startsWith('dd-')) {
-          if (!deletedKeys.includes(key)) {
+      }
+
+      function confirmReset() {
+        const confirmed = confirm(
+          "⚠️ ÊTES-VOUS SÛR ?\n\n" +
+            "Cette action va supprimer TOUTES vos données DooDates :\n" +
+            "- Tous les sondages\n" +
+            "- Toutes les conversations\n" +
+            "- Tous les votes\n" +
+            "- Toutes les réponses\n\n" +
+            "Cette action est IRRÉVERSIBLE !\n\n" +
+            "Voulez-vous vraiment continuer ?",
+        );
+
+        if (!confirmed) return;
+
+        // Double confirmation
+        const doubleConfirm = confirm(
+          "🚨 DERNIÈRE CONFIRMATION\n\n" +
+            "Tapez OK pour confirmer la suppression définitive de toutes les données.",
+        );
+
+        if (!doubleConfirm) return;
+
+        resetStorage();
+      }
+
+      function resetStorage() {
+        const result = document.getElementById("result");
+        result.style.display = "block";
+
+        // Liste des clés à supprimer
+        const keysToDelete = [
+          "doodates_polls",
+          "doodates_form_polls",
+          "doodates_votes",
+          "doodates_form_responses",
+          "doodates-conversations",
+          "doodates-messages",
+          "dd-device-id",
+          "dev-polls",
+          "dev-votes",
+          "conversations",
+        ];
+
+        let deleted = 0;
+        const deletedKeys = [];
+
+        keysToDelete.forEach((key) => {
+          if (localStorage.getItem(key)) {
             localStorage.removeItem(key);
             deleted++;
             deletedKeys.push(key);
           }
-        }
-      });
-      
-      result.className = 'success';
-      result.innerHTML = `
+        });
+
+        // Supprimer aussi toutes les clés qui commencent par doodates ou dd-
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("doodates") || key.startsWith("dd-")) {
+            if (!deletedKeys.includes(key)) {
+              localStorage.removeItem(key);
+              deleted++;
+              deletedKeys.push(key);
+            }
+          }
+        });
+
+        result.className = "success";
+        result.innerHTML = `
         <h2>✅ localStorage nettoyé !</h2>
         <p><strong>${deleted} clés supprimées</strong></p>
         <ul style="text-align: left; font-family: monospace; font-size: 12px;">
-          ${deletedKeys.map(key => `<li>✓ ${key}</li>`).join('')}
+          ${deletedKeys.map((key) => `<li>✓ ${key}</li>`).join("")}
         </ul>
         <p style="margin-top: 20px;">
           <strong>🔄 Rafraîchissez la page DooDates pour repartir de zéro !</strong>
         </p>
       `;
-    }
-  </script>
-</body>
+      }
+    </script>
+  </body>
 </html>

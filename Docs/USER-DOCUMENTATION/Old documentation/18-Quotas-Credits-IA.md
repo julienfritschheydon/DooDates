@@ -34,6 +34,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Caractéristiques :**
+
 - **100 crédits IA** (messages, questions, insights)
 - **10 conversations max** (sessions)
 - Pas de reset mensuel
@@ -42,6 +43,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 - Rétention : 30 jours
 
 **Idéal pour :**
+
 - Tester DooDates sans engagement
 - Créer quelques sondages ponctuels
 - Découvrir les fonctionnalités IA
@@ -58,6 +60,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Caractéristiques :**
+
 - **1000 crédits IA** au total
 - Pas de reset mensuel (quota à vie)
 - Synchronisation cloud (Supabase)
@@ -65,6 +68,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 - Accès à toutes les fonctionnalités de base
 
 **Idéal pour :**
+
 - Utilisation régulière de DooDates
 - Sondages professionnels
 - Collaboration en équipe
@@ -82,6 +86,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Caractéristiques :**
+
 - **Crédits IA illimités**
 - Fonctionnalités avancées exclusives
 - Support prioritaire
@@ -89,6 +94,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 - Exports personnalisés
 
 **Idéal pour :**
+
 - Entreprises et organisations
 - Utilisation intensive
 - Besoins avancés en analytics
@@ -99,24 +105,24 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 
 ### Actions qui consomment 1 crédit
 
-| Action | Crédit | Détails |
-|--------|--------|---------|
-| 💬 **Message à l'Assistant** | 1 | Chaque message envoyé à l'IA |
-| ✏️ **Modification via IA** | 1 | Chaque demande de modification |
-| 💡 **Insight automatique** | 1 | Un insight généré (par lot ou individuel) |
-| ❓ **Question libre** | 1 | Par question posée à l'Analytics |
-| 🎯 **Quick Query** | 1 | Par analyse rapide lancée |
-| 🗣️ **Commande Vocale** | 1 | Transcription + Traitement |
+| Action                       | Crédit | Détails                                   |
+| ---------------------------- | ------ | ----------------------------------------- |
+| 💬 **Message à l'Assistant** | 1      | Chaque message envoyé à l'IA              |
+| ✏️ **Modification via IA**   | 1      | Chaque demande de modification            |
+| 💡 **Insight automatique**   | 1      | Un insight généré (par lot ou individuel) |
+| ❓ **Question libre**        | 1      | Par question posée à l'Analytics          |
+| 🎯 **Quick Query**           | 1      | Par analyse rapide lancée                 |
+| 🗣️ **Commande Vocale**       | 1      | Transcription + Traitement                |
 
 ### Actions qui NE consomment PAS de crédit
 
-| Action | Crédit | Détails |
-|--------|--------|---------|
-| 📝 **Créer un sondage manuellement** | 0 | Interface graphique classique |
-| 📊 **Consulter les graphiques** | 0 | Visualisations natives |
-| 📥 **Exporter les résultats** | 0 | CSV, PDF, JSON, Markdown |
-| 👥 **Partager un sondage** | 0 | Liens de partage illimités |
-| 🗳️ **Voter sur un sondage** | 0 | Réponses illimitées |
+| Action                               | Crédit | Détails                       |
+| ------------------------------------ | ------ | ----------------------------- |
+| 📝 **Créer un sondage manuellement** | 0      | Interface graphique classique |
+| 📊 **Consulter les graphiques**      | 0      | Visualisations natives        |
+| 📥 **Exporter les résultats**        | 0      | CSV, PDF, JSON, Markdown      |
+| 👥 **Partager un sondage**           | 0      | Liens de partage illimités    |
+| 🗳️ **Voter sur un sondage**          | 0      | Réponses illimitées           |
 
 ---
 
@@ -137,6 +143,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Ce que vous pouvez encore faire :**
+
 - ✅ Créer des sondages manuellement (interface graphique)
 - ✅ Consulter les résultats et graphiques
 - ✅ Exporter vos données
@@ -162,6 +169,7 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ```
 
 **Ce que vous pouvez encore faire :**
+
 - ✅ Toutes les fonctionnalités de base (sans IA)
 - ✅ Accès à tous vos sondages existants
 - ✅ Exports et partages illimités
@@ -174,31 +182,35 @@ Un **crédit IA** est consommé à chaque fois que vous utilisez une fonctionnal
 ### 🎯 Conseils pour économiser
 
 1. **Utilisez l'interface graphique d'abord**
+
    ```
    Créez vos sondages simples manuellement
    → Réservez l'IA pour les cas complexes
    ```
 
 2. **Désactivez les insights automatiques**
+
    ```
    Paramètres → Analytics IA → "Insights auto : OFF"
    → Économie de 1 crédit par ouverture de résultats
    ```
 
 3. **Groupez vos questions à l'IA**
+
    ```
    Au lieu de 3 questions séparées (3 crédits)
    → Posez 1 question groupée (1 crédit)
-   
+
    ❌ "Quel est le taux de satisfaction ?"
    ❌ "Qui a le mieux répondu ?"
    ❌ "Quelle est la tendance ?"
-   
-   ✅ "Donne-moi le taux de satisfaction, les meilleurs 
+
+   ✅ "Donne-moi le taux de satisfaction, les meilleurs
        répondants et la tendance générale"
    ```
 
 4. **Consultez les graphiques natifs d'abord**
+
    ```
    Les graphiques classiques sont gratuits
    → Utilisez l'IA uniquement pour analyses complexes
@@ -226,6 +238,7 @@ L'indicateur de quota est visible en permanence dans le header du Dashboard :
 ```
 
 **Codes couleur :**
+
 - 🟢 **Vert** (0-75%) : Quota confortable
 - 🟡 **Jaune** (75-90%) : Attention, quota bientôt atteint
 - 🔴 **Rouge** (90-100%) : Quota presque épuisé
@@ -236,14 +249,17 @@ L'indicateur de quota est visible en permanence dans le header du Dashboard :
 ## 🔄 Reset et Renouvellement
 
 ### Mode Invité
+
 - ❌ **Pas de reset** : 20 crédits à vie
 - ✅ **Solution** : Créer un compte gratuit pour 1000 crédits
 
 ### Compte Gratuit
+
 - ❌ **Pas de reset mensuel** : 1000 crédits à vie
 - ✅ **Solution** : Passer en Pro pour crédits illimités
 
 ### Pro & Premium
+
 - ✅ **Crédits illimités** : Pas de limite, pas de reset nécessaire
 
 ---
@@ -253,6 +269,7 @@ L'indicateur de quota est visible en permanence dans le header du Dashboard :
 ### Pourquoi 20 crédits pour les invités ?
 
 **Réponse :** 20 crédits permettent de :
+
 - Créer 10-15 sondages complets avec l'IA
 - Tester toutes les fonctionnalités
 - Découvrir la valeur de DooDates
@@ -265,6 +282,7 @@ C'est **4x plus généreux** que la plupart des concurrents (qui offrent 5 créd
 ### Pourquoi pas de reset mensuel pour le compte gratuit ?
 
 **Réponse :** 1000 crédits représentent :
+
 - **Plusieurs années d'utilisation** pour un utilisateur moyen
 - Pas de stress de "fin de mois"
 - Simplicité : pas de gestion de renouvellement
@@ -276,6 +294,7 @@ Si vous atteignez 1000 crédits, c'est que DooDates vous apporte une vraie valeu
 ### Les crédits expirent-ils ?
 
 **Non.** Vos crédits ne expirent jamais :
+
 - Mode invité : 20 crédits disponibles indéfiniment
 - Compte gratuit : 1000 crédits disponibles indéfiniment
 - Seule limite : Rétention des données (30 jours invité, 365 jours gratuit)
@@ -285,6 +304,7 @@ Si vous atteignez 1000 crédits, c'est que DooDates vous apporte une vraie valeu
 ### Puis-je acheter des crédits supplémentaires ?
 
 **Non.** DooDates propose uniquement :
+
 - 🆓 **Gratuit** : Quotas fixes (20 ou 1000)
 - 💼 **Pro** : Crédits illimités
 
@@ -302,15 +322,15 @@ Actuellement, seul le compteur global est affiché. Une page détaillée d'histo
 
 ### Avantages du Plan Pro
 
-| Fonctionnalité | Gratuit | Pro |
-|----------------|---------|-----|
-| Crédits IA | 1000 | ∞ Illimités |
-| Sondages | Illimités | Illimités |
-| Réponses | Illimitées | Illimitées |
-| Analytics IA | 1000 requêtes | ∞ Illimitées |
-| Exports | Tous formats | Tous formats + API |
-| Support | Communauté | Prioritaire |
-| Rétention | 365 jours | Illimitée |
+| Fonctionnalité | Gratuit       | Pro                |
+| -------------- | ------------- | ------------------ |
+| Crédits IA     | 1000          | ∞ Illimités        |
+| Sondages       | Illimités     | Illimités          |
+| Réponses       | Illimitées    | Illimitées         |
+| Analytics IA   | 1000 requêtes | ∞ Illimitées       |
+| Exports        | Tous formats  | Tous formats + API |
+| Support        | Communauté    | Prioritaire        |
+| Rétention      | 365 jours     | Illimitée          |
 
 ### Tarification
 

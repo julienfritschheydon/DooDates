@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { setupGeminiMock } from "./global-setup";
-import { waitForChatInputReady, waitForNetworkIdle, waitForReactStable } from "./helpers/wait-helpers";
+import {
+  waitForChatInputReady,
+  waitForNetworkIdle,
+  waitForReactStable,
+} from "./helpers/wait-helpers";
 import { getTimeouts } from "./config/timeouts";
 
 // E2E UI test: vérifier que lorsque l'Edge hyper-task renvoie une erreur de type RATE_LIMIT,
@@ -9,7 +13,10 @@ import { getTimeouts } from "./config/timeouts";
 test.describe("🔒 E2E - Rate limiting UI (hyper-task)", () => {
   test.skip(({ browserName }) => browserName !== "chromium", "Optimisé pour Chromium");
 
-  test("RATE-E2E-01: Message RATE_LIMIT de l'Edge affiche le message UI attendu", async ({ page, browserName }) => {
+  test("RATE-E2E-01: Message RATE_LIMIT de l'Edge affiche le message UI attendu", async ({
+    page,
+    browserName,
+  }) => {
     const timeouts = getTimeouts(browserName);
 
     // Intercepter l'Edge Function hyper-task pour simuler une réponse RATE_LIMIT

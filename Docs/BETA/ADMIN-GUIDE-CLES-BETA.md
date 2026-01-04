@@ -18,7 +18,7 @@ Si vous rencontrez cette erreur, il y a **deux causes possibles** :
 
 ```sql
 -- Trouvez votre utilisateur
-SELECT 
+SELECT
   id,
   email,
   raw_user_meta_data->>'role' as role_meta,
@@ -64,6 +64,7 @@ WHERE email = 'julien.fritsch@gmail.com';
 **Étape B : Utiliser l'interface de l'app pour générer les clés**
 
 Au lieu d'utiliser le SQL Editor directement, utilisez l'interface de l'app DooDates :
+
 1. Connectez-vous à l'app avec votre compte
 2. Allez dans la page admin (si elle existe)
 3. Utilisez le service `BetaKeyService.generateKeys()`
@@ -90,7 +91,7 @@ DECLARE
 BEGIN
   -- Utiliser le paramètre ou auth.uid()
   v_user_id := COALESCE(p_user_id, auth.uid());
-  
+
   -- Si user_id fourni, vérifier qu'il est admin
   IF v_user_id IS NOT NULL THEN
     IF NOT EXISTS (
@@ -104,29 +105,29 @@ BEGIN
       RAISE EXCEPTION 'Seuls les administrateurs peuvent générer des clés bêta';
     END IF;
   END IF;
-  
+
   -- Générer les clés...
   FOR i IN 1..p_count LOOP
     LOOP
-      v_code := 'BETA-' || 
+      v_code := 'BETA-' ||
                 upper(substr(md5(random()::text), 1, 4)) || '-' ||
                 upper(substr(md5(random()::text), 1, 4)) || '-' ||
                 upper(substr(md5(random()::text), 1, 4));
       EXIT WHEN NOT EXISTS (SELECT 1 FROM beta_keys WHERE beta_keys.code = v_code);
     END LOOP;
-    
+
     v_expires_at := NOW() + (p_duration_months || ' months')::INTERVAL;
-    
+
     INSERT INTO beta_keys (code, status, expires_at, created_by, notes)
     VALUES (v_code, 'active', v_expires_at, v_user_id, p_notes);
-    
+
     RETURN QUERY SELECT v_code, v_expires_at;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Utilisation avec votre user_id
-SELECT code, expires_at 
+SELECT code, expires_at
 FROM generate_beta_key_dev(
   p_count => 10,
   p_notes => 'Batch Décembre 2025',
@@ -157,6 +158,7 @@ FROM generate_beta_key_dev(
 ## 📝 Générer des Clés Bêta
 
 **⚠️ Important :** Pour générer des clés depuis le SQL Editor, vous devez :
+
 1. Être configuré comme admin (voir section ci-dessus)
 2. **ET** être authentifié avec votre compte utilisateur (pas juste admin du projet Supabase)
 
@@ -165,8 +167,9 @@ FROM generate_beta_key_dev(
 ### Méthode 1 : Via SQL Editor (Nécessite authentification)
 
 **Générer une seule clé :**
+
 ```sql
-SELECT code, expires_at 
+SELECT code, expires_at
 FROM generate_beta_key(
   p_count => 1,
   p_notes => 'Testeur bêta - Nom du testeur',
@@ -175,9 +178,10 @@ FROM generate_beta_key(
 ```
 
 **Générer plusieurs clés (batch) :**
+
 ```sql
 -- Générer 10 clés pour un batch
-SELECT code, expires_at 
+SELECT code, expires_at
 FROM generate_beta_key(
   p_count => 10,
   p_notes => 'Batch Décembre 2025',
@@ -186,11 +190,13 @@ FROM generate_beta_key(
 ```
 
 **Paramètres :**
+
 - `p_count` : Nombre de clés à générer (1-100 recommandé)
 - `p_notes` : Notes descriptives (optionnel, ex: "Batch Nov 2025", "Testeur - Pierre")
 - `p_duration_months` : Durée de validité en mois (défaut: 3)
 
 **Format des clés générées :**
+
 - Format : `BETA-XXXX-XXXX-XXXX` (12 caractères alphanumériques)
 - Statut initial : `active`
 - Crédits mensuels : 1000 crédits/mois
@@ -201,17 +207,17 @@ FROM generate_beta_key(
 Si vous avez une interface admin dans l'app :
 
 ```typescript
-import { BetaKeyService } from '@/services/BetaKeyService';
+import { BetaKeyService } from "@/services/BetaKeyService";
 
 // Générer 10 clés
 const keys = await BetaKeyService.generateKeys(
-  10,                    // nombre de clés
-  'Batch Décembre 2025', // notes
-  3                      // durée en mois
+  10, // nombre de clés
+  "Batch Décembre 2025", // notes
+  3, // durée en mois
 );
 
 // Télécharger en CSV
-BetaKeyService.downloadCSV(keys, 'beta-keys-decembre-2025.csv');
+BetaKeyService.downloadCSV(keys, "beta-keys-decembre-2025.csv");
 ```
 
 ---
@@ -219,8 +225,9 @@ BetaKeyService.downloadCSV(keys, 'beta-keys-decembre-2025.csv');
 ## 📊 Consulter les Clés Générées
 
 **Voir toutes les clés :**
+
 ```sql
-SELECT 
+SELECT
   code,
   status,
   credits_monthly,
@@ -234,8 +241,9 @@ ORDER BY created_at DESC;
 ```
 
 **Voir uniquement les clés actives (non utilisées) :**
+
 ```sql
-SELECT 
+SELECT
   code,
   expires_at,
   notes,
@@ -246,8 +254,9 @@ ORDER BY created_at DESC;
 ```
 
 **Voir les clés utilisées :**
+
 ```sql
-SELECT 
+SELECT
   code,
   assigned_to,
   redeemed_at,
@@ -260,8 +269,9 @@ ORDER BY redeemed_at DESC;
 ```
 
 **Voir les clés expirées :**
+
 ```sql
-SELECT 
+SELECT
   code,
   expires_at,
   status
@@ -275,14 +285,16 @@ ORDER BY expires_at DESC;
 ## 📤 Exporter les Clés en CSV
 
 **Méthode 1 : Via Supabase Dashboard**
+
 1. Exécutez la requête SQL ci-dessus
 2. Cliquez sur **Export** dans le SQL Editor
 3. Choisissez **CSV**
 
 **Méthode 2 : Via SQL (format CSV)**
+
 ```sql
 -- Exporter toutes les clés actives
-SELECT 
+SELECT
   code,
   status,
   expires_at,
@@ -295,9 +307,10 @@ ORDER BY created_at DESC;
 ```
 
 **Méthode 3 : Via Code (BetaKeyService)**
+
 ```typescript
 const keys = await BetaKeyService.getAllKeys();
-BetaKeyService.downloadCSV(keys, 'beta-keys-export.csv');
+BetaKeyService.downloadCSV(keys, "beta-keys-export.csv");
 ```
 
 ---
@@ -305,8 +318,9 @@ BetaKeyService.downloadCSV(keys, 'beta-keys-export.csv');
 ## 🔍 Vérifier l'Activation d'une Clé
 
 **Vérifier qu'une clé a été activée par un utilisateur :**
+
 ```sql
-SELECT 
+SELECT
   bk.code,
   bk.status,
   bk.assigned_to,
@@ -323,6 +337,7 @@ WHERE bk.code = 'BETA-XXXX-XXXX-XXXX';  -- Remplacez par le code
 ```
 
 **Résultat attendu après activation :**
+
 - `status` : `'used'` (au lieu de `'active'`)
 - `assigned_to` : UUID de l'utilisateur
 - `redeemed_at` : Date/heure d'activation
@@ -337,7 +352,7 @@ WHERE bk.code = 'BETA-XXXX-XXXX-XXXX';  -- Remplacez par le code
 
 ```sql
 UPDATE beta_keys
-SET 
+SET
   status = 'revoked',
   notes = COALESCE(notes, '') || ' - Révoquée le ' || NOW()::text
 WHERE code = 'BETA-XXXX-XXXX-XXXX';
@@ -354,7 +369,7 @@ WHERE code = 'BETA-XXXX-XXXX-XXXX';
 ### Voir les Statistiques
 
 ```sql
-SELECT 
+SELECT
   COUNT(*) as total,
   COUNT(*) FILTER (WHERE status = 'active') as actives,
   COUNT(*) FILTER (WHERE status = 'used') as utilisees,
@@ -380,11 +395,12 @@ FROM beta_keys;
 **Cause :** La fonction SQL n'a pas été créée.
 
 **Solution :**
+
 1. Exécutez le script SQL complet : `sql-scripts/create-beta-keys-and-quotas.sql`
 2. Vérifiez que la fonction existe :
    ```sql
-   SELECT proname, prosrc 
-   FROM pg_proc 
+   SELECT proname, prosrc
+   FROM pg_proc
    WHERE proname = 'generate_beta_key';
    ```
 
@@ -397,6 +413,7 @@ FROM beta_keys;
 ### Clé générée mais non visible dans l'app
 
 **Vérifications :**
+
 1. Vérifiez le statut de la clé : `SELECT status FROM beta_keys WHERE code = 'XXX';`
 2. Vérifiez que la clé n'est pas expirée : `SELECT expires_at FROM beta_keys WHERE code = 'XXX';`
 3. Vérifiez les permissions RLS sur la table `beta_keys`
@@ -406,16 +423,19 @@ FROM beta_keys;
 ## 📋 Checklist Rapide
 
 **Avant de générer des clés :**
+
 - [ ] Vérifier que vous êtes admin (voir section "Devenir Administrateur")
 - [ ] Vérifier que la fonction `generate_beta_key` existe
 - [ ] Décider du nombre de clés et de la durée
 
 **Après génération :**
+
 - [ ] Copier les codes générés
 - [ ] Exporter en CSV pour sauvegarde
 - [ ] Distribuer les clés aux testeurs (email, Discord, etc.)
 
 **Suivi :**
+
 - [ ] Vérifier régulièrement les clés activées
 - [ ] Suivre les bugs reportés (`bugs_reported`)
 - [ ] Collecter les feedbacks (`feedback_score`)
@@ -427,7 +447,7 @@ FROM beta_keys;
 ### Générer 20 clés pour un batch de testeurs
 
 ```sql
-SELECT code, expires_at 
+SELECT code, expires_at
 FROM generate_beta_key(
   p_count => 20,
   p_notes => 'Batch Décembre 2025 - Testeurs initiaux',
@@ -438,7 +458,7 @@ FROM generate_beta_key(
 ### Générer une clé pour un testeur spécifique
 
 ```sql
-SELECT code, expires_at 
+SELECT code, expires_at
 FROM generate_beta_key(
   p_count => 1,
   p_notes => 'Testeur - Pierre Dupont',
@@ -449,13 +469,13 @@ FROM generate_beta_key(
 ### Voir toutes les clés actives non utilisées
 
 ```sql
-SELECT 
+SELECT
   code,
   expires_at,
   notes,
   created_at
 FROM beta_keys
-WHERE status = 'active' 
+WHERE status = 'active'
   AND expires_at > NOW()
 ORDER BY created_at DESC;
 ```
@@ -464,4 +484,3 @@ ORDER BY created_at DESC;
 
 **Document créé pour :** Julien Fritsch  
 **Dernière mise à jour :** Décembre 2025
-

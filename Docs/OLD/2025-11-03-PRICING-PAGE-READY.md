@@ -10,6 +10,7 @@
 ### 1. Page Pricing complète (`src/pages/Pricing.tsx`)
 
 **Features implémentées:**
+
 - ✅ **3 tiers** : Gratuit, Premium (9€), Pro (29€)
 - ✅ **Toggle Monthly/Annual** avec badge économie -10%
 - ✅ **Rollover annuel** affiché quand sélectionné
@@ -31,12 +32,14 @@
 ## 🚀 Accès à la page
 
 ### En développement:
+
 ```bash
 npm run dev
 # Puis ouvrir: http://localhost:5173/pricing
 ```
 
 ### En production (GitHub Pages):
+
 ```
 https://[votre-username].github.io/DooDates/pricing
 ```
@@ -48,12 +51,14 @@ https://[votre-username].github.io/DooDates/pricing
 ### Tiers affichés:
 
 **Gratuit (0€):**
+
 - 20 crédits IA/mois
 - 20 sondages max
 - Export CSV, PDF, JSON, Markdown
 - Dashboard complet
 
 **Premium (9€/mois ou 99€/an):**
+
 - 100 crédits IA/mois
 - 100 sondages max
 - Export Excel + Google Sheets
@@ -61,6 +66,7 @@ https://[votre-username].github.io/DooDates/pricing
 - Rollover annuel (1200 crédits/an)
 
 **Pro (29€/mois ou 299€/an):**
+
 - 1000 crédits IA/mois
 - Sondages illimités
 - Tous exports
@@ -69,6 +75,7 @@ https://[votre-username].github.io/DooDates/pricing
 - Rollover annuel (12000 crédits/an)
 
 ### Packs crédits additionnels:
+
 - 50 crédits → 3€ (0.060€/crédit)
 - 100 crédits → 5€ (0.050€/crédit) ⭐ Meilleur rapport
 - 500 crédits → 20€ (0.040€/crédit)
@@ -78,11 +85,13 @@ https://[votre-username].github.io/DooDates/pricing
 ## 🎯 Pour les beta testeurs
 
 **Section dédiée sur la page:**
+
 - 🎁 Badge visuel "Programme Beta Testeur"
 - Explication: 1000 crédits/mois pendant 3 mois + toutes fonctionnalités Pro
 - Bouton CTA: "Activer ma clé beta" → Redirige vers `/settings`
 
 **Dans la FAQ:**
+
 - Question dédiée: "Comment fonctionne le programme beta ?"
 - Réponse complète avec détails conversion post-bêta
 
@@ -123,16 +132,19 @@ https://[votre-username].github.io/DooDates/pricing
 ## 🔧 Fonctionnalités à implémenter plus tard
 
 **Actuellement désactivé (intentionnel):**
+
 - ❌ **Paiement Stripe** : Boutons "Acheter pack crédits" → "Bientôt disponible"
 - ❌ **Upgrade réel** : Boutons "Passer en Premium/Pro" → Alert temporaire
 - ❌ **Animations Framer Motion** : Optionnel, non critique
 
 **Pourquoi désactivé:**
+
 - Phase bêta = Validation concept et prix
 - Pas besoin de paiement avant lancement officiel
 - Beta testeurs ont accès gratuit (clés beta)
 
 **Quand activer:**
+
 - Après validation pricing avec beta testeurs
 - Lors du setup Stripe (Phase post-bêta)
 - Avant lancement public
@@ -142,12 +154,14 @@ https://[votre-username].github.io/DooDates/pricing
 ## 📝 Notes techniques
 
 ### Composants créés:
+
 - `PricingPage` - Composant principal
 - `PricingCard` - Card tier individuelle
 - `CreditPackCard` - Card pack crédits
 - `PricingFAQ` - Section FAQ accordion
 
 ### Dépendances utilisées:
+
 - ✅ `lucide-react` - Icônes (Check, X, Sparkles, Zap, Rocket)
 - ✅ `@/components/ui/*` - Components UI (Button, déjà présents)
 - ✅ `react-router-dom` - Navigation (useNavigate)
@@ -160,31 +174,35 @@ https://[votre-username].github.io/DooDates/pricing
 ## ✅ Checklist validation
 
 ### Fonctionnel:
-- [X] Page accessible via `/pricing`
-- [X] Toggle Monthly/Annual fonctionne
-- [X] Rollover annuel s'affiche correctement
-- [X] FAQ accordion s'ouvre/ferme
-- [X] Boutons CTA redirigent correctement
-- [X] Section Beta visible et claire
+
+- [x] Page accessible via `/pricing`
+- [x] Toggle Monthly/Annual fonctionne
+- [x] Rollover annuel s'affiche correctement
+- [x] FAQ accordion s'ouvre/ferme
+- [x] Boutons CTA redirigent correctement
+- [x] Section Beta visible et claire
 
 ### Visuel:
-- [X] Responsive mobile OK
-- [X] Dark mode OK
-- [X] Card "Le plus populaire" highlighted
-- [X] Pack "Meilleur rapport" highlighted
-- [X] Icônes affichées correctement
+
+- [x] Responsive mobile OK
+- [x] Dark mode OK
+- [x] Card "Le plus populaire" highlighted
+- [x] Pack "Meilleur rapport" highlighted
+- [x] Icônes affichées correctement
 
 ### Contenu:
-- [X] Tous les textes en français
-- [X] Prix corrects (9€, 29€)
-- [X] Quotas corrects (20, 100, 1000)
-- [X] FAQ complète (6 questions)
+
+- [x] Tous les textes en français
+- [x] Prix corrects (9€, 29€)
+- [x] Quotas corrects (20, 100, 1000)
+- [x] FAQ complète (6 questions)
 
 ---
 
 ## 🎬 Action suivante
 
 **Pour tester maintenant:**
+
 ```bash
 # 1. Démarrer le dev server (si pas déjà fait)
 npm run dev
@@ -200,6 +218,7 @@ npm run dev
 ```
 
 **Pour déployer:**
+
 ```bash
 # Commit + push → GitHub Actions déploiera automatiquement
 git add .
@@ -208,11 +227,12 @@ git push
 ```
 
 **Pour partager avec beta testeurs:**
+
 ```
 Envoyez le lien: https://[votre-username].github.io/DooDates/pricing
 
 Avec message:
-"🎉 La page pricing est prête ! 
+"🎉 La page pricing est prête !
 Votre avis nous intéresse sur les prix proposés.
 Testez et donnez-nous votre feedback : [lien]"
 ```
@@ -222,4 +242,3 @@ Testez et donnez-nous votre feedback : [lien]"
 ✅ **Page Pricing complète et fonctionnelle !**
 
 Prête pour recueillir les feedbacks des beta testeurs sur le positionnement et les prix.
-

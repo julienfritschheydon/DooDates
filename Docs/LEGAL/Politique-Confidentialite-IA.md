@@ -1,7 +1,7 @@
 # Politique de Confidentialité - Fournisseur IA et Logs de Conversations
 
 > **DooDates** – Version 1.0 – 10 Décembre 2025
-> 
+>
 > Document complémentaire à la Politique de Confidentialité principale, spécifique au traitement des données par le fournisseur IA et à l'utilisation des logs de conversations.
 
 ---
@@ -21,23 +21,27 @@
 Les données sont transférées vers les serveurs de Google situés **en dehors de l'Union Européenne** (principalement aux États-Unis).
 
 **Mécanismes de protection :**
+
 - **Clauses Contractuelles Types (CCT)** : Intégrées dans l'accord Google Cloud
 - **Certification Privacy Shield** : Google maintient une conformité avec les standards EU-US (bien que le Privacy Shield ait été invalidé, Google maintient des équivalents)
 - **Engagements contractuels** : Google s'engage à fournir un niveau de protection équivalent à celui exigé par le RGPD
 
 **Pays concernés :**
+
 - États-Unis (serveurs primaires)
 - Autres pays où Google opère des centres de données (avec garanties équivalentes)
 
 ### 1.3 Durée de Conservation chez le Fournisseur
 
 **Configuration de DooDates :**
+
 - **Désactivation de l'entraînement** : Les données des conversations DooDates ne sont PAS utilisées pour entraîner les modèles Gemini
 - **Logs minimisés** : Configuration appliquée pour minimiser la durée de conservation des logs côté Google
 - **Durée maximale** : **30 jours** pour les logs de requêtes API (configuration Google Cloud)
 - **Suppression automatique** : Les données sont automatiquement purgées après la période de rétention configurée
 
 **Types de données conservés temporairement par Google :**
+
 - Logs de requêtes API (timestamps, tokens d'authentification, métadonnées techniques)
 - Contenu des prompts envoyés à Gemini (uniquement le temps du traitement)
 - Réponses générées par Gemini (uniquement le temps du traitement)
@@ -58,37 +62,42 @@ Les logs de conversations sont conservés côté DooDates **uniquement pour les 
 ### 2.2 Anonymisation et Agrégation
 
 **Principes appliqués :**
+
 - **Anonymisation systématique** : Pour toute analyse d'amélioration, les données sont préalablement anonymisées
 - **Agrégation uniquement** : Seules les statistiques agrégées sont utilisées (ex: types de requêtes les plus fréquentes)
 - **Pas d'analyse individuelle** : Aucune analyse du contenu de conversations spécifiques n'est réalisée
 
 **Processus d'anonymisation :**
+
 ```typescript
 // Exemple de processus appliqué
 const anonymizedLog = {
   timestamp: original.timestamp,
-  messageType: original.type,  // ex: "creation_sondage", "modification_form"
+  messageType: original.type, // ex: "creation_sondage", "modification_form"
   pollType: original.pollType, // ex: "date", "form", "quizz"
   questionCount: original.questions.length,
   // Suppression de : nom, email, contenu textuel brut
-}
+};
 ```
 
 ### 2.3 Opt-out pour l'Amélioration du Produit
 
 **Mécanisme de consentement :**
+
 - **Opt-in par défaut** : Les utilisateurs peuvent choisir d'activer l'amélioration du produit via leurs données
 - **Opt-out simple** : Un bouton dans les paramètres permet de désactiver cette utilisation
 - **Réversibilité** : L'utilisateur peut changer son choix à tout moment
 - **Effet rétroactif** : En cas d'opt-out, les données futures ne sont plus utilisées, mais les données passées peuvent rester dans les logs techniques nécessaires au fonctionnement
 
 **Interface utilisateur :**
+
 ```
 [ ] Autoriser l'utilisation de mes conversations pour améliorer DooDates
     (données anonymisées et agrégées uniquement)
 ```
 
 **Conséquences de l'opt-out :**
+
 - ✅ Fonctionnalités IA complètement conservées
 - ✅ Support technique toujours disponible
 - ❌ Les données ne contribuent plus aux améliorations du produit
@@ -101,6 +110,7 @@ const anonymizedLog = {
 ### 3.1 Accès aux Données IA
 
 Les utilisateurs peuvent demander :
+
 - **La liste de leurs conversations** avec l'IA
 - **L'export de leurs données** de conversation (format JSON lisible)
 - **La suppression de leurs conversations** de nos systèmes
@@ -108,11 +118,13 @@ Les utilisateurs peuvent demander :
 ### 3.2 Suppression et Effacement
 
 **Suppression côté DooDates :**
+
 - Immédiate sur demande via l'interface utilisateur
 - Complete dans un délai de 30 jours pour les logs techniques
 - Trace de suppression conservée 12 mois (uniquement la date, pas le contenu)
 
 **Suppression côté Google :**
+
 - Les données sont automatiquement supprimées après 30 jours maximum
 - En cas de demande explicite, nous pouvons forcer la suppression via l'API Google
 - Aucune garantie de suppression immédiate côté Google (dépend de leurs processus)
@@ -120,6 +132,7 @@ Les utilisateurs peuvent demander :
 ### 3.3 Portabilité
 
 Les utilisateurs peuvent exporter :
+
 - Leurs conversations au format JSON
 - Les sondages créés via l'IA
 - L'historique de leurs interactions avec les fonctionnalités IA
@@ -169,6 +182,7 @@ En cas de réclamation concernant le traitement par le fournisseur IA :
 ## 6. Évolutions de cette Politique
 
 Cette politique peut être mise à jour pour :
+
 - Tenir compte des évolutions techniques des services IA
 - Intégrer de nouvelles mesures de protection
 - Répondre aux exigences réglementaires

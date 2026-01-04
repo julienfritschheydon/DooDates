@@ -2,18 +2,18 @@ name: 🌙 Nightly All Branches - Complete Tests
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Tous les jours à 2h du matin (UTC)
-  workflow_dispatch:  # Permet exécution manuelle pour tester
+    - cron: "0 2 * * *" # Tous les jours à 2h du matin (UTC)
+  workflow_dispatch: # Permet exécution manuelle pour tester
     inputs:
       dry_run:
-        description: 'Dry run (ne crée pas d''issue GitHub)'
+        description: "Dry run (ne crée pas d'issue GitHub)"
         required: false
         default: false
         type: boolean
       max_branches:
-        description: 'Nombre maximum de branches à tester'
+        description: "Nombre maximum de branches à tester"
         required: false
-        default: '10'
+        default: "10"
         type: string
 
 permissions:
@@ -31,29 +31,29 @@ jobs:
       branches: ${{ steps.list.outputs.branches }}
       branch_count: ${{ steps.list.outputs.count }}
       execution_id: ${{ steps.meta.outputs.execution_id }}
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Nécessaire pour l'historique des branches
-      
+          fetch-depth: 0 # Nécessaire pour l'historique des branches
+
       - name: 🔍 List active branches
         id: list
         run: |
           # Configuration - Branches spécifiques à tester
           BRANCHES_TO_TEST='["main", "staging", "pre-prod", "testing", "bug"]'
-          
+
           echo "🔍 Branches spécifiées pour les tests:"
           echo "$BRANCHES_TO_TEST" | jq -r '.[]' | while read branch; do
             echo "  - $branch"
           done
-          
+
           branch_count=$(echo "$BRANCHES_TO_TEST" | jq '. | length')
-          
+
           echo "branches=$BRANCHES_TO_TEST" >> $GITHUB_OUTPUT
           echo "count=$branch_count" >> $GITHUB_OUTPUT
-      
+
       - name: 📝 Generate execution metadata
         id: meta
         run: |
@@ -68,10 +68,10 @@ jobs:
     needs: discover-branches
     if: needs.discover-branches.outputs.branch_count > 0
     strategy:
-      fail-fast: false  # Continue même si certaines branches échouent
+      fail-fast: false # Continue même si certaines branches échouent
       matrix:
         branch: ${{ fromJson(needs.discover-branches.outputs.branches) }}
-    
+
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -80,30 +80,30 @@ jobs:
       INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
       BRANCH_NAME: ${{ matrix.branch }}
       EXECUTION_ID: ${{ needs.discover-branches.outputs.execution_id }}
-    
+
     steps:
       - name: 📥 Checkout branch ${{ matrix.branch }}
         uses: actions/checkout@v4
         with:
           ref: ${{ matrix.branch }}
           fetch-depth: 0
-      
+
       - name: 🔍 Branch info
         run: |
           echo "🌿 Testing branch: ${{ matrix.branch }}"
           echo "📅 Last commit: $(git log -1 --format='%h - %s (%cr)' ${{ matrix.branch }})"
           echo "📊 Branch age: $(git log -1 --format='%cr' ${{ matrix.branch }})"
-      
+
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: 🔧 Install dependencies
         run: |
           npm ci --prefer-offline --no-audit
-      
+
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
         uses: actions/cache@v4
@@ -113,7 +113,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-${{ matrix.branch }}-
             ${{ runner.os }}-playwright-
-      
+
       - name: 🧭 Install Playwright browsers
         run: |
           if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
@@ -123,7 +123,7 @@ jobs:
             echo "⚠️ Cache miss - installation complète"
             npx playwright install --with-deps chromium firefox webkit
           fi
-      
+
       # ========================================
       # TESTS UNITAIRES + INTEGRATION
       # ========================================
@@ -131,33 +131,33 @@ jobs:
         run: npm run test:unit
         timeout-minutes: 10
         continue-on-error: false
-      
+
       - name: 🔗 Tests d'Intégration
         run: npm run test:integration
         timeout-minutes: 10
         continue-on-error: false
-      
+
       - name: 📝 TypeScript Check
         run: npm run type-check
         timeout-minutes: 5
         continue-on-error: false
-      
+
       - name: 🧹 Linting
         run: npm run lint -- --max-warnings 30
         timeout-minutes: 5
         continue-on-error: false
-      
+
       - name: 🏗️ Build Validation
         run: npm run build
         timeout-minutes: 5
         continue-on-error: false
-      
+
       # ========================================
       # E2E COMPLETE SUITE (TOUS NAVIGATEURS)
       # ========================================
-      - name:  Run Full E2E Suite (45 min - 5 navigateurs)
+      - name: Run Full E2E Suite (45 min - 5 navigateurs)
         run: |
-          npx playwright test \
+          E2E_FORCE_MOCKS=true npx playwright test \
             --config=playwright.config.full.ts \
             --reporter=html,json \
             --grep-invert "RGPD|RGPD-"
@@ -168,7 +168,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      
+
       # ========================================
       # UPLOAD RÉSULTATS
       # ========================================
@@ -179,7 +179,7 @@ jobs:
           name: playwright-report-${{ matrix.branch }}-${{ needs.discover-branches.outputs.execution_id }}
           path: playwright-report/
           retention-days: 7
-      
+
       - name: 📤 Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -189,7 +189,7 @@ jobs:
             test-results/
             test-results.json
           retention-days: 7
-      
+
       - name: ✅ Branch success notification
         if: success()
         run: |
@@ -207,20 +207,20 @@ jobs:
     needs: [discover-branches, complete-tests-per-branch]
     if: always() && needs.discover-branches.outputs.branch_count > 0
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-      
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: 🔧 Install dependencies
         run: npm ci
-      
+
       - name: 📥 Download all test results
         uses: actions/download-artifact@v4
         with:
@@ -228,26 +228,26 @@ jobs:
           merge-multiple: true
           path: all-test-results
         continue-on-error: true
-      
+
       - name: 📊 Generate Branch Health Report
         id: report
         run: |
           EXECUTION_ID="${{ needs.discover-branches.outputs.execution_id }}"
           REPORT_DATE="$(date '+%Y-%m-%d %H:%M:%S UTC')"
-          
+
           cat > branch-health-report.md << EOF
           # 🌙 Nightly Branch Health Report
-          
+
           **Date:** $REPORT_DATE  
           **Execution ID:** $EXECUTION_ID  
           **Branches testées:** ${{ needs.discover-branches.outputs.branch_count }}
-          
+
           ## 📊 Résultats par Branche
-          
+
           | Branche | Status | Unitaires | Integration | E2E (5 browsers) | Build | TypeScript | Lint |
           |---------|--------|-----------|-------------|------------------|-------|------------|------|
           EOF
-          
+
           # Parser les résultats et compléter le tableau
           branches='${{ needs.discover-branches.outputs.branches }}'
           echo "$branches" | jq -r '.[]' | while read branch; do
@@ -272,19 +272,19 @@ jobs:
             
             echo "| $branch | $status | $unit | $integration | $e2e | $build | $typescript | $lint |" >> branch-health-report.md
           done
-          
+
           cat >> branch-health-report.md << EOF
-          
+
           ## 📈 Statistiques Globales
-          
+
           - **Branches testées:** ${{ needs.discover-branches.outputs.branch_count }}
           - **Taux de succès:** À calculer
           - **Durée totale:** À calculer
-          
+
           ## 🔍 Détails des Échecs
-          
+
           EOF
-          
+
           # Ajouter les détails des branches en échec
           echo "$branches" | jq -r '.[]' | while read branch; do
             if [ ! -f "all-test-results/${branch}-summary.json" ]; then
@@ -293,17 +293,17 @@ jobs:
               echo "" >> branch-health-report.md
             fi
           done
-          
+
           echo "📊 Rapport généré: branch-health-report.md"
           cat branch-health-report.md
-      
+
       - name: 📤 Upload health report
         uses: actions/upload-artifact@v4
         with:
           name: branch-health-report-${{ needs.discover-branches.outputs.execution_id }}
           path: branch-health-report.md
           retention-days: 30
-      
+
       - name: 📝 Create GitHub Issue (si échecs)
         if: failure() && github.event.inputs.dry_run != 'true'
         uses: actions/github-script@v7
@@ -311,20 +311,20 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             const reportPath = path.join(process.cwd(), 'branch-health-report.md');
             if (!fs.existsSync(reportPath)) {
               console.log('❌ Rapport non trouvé');
               return;
             }
-            
+
             const reportContent = fs.readFileSync(reportPath, 'utf-8');
             const today = new Date().toISOString().split('T')[0];
             const executionId = '${{ needs.discover-branches.outputs.execution_id }}';
-            
+
             const issueTitle = `🌙 Nightly Branch Health Report - ${today}`;
             const issueBody = reportContent + `\n\n---\n\n**Execution ID:** ${executionId}\n**Workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})`;
-            
+
             try {
               // Chercher une issue existante pour aujourd'hui
               const { data: issues } = await github.rest.issues.listForRepo({
@@ -372,7 +372,7 @@ jobs:
             } catch (error) {
               console.error('❌ Erreur lors de la création/mise à jour de l\'issue:', error);
             }
-      
+
       - name: 🎉 Success Summary
         if: success()
         run: |

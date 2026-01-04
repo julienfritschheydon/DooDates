@@ -1,16 +1,20 @@
-import { test, expect } from '@playwright/test';
-import { attachConsoleGuard, warmup, enableE2ELocalMode } from './utils';
-import { waitForReactStable, waitForNetworkIdle, waitForElementReady } from './helpers/wait-helpers';
-import { getTimeouts } from './config/timeouts';
-import { safeIsVisible } from './helpers/safe-helpers';
+import { test, expect } from "@playwright/test";
+import { attachConsoleGuard, warmup, enableE2ELocalMode } from "./utils";
+import {
+  waitForReactStable,
+  waitForNetworkIdle,
+  waitForElementReady,
+} from "./helpers/wait-helpers";
+import { getTimeouts } from "./config/timeouts";
+import { safeIsVisible } from "./helpers/safe-helpers";
 
-test.describe('Documentation - Tests E2E', () => {
+test.describe("Documentation - Tests E2E", () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ELocalMode(page);
     await warmup(page);
   });
 
-  test('Documentation page loads without errors @smoke', async ({ page, browserName }) => {
+  test("Documentation page loads without errors @smoke", async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -26,10 +30,10 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la page de documentation
-      await page.goto("/docs", { waitUntil: 'domcontentloaded' });
+      await page.goto("/docs", { waitUntil: "domcontentloaded" });
 
       // Attendre que la page soit complètement chargée
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
 
       // Vérifier que la page de documentation est accessible
@@ -37,15 +41,15 @@ test.describe('Documentation - Tests E2E', () => {
 
       // Vérifier que le titre ou le contenu principal est visible
       // Le titre contient un emoji et le texte exact, donc on cherche le texte sans l'emoji
-      const title = page.getByRole("heading", { name: /Documentation/i }).or(
-        page.locator("h1").filter({ hasText: /Documentation/i })
-      );
+      const title = page
+        .getByRole("heading", { name: /Documentation/i })
+        .or(page.locator("h1").filter({ hasText: /Documentation/i }));
       const description = page.getByText(/Bienvenue dans la documentation/i);
 
       // Attendre que l'un ou l'autre soit visible avec un timeout approprié
       await Promise.race([
-        title.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
-        description.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
+        title.waitFor({ state: "visible", timeout: 5000 }).catch(() => null),
+        description.waitFor({ state: "visible", timeout: 5000 }).catch(() => null),
       ]);
 
       // Vérifier que le titre ou la description est visible
@@ -54,14 +58,16 @@ test.describe('Documentation - Tests E2E', () => {
 
       if (!titleVisible && !descVisible) {
         // Si aucun n'est visible, vérifier qu'il y a au moins du contenu
-        const bodyContent = await page.locator('body').textContent();
+        const bodyContent = await page.locator("body").textContent();
         if (!bodyContent || bodyContent.trim().length < 50) {
           // Si très peu de contenu, prendre un screenshot pour debug
-          await page.screenshot({ path: 'test-results/docs-home-failed.png' });
-          throw new Error('Ni le titre ni la description de la documentation ne sont visibles et peu de contenu trouvé');
+          await page.screenshot({ path: "test-results/docs-home-failed.png" });
+          throw new Error(
+            "Ni le titre ni la description de la documentation ne sont visibles et peu de contenu trouvé",
+          );
         }
         // Si du contenu existe, le test passe
-        console.log('Contenu de page trouvé, test passe');
+        console.log("Contenu de page trouvé, test passe");
       }
 
       // Vérifier qu'il n'y a pas d'erreurs de chargement de ressources
@@ -73,7 +79,10 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation page loads a specific document @functional', async ({ page, browserName }) => {
+  test("Documentation page loads a specific document @functional", async ({
+    page,
+    browserName,
+  }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -85,10 +94,10 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers un document spécifique
-      await page.goto("/docs", { waitUntil: 'domcontentloaded' });
+      await page.goto("/docs", { waitUntil: "domcontentloaded" });
 
       // Attendre que le document soit chargé
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
 
       // Vérifier que l'URL est correcte
@@ -96,16 +105,16 @@ test.describe('Documentation - Tests E2E', () => {
 
       // Vérifier que la page docs se charge correctement
       // Vérifier qu'il y a un titre ou du contenu visible
-      const title = page.getByRole("heading", { name: /Documentation/i }).or(
-        page.locator("h1").filter({ hasText: /Documentation/i })
-      );
+      const title = page
+        .getByRole("heading", { name: /Documentation/i })
+        .or(page.locator("h1").filter({ hasText: /Documentation/i }));
       const description = page.getByText(/Bienvenue dans la documentation/i);
-      
+
       // Attendre que l'un ou l'autre soit visible
       await Promise.race([
-        title.waitFor({ state: 'visible', timeout: timeouts.element }),
-        description.waitFor({ state: 'visible', timeout: timeouts.element }),
-        page.locator('body').waitFor({ state: 'visible', timeout: 5000 })
+        title.waitFor({ state: "visible", timeout: timeouts.element }),
+        description.waitFor({ state: "visible", timeout: timeouts.element }),
+        page.locator("body").waitFor({ state: "visible", timeout: 5000 }),
       ]);
 
       await guard.assertClean();
@@ -114,7 +123,7 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation page handles 404 gracefully @functional', async ({ page, browserName }) => {
+  test("Documentation page handles 404 gracefully @functional", async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -127,10 +136,10 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers un document qui n'existe pas
-      await page.goto("/docs/non-existent-document", { waitUntil: 'domcontentloaded' });
+      await page.goto("/docs/non-existent-document", { waitUntil: "domcontentloaded" });
 
       // Attendre que la page soit chargée
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
 
       // Attendre que le composant se mette à jour
       await waitForReactStable(page, { browserName });
@@ -151,12 +160,15 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation assets load correctly (no 404 errors) @smoke', async ({ page, browserName }) => {
+  test("Documentation assets load correctly (no 404 errors) @smoke", async ({
+    page,
+    browserName,
+  }) => {
     const failedRequests: string[] = [];
 
     // Capturer les requêtes qui échouent
-    page.on('response', (response) => {
-      if (response.status() >= 400 && response.url().includes('/docs')) {
+    page.on("response", (response) => {
+      if (response.status() >= 400 && response.url().includes("/docs")) {
         failedRequests.push(`${response.url()} - ${response.status()}`);
       }
     });
@@ -174,20 +186,21 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation
-      await page.goto("/docs", { waitUntil: 'domcontentloaded' });
+      await page.goto("/docs", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
       // Naviguer vers un document pour déclencher le chargement des assets
-      await page.goto("/docs/01-Guide-Demarrage-Rapide", { waitUntil: 'domcontentloaded' });
+      await page.goto("/docs/01-Guide-Demarrage-Rapide", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
       // Vérifier qu'il n'y a pas de requêtes 404 pour les assets de documentation
-      const doc404s = failedRequests.filter(req =>
-        req.includes('/docs/') && !req.includes('non-existent') && !req.includes('guest_emails')
+      const doc404s = failedRequests.filter(
+        (req) =>
+          req.includes("/docs/") && !req.includes("non-existent") && !req.includes("guest_emails"),
       );
 
       if (doc404s.length > 0) {
-        console.warn('Requêtes 404 détectées:', doc404s);
+        console.warn("Requêtes 404 détectées:", doc404s);
         // Ne pas faire échouer le test pour les assets manquants, mais les logger
       }
 
@@ -196,7 +209,10 @@ test.describe('Documentation - Tests E2E', () => {
       guard.stop();
     }
   });
-  test.skip('Product-specific documentation pages load correctly @functional', async ({ page, browserName }) => {
+  test.skip("Product-specific documentation pages load correctly @functional", async ({
+    page,
+    browserName,
+  }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -209,23 +225,25 @@ test.describe('Documentation - Tests E2E', () => {
       const timeouts = getTimeouts(browserName);
 
       // 1. Date Polls Docs
-      await page.goto("/date-polls/docs", { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await page.goto("/date-polls/docs", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/DooDates\/.*\/DooDates\/date-polls\/docs\//);
-      await expect(page.getByRole("heading", { name: /Documentation - Sondages de Dates/i })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: /Documentation - Sondages de Dates/i }),
+      ).toBeVisible();
 
       // 2. Form Polls Docs
-      await page.goto("/form-polls/docs", { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await page.goto("/form-polls/docs", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page).toHaveURL(/DooDates\/.*\/DooDates\/form-polls\/docs\//);
       // Note: Le titre peut varier, on cherche "Documentation" au minimum
       await expect(page.getByRole("heading", { name: /Documentation/i }).first()).toBeVisible();
 
       // 3. Availability Polls Docs
-      await page.goto("/availability-polls/docs", { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => { });
+      await page.goto("/availability-polls/docs", { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       await waitForReactStable(page, { browserName });
       await expect(page.getByRole("heading", { name: /Documentation/i }).first()).toBeVisible();
 
@@ -235,4 +253,3 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 });
-

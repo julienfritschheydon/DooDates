@@ -20,14 +20,15 @@ Guide complet pour exporter vos résultats et partager vos sondages efficacement
 
 DooDates propose **4 formats d'export** gratuits et illimités :
 
-| Format | Usage Principal | Taille | Compatibilité |
-|--------|----------------|--------|---------------|
-| **CSV** | Analyse de données, Excel | Légère | ⭐⭐⭐⭐⭐ |
-| **PDF** | Rapports imprimables, présentations | Moyenne | ⭐⭐⭐⭐⭐ |
-| **JSON** | Intégrations techniques, API | Très légère | ⭐⭐⭐ |
-| **Markdown** | Documentation, GitHub, Notion | Très légère | ⭐⭐⭐⭐ |
+| Format       | Usage Principal                     | Taille      | Compatibilité |
+| ------------ | ----------------------------------- | ----------- | ------------- |
+| **CSV**      | Analyse de données, Excel           | Légère      | ⭐⭐⭐⭐⭐    |
+| **PDF**      | Rapports imprimables, présentations | Moyenne     | ⭐⭐⭐⭐⭐    |
+| **JSON**     | Intégrations techniques, API        | Très légère | ⭐⭐⭐        |
+| **Markdown** | Documentation, GitHub, Notion       | Très légère | ⭐⭐⭐⭐      |
 
 **Tous les formats sont :**
+
 - ✅ **Gratuits** (pas de paywall)
 - ✅ **Illimités** (aucune restriction de nombre)
 - ✅ **Complets** (toutes les données incluses)
@@ -41,6 +42,7 @@ DooDates propose **4 formats d'export** gratuits et illimités :
 **CSV (Comma-Separated Values)** = Format de tableur universel
 
 **Utilisations courantes :**
+
 - 📊 Analyse Excel / Google Sheets
 - 📈 Graphiques personnalisés
 - 🔢 Calculs statistiques avancés
@@ -51,6 +53,7 @@ DooDates propose **4 formats d'export** gratuits et illimités :
 ### Contenu du CSV
 
 **Sondages de dates :**
+
 ```csv
 Nom,Email,Date,Horaire,Disponibilité,Timestamp
 Alice Martin,alice@email.com,2025-11-12,14h-16h,Disponible,2025-11-01 09:23:15
@@ -59,6 +62,7 @@ Claire Dubois,claire@email.com,2025-11-12,14h-16h,Disponible,2025-11-01 11:12:08
 ```
 
 **Formulaires :**
+
 ```csv
 ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 1,2025-11-01 09:23:15,5,9,"Excellent service !"
@@ -71,6 +75,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ### Exporter en CSV
 
 **Étapes :**
+
 ```
 1. Ouvrez les résultats de votre sondage
 2. Cliquez sur "Exporter" (bouton en haut à droite)
@@ -79,6 +84,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ```
 
 **Options avancées :**
+
 - ✅ **Séparateur** : Virgule (,) ou Point-virgule (;)
 - ✅ **Encodage** : UTF-8 (recommandé) ou ISO-8859-1
 - ✅ **En-têtes** : Noms lisibles ou IDs techniques
@@ -88,6 +94,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ### Ouvrir le CSV dans Excel
 
 **Méthode recommandée :**
+
 ```
 1. Excel → Données → Obtenir des données externes → À partir d'un fichier texte
 2. Sélectionnez votre fichier .csv
@@ -103,6 +110,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ### Analyse dans Google Sheets
 
 **Importation :**
+
 ```
 1. Google Sheets → Fichier → Importer
 2. Glissez-déposez votre .csv
@@ -112,6 +120,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ```
 
 **Graphiques automatiques :**
+
 ```
 1. Sélectionnez vos données
 2. Insertion → Graphique
@@ -127,6 +136,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 **PDF (Portable Document Format)** = Format universel pour partage et impression
 
 **Utilisations courantes :**
+
 - 📑 Rapports de réunion
 - 📊 Présentations client
 - 📧 Envoi par email
@@ -137,6 +147,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 ### Contenu du PDF
 
 **Le PDF inclut :**
+
 - 📊 **Tous les graphiques** (camemberts, barres, NPS)
 - 📈 **Statistiques détaillées** (moyennes, médianes, distributions)
 - 💡 **Insights IA** (si activés)
@@ -144,6 +155,7 @@ ID,Timestamp,Q1_Satisfaction,Q2_NPS,Q3_Commentaire
 - 🎨 **Branding DooDates** (ou votre logo si Premium)
 
 **Exemple de structure :**
+
 ```
 Page 1 : Couverture
   - Titre du sondage
@@ -172,6 +184,7 @@ Page N+2 : Annexes
 ### Exporter en PDF
 
 **Étapes :**
+
 ```
 1. Résultats → Bouton "Exporter"
 2. Sélectionnez "PDF"
@@ -181,6 +194,7 @@ Page N+2 : Annexes
 ```
 
 **Options PDF :**
+
 - ✅ **Inclure les insights IA** (Oui/Non)
 - ✅ **Anonymiser les noms** (Oui/Non)
 - ✅ **Graphiques en couleur** (Oui) ou N&B (Non)
@@ -192,6 +206,7 @@ Page N+2 : Annexes
 ### Personnalisation (Plan Premium)
 
 **Branding personnalisé :**
+
 - 🎨 Votre logo en en-tête
 - 🎨 Couleurs de votre charte graphique
 - 🎨 Suppression du logo DooDates
@@ -206,6 +221,7 @@ Page N+2 : Annexes
 **JSON (JavaScript Object Notation)** = Format technique pour développeurs
 
 **Utilisations courantes :**
+
 - 💻 Intégrations API
 - 🔗 Webhooks vers autres apps
 - 📦 Backup technique
@@ -216,6 +232,7 @@ Page N+2 : Annexes
 ### Structure du JSON
 
 **Exemple de sondage :**
+
 ```json
 {
   "poll": {
@@ -253,6 +270,7 @@ Page N+2 : Annexes
 ### Exporter en JSON
 
 **Étapes :**
+
 ```
 1. Résultats → Exporter → JSON
 2. Options :
@@ -262,6 +280,7 @@ Page N+2 : Annexes
 ```
 
 **Usage technique (webhook) :**
+
 ```javascript
 // DooDates peut envoyer automatiquement en JSON vers une URL
 POST https://votre-app.com/webhooks/doodates
@@ -283,6 +302,7 @@ Content-Type: application/json
 **Markdown** = Format texte léger pour documentation
 
 **Utilisations courantes :**
+
 - 📖 Documentation GitHub
 - 📓 Notes Notion, Obsidian
 - 💬 Messages Slack/Discord
@@ -293,7 +313,8 @@ Content-Type: application/json
 ### Contenu Markdown
 
 **Exemple :**
-````markdown
+
+```markdown
 # 📊 Résultats : Réunion Sprint Planning
 
 **Période :** 1-5 novembre 2025  
@@ -302,15 +323,16 @@ Content-Type: application/json
 ## 🏆 Meilleure Option
 
 **Mercredi 13 nov, 14h-16h**
+
 - ✅ 8 disponibles (100%)
 
 ## 📈 Toutes les Options
 
-| Date | Horaire | Disponibles | % |
-|------|---------|-------------|---|
-| Lundi 11 nov | 14h-16h | 7/8 | 87% |
-| Mercredi 13 nov | 14h-16h | 8/8 | 100% ✅ |
-| Jeudi 14 nov | 9h-11h | 6/8 | 75% |
+| Date            | Horaire | Disponibles | %       |
+| --------------- | ------- | ----------- | ------- |
+| Lundi 11 nov    | 14h-16h | 7/8         | 87%     |
+| Mercredi 13 nov | 14h-16h | 8/8         | 100% ✅ |
+| Jeudi 14 nov    | 9h-11h  | 6/8         | 75%     |
 
 ## 👥 Participants
 
@@ -318,13 +340,14 @@ Content-Type: application/json
 - ✅ Bob Chen
 - ✅ Claire Dubois
 - ... (5 autres)
-````
+```
 
 ---
 
 ### Exporter en Markdown
 
 **Étapes :**
+
 ```
 1. Résultats → Exporter → Markdown
 2. Copier dans le presse-papier
@@ -333,6 +356,7 @@ Content-Type: application/json
 ```
 
 **Utilisations pratiques :**
+
 - Coller dans un README GitHub
 - Importer dans Notion
 - Partager sur Slack (rendu formaté automatique)
@@ -346,12 +370,15 @@ Content-Type: application/json
 DooDates génère **3 types de liens** :
 
 #### 1. Lien de Vote 🗳️
+
 ```
 https://doodates.com/vote/abc123
 ```
+
 **Usage :** Pour que les gens votent/répondent
 
 **Paramètres optionnels :**
+
 ```
 ?name=Alice          # Pré-rempli le nom
 ?email=alice@...     # Pré-rempli l'email
@@ -361,9 +388,11 @@ https://doodates.com/vote/abc123
 ---
 
 #### 2. Lien de Résultats 📊
+
 ```
 https://doodates.com/results/abc123
 ```
+
 **Usage :** Voir uniquement les résultats (lecture seule)
 
 **Visibilité :** Selon paramètres (public / participants / créateur)
@@ -371,9 +400,11 @@ https://doodates.com/results/abc123
 ---
 
 #### 3. Lien d'Édition ✏️
+
 ```
 https://doodates.com/edit/abc123?token=xyz789
 ```
+
 **Usage :** Modifier le sondage (privé, token requis)
 
 **⚠️ Ne partagez jamais ce lien publiquement !**
@@ -387,6 +418,7 @@ https://doodates.com/edit/abc123?token=xyz789
 **Objet :** [Sondage] Votre avis sur [Sujet]
 
 **Corps :**
+
 ```
 Bonjour [Prénom],
 
@@ -409,6 +441,7 @@ P.S. Le sondage ferme le [date]
 ### Partager sur WhatsApp
 
 **Message court :**
+
 ```
 👋 Salut !
 
@@ -419,6 +452,7 @@ Merci ! 🙏
 ```
 
 **⚡ Partage direct :**
+
 ```
 https://wa.me/?text=Votez ici : https://doodates.com/vote/abc123
 ```
@@ -428,6 +462,7 @@ https://wa.me/?text=Votez ici : https://doodates.com/vote/abc123
 ### Partager sur Réseaux Sociaux
 
 **Twitter/X :**
+
 ```
 🗳️ Votre avis compte !
 
@@ -437,9 +472,11 @@ Votez en 2 min : https://doodates.com/vote/abc123
 
 #sondage #votez
 ```
+
 **Limite :** 280 caractères
 
 **LinkedIn :**
+
 ```
 📊 Étude en cours
 
@@ -460,6 +497,7 @@ Les résultats seront partagés sous 2 semaines.
 ### Générer un QR Code
 
 **Étapes :**
+
 ```
 1. Dashboard → Votre sondage
 2. Bouton "Partager"
@@ -468,6 +506,7 @@ Les résultats seront partagés sous 2 semaines.
 ```
 
 **Options :**
+
 - ✅ **Taille** : Petit (200px), Moyen (500px), Grand (1000px)
 - ✅ **Format** : PNG (défaut), SVG (vectoriel)
 - ✅ **Couleur** : Noir/Blanc (défaut), Personnalisé
@@ -478,6 +517,7 @@ Les résultats seront partagés sous 2 semaines.
 ### Usages des QR Codes
 
 **1. Événements physiques 🎪**
+
 ```
 Imprimez et affichez le QR Code :
 • Stand d'accueil
@@ -487,6 +527,7 @@ Imprimez et affichez le QR Code :
 ```
 
 **2. Magasins 🏪**
+
 ```
 • En caisse (feedback post-achat)
 • Sur les produits (satisfaction)
@@ -494,6 +535,7 @@ Imprimez et affichez le QR Code :
 ```
 
 **3. Restaurants 🍽️**
+
 ```
 • Sur les tables (enquête satisfaction)
 • Sur le menu (préférences)
@@ -501,6 +543,7 @@ Imprimez et affichez le QR Code :
 ```
 
 **4. Conférences 🎤**
+
 ```
 • Slide de fin de présentation
 • Badge des participants
@@ -512,11 +555,11 @@ Imprimez et affichez le QR Code :
 ### Taille d'Impression Recommandée
 
 | Distance de scan | Taille minimale |
-|------------------|-----------------|
-| 10 cm (table) | 3x3 cm |
-| 50 cm (affiche) | 5x5 cm |
-| 1 mètre (poster) | 10x10 cm |
-| 2 mètres (écran) | 20x20 cm |
+| ---------------- | --------------- |
+| 10 cm (table)    | 3x3 cm          |
+| 50 cm (affiche)  | 5x5 cm          |
+| 1 mètre (poster) | 10x10 cm        |
+| 2 mètres (écran) | 20x20 cm        |
 
 **Règle simple :** Taille (cm) = Distance (cm) / 10
 
@@ -525,6 +568,7 @@ Imprimez et affichez le QR Code :
 ### Télécharger le QR Code
 
 **Formats disponibles :**
+
 - **PNG** : Pour impression, réseaux sociaux
 - **SVG** : Pour édition graphique, grande taille
 - **PDF** : Pour impression professionnelle
@@ -538,15 +582,18 @@ Imprimez et affichez le QR Code :
 ### Liens Privés vs Publics
 
 **Lien public (par défaut) :**
+
 - ✅ Partageable librement
 - ✅ Pas d'authentification requise
 - ⚠️ Accessible à quiconque a le lien
 
 **Lien privé (option) :**
+
 ```
 Paramètres → Accès → "Restreint"
 → Connexion Google obligatoire pour voter
 ```
+
 **Avantage :** 1 vote par personne garanti
 
 ---
@@ -554,6 +601,7 @@ Paramètres → Accès → "Restreint"
 ### Désactiver un Lien
 
 **Si le lien a fuité :**
+
 ```
 1. Dashboard → Sondage concerné
 2. Menu ⋮ → "Réinitialiser le lien"
@@ -568,6 +616,7 @@ Paramètres → Accès → "Restreint"
 ### Expiration Automatique
 
 **Configurer une deadline :**
+
 ```
 Paramètres → Deadline → Activée
 → Date : 15/11/2025
@@ -583,12 +632,14 @@ Le lien devient inactif automatiquement après cette date.
 ### Tracking des Liens
 
 **Métriques disponibles :**
+
 - 👁️ **Vues** : Nombre de clics sur le lien
 - ✅ **Conversions** : Nombre de votes effectifs
 - 📈 **Taux de conversion** : Votes / Vues
 - ⏱️ **Temps moyen** : Durée entre clic et vote
 
 **Accès :**
+
 ```
 Résultats → Onglet "Partage"
 → Graphique de performance
@@ -599,11 +650,13 @@ Résultats → Onglet "Partage"
 ### Optimiser le Taux de Conversion
 
 **Benchmark DooDates :**
+
 - 📊 **Taux moyen** : 45% (45 votes pour 100 vues)
 - ✅ **Bon taux** : > 60%
 - ⚠️ **Faible taux** : < 30%
 
 **Si taux faible, vérifiez :**
+
 - ❓ Message d'invitation clair ?
 - ❓ Durée annoncée ?
 - ❓ Incentive proposé ?
@@ -614,6 +667,7 @@ Résultats → Onglet "Partage"
 ## 🎯 Récapitulatif
 
 **Vous savez maintenant :**
+
 - ✅ Exporter en 4 formats (CSV, PDF, JSON, Markdown)
 - ✅ Partager par email, WhatsApp, réseaux sociaux
 - ✅ Générer et utiliser des QR Codes
@@ -626,4 +680,3 @@ Résultats → Onglet "Partage"
 ---
 
 **© 2025 DooDates - Export et Partage v1.0**
-

@@ -1,5 +1,5 @@
-import { test as base, expect, Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { test as base, expect, Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 // Extend the base test with accessibility helpers
 export const test = base.extend<{
@@ -25,23 +25,26 @@ export const test = base.extend<{
 
       // Check for violations
       if (results.violations.length > 0) {
-        console.log('🚨 Accessibility violations found:');
+        console.log("🚨 Accessibility violations found:");
         results.violations.forEach((violation, index) => {
           console.log(`${index + 1}. ${violation.id}: ${violation.description}`);
           console.log(`   Impact: ${violation.impact}`);
           console.log(`   Help: ${violation.help}`);
           console.log(`   Help URL: ${violation.helpUrl}`);
           console.log(`   Elements affected: ${violation.nodes.length}`);
-          console.log('---');
+          console.log("---");
         });
 
         // Create a detailed error message
         const violationSummary = results.violations
-          .map(v => `${v.id} (${v.impact}): ${v.help}`)
-          .join('\n');
+          .map((v) => `${v.id} (${v.impact}): ${v.help}`)
+          .join("\n");
 
         // Use expect with custom message
-        expect(results.violations, `Accessibility violations found:\n${violationSummary}`).toHaveLength(0);
+        expect(
+          results.violations,
+          `Accessibility violations found:\n${violationSummary}`,
+        ).toHaveLength(0);
       }
 
       // Log passes for information
@@ -63,7 +66,7 @@ export async function runAccessibilityAudit(
     skipRules?: string[];
     include?: string[][];
     exclude?: string[][];
-  }
+  },
 ): Promise<{
   violations: any[];
   passes: any[];
@@ -86,13 +89,13 @@ export async function runAccessibilityAudit(
   }
 
   if (options?.include) {
-    options.include.forEach(selector => {
+    options.include.forEach((selector) => {
       axeBuilder.include(selector);
     });
   }
 
   if (options?.exclude) {
-    options.exclude.forEach(selector => {
+    options.exclude.forEach((selector) => {
       axeBuilder.exclude(selector);
     });
   }
@@ -103,7 +106,7 @@ export async function runAccessibilityAudit(
 // Helper to check specific accessibility rules
 export async function checkSpecificRules(
   page: Page,
-  rules: string[]
+  rules: string[],
 ): Promise<{ violations: any[]; passes: any[] }> {
   const axeBuilder = new AxeBuilder({ page }).withRules(rules);
   const results = await axeBuilder.analyze();

@@ -5,26 +5,26 @@ on:
   # 1️⃣ Déclenché immédiatement après TOUS les workflows CRITIQUES
   workflow_run:
     workflows:
-      - "1️⃣ PR Complete Validation"           # PR validation (+ production-smoke)
-      - "2️⃣ Develop → Main (Auto-merge)"      # Auto-merge develop
-      - "3️⃣ Main Complete Validation (Production Protection)"  # Tests post-merge
-      - "4️⃣ Main Deploy to GitHub Pages"      # Déploiement production
-      - "5️⃣ Production Smoke Tests"           # Tests production réelle
-      - "5️⃣ YAML Workflows Validation"        # Validation YAML workflows
+      - "1️⃣ PR Complete Validation" # PR validation (+ production-smoke)
+      - "2️⃣ Develop → Main (Auto-merge)" # Auto-merge develop
+      - "3️⃣ Main Complete Validation (Production Protection)" # Tests post-merge
+      - "4️⃣ Main Deploy to GitHub Pages" # Déploiement production
+      - "5️⃣ Production Smoke Tests" # Tests production réelle
+      - "5️⃣ YAML Workflows Validation" # Validation YAML workflows
       - "6. Integration Tests (Real Supabase)" # Tests d'intégration réels
     types: [completed]
-  
+
   # 2️⃣ Backup périodique (détecte workflows bloqués/jamais terminés)
   # ⚠️ Pas toutes les heures - exécution toutes les 6h (4x/jour)
   schedule:
-    - cron: '0 */6 * * *'
-  
+    - cron: "0 */6 * * *"
+
   # 3️⃣ Manuel (toujours pratique pour debug)
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-monitoring
-  cancel-in-progress: false  # Ne pas annuler, laisser s'accumuler pour avoir l'historique
+  cancel-in-progress: false # Ne pas annuler, laisser s'accumuler pour avoir l'historique
 
 permissions:
   contents: write
@@ -34,14 +34,14 @@ permissions:
 jobs:
   generate-health-report:
     runs-on: ubuntu-latest
-    
+
     # 🎯 S'exécute après tous les workflows critiques (succès ou échec)
     # Permet de générer le rapport de santé après chaque workflow surveillé
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_run'
-    
+
     steps:
       - name: 📊 Contexte de déclenchement
         run: |
@@ -57,7 +57,7 @@ jobs:
           else
             echo "👤 Exécution manuelle"
           fi
-      
+
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
@@ -67,8 +67,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci --ignore-scripts
@@ -104,7 +104,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Déterminer la branche cible
           # Si déclenché par workflow_run, utiliser la branche du workflow déclencheur depuis l'événement
           # Sinon, utiliser la branche par défaut
@@ -115,14 +115,14 @@ jobs:
           else
             BRANCH="main"
           fi
-          
+
           echo "Branche cible: $BRANCH"
-          
+
           # S'assurer qu'on est sur la bonne branche et à jour
           git fetch origin $BRANCH || git fetch origin main || git fetch origin develop
           git checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH origin/$BRANCH 2>/dev/null || echo "⚠️ Impossible de checkout $BRANCH, utilisation de la branche actuelle"
           git pull origin $BRANCH 2>/dev/null || true
-          
+
           # Ajouter les fichiers de monitoring
           git add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true
 
@@ -146,4 +146,3 @@ jobs:
             echo ""
             head -n 50 "Docs/monitoring/workflow-failures-report.md"
           fi
-

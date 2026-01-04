@@ -167,8 +167,10 @@ function simulateChatResetService(fromPath, toPath) {
   }
 
   // 2. Changement de type ?
-  if ((from.pathname.includes("/date") && to.pathname.includes("/form")) ||
-      (from.pathname.includes("/form") && to.pathname.includes("/date"))) {
+  if (
+    (from.pathname.includes("/date") && to.pathname.includes("/form")) ||
+    (from.pathname.includes("/form") && to.pathname.includes("/date"))
+  ) {
     return {
       resetType: "context-only",
       reason: "type-change-reset-context",
@@ -176,16 +178,18 @@ function simulateChatResetService(fromPath, toPath) {
   }
 
   // 3. Nouvelle création ? (logique complexe du service réel)
-  const isWorkspaceTarget = to.pathname.includes("/workspace/date") || to.pathname.includes("/workspace/form");
+  const isWorkspaceTarget =
+    to.pathname.includes("/workspace/date") || to.pathname.includes("/workspace/form");
   const hasNoParams = to.searchParams.toString().length === 0;
   const isFromOutside = !from.pathname.includes("/workspace");
-  
+
   // Logique exacte du ChatResetService.isNewCreation
-  const isFromAnotherWorkspace = from.pathname.includes("/workspace") &&
+  const isFromAnotherWorkspace =
+    from.pathname.includes("/workspace") &&
     !from.pathname.includes(to.pathname.split("/workspace/")[1]?.split("?")[0] || "");
-  
+
   const isNewCreation = isWorkspaceTarget && hasNoParams && isFromAnotherWorkspace;
-  
+
   if (isNewCreation) {
     return {
       resetType: "full",
@@ -420,9 +424,4 @@ process.on("uncaughtException", (error) => {
 // Lancer le programme
 main();
 
-export {
-  runAutomatedTests,
-  showManualTestGuide,
-  simulateChatResetService,
-  checkEnvironment,
-};
+export { runAutomatedTests, showManualTestGuide, simulateChatResetService, checkEnvironment };

@@ -2,7 +2,7 @@
  * 🎭 Tests E2E Playwright - Navigation Intelligente (Version Simplifiée)
  *
  * Usage: npx playwright test tests/smart-navigation.spec.ts
- * 
+ *
  * Approche: Smoke tests basiques pour valider la navigation critique
  * Méthodologie: Tests simples et robustes avec fallbacks intelligents
  */
@@ -23,10 +23,10 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
     // 2. Naviguer vers workspace form-polls (plus stable que date-polls)
     await page.goto("/DooDates/form-polls/workspace/form");
-    
+
     // 3. Vérifier qu'on arrive dans le workspace
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
-    
+
     // 4. Vérifier l'input de chat (élément critique)
     try {
       await expect(page.locator('[data-testid="chat-input"]')).toBeVisible({ timeout: 5000 });
@@ -36,9 +36,9 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
         'input[placeholder*="message" i]',
         'input[placeholder*="chat" i]',
         'textarea[placeholder*="message" i]',
-        'textarea'
+        "textarea",
       ];
-      
+
       let inputFound = false;
       for (const selector of inputSelectors) {
         try {
@@ -49,9 +49,9 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!inputFound) {
-        console.log('⚠️ Input chat non trouvé, mais navigation réussie');
+        console.log("⚠️ Input chat non trouvé, mais navigation réussie");
       }
     }
 
@@ -65,18 +65,18 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
     // 2. Retourner au dashboard
     await page.goto("/DooDates/form-polls/dashboard");
-    
+
     // 3. Vérifier qu'on est sur le dashboard
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
-    
+
     // 4. Vérifier le titre du dashboard (avec fallbacks)
     const titleSelectors = [
       'h1:has-text("Tableau de bord")',
       'h1:has-text("Dashboard")',
       '[data-testid="dashboard-title"]',
-      'h1'
+      "h1",
     ];
-    
+
     let titleFound = false;
     for (const selector of titleSelectors) {
       try {
@@ -87,9 +87,9 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
         // Continuer avec le sélecteur suivantd
       }
     }
-    
+
     if (!titleFound) {
-      console.log('⚠️ Titre dashboard non trouvé, mais navigation réussie');
+      console.log("⚠️ Titre dashboard non trouvé, mais navigation réussie");
     }
 
     console.log("✅ Navigation workspace → dashboard réussie");
@@ -124,14 +124,14 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
     try {
       const chatInput = page.locator('[data-testid="chat-input"]');
       await expect(chatInput).toBeVisible({ timeout: 5000 });
-      
+
       // 3. Test simple: vérifier qu'on peut taper du texte
       await chatInput.fill("Test navigation");
       await expect(chatInput).toHaveValue("Test navigation");
-      
+
       console.log("✅ Workspace creation flow fonctionnel");
     } catch (e) {
-      console.log('⚠️ Workspace accessible mais input non trouvé');
+      console.log("⚠️ Workspace accessible mais input non trouvé");
     }
   });
 
@@ -150,7 +150,7 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
     // 4. Vérifier performance (doit être < 25s pour être réaliste en CI)
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     expect(duration).toBeLessThan(25000);
     console.log(`⏱️ Navigation rapide: ${duration}ms (< 25000ms requis)`);
   });
@@ -158,18 +158,18 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
   test("Smoke - Gestion des erreurs 404", async ({ page }) => {
     // 1. Navigation vers URL invalide
     await page.goto("/DooDates/page-inexistante");
-    
+
     // 2. Ne doit pas crasher
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
-    
+
     // 3. Soit redirigé, soit page d'erreur
     const url = page.url();
     console.log(`URL après navigation invalide: ${url}`);
-    
+
     // Accepter les deux comportements: redirection ou page d'erreur
     const isRedirected = url.includes("/dashboard") || url.includes("/workspace");
     const isHandled = true; // Si on arrive ici, c'est que le crash est évité
-    
+
     expect(isRedirected || isHandled).toBeTruthy();
     console.log("✅ Gestion des erreurs 404 fonctionnelle");
   });
@@ -179,11 +179,11 @@ test.describe("Navigation Intelligente - Cas limites (Simplifiés)", () => {
   test("Smoke - Navigation mobile", async ({ page, browserName }) => {
     // Simuler mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // Navigation simple
     await page.goto("/DooDates/form-polls/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
-    
+
     console.log(`✅ Navigation mobile (${browserName}) réussie`);
   });
 
@@ -194,10 +194,10 @@ test.describe("Navigation Intelligente - Cas limites (Simplifiés)", () => {
 
     // 2. Refresh
     await page.reload();
-    
+
     // 3. Vérifier que la page est toujours stable
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
-    
+
     console.log("✅ Refresh page stable");
   });
 });

@@ -5,10 +5,12 @@
 Générer les mockups **Minimaliste Light + Dark** pour DooDates.
 
 **Thèmes à générer :**
+
 - ✅ Minimaliste Light (Coral `#FF6B6B`)
 - ✅ Minimaliste Dark (Mint `#00FFA3`)
 
 **Pages essentielles (chaque thème) :**
+
 1. Dashboard
 2. Poll Creation
 3. Results Interface
@@ -213,11 +215,13 @@ essence minimalisme dark, mono-accent mint
 ## 📐 CHECKLIST POUR LÉA
 
 ### **Minimaliste Light (3 visuels)**
+
 - [ ] Dashboard (sidebar + calendrier + liste sondages)
 - [ ] Poll Creation (sidebar + calendrier + AI chat droite)
 - [ ] Results (graphiques + stats)
 
 ### **Minimaliste Dark (3 visuels)**
+
 - [ ] Dashboard (même layout que Light, palette dark)
 - [ ] Poll Creation (même layout que Light, palette dark)
 - [ ] Results (même layout que Light, palette dark)
@@ -229,24 +233,28 @@ essence minimalisme dark, mono-accent mint
 ## 🎯 POINTS CLÉS À VÉRIFIER
 
 ### **Différence Light vs Dark**
+
 - ✅ Light : Coral `#FF6B6B` comme accent
 - ✅ Dark : Mint `#00FFA3` comme accent
 - ✅ Même layout, même espacement
 - ✅ Inversement palette (blanc/noir)
 
 ### **Différence vs Business (éliminé)**
+
 - ✅ Pas de navy sidebar
 - ✅ Pas de bleu générique
 - ✅ Accent couleur unique et mémorable
 - ✅ Flat design (pas de cards 3D)
 
 ### **Différence vs TikTok (éliminé)**
+
 - ✅ Pas de gradients multicolores
 - ✅ Pas de glow effects lourds
 - ✅ Mono-accent (coral ou mint)
 - ✅ Élégant zen, pas playful chaos
 
 ### **Cohérence avec Nature (gratuit)**
+
 - ✅ Même architecture UX (sidebar, canvas, navigation)
 - ✅ Composants similaires (calendrier, cards, boutons)
 - ✅ MAIS identité visuelle différente (justifie premium)

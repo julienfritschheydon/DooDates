@@ -1,36 +1,39 @@
 /**
  * Script pour générer le prompt à utiliser avec Gemini pour créer une liste exhaustive
  * de vocabulaire français pour les sondages/événements
- * 
+ *
  * Usage: node scripts/ask-gemini-vocabulary.js
- * 
+ *
  * Le script génère un fichier avec le prompt à copier-coller dans Gemini,
  * puis vous pouvez coller la réponse dans gemini-vocabulary.json
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { readFileSync, writeFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Lire les prompts extraits
-const vocabFile = join(__dirname, '../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-extraction.json');
-const vocabData = JSON.parse(readFileSync(vocabFile, 'utf-8'));
+const vocabFile = join(
+  __dirname,
+  "../Docs/TEST/2025-11-21-gemini-parsing-improvements/vocabulary-extraction.json",
+);
+const vocabData = JSON.parse(readFileSync(vocabFile, "utf-8"));
 
 const prompt = `Tu es un expert en vocabulaire français pour les sondages, événements et réunions professionnelles.
 
 À partir de cette analyse de ${vocabData.stats.totalPrompts} prompts réels :
 
 **Verbes identifiés** (${vocabData.stats.uniqueVerbs}) :
-${vocabData.extractedFromPrompts.verbs.join(', ')}
+${vocabData.extractedFromPrompts.verbs.join(", ")}
 
 **Noms identifiés** (${vocabData.stats.uniqueNouns}) :
-${vocabData.extractedFromPrompts.nouns.join(', ')}
+${vocabData.extractedFromPrompts.nouns.join(", ")}
 
 **Expressions temporelles** (${vocabData.stats.uniqueExpressions}) :
-${vocabData.extractedFromPrompts.expressions.join(', ')}
+${vocabData.extractedFromPrompts.expressions.join(", ")}
 
 Génère une liste EXHAUSTIVE et COMPLÈTE de vocabulaire français qui pourrait apparaître dans des prompts de sondages/événements, organisée par catégories :
 
@@ -75,10 +78,13 @@ Format de sortie : JSON strict avec cette structure :
 Sois EXHAUSTIF : pense à tous les synonymes, variantes, expressions courantes, et termes du domaine professionnel.`;
 
 // Sauvegarder le prompt
-const promptFile = join(__dirname, '../Docs/TEST/2025-11-21-gemini-parsing-improvements/gemini-vocabulary-prompt.txt');
-writeFileSync(promptFile, prompt, 'utf-8');
+const promptFile = join(
+  __dirname,
+  "../Docs/TEST/2025-11-21-gemini-parsing-improvements/gemini-vocabulary-prompt.txt",
+);
+writeFileSync(promptFile, prompt, "utf-8");
 
-console.log('✅ Prompt généré avec succès !');
+console.log("✅ Prompt généré avec succès !");
 console.log(`\n📝 Fichier : ${promptFile}`);
 console.log(`\n💡 Instructions :`);
 console.log(`   1. Copiez le contenu du fichier`);
@@ -86,4 +92,3 @@ console.log(`   2. Collez-le dans Gemini (via l'interface DooDates ou directemen
 console.log(`   3. Copiez la réponse JSON`);
 console.log(`   4. Collez-la dans : Docs/TEST/.../gemini-vocabulary.json`);
 console.log(`\n📋 Ou exécutez directement via l'interface DooDates en utilisant ce prompt.`);
-

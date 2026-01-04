@@ -56,6 +56,7 @@ const getStatsWithUser = (optionId: string) => {
 ### Simplification des props
 
 Avant :
+
 ```typescript
 getStatsWithUser={(optionId: string) => {
   const stats = getStatsWithUser(optionId);
@@ -68,18 +69,21 @@ getStatsWithUser={(optionId: string) => {
 ```
 
 Après :
+
 ```typescript
-getStatsWithUser={getStatsWithUser}
+getStatsWithUser = { getStatsWithUser };
 ```
 
 ## Comportement Corrigé
 
 ### Avant la correction
+
 1. Utilisateur vote "Oui" sur option 1
 2. Compteur affiche : **0** (ne compte pas le vote en cours)
 3. Utilisateur soumet → Compteur passe à **1**
 
 ### Après la correction
+
 1. Utilisateur vote "Oui" sur option 1
 2. Compteur affiche immédiatement : **1** (inclut le vote en cours)
 3. Utilisateur peut voir l'impact de son vote en temps réel
@@ -96,12 +100,13 @@ getStatsWithUser={getStatsWithUser}
 
 **Scénario :** 2 personnes ont déjà voté
 
-| Option | Votes existants | Ton vote | Affichage |
-|--------|----------------|----------|-----------|
-| Mercredi 29 oct. | 1 Oui, 1 Peut-être | **Oui** | **2** Oui, 1 Peut-être |
-| Jeudi 30 oct. | 0 Oui, 2 Non | **Non** | 0 Oui, **3** Non |
+| Option           | Votes existants    | Ton vote | Affichage              |
+| ---------------- | ------------------ | -------- | ---------------------- |
+| Mercredi 29 oct. | 1 Oui, 1 Peut-être | **Oui**  | **2** Oui, 1 Peut-être |
+| Jeudi 30 oct.    | 0 Oui, 2 Non       | **Non**  | 0 Oui, **3** Non       |
 
 Tu vois immédiatement que :
+
 - Ton "Oui" pour mercredi fait pencher la balance
 - Ton "Non" pour jeudi renforce le rejet
 

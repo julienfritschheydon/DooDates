@@ -11,6 +11,7 @@
 Les 4 layouts produits (`DatePollsLayout`, `FormPollsLayout`, `AvailabilityPollsLayout`, `QuizzLayout`) étaient **100% identiques** sauf le nom du sidebar importé.
 
 **Problème :**
+
 - 312 lignes de code dupliqué (4 × 78 lignes)
 - Maintenance difficile : modifier 4 fichiers pour 1 changement
 - Risque de divergence (bug corrigé dans 1 seul fichier)
@@ -22,10 +23,12 @@ Les 4 layouts produits (`DatePollsLayout`, `FormPollsLayout`, `AvailabilityPolls
 **Les produits n'ont PAS la même expérience utilisateur :**
 
 ### Date Polls & Form Polls
+
 - Utilisent `AICreator` avec **agent IA à gauche** + éditeur à droite
 - Routes : `/date-polls/workspace/date`, `/form-polls/workspace/form`
 
 ### Availability & Quizz
+
 - N'utilisent **PAS l'agent IA**, juste le sidebar + contenu
 - Routes : `/availability-polls/dashboard`, `/quizz/dashboard`
 
@@ -70,6 +73,7 @@ export const DatePollsLayout = ({ children }) => (
 ```
 
 **Avant → Après :**
+
 - `DatePollsLayout.tsx` : 78 → 11 lignes (86% réduction)
 - `FormPollsLayout.tsx` : 78 → 11 lignes (86% réduction)
 - `AvailabilityPollsLayout.tsx` : 79 → 12 lignes (85% réduction)
@@ -80,21 +84,24 @@ export const DatePollsLayout = ({ children }) => (
 ## 📊 Résultats
 
 ### Métriques
+
 - **Réduction code :** 312 → 104 lignes (67% réduction)
 - **Fichiers à maintenir :** 4 → 1
 - **TypeScript :** 0 erreurs de compilation
 - **Tests :** Aucun test cassé
 
 ### Avantages
+
 ✅ **Maintenance simplifiée** : 1 seul fichier à modifier  
 ✅ **Cohérence garantie** : Même comportement pour tous les produits  
 ✅ **Architecture préservée** : Agent IA reste inchangé  
-✅ **Responsive** : Mobile/desktop gérés automatiquement  
+✅ **Responsive** : Mobile/desktop gérés automatiquement
 
 ### Sécurité
+
 ✅ **Layouts ne touchent QUE au sidebar**  
 ✅ **Contenu (children) passé tel quel**  
-✅ **Agent IA géré par App.tsx, pas par les layouts**  
+✅ **Agent IA géré par App.tsx, pas par les layouts**
 
 ---
 
@@ -103,6 +110,7 @@ export const DatePollsLayout = ({ children }) => (
 ### Checklist de Tests
 
 **Date Polls (avec agent IA) :**
+
 - [ ] Naviguer sur `/date-polls/workspace/date`
 - [ ] Vérifier agent IA visible à gauche
 - [ ] Vérifier éditeur de sondage à droite
@@ -110,6 +118,7 @@ export const DatePollsLayout = ({ children }) => (
 - [ ] Tester mobile : overlay + fermeture au clic
 
 **Form Polls (avec agent IA) :**
+
 - [ ] Naviguer sur `/form-polls/workspace/form`
 - [ ] Vérifier agent IA visible à gauche
 - [ ] Vérifier éditeur de formulaire à droite
@@ -117,12 +126,14 @@ export const DatePollsLayout = ({ children }) => (
 - [ ] Tester mobile : overlay + fermeture au clic
 
 **Availability (sans agent IA) :**
+
 - [ ] Naviguer sur `/availability-polls/dashboard`
 - [ ] Vérifier **pas d'agent IA** (juste dashboard)
 - [ ] Tester sidebar : ouverture/fermeture
 - [ ] Tester mobile : overlay + fermeture au clic
 
 **Quizz (sans agent IA) :**
+
 - [ ] Naviguer sur `/quizz/dashboard`
 - [ ] Vérifier **pas d'agent IA** (juste dashboard)
 - [ ] Tester sidebar : ouverture/fermeture
@@ -135,6 +146,7 @@ export const DatePollsLayout = ({ children }) => (
 ### Pour ajouter un nouveau produit
 
 1. Créer le sidebar wrapper (3 lignes) :
+
 ```tsx
 export const NewProductSidebar = ({ onClose, className }) => (
   <ProductSidebar productType="new" onClose={onClose} className={className} />
@@ -142,6 +154,7 @@ export const NewProductSidebar = ({ onClose, className }) => (
 ```
 
 2. Créer le layout (5 lignes) :
+
 ```tsx
 export const NewProductLayout = ({ children }) => (
   <GenericProductLayout productType="new">{children}</GenericProductLayout>
@@ -191,6 +204,7 @@ Avantage : Simple, flexible, maintenable
 Refactor réussi avec **67% de réduction de code** et **0 régression**.
 
 L'architecture est maintenant :
+
 - ✅ Plus maintenable (1 fichier au lieu de 4)
 - ✅ Plus cohérente (même comportement partout)
 - ✅ Plus flexible (facile d'ajouter de nouveaux produits)

@@ -21,16 +21,19 @@ DooDates propose **3 thèmes** pour personnaliser vos sondages.
 ### 1. Thème Par Défaut (Gratuit)
 
 **Couleurs :**
+
 - Primaire : Bleu `#3B82F6`
 - Secondaire : Gris `#6B7280`
 - Accent : Bleu clair `#60A5FA`
 
 **Cas d'usage :**
+
 - Formulaires professionnels B2B
 - Enquêtes corporate
 - Usage générique
 
 **Aperçu :**
+
 ```
 ┌─────────────────────────────────┐
 │  DooDates 📊              [✕]   │ ← Bleu
@@ -50,17 +53,20 @@ DooDates propose **3 thèmes** pour personnaliser vos sondages.
 ### 2. Thème Nature (Gratuit)
 
 **Couleurs :**
+
 - Primaire : Vert `#10B981`
 - Secondaire : Brun `#78350F`
 - Accent : Vert clair `#34D399`
 
 **Cas d'usage :**
+
 - Événements écologiques
 - Associations environnementales
 - Activités outdoor
 - Formulaires chaleureux
 
 **Aperçu :**
+
 ```
 ┌─────────────────────────────────┐
 │  🌿 Enquête Événement            │ ← Vert
@@ -82,6 +88,7 @@ DooDates propose **3 thèmes** pour personnaliser vos sondages.
 **Deux variantes :**
 
 #### A. Minimaliste Light
+
 ```
 Fond : Blanc pur
 Texte : Noir `#000000`
@@ -89,6 +96,7 @@ Accent : Coral `#FF6B6B`
 ```
 
 #### B. Minimaliste Dark
+
 ```
 Fond : Noir pur
 Texte : Blanc `#FFFFFF`
@@ -96,12 +104,14 @@ Accent : Mint `#00FFA3`
 ```
 
 **Cas d'usage :**
+
 - Startups tech
 - Design moderne
 - Applications SaaS
 - Audiences jeunes (18-35 ans)
 
 **Aperçu Light :**
+
 ```
 ┌─────────────────────────────────┐
 │  Form                       [×] │ ← Noir/Blanc pur
@@ -121,6 +131,7 @@ Accent : Mint `#00FFA3`
 ### Changer de Thème
 
 **Lors de la création :**
+
 ```
 Formulaire → Paramètres → Apparence
   Thème : ⚫ Par défaut
@@ -130,11 +141,13 @@ Formulaire → Paramètres → Apparence
 ```
 
 **Après création :**
+
 ```
 Dashboard → Sondage → Menu ••• → "Changer le thème"
 ```
 
 **Aperçu en temps réel :**
+
 ```
 [Prévisualiser] pour voir le rendu avant d'appliquer
 ```
@@ -150,7 +163,7 @@ Dashboard → Sondage → Menu ••• → "Changer le thème"
 ```
 Paramètres → Branding → Logo
   [Télécharger votre logo]
-  
+
   Formats acceptés : PNG, SVG, JPG
   Taille recommandée : 200x50px
   Poids max : 500 KB
@@ -158,6 +171,7 @@ Paramètres → Branding → Logo
 ```
 
 **Positionnement :**
+
 ```
 ⚫ En-tête (défaut)
 ○ Pied de page
@@ -165,6 +179,7 @@ Paramètres → Branding → Logo
 ```
 
 **Aperçu :**
+
 ```
 ┌─────────────────────────────────┐
 │  [Votre Logo]              [×]  │ ← Votre logo
@@ -194,6 +209,7 @@ Couleur d'accent : [#F7FFF7] 🎨
 ```
 
 **Prévisualisation en direct :**
+
 ```
 Changement immédiat dans l'aperçu
 ```
@@ -236,12 +252,14 @@ Paramètres → Branding
 ```
 
 **Avant :**
+
 ```
 └─────────────────────────────────┘
   Créé avec DooDates 💙
 ```
 
 **Après :**
+
 ```
 └─────────────────────────────────┘
   [Rien ou votre texte personnalisé]
@@ -332,18 +350,21 @@ Texte : ⚫ "Question X sur Y"
 **Exemples :**
 
 **Barre classique :**
+
 ```
 ████████░░░░░░░░░░░░░░ 40%
 Question 4 sur 10
 ```
 
 **Étapes numérotées :**
+
 ```
 [1]──[2]──[3]──●──[5]──[6]──[7]
             4
 ```
 
 **Cercle :**
+
 ```
       40%
     ╱─────╲
@@ -380,20 +401,24 @@ Bouton "Soumettre" : [Envoyer mes réponses]
 **Trois options :**
 
 #### 1. Automatique (Système)
+
 ```
 Settings → Apparence → Mode sombre
 ⚫ Automatique (suit le système)
 ○ Clair
 ○ Sombre
 ```
+
 **Suit les préférences de l'OS (Windows/Mac/iOS/Android)**
 
 #### 2. Manuel Clair
+
 ```
 ⚫ Toujours en mode clair
 ```
 
 #### 3. Manuel Sombre
+
 ```
 ⚫ Toujours en mode sombre
 ```
@@ -405,18 +430,21 @@ Settings → Apparence → Mode sombre
 **Adaptation automatique :**
 
 **Thème Par Défaut :**
+
 ```
 Mode Clair : Fond blanc, texte noir
 Mode Sombre : Fond #1F2937 (gris foncé), texte blanc
 ```
 
 **Thème Nature :**
+
 ```
 Mode Clair : Fond beige, texte brun
 Mode Sombre : Fond #1C2321 (vert foncé), texte vert clair
 ```
 
 **Thème Minimaliste :**
+
 ```
 Mode Clair : Blanc pur + Coral
 Mode Sombre : Noir pur + Mint
@@ -427,6 +455,7 @@ Mode Sombre : Noir pur + Mint
 ### Aperçu Côte à Côte
 
 **Bouton de prévisualisation :**
+
 ```
 [👁️ Aperçu Clair/Sombre]
 → Affiche les deux versions simultanément
@@ -439,6 +468,7 @@ Mode Sombre : Noir pur + Mint
 ### Langue de l'Interface
 
 **Langues disponibles :**
+
 ```
 Settings → Langue
 ⚫ Français
@@ -580,6 +610,7 @@ Si accepté :
 ### 1. Cohérence avec Votre Marque
 
 **Checklist :**
+
 - [ ] Logo téléchargé
 - [ ] Couleurs de la charte graphique appliquées
 - [ ] Police d'entreprise configurée
@@ -590,6 +621,7 @@ Si accepté :
 ### 2. Testez en Mobile
 
 **Avant de publier :**
+
 ```
 1. Prévisualisez sur mobile (icône 📱)
 2. Vérifiez lisibilité du logo
@@ -602,6 +634,7 @@ Si accepté :
 ### 3. Mode Sombre Friendly
 
 **Si vous personnalisez les couleurs :**
+
 ```
 ⚠️ Vérifiez que vos couleurs sont lisibles en mode sombre
 
@@ -636,6 +669,7 @@ Consultez notre **[page Tarifs](/pricing)** pour plus de détails.
 **Non**, uniquement aux nouveaux sondages.
 
 Pour appliquer à un existant :
+
 ```
 Dashboard → Sondage → "Changer le thème"
 ```
@@ -655,4 +689,3 @@ Dashboard → Sondage → "Changer le thème"
 ---
 
 **© 2025 DooDates - Personnalisation v1.0**
-

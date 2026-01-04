@@ -1,7 +1,7 @@
 name: 5️⃣ Unified Smoke Tests (Pre & Post Deployment)
 
 # 🔥 WORKFLOW UNIFIÉ - Tests de smoke complets avec protection production
-# 
+#
 # Phase 1: Pré-déploiement - Tests sur build local
 # Phase 2: Post-déploiement - Tests sur application déployée
 #
@@ -14,17 +14,17 @@ on:
   workflow_run:
     workflows: ["3️⃣ Main Complete Validation (Production Protection)"]
     types: [completed]
-  
+
   # Permet de lancer manuellement
   workflow_dispatch:
     inputs:
       skip_deployment:
-        description: 'Skip deployment and only run smoke tests'
+        description: "Skip deployment and only run smoke tests"
         required: false
         type: boolean
         default: false
       production_url:
-        description: 'URL de production à tester (manuelle)'
+        description: "URL de production à tester (manuelle)"
         required: false
         type: string
 
@@ -45,12 +45,12 @@ jobs:
   pre-deployment-smoke:
     name: 🔥 Phase 1 - Pre-Deployment Smoke Tests
     runs-on: ubuntu-latest
-    
+
     # N'exécuter que si la validation a réussi
     if: |
       github.event.workflow_run.conclusion == 'success' || 
       github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -58,8 +58,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci --prefer-offline --no-audit
@@ -100,7 +100,7 @@ jobs:
         run: |
           echo "🔥 Phase 1: Tests de smoke pré-déploiement..."
           echo "🌐 URL: http://localhost:4173/"
-          npx playwright test tests/e2e/production-smoke.spec.ts \
+          E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
             --retries=2
@@ -171,12 +171,12 @@ jobs:
     name: 🚀 Trigger Deployment
     needs: pre-deployment-smoke
     runs-on: ubuntu-latest
-    
+
     # Seulement si phase 1 réussie ET pas de skip manuel
     if: |
       needs.pre-deployment-smoke.result == 'success' &&
       (github.event.inputs.skip_deployment != 'true' || github.event.inputs.skip_deployment == '')
-    
+
     steps:
       - name: 🚀 Trigger Deployment Workflow
         uses: actions/github-script@v7
@@ -199,12 +199,12 @@ jobs:
     name: 🔥 Phase 2 - Post-Deployment Smoke Tests
     needs: [pre-deployment-smoke, trigger-deployment]
     runs-on: ubuntu-latest
-    
+
     # Attendre que le déploiement soit terminé
     if: |
       needs.pre-deployment-smoke.result == 'success' &&
       (needs.trigger-deployment.result == 'success' || needs.trigger-deployment.result == 'skipped')
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -212,8 +212,8 @@ jobs:
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 🔧 Install dependencies
         run: npm ci --prefer-offline --no-audit
@@ -254,7 +254,7 @@ jobs:
         run: |
           echo "🔥 Phase 2: Tests de smoke post-déploiement..."
           echo "🌐 URL: ${{ steps.production-url.outputs.url }}"
-          npx playwright test tests/e2e/production-smoke.spec.ts \
+          E2E_FORCE_MOCKS=true npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
             --retries=2
@@ -301,7 +301,7 @@ jobs:
           script: |
             const prodUrl = '${{ steps.production-url.outputs.url }}';
             const workflowUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
-            
+
             const issueBody = `## 🚨 CRITICAL: Post-Deployment Smoke Tests Failed\n\n` +
               `**Phase:** Post-déploiement (production déployée)\n` +
               `**Impact:** Application en production potentiellement cassée\n\n` +
@@ -358,7 +358,6 @@ jobs:
       (needs.trigger-deployment.result == 'success' || needs.trigger-deployment.result == 'skipped') &&
       needs.post-deployment-smoke.result == 'success'
     runs-on: ubuntu-latest
-    
     steps:
       - name: 🎉 Production Ready
         run: |

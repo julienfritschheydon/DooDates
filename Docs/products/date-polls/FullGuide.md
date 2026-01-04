@@ -35,32 +35,34 @@ Un **sondage de dates** permet de trouver le meilleur créneau pour un événeme
 ### Méthode 1 : Avec l'Assistant IA (Recommandé)
 
 **Exemple simple :**
+
 ```
 Vous : "Organise une réunion d'équipe mardi ou jeudi après-midi"
 
 IA : "✅ Sondage créé :
      • Mardi 12 nov, 14h-17h
      • Jeudi 14 nov, 14h-17h
-     
+
      Titre : Réunion d'équipe
      Lien : doodates.com/vote/reunion-nov"
 ```
 
 **Exemple détaillé :**
+
 ```
 Vous : "Crée un sondage pour notre déjeuner d'équipe.
        On est 8 personnes.
        Propose vendredi ou samedi midi, 2h de durée"
 
 IA : "Parfait ! Sondage créé :
-     
+
      📋 Déjeuner d'équipe
      • Vendredi 15 nov, 12h-14h
      • Samedi 16 nov, 12h-14h
-     
+
      Participants attendus : 8
      Lien de partage : doodates.com/vote/dejeuner-nov
-     
+
      Je l'envoie par email ?"
 ```
 
@@ -71,12 +73,14 @@ IA : "Parfait ! Sondage créé :
 **Étapes :**
 
 1. **Accéder au Dashboard**
+
    ```
    Dashboard → Bouton "Nouveau sondage"
    → Sélectionnez "Sondage de dates"
    ```
 
 2. **Informations de base**
+
    ```
    Titre : "Réunion Sprint Planning"
    Description (optionnel) : "Planning du sprint 47"
@@ -86,6 +90,7 @@ IA : "Parfait ! Sondage créé :
 3. **Sélectionner les dates** (voir section suivante)
 
 4. **Configurer les paramètres**
+
    ```
    ☑ Participants peuvent proposer d'autres dates
    ☑ Afficher le nombre de votes
@@ -100,6 +105,7 @@ IA : "Parfait ! Sondage créé :
 ## 📆 Sélection de dates
 
 ### Interface Calendrier
+
 ![Interface du calendrier de sélection](assets/screenshots/calendar-interface.png)
 
 ```
@@ -124,12 +130,14 @@ Dates sélectionnées :
 **Clic simple :** Sélectionne la date entière (toute la journée)
 
 **Clic + Glisser :** Sélectionne une plage de dates
+
 ```
 Exemple : 12 → glisser → 15
 Résultat : 12, 13, 14, 15 novembre sélectionnés
 ```
 
 **Raccourcis clavier :**
+
 - `←` `→` : Naviguer entre les mois
 - `Espace` : Sélectionner/désélectionner la date active
 - `Ctrl+Clic` : Sélection multiple non-continue
@@ -139,6 +147,7 @@ Résultat : 12, 13, 14, 15 novembre sélectionnés
 ## ⏰ Ajouter des Horaires
 
 ### Horaires par date
+
 ![Interface de sélection des horaires par date](assets/screenshots/time-selection-by-date.png)
 
 Après avoir sélectionné les dates :
@@ -146,7 +155,7 @@ Après avoir sélectionné les dates :
 ```
 Mardi 12 novembre
   [+] Ajouter un horaire
-  
+
   → 09h00 - 11h00  [Supprimer]
   → 14h00 - 16h00  [Supprimer]
   [+] Ajouter un autre horaire
@@ -158,6 +167,7 @@ Jeudi 14 novembre
 ### Créneaux Prédéfinis
 
 **Boutons rapides :**
+
 - 🌅 **Matin** : 9h-12h
 - ☀️ **Après-midi** : 14h-17h
 - 🌙 **Soir** : 18h-21h
@@ -166,6 +176,7 @@ Jeudi 14 novembre
 ### Personnaliser les Horaires
 
 **Durée flexible :**
+
 ```
 Début : 14h00
 Fin : 16h30
@@ -181,13 +192,14 @@ Options :
 ### Copier les Horaires
 
 **Fonctionnalité pratique :**
+
 ```
 Mardi 12 nov : 9h-11h, 14h-16h
   ↓
 [Copier vers d'autres dates]
   ☑ Mercredi 13 nov
   ☑ Jeudi 14 nov
-  
+
 Résultat :
 • Mardi 12 : 9h-11h, 14h-16h
 • Mercredi 13 : 9h-11h, 14h-16h
@@ -201,11 +213,13 @@ Résultat :
 ### Ouvrir le Sondage
 
 **Lien reçu :**
+
 ```
 https://doodates.com/vote/reunion-nov
 ```
 
 **Interface de vote :**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  📋 Réunion Sprint Planning                 │
@@ -225,24 +239,28 @@ https://doodates.com/vote/reunion-nov
 **3 niveaux de disponibilité :**
 
 #### 🟢 Disponible
+
 ```
 Cliquez 1 fois : Vert
 → "Je suis disponible"
 ```
 
 #### 🟡 Peut-être
+
 ```
 Cliquez 2 fois : Orange
 → "Je peux me libérer si nécessaire"
 ```
 
 #### 🔴 Indisponible
+
 ```
 Cliquez 3 fois : Rouge
 → "Je ne suis pas disponible"
 ```
 
 #### ⚪ Non répondu
+
 ```
 Cliquez 4 fois : Blanc (retour à l'état initial)
 → Pas de vote pour ce créneau
@@ -253,6 +271,7 @@ Cliquez 4 fois : Blanc (retour à l'état initial)
 ### Interface Mobile
 
 **Swipe gestures :**
+
 ```
 ←  Swipe gauche : Indisponible (🔴)
 ↔  Tap : Peut-être (🟡)
@@ -266,11 +285,13 @@ Cliquez 4 fois : Blanc (retour à l'état initial)
 ### Enregistrer son Vote
 
 **Bouton en bas de page :**
+
 ```
 [✓ Enregistrer mes disponibilités]
 ```
 
 **Confirmation :**
+
 ```
 ✅ Vos disponibilités ont été enregistrées !
 
@@ -287,6 +308,7 @@ Actions :
 ### Vue d'Ensemble
 
 **Tableau récapitulatif :**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Mardi 12 nov, 9h-11h                                   │
@@ -316,6 +338,7 @@ Actions :
 ### Détail par Participant
 
 **Vue matricielle :**
+
 ```
                    12/11  12/11  14/11
                    9h-11h 14h-16h 14h-16h
@@ -336,6 +359,7 @@ Légende : ✓ Disponible | ? Peut-être | ✗ Indisponible
 ### Statistiques Détaillées
 
 **Taux de participation :**
+
 ```
 📊 Participation : 8/8 (100%)
 ⏱️ Temps moyen de vote : 42 secondes
@@ -344,6 +368,7 @@ Légende : ✓ Disponible | ? Peut-être | ✗ Indisponible
 ```
 
 **Disponibilité moyenne par personne :**
+
 ```
 • Alice : 100% (3/3 créneaux)
 • Bob : 100% (3/3)
@@ -359,6 +384,7 @@ Légende : ✓ Disponible | ? Peut-être | ✗ Indisponible
 ### Choisir la Meilleure Option
 
 **Recommandation automatique :**
+
 ```
 🏆 Option recommandée : Mardi 12 nov, 14h-16h
 
@@ -377,6 +403,7 @@ Raisons :
 **Notification automatique :**
 
 **Email envoyé à tous :**
+
 ```
 Objet : ✅ Réunion Sprint Planning confirmée
 
@@ -405,6 +432,7 @@ Ajoutez-le à votre calendrier :
 **Options disponibles :**
 
 1. **Clôturer le sondage**
+
    ```
    → Plus de votes possibles
    → Lien de vote devient inactif
@@ -412,6 +440,7 @@ Ajoutez-le à votre calendrier :
    ```
 
 2. **Envoyer des rappels**
+
    ```
    → 24h avant : "N'oubliez pas la réunion demain !"
    → 1h avant : "La réunion commence dans 1h"
@@ -430,6 +459,7 @@ Ajoutez-le à votre calendrier :
 ### Avant les Votes
 
 **Modification libre :**
+
 ```
 Dashboard → Sondage → Modifier
 → Ajoutez/supprimez des dates
@@ -444,20 +474,24 @@ Dashboard → Sondage → Modifier
 **Modifications limitées :**
 
 ✅ **Autorisé :**
+
 - Ajouter de nouvelles dates/horaires
 - Prolonger la deadline
 - Changer la description
 
 ⚠️ **Déconseillé :**
+
 - Supprimer des dates (perte de votes)
 - Changer radicalement les horaires
 
 ❌ **Bloqué :**
+
 - Supprimer des dates avec > 5 votes
 
 ---
 
 **Notification automatique :**
+
 ```
 Si modification importante :
 → Email envoyé aux participants
@@ -471,6 +505,7 @@ Si modification importante :
 ### 1. Nombre de Créneaux Optimal
 
 **Recommandation :**
+
 - ✅ **3-5 créneaux** : Idéal
 - ⚠️ **6-10 créneaux** : Acceptable
 - ❌ **10+ créneaux** : Trop complexe, réduit le taux de participation
@@ -480,6 +515,7 @@ Si modification importante :
 ### 2. Espacer les Options
 
 **Mauvais :**
+
 ```
 • Lundi 9h-11h
 • Lundi 11h-13h  ← Trop proche
@@ -487,6 +523,7 @@ Si modification importante :
 ```
 
 **Bon :**
+
 ```
 • Lundi 9h-11h
 • Mercredi 14h-16h
@@ -498,6 +535,7 @@ Si modification importante :
 ### 3. Durée Réaliste
 
 **Respectez le temps nécessaire :**
+
 ```
 ❌ Réunion stratégique : 30 min (trop court)
 ✅ Réunion stratégique : 2h
@@ -509,6 +547,7 @@ Si modification importante :
 ### 4. Deadline Appropriée
 
 **Formule :**
+
 ```
 Deadline = Date événement - (3 à 7 jours)
 
@@ -518,6 +557,7 @@ Deadline sondage : 8 novembre (7 jours avant)
 ```
 
 **Permet :**
+
 - Temps de réponse suffisant
 - Marge pour replanifier si besoin
 
@@ -526,6 +566,7 @@ Deadline sondage : 8 novembre (7 jours avant)
 ### 5. Proposer des Alternatives
 
 **Option recommandée :**
+
 ```
 ☑ "Participants peuvent proposer d'autres dates"
 
@@ -540,6 +581,7 @@ Deadline sondage : 8 novembre (7 jours avant)
 ### Puis-je créer un sondage récurrent ?
 
 **Pas directement, mais :**
+
 ```
 1. Créez le premier sondage
 2. Après finalisation, cliquez "Dupliquer"
@@ -548,6 +590,7 @@ Deadline sondage : 8 novembre (7 jours avant)
 ```
 
 **Astuce :** Utilisez des templates avec l'IA :
+
 ```
 "Crée un sondage comme le précédent mais pour la semaine prochaine"
 ```
@@ -557,6 +600,7 @@ Deadline sondage : 8 novembre (7 jours avant)
 ### Comment gérer les fuseaux horaires ?
 
 **Détection automatique :**
+
 ```
 DooDates détecte le fuseau horaire du créateur
 → Affiche les horaires dans ce fuseau pour tous
@@ -564,6 +608,7 @@ DooDates détecte le fuseau horaire du créateur
 ```
 
 **Pour événements internationaux :**
+
 ```
 1. Créez le sondage dans votre fuseau
 2. Ajoutez dans la description :
@@ -576,6 +621,7 @@ DooDates détecte le fuseau horaire du créateur
 ### Puis-je limiter le nombre de participants ?
 
 **Oui :**
+
 ```
 Paramètres → "Nombre max de participants" → 10
 
@@ -593,14 +639,16 @@ Après 10 votes :
 **Contexte :** Réunion hebdomadaire avec 8 personnes, emplois du temps différents.
 
 **Création avec l'IA :**
+
 ```
-💬 Vous : "Réunion d'équipe, 8 personnes, 3 créneaux entre lundi et jeudi, 
+💬 Vous : "Réunion d'équipe, 8 personnes, 3 créneaux entre lundi et jeudi,
            matin (9h-11h) ou après-midi (14h-16h)"
 
 🤖 IA : Crée le sondage avec les créneaux proposés
 ```
 
 **Configuration recommandée :**
+
 - Votes non anonymes (voir qui est disponible)
 - Peut-être autorisé (flexibilité)
 - Deadline : Vendredi 17h
@@ -615,6 +663,7 @@ Après 10 votes :
 **Contexte :** Anniversaire surprise avec 20 invités.
 
 **Stratégie :**
+
 1. Sondage de dates pour choisir la date
 2. Une fois la date fixée, formulaire pour préférences (lieu, activité, budget)
 
@@ -634,4 +683,3 @@ Après 10 votes :
 ---
 
 **© 2025 DooDates - Sondages de dates v1.0**
-

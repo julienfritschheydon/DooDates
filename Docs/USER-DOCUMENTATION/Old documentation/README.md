@@ -9,6 +9,7 @@ DooDates est une plateforme moderne de création de sondages et de formulaires, 
 ## 🎯 Table des Matières
 
 ### 🚀 Pour Commencer
+
 1. **[Guide de Démarrage Rapide](./01-Guide-Demarrage-Rapide.md)**
    - Premiers pas avec DooDates
    - Créer votre premier sondage
@@ -125,18 +126,21 @@ DooDates est une plateforme moderne de création de sondages et de formulaires, 
 ## 🎓 Parcours d'Apprentissage Recommandés
 
 ### 👤 Nouvel Utilisateur
+
 1. [Guide de Démarrage Rapide](./01-Guide-Demarrage-Rapide.md)
 2. [Concepts de Base](./02-Concepts-Base.md)
 3. [Assistant IA Conversationnel](./05-Assistant-IA.md)
 4. Choisir entre [Sondages de Dates](./03-Sondages-Dates.md) ou [Formulaires](./04-Formulaires-Questionnaires.md)
 
 ### 📊 Créateur de Formulaires
+
 1. [Formulaires et Questionnaires](./04-Formulaires-Questionnaires.md)
 2. [Analytics IA](./06-Analytics-IA.md)
 3. [Simulation de Réponses](./07-Simulation-Reponses.md)
 4. [Export et Partage](./09-Export-Partage.md)
 
 ### 🚀 Utilisateur Avancé
+
 1. [Simulation de Réponses](./07-Simulation-Reponses.md)
 2. [Gestion des Résultats](./08-Gestion-Resultats.md)
 3. [Personnalisation](./13-Personnalisation.md)
@@ -160,4 +164,3 @@ Cette documentation est régulièrement mise à jour pour refléter les nouvelle
 ---
 
 **© DooDates - Documentation officielle**
-

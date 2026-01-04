@@ -31,7 +31,13 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {showBackButton && (
-              <Button variant="ghost" size="sm" onClick={() => navigate(backTo)} className="p-2" data-testid="product-header-back">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(backTo)}
+                className="p-2"
+                data-testid="product-header-back"
+              >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}

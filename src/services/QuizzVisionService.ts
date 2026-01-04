@@ -91,7 +91,13 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
  */
 const QUIZZ_GENERATION_PROMPT = `Tu es un assistant éducatif expert. Crée un quiz basé sur la demande suivante.
 
-DEMANDE: {userInput}
+CONTEXTE: {userInput}
+
+RÈGLES IMPORTANTES:
+1. Si un titre et/ou description sont déjà fournis dans le contexte, UTILISE-LES comme base
+2. Le titre du quiz doit correspondre au titre fourni ou en créer un si absent
+3. Si seule une demande complémentaire est fournie, génère un quiz complet basé sur cette demande
+4. Si les deux sont présents, combine le contexte existant avec la demande complémentaire
 
 RÈGLES DE GÉNÉRATION:
 1. Crée 5-10 questions adaptées au niveau scolaire mentionné
@@ -101,7 +107,7 @@ RÈGLES DE GÉNÉRATION:
 
 FORMAT JSON REQUIS:
 {
-  "title": "Quiz de [matière] - [sujet]",
+  "title": "Titre du quiz (utilise le titre du contexte ou génère-en un)",
   "subject": "Mathématiques" | "Français" | "Histoire" | etc.,
   "questions": [
     {

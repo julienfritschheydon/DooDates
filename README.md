@@ -8,6 +8,7 @@ Access restricted to authorized team members only.
 ## 🎯 Project Overview
 
 DooDates revolutionizes event scheduling through:
+
 - **AI Conversational Interface**: "Organise réunion mardi-mercredi avec Paul et Marie" → Automatic poll creation
 - **Mobile-First Design**: Modern 2025 UI with micro-animations
 - **One-Time Payment**: No subscriptions, transparent pricing
@@ -45,30 +46,34 @@ main (Production)
 ```
 
 ### Worktrees Setup
+
 - `DooDates/` → `main` (Production)
 - `DooDates-develop/` → `staging` (Development)
 - `DooDates-testing/` → `testing` (Integration tests)
 - `DooDates-pre-prod/` → `pre-prod` (Regression tests)
 
 ### Test Pipeline
+
 - **Testing**: 66 unit tests (5-15 min)
 - **Staging**: 12+ E2E tests (20-45 min)
 - **Pre-prod**: 45+ regression tests (30-45 min)
 - **Production**: Monitoring only
 
 ### Promotion Scripts
+
 ```bash
 ./scripts/promote-to-staging.sh    # testing → staging
 ./scripts/promote-to-main.sh       # pre-prod → main
 ```
 
-*See [Branching-Strategy.md](./Docs/Branching-Strategy.md) for complete details*
+_See [Branching-Strategy.md](./Docs/Branching-Strategy.md) for complete details_
 
 ## 🚀 Current Status
 
 ### ✅ Phase 1-3: Core Features (COMPLETED)
 
 **🗳️ Date Polls**
+
 - AI-powered poll creation via conversation
 - Visual calendar interface with date selection
 - Real-time voting with swipe gestures
@@ -76,6 +81,7 @@ main (Production)
 - Anonymous & named voting support
 
 **📋 Form Polls (Questionnaires)**
+
 - AI-generated questionnaires from natural language
 - 6 question types: Single choice, Multiple choice, Text, Matrix, Rating (1-5), NPS (0-10)
 - Conditional logic (show/hide questions based on answers)
@@ -85,6 +91,7 @@ main (Production)
 - Real-time results with charts and statistics
 
 **🤖 AI Conversational Interface**
+
 - Google Gemini 2.0 Flash integration
 - Natural language understanding
 - Context-aware responses
@@ -93,6 +100,7 @@ main (Production)
 - Voice input support
 
 **💾 Data Management**
+
 - localStorage for guest users
 - Supabase integration ready
 - Auto-save functionality
@@ -100,6 +108,7 @@ main (Production)
 - Conversation persistence
 
 **🎨 UI/UX**
+
 - Mobile-first responsive design
 - Dark mode support
 - Onboarding tour
@@ -107,18 +116,21 @@ main (Production)
 - Loading states & error handling
 
 ### 🔄 Phase 4: Advanced Features (IN PROGRESS)
+
 - Poll modification via AI
 - Advanced analytics
 - Email notifications (Resend integration)
 - Authentication & user accounts
 
 ### 📋 Upcoming Phases
+
 - **Phase 5**: Monetization (Stripe, Pro features)
 - **Phase 6**: Scale & Optimize (Performance, Enterprise)
 
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - npm or yarn package manager
 
@@ -151,6 +163,7 @@ npm test
 ```
 
 ### Project Structure
+
 ```
 DooDates/
 ├── src/
@@ -195,10 +208,12 @@ DooDates/
 ## 🎨 Features & Components
 
 ### Poll Types
+
 - **Date Polls**: Schedule meetings with visual calendar
 - **Form Polls**: Surveys, questionnaires, feedback forms
 
 ### Question Types
+
 - **Single Choice**: Radio buttons
 - **Multiple Choice**: Checkboxes
 - **Text**: Free text input
@@ -207,6 +222,7 @@ DooDates/
 - **NPS**: Net Promoter Score (0-10)
 
 ### Advanced Features
+
 - **Conditional Logic**: Show/hide questions based on answers
 - **Export Formats**: CSV, PDF, JSON, Markdown
 - **Real-time Results**: Live statistics and charts
@@ -214,6 +230,7 @@ DooDates/
 - **Mobile Optimized**: Swipe gestures, responsive design
 
 ### UI Components (49 Shadcn/ui)
+
 - **Forms**: Input, Button, Checkbox, Radio, Select, Textarea
 - **Feedback**: Alert, Toast, Progress, Skeleton
 - **Navigation**: Menu, Breadcrumb, Pagination, Tabs
@@ -224,17 +241,20 @@ DooDates/
 ## 📁 Documentation
 
 ### Strategic Docs
+
 - [`Docs/DooDates-Complete-Strategy.md`](./Docs/DooDates-Complete-Strategy.md) - Business & technical strategy
 - [`Docs/2. Planning.md`](./Docs/2.%20Planning.md) - Development roadmap
 - [`Docs/Competitors/`](./Docs/Competitors/) - Competitive analysis
 
 ### Technical Docs
+
 - [`Docs/Form-Poll-AI-Creation.md`](./Docs/Form-Poll-AI-Creation.md) - AI questionnaire generation
 - [`Docs/Export.md`](./Docs/Export.md) - Export specifications
 - [`Docs/TESTS-GUIDE-V2.md`](./Docs/TESTS/TESTS-GUIDE-V2.md) - Testing guide
 - [`Docs/USEEFFECT_GUIDELINES.md`](./Docs/USEEFFECT_GUIDELINES.md) - React best practices
 
 ### API Documentation
+
 - Google Gemini 2.0 Flash integration
 - Conditional logic evaluation
 - Export system (CSV, PDF, JSON, Markdown)
@@ -243,18 +263,21 @@ DooDates/
 ## 🔧 Development Guidelines
 
 ### Code Quality
+
 - **TypeScript**: Strict mode enabled for type safety
 - **ESLint**: Configured for React + TypeScript best practices
 - **Prettier**: Code formatting (configured in ESLint)
 - **Git**: Conventional commits encouraged
 
 ### Component Guidelines
+
 - Use functional components with hooks
 - Leverage Shadcn/ui components for consistency
 - Follow mobile-first responsive design
 - Implement proper TypeScript types
 
 ### State Management
+
 - React hooks for local state
 - TanStack Query for server state
 - Context API for global state (planned)
@@ -262,12 +285,14 @@ DooDates/
 ## 🧪 Testing
 
 ### Test Coverage
+
 - **507+ unit tests** with Vitest
 - **E2E tests** with Playwright (5 browsers)
 - **CI/CD** with GitHub Actions
 - **Automated regression testing**
 
 ### Test Categories
+
 - Conditional logic evaluation (30 tests)
 - Export functionality (15 tests)
 - Poll storage (27 tests)
@@ -277,12 +302,14 @@ DooDates/
 ## 🚧 Known Limitations & Next Steps
 
 ### Current Limitations
+
 - Guest mode only (localStorage)
 - No email notifications yet
 - No user authentication (Supabase ready)
 - No payment integration
 
 ### Immediate Next Steps
+
 1. **Poll modification via AI** - Edit existing polls conversationally
 2. **User authentication** - Supabase Auth integration
 3. **Email notifications** - Resend integration
@@ -299,6 +326,7 @@ DooDates/
 ## 👥 Team Access
 
 This repository is private and confidential. All contributors must:
+
 - Sign NDA before repository access
 - Follow security best practices
 - Use proper commit signing
@@ -307,5 +335,6 @@ This repository is private and confidential. All contributors must:
 ---
 
 **© 2025 DooDates - All Rights Reserved**  
-*Revolutionary AI scheduling - No subscriptions, just results.*
+_Revolutionary AI scheduling - No subscriptions, just results._
+
 # Test trigger 12/29/2025 17:59:38

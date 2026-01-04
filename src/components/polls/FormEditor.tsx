@@ -180,7 +180,7 @@ export default function FormEditor({
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
           placeholder="Ex: Questionnaire de satisfaction client"
-          data-testid="poll-title"
+          data-testid="form-title"
           required
         />
       </div>

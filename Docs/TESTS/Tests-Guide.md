@@ -3,105 +3,160 @@
 > **Document de référence unique** - Novembre 2025  
 > **Dernière mise à jour** : 22 décembre 2025 (ajout ultra-simple-dispo et ultra-simple-quizz)
 
-RAPPEL: 
+RAPPEL:
 
 # DEBUG GEMINI
+
 Dans la console: localStorage.setItem('GEMINI_DEBUG', 'true')
 
 # ✅ Compteur dans terminal + erreurs dans fichier séparé
+
 npm run test -- --run 2> test_errors.txt
 
 # Deux tests E2E Ultra Simple (Date/Form)
+
 npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts 2> ultra-simple-error.txt
 
 # Quatre tests E2E Ultra Simple (tous produits)
+
 npx playwright test tests/e2e/ultra-simple-poll.spec.ts tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-dispo.spec.ts tests/e2e/ultra-simple-quizz.spec.ts --project=chromium
 
 # 1. Vérifier l'état du CI/CD
+
 node scripts/monitor-workflow-failures.js
 
 # 2. Consulter le rapport généré automatiquement
+
 # Docs/monitoring/workflow-failures-report.md
 
 # Si changements risqués → Analyse prédictive
+
 node scripts/gemini-predictive-analyzer.js
 
 # Vérifier que tout fonctionne
+
 npm run test:predictive
 node scripts/auto-workflow-analyzer.js
 
 # 🆕 NOUVEAU: Suivi automatique des tests avec monitoring
+
 # Pour suivre les résultats des tests jusqu'à la fin avec monitoring automatique :
-node test-runner.mjs src/services/__tests__/ChatResetService.test.ts
+
+node test-runner.mjs src/services/**tests**/ChatResetService.test.ts
 
 # Avantages du système de monitoring :
+
 # ✅ Affiche les résultats en temps réel
-# ✅ Attend la fin des tests automatiquement  
+
+# ✅ Attend la fin des tests automatiquement
+
 # ✅ Sort avec le bon code de sortie (0 si succès, 1 si échec)
+
 # ✅ Affiche les statistiques détaillées (passés/échoués/ignorés)
+
 # ✅ Utilise l'API Vitest pour un suivi fiable
 
 # Utilisation pour n'importe quel fichier de test :
+
 node test-runner.mjs [chemin/vers/le/fichier/de/test]
-node test-runner.mjs src/services/__tests__/ChatResetService.test.ts
-node test-runner.mjs src/components/__tests__/Dashboard.test.tsx
+node test-runner.mjs src/services/**tests**/ChatResetService.test.ts
+node test-runner.mjs src/components/**tests**/Dashboard.test.tsx
 
 # ============================================================================
+
 # 🚀 TESTS GEMINI - GUIDE RAPIDE
-# ============================================================================
-#
-# ⚠️ IMPORTANT: Utiliser `vitest.config.gemini.ts` avec --config pour tous les tests Gemini
-#
-# 📊 État actuel (05/12/2025):
-# - Tests unitaires Gemini : 1082/1082 passent (100%)
-# - Tests d'intégration : 51 tests (41 date polls + 10 form polls)
-# - Score actuel : 91.83/100 (92%) - Quality Gate : > 70%
-# - Post-processing désactivé (score +7.8% sans post-processing)
-#
-# ============================================================================
-# LANCER LES TESTS
-# ============================================================================
-#
-# Tests consolidés (RECOMMANDÉ - ~51 tests, ~40-50 min):
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts --reporter=default --no-coverage
-#
-# Tests de formulaires (10 tests, ~7-8 min):
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
-#
-# ============================================================================
-# FILTRAGE ET RELANCE
-# ============================================================================
-#
-# Filtrer par catégorie (PowerShell):
-$env:GEMINI_CATEGORY="professionnel"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
-#
-# Filtrer par ID (PowerShell):
-$env:GEMINI_ID="brunch-samedi-23-dimanche-24"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
-#
-# Relancer tests échoués (PowerShell):
-$env:FAILED_TEST_IDS="bug1-4,bug1-5"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
-#
-# Rapports générés automatiquement dans tests/reports/:
-# - gemini-tests-report.md (rapport markdown consolidé)
-# - gemini-tests-report.json (rapport JSON consolidé)
-# - gemini-form-polls-report.md (rapport formulaires)
-#
+
 # ============================================================================
 
+#
+
+# ⚠️ IMPORTANT: Utiliser `vitest.config.gemini.ts` avec --config pour tous les tests Gemini
+
+#
+
+# 📊 État actuel (05/12/2025):
+
+# - Tests unitaires Gemini : 1082/1082 passent (100%)
+
+# - Tests d'intégration : 51 tests (41 date polls + 10 form polls)
+
+# - Score actuel : 91.83/100 (92%) - Quality Gate : > 70%
+
+# - Post-processing désactivé (score +7.8% sans post-processing)
+
+#
+
+# ============================================================================
+
+# LANCER LES TESTS
+
+# ============================================================================
+
+#
+
+# Tests consolidés (RECOMMANDÉ - ~51 tests, ~40-50 min):
+
+npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts --reporter=default --no-coverage
+
+#
+
+# Tests de formulaires (10 tests, ~7-8 min):
+
+npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
+
+#
+
+# ============================================================================
+
+# FILTRAGE ET RELANCE
+
+# ============================================================================
+
+#
+
+# Filtrer par catégorie (PowerShell):
+
+$env:GEMINI_CATEGORY="professionnel"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
+
+#
+
+# Filtrer par ID (PowerShell):
+
+$env:GEMINI_ID="brunch-samedi-23-dimanche-24"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
+
+#
+
+# Relancer tests échoués (PowerShell):
+
+$env:FAILED_TEST_IDS="bug1-4,bug1-5"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
+
+#
+
+# Rapports générés automatiquement dans tests/reports/:
+
+# - gemini-tests-report.md (rapport markdown consolidé)
+
+# - gemini-tests-report.json (rapport JSON consolidé)
+
+# - gemini-form-polls-report.md (rapport formulaires)
+
+#
+
+# ============================================================================
 
 # Run unit tests (detection, parsing, conditional logic)
+
 npm run test:unit
 
 # Run specific unit test file
-npx vitest run src/lib/__tests__/gemini-detection.test.ts
 
-
+npx vitest run src/lib/**tests**/gemini-detection.test.ts
 
 ## 📊 Vue d'Ensemble
 
 ### Résultats Actuels (28/11/2025)
 
-```
+````
 🎯 Tests Unitaires (Vitest)    : 1082/1082 passent (100%) | 85 skip
    - Dashboard                 : ~68 tests
    - BetaKeyService            : 25/25 passent (100%)
@@ -126,15 +181,15 @@ npx vitest run src/lib/__tests__/gemini-detection.test.ts
    ⚠️ src/components/Calendar.test.tsx (23 tests | 23 skipped)
       - Raison: Tests d'intégration lourds - Exclus pour performance
       - Action: À réactiver si besoin de tests Calendar complets
-   
+
    ⚠️ src/components/Dashboard.test.tsx (29 tests | 29 skipped)
-      - Raison: Tests d'intégration lourds - Exclus pour performance  
+      - Raison: Tests d'intégration lourds - Exclus pour performance
       - Action: À réactiver si besoin de tests Dashboard complets
-   
+
    ⚠️ src/components/__tests__/GeminiChatInterface.integration.test.tsx (13 tests | 13 skipped)
       - Raison: Tests d'intégration avec appels Gemini réels
       - Action: À réactiver pour tests E2E Gemini (lents)
-   
+
    ⚠️ src/services/__tests__/PollCreatorService.weekendGrouping.test.ts (4 tests | 4 skipped)
       - Raison: Tests d'intégration weekend grouping
       - Action: À réactiver quand weekend grouping fonctionnel
@@ -152,7 +207,7 @@ npx vitest run src/lib/__tests__/gemini-detection.test.ts
 # 1. Réactiver Calendar tests (lourds)
 npx vitest run src/components/Calendar.test.tsx
 
-# 2. Réactiver Dashboard tests (lourds)  
+# 2. Réactiver Dashboard tests (lourds)
 npx vitest run src/components/Dashboard.test.tsx
 
 # 3. Réactiver Gemini Integration tests (très lourds - appels réels)
@@ -160,40 +215,44 @@ npx vitest run src/components/__tests__/GeminiChatInterface.integration.test.tsx
 
 # 4. Réactiver Weekend Grouping tests (quand fonctionnel)
 npx vitest run src/services/__tests__/PollCreatorService.weekendGrouping.test.ts
-```
+````
 
 ### Impact sur performance :
+
 - **Tests actuels** : 1082 tests en 2min 20s ✅
 - **Avec Calendar** : +23 tests ~+30s
-- **Avec Dashboard** : +29 tests ~+40s  
+- **Avec Dashboard** : +29 tests ~+40s
 - **Avec Gemini Integration** : +13 tests ~+10min (appels réels)
 - **Avec Weekend Grouping** : +4 tests ~+15s
 
 ### Quand réactiver ?
+
 - **Calendar/Dashboard** : Pour tests complets avant release
 - **Gemini Integration** : Pour debug Gemini uniquement
 - **Weekend Grouping** : Quand feature fonctionnelle
 
 ---
 
-🌐 Tests E2E (Playwright)      : 86/86 passent (100% sur Chrome)
-   - Dashboard                 : 22 tests
-   - Analytics IA              : 9/9 passent (dont analytics-ai-optimized.spec.ts factorisé)
-   - Analytics IA Optimized    : 3/3 passent (~52s, gain ~70%) ✅ MIGRÉ vers nouveaux helpers
-   - Form Poll Regression      : 4/4 passent (scénarios migrés → helpers poll-form / poll-storage)
-   - FormPoll Results Access   : 5/5 passent
-   - Beta Key Activation       : 9/9 passent
-   - Authenticated Workflow    : 6/6 passent
-   - Poll Actions              : 1/1 passe
-   - Security Isolation        : 2/2 passent
-   - Mobile Voting             : 2/2 passent
-   - Guest Workflow            : 7/7 passent
-   - Supabase Integration      : 11/11 passent (supabase-integration-manual.spec.ts migré)
-   - Availability Poll Workflow: 6/6 passent - MVP v1.0 Agenda Intelligent
-   - Cross-Product Workflow    : 5/5 passent ✅ NOUVEAU (Décembre 2025)
-   - Ultra Simple              : 1/1 passe sur Firefox/WebKit ✅ Calendrier stabilisé (useState)
-📈 SCORE GLOBAL                : 98%
-```
+🌐 Tests E2E (Playwright) : 86/86 passent (100% sur Chrome)
+
+- Dashboard : 22 tests
+- Analytics IA : 9/9 passent (dont analytics-ai-optimized.spec.ts factorisé)
+- Analytics IA Optimized : 3/3 passent (~52s, gain ~70%) ✅ MIGRÉ vers nouveaux helpers
+- Form Poll Regression : 4/4 passent (scénarios migrés → helpers poll-form / poll-storage)
+- FormPoll Results Access : 5/5 passent
+- Beta Key Activation : 9/9 passent
+- Authenticated Workflow : 6/6 passent
+- Poll Actions : 1/1 passe
+- Security Isolation : 2/2 passent
+- Mobile Voting : 2/2 passent
+- Guest Workflow : 7/7 passent
+- Supabase Integration : 11/11 passent (supabase-integration-manual.spec.ts migré)
+- Availability Poll Workflow: 6/6 passent - MVP v1.0 Agenda Intelligent
+- Cross-Product Workflow : 5/5 passent ✅ NOUVEAU (Décembre 2025)
+- Ultra Simple : 1/1 passe sur Firefox/WebKit ✅ Calendrier stabilisé (useState)
+  📈 SCORE GLOBAL : 98%
+
+````
 
 **Status** : ✅ **PRODUCTION-READY**
 
@@ -274,7 +333,7 @@ Les tests actifs (81 tests) sont tous robustes.
 ```bash
 # Tests E2E critiques (Analytics IA + Console)
 npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromium
-```
+````
 
 **Résultat attendu** : 12/12 tests passent, ~2 minutes
 
@@ -345,6 +404,7 @@ Suite à un incident où l'application était en ligne mais ne fonctionnait plus
 **Durée:** ~2-3 minutes
 
 **Tests critiques:**
+
 - ✅ Page d'accueil charge correctement
 - ✅ Assets (JS/CSS) chargent sans erreur
 - ✅ Pas d'erreurs console critiques
@@ -393,6 +453,7 @@ Tests sur URL de production réelle
 **Déclenchement:** Automatique après chaque déploiement
 
 **En cas d'échec:**
+
 - 🚨 Issue GitHub créée avec labels `critical`, `production`, `incident`
 - 👤 Auteur du commit assigné automatiquement
 - 📸 Screenshots et rapports sauvegardés (30 jours)
@@ -411,6 +472,7 @@ npm run test:production:bash
 ```
 
 **Ce que fait le script:**
+
 1. Vérifie les variables d'environnement (.env.local)
 2. Build de production (`npm run build`)
 3. Lance serveur preview local (port 4173)
@@ -423,18 +485,21 @@ npm run test:production:bash
 ### 🚨 Que Se Passe-t-il en Cas d'Échec?
 
 #### En PR (Avant Merge)
+
 - ❌ Le merge est **bloqué automatiquement**
 - 📊 Rapport d'erreur dans les checks GitHub
 - 📸 Screenshots disponibles dans les artefacts
 - 🔧 Correction requise avant de pouvoir merger
 
 #### En Production (Après Déploiement)
+
 - 🚨 **Issue GitHub critique créée automatiquement**
 - 👤 **Vous êtes assigné** (l'auteur du commit)
 - 📸 **Screenshots** des erreurs sauvegardés
 - 📊 **Rapports détaillés** dans les artefacts (30 jours)
 
 **Issue créée contient:**
+
 - Titre: "🚨 PRODUCTION CASSÉE - Tests de Smoke Échoués"
 - Détails des tests qui ont échoué
 - Lien vers les logs et screenshots
@@ -489,15 +554,15 @@ git push origin main
 
 ### 📊 Comparaison Avant/Après
 
-| Aspect | ❌ Avant | ✅ Après Phase 1 |
-|--------|----------|------------------|
-| **Tests de prod** | Aucun | Smoke tests auto |
-| **Détection de panne** | Utilisateurs (heures/jours) | < 3 min après deploy |
-| **Blocage merge** | ❌ Non | ✅ Oui (si build cassé) |
-| **Mocks** | 100% mocké | Tests prod sans mocks |
-| **Alertes** | Manuelles | Issue auto + assign |
-| **Rollback** | Manuel lent | Procédure définie |
-| **Confiance déploiement** | 🔴 Faible | 🟡 Moyenne |
+| Aspect                    | ❌ Avant                    | ✅ Après Phase 1        |
+| ------------------------- | --------------------------- | ----------------------- |
+| **Tests de prod**         | Aucun                       | Smoke tests auto        |
+| **Détection de panne**    | Utilisateurs (heures/jours) | < 3 min après deploy    |
+| **Blocage merge**         | ❌ Non                      | ✅ Oui (si build cassé) |
+| **Mocks**                 | 100% mocké                  | Tests prod sans mocks   |
+| **Alertes**               | Manuelles                   | Issue auto + assign     |
+| **Rollback**              | Manuel lent                 | Procédure définie       |
+| **Confiance déploiement** | 🔴 Faible                   | 🟡 Moyenne              |
 
 ### ⏱️ Temps Ajouté
 
@@ -520,12 +585,14 @@ git push origin main
 ### 📅 Phases Suivantes
 
 **Phase 2: Tests d'Intégration Sans Mocks (Semaine prochaine)**
+
 - Environnement Supabase de staging
 - Tests d'intégration réels (authentification, base de données)
 - Réduction de 80% des mocks dans les tests critiques
 - Bloquer le merge si échec
 
 **Phase 3: Monitoring & Tests de Charge (Post-beta)**
+
 - Monitoring continu 24/7 (Sentry, UptimeRobot)
 - Tests de charge (k6)
 - Alertes temps réel
@@ -598,6 +665,7 @@ npm run test:ci                # Suite CI complète
 **Couverture** : 45 fichiers actifs
 
 **Principales zones couvertes** :
+
 - **Hooks** : useAutoSave (13/13 tests) ✅ RÉACTIVÉ, useConversations, usePollDeletionCascade, useAnalyticsQuota (21/21 tests) ✅ RÉACTIVÉ, useAiMessageQuota (22/22 tests) ✅ CORRIGÉ, usePollConversationLink (12/12 tests) ✅ RÉACTIVÉ
 - **Components** : MultiStepFormVote (17/17 tests) ✅ RÉACTIVÉ, DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel
 - **Intégration useAutoSave** : titleGeneration.useAutoSave (9/9 tests) ✅ RÉACTIVÉ, useAutoSave.titleGeneration (1/1 test) ✅ RÉACTIVÉ
@@ -608,6 +676,7 @@ npm run test:ci                # Suite CI complète
 - **Storage** : statsStorage, messageCounter
 
 **Configuration** : `vitest.config.ts`
+
 - Environment: jsdom
 - Coverage: v8 (html, json, text)
 - Workers: 4 threads parallèles
@@ -615,10 +684,12 @@ npm run test:ci                # Suite CI complète
 ### 2. Tests IA (Gemini)
 
 **Tests d'intégration** : 51 tests (41 date polls + 10 form polls)
+
 - **gemini-tests.manual.ts** : 41 tests consolidés (fusionné avec gemini-date-polls.test.ts) (~40-50 min)
 - **gemini-form-polls.test.ts** : 10 tests de formulaires (~7-8 min)
 
 **Tests unitaires** : ~65 tests (détection, parsing, règles conditionnelles)
+
 - **gemini-detection.test.ts** : ~20 tests (détection type poll)
 - **gemini-form-parsing.test.ts** : ~30 tests (parsing formulaires)
 - **gemini-conditional-parsing.test.ts** : ~15 tests (règles conditionnelles)
@@ -626,6 +697,7 @@ npm run test:ci                # Suite CI complète
 **Score actuel** : 91.83/100 (92%) - Quality Gate : > 70%
 
 **Rapports** : Générés automatiquement dans `tests/reports/`
+
 - `gemini-tests-report.md` : Rapport markdown consolidé (tous les tests de dates)
 - `gemini-form-polls-report.md` : Rapport markdown des tests de formulaires
 - `gemini-tests-report.json` : Rapport JSON consolidé
@@ -667,6 +739,7 @@ npm run test:ci                # Suite CI complète
 #### 3.2 Suites principales
 
 **Principales suites** :
+
 - **Dashboard** : `dashboard-complete.spec.ts` (16 tests), `tags-folders.spec.ts` (6 tests)
 - **Analytics IA** : `analytics-ai.spec.ts` (18 tests), `analytics-ai-optimized.spec.ts` (3 tests) ✅ MIGRÉS vers nouveaux helpers
 - **Authentification** : `authenticated-workflow.spec.ts` (6 tests) ✅ RÉACTIVÉ
@@ -685,11 +758,13 @@ npm run test:ci                # Suite CI complète
 **Navigateurs testés** : Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
 
 **Configuration** : `playwright.config.ts`
+
 - Timeout: 30s par test
 - Retries: 2 sur CI, 0 en local
 - Base URL: http://localhost:8080
 
 **Tags** :
+
 - `@smoke @critical` : Tests rapides (~2min)
 - `@functional` : Tests complets (~5min)
 - `@wip` : Tests en cours (skippés en CI)
@@ -701,23 +776,27 @@ npm run test:ci                # Suite CI complète
 ### Workflows Principaux
 
 **1. `develop-to-main.yml`** - Auto-merge Develop → Main
+
 - Trigger : Push sur develop
 - Jobs : tests-unit, tests-e2e (smoke), build-validation
 - Auto-merge : Si tous les tests passent → merge automatique vers main
 - Durée : ~5-8 minutes
 
 **2. `pr-validation.yml`** - Validation Pull Requests
+
 - Trigger : Chaque PR vers main/develop
 - Jobs : tests-unit, ai-validation, build, lint, e2e-smoke/functional/matrix
 - Durée : ~15-20 minutes
 
 **3. `post-merge.yml`** - Validation Post-Merge
+
 - Trigger : Push sur main
 - Jobs : e2e-smoke (3 shards ~1min), e2e-functional (3 shards ~2min)
 - Optimisations : Sharding Playwright, cache agressif
 - Durée : ~2 minutes (gain ~5-6min vs séquentiel)
 
 **4. `nightly-e2e.yml`** - Tests Nocturnes
+
 - Trigger : Quotidien 2h UTC + manuel
 - Tests complets sur 5 navigateurs
 - Durée : ~30 minutes
@@ -836,11 +915,13 @@ Le workflow utilise une configuration optimisée pour les tests dashboard :
 ### Pre-Commit Hook
 
 **Sur `develop`** (rapide ~10-20s) :
+
 - Scan secrets (ggshield)
 - Lint (ESLint)
 - Formatage automatique (Prettier)
 
 **Sur `main`** (complet ~2min) :
+
 - Scan secrets
 - Tests unitaires rapides
 - Vérification TypeScript
@@ -850,6 +931,7 @@ Le workflow utilise une configuration optimisée pour les tests dashboard :
 - Formatage automatique
 
 **Bypass** :
+
 ```bash
 FAST_HOOKS=1 git commit -m "message"      # Mode rapide
 NO_FORMAT=1 git commit -m "message"       # Skip formatage
@@ -937,11 +1019,13 @@ VITE_SUPABASE_ANON_KEY=...
 **Problème** : "Invalid workflow file" dans GitHub Actions
 
 **Solutions** :
+
 ```bash
 npm run validate:workflows
 ```
 
 **Règles** :
+
 - ✅ Utiliser du texte simple dans les `body`
 - ✅ Utiliser des puces `-` au lieu de `1.`
 - ✅ Éviter les emojis dans les strings multi-lignes
@@ -949,6 +1033,7 @@ npm run validate:workflows
 ### Tests Unitaires Lents
 
 **Solutions** :
+
 ```bash
 npm run test:unit:fast         # Mode rapide
 npm run test:unit              # Parallélisation
@@ -957,6 +1042,7 @@ npm run test:unit              # Parallélisation
 ### Tests E2E Instables
 
 **Solutions** :
+
 ```bash
 npm run test:e2e:headed        # Mode visible
 npm run test:e2e:debug         # Mode debug
@@ -965,6 +1051,7 @@ npm run test:e2e:debug         # Mode debug
 ### Tests Gemini Échouent
 
 **Solutions** :
+
 ```bash
 echo $VITE_GEMINI_API_KEY      # Vérifier API key
 npm run test:gemini            # Tester connexion
@@ -975,6 +1062,7 @@ npm run test:gemini            # Tester connexion
 ### Documentation ne Charge Pas (404)
 
 **Solutions** :
+
 ```bash
 npm run test:docs              # Tester mode dev
 npm run test:docs:production   # Tester mode production
@@ -987,6 +1075,7 @@ npm run test:docs:production   # Tester mode production
 ### Hooks Git Bloquent Commits
 
 **Solutions** :
+
 ```bash
 NO_FORMAT=1 git commit -m "message"      # Skip formatage
 git commit --no-verify -m "message"       # Bypass (déconseillé)
@@ -995,6 +1084,7 @@ git commit --no-verify -m "message"       # Bypass (déconseillé)
 ### Build Production Échoue
 
 **Solutions** :
+
 ```bash
 npm run type-check             # Vérifier erreurs TypeScript
 npm run build:dev              # Build dev pour debug
@@ -1004,18 +1094,18 @@ npm run build:dev              # Build dev pour debug
 
 ## 📊 Métriques et Temps d'Exécution
 
-| Suite | Temps | Contexte |
-|-------|-------|----------|
-| Tests unitaires | 30s | Local |
-| Tests unitaires dashboard | ~10s | Local (68 tests) |
-| Tests IA (Gemini) | 7-40 min | Local (51 tests d'intégration, voir guide rapide ci-dessus) |
-| Tests E2E smoke | 2min | Chromium |
-| Tests E2E dashboard | ~5-8min | Chromium (22 tests) |
-| Tests E2E functional | 5min | Chromium |
-| Tests E2E matrix | 15min | 5 navigateurs |
-| Pre-commit hook | < 2min | Local |
-| Pre-push hook | < 3min | Local (< 5min si main) |
-| CI/CD complet | 15-20min | GitHub Actions |
+| Suite                     | Temps    | Contexte                                                    |
+| ------------------------- | -------- | ----------------------------------------------------------- |
+| Tests unitaires           | 30s      | Local                                                       |
+| Tests unitaires dashboard | ~10s     | Local (68 tests)                                            |
+| Tests IA (Gemini)         | 7-40 min | Local (51 tests d'intégration, voir guide rapide ci-dessus) |
+| Tests E2E smoke           | 2min     | Chromium                                                    |
+| Tests E2E dashboard       | ~5-8min  | Chromium (22 tests)                                         |
+| Tests E2E functional      | 5min     | Chromium                                                    |
+| Tests E2E matrix          | 15min    | 5 navigateurs                                               |
+| Pre-commit hook           | < 2min   | Local                                                       |
+| Pre-push hook             | < 3min   | Local (< 5min si main)                                      |
+| CI/CD complet             | 15-20min | GitHub Actions                                              |
 
 ### Quality Gates
 
@@ -1026,7 +1116,7 @@ const QUALITY_THRESHOLDS = {
   e2eTests: { pass: 90, warn: 80 },
   typeCheck: { errors: 0 },
   lint: { errors: 0, warnings: 10 },
-  build: { success: true }
+  build: { success: true },
 };
 ```
 
@@ -1061,20 +1151,24 @@ const QUALITY_THRESHOLDS = {
 ### Dashboard - Tests Complets
 
 **Tests E2E** : 22 tests (2 fichiers)
+
 - `dashboard-complete.spec.ts` : 16 tests
 - `tags-folders.spec.ts` : 6 tests
 
 **Tests Unitaires** : ~68 tests (4 fichiers)
+
 - `utils.test.ts` : 30 tests
 - `DashboardFilters.test.tsx` : ~20 tests
 - `ManageTagsFolderDialog.test.tsx` : 11 tests
 - `DashboardTableView.test.tsx` : 7 tests
 
 **Tests Manuels** : 97 tests (2 fichiers)
+
 - `TESTS-MANUELS-DASHBOARD-COMPLET.md` : 71 tests
 - `TESTS-MANUELS-TAGS-FOLDERS.md` : 26 tests
 
 **Exécution** :
+
 ```bash
 # Tests E2E
 npx playwright test dashboard-complete.spec.ts tags-folders.spec.ts --project=chromium
@@ -1086,12 +1180,14 @@ npm run test:unit -- src/components/dashboard/__tests__
 ### Documentation - Tests
 
 **Tests E2E** : 4 tests dans `docs.spec.ts`
+
 - Documentation page loads without errors @smoke
 - Documentation page loads a specific document @functional
 - Documentation page handles 404 gracefully @functional
 - Documentation assets load correctly @smoke
 
 **Exécution** :
+
 ```bash
 npm run test:docs              # Mode dev
 npm run test:docs:production   # Mode production (base path /DooDates/)
@@ -1104,17 +1200,20 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ## 📈 Couverture
 
 ### Zones Bien Couvertes ✅
+
 - Hooks critiques : useAutoSave, useConversations, useAnalyticsQuota, useAiMessageQuota
 - Services : BetaKeyService, PollAnalyticsService, EmailService, ConversationService
 - Components Dashboard : DashboardFilters, ManageTagsFolderDialog
 
 ### Zones Non Couvertes 🔴
+
 - **GeminiChatInterface** - Fichier de tests créé mais tests encore WIP (dépendances React Query/Auth à encapsuler) - Voir Priorité 2
 - Services critiques : QuotaService, PollCreatorService
 - Hooks critiques : useGeminiAPI, useIntentDetection, usePollManagement
 - Lib critiques : error-handling.ts, temporal-parser.ts, enhanced-gemini.ts
 
 ### Objectifs
+
 ---
 
 ## �📝 Notes Importantes
@@ -1122,17 +1221,21 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ### Tests Désactivés
 
 **Fichiers `.disabled`** : Tests obsolètes après refonte architecture
+
 - ConversationStorageSupabase.test.ts.disabled
 - PollCreator.test.tsx.disabled
 - ConversationSearch.test.tsx.disabled (supprimé - composant non utilisé)
 
 **Composants supprimés** (26/11/2025) :
+
 - ConversationHistory, ConversationList, ConversationSearch, ConversationActions, ConversationPreview - Composants non utilisés dans l'application, supprimés pour simplifier la codebase
 
 **Fichiers `.skip`** : Tests temporairement désactivés
+
 - GeminiChatInterface.integration.test.tsx.skip
 
 **Tests réactivés** :
+
 - ✅ useAiMessageQuota.test.ts (22/22 passent, 100%) ✅ CORRIGÉ COMPLÈTEMENT (14/11/2025)
 - ✅ MultiStepFormVote.test.tsx (17/17 passent, 100%) ✅ RÉACTIVÉ (14/11/2025)
 - ✅ usePollConversationLink.test.ts (12/12 passent, 100%) ✅ RÉACTIVÉ (14/11/2025)
@@ -1143,6 +1246,7 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 
 GitHub Branch Protection nécessite un compte Team/Enterprise (payant).  
 Approche alternative gratuite :
+
 - Git Hooks locaux (bloquent les pushs vers main)
 - GitHub Actions (vérifient chaque PR)
 - Post-merge (détecte les régressions)
@@ -1151,11 +1255,13 @@ Approche alternative gratuite :
 ### Maintenance
 
 **Hebdomadaire** :
+
 - Consulter rapports nightly
 - Vérifier issues automatiques
 - Mettre à jour dépendances si nécessaire
 
 **Mensuel** :
+
 - Consulter rapports tests IA
 - Analyser métriques performance
 - Nettoyer artifacts anciens
@@ -1170,23 +1276,27 @@ Approche alternative gratuite :
 ## 📝 Notes Importantes
 
 ### Tests Désactivés
+
 - **Fichiers `.disabled`** : Tests obsolètes après refonte (ConversationStorageSupabase, PollCreator, ConversationSearch)
 - **Composants supprimés** (26/11/2025) : ConversationHistory, ConversationList, ConversationSearch, ConversationActions, ConversationPreview - Non utilisés dans l'application
 - **Fichiers `.skip`** : GeminiChatInterface.integration.test.tsx.skip
 
 ### Tests Réactivés
+
 - ✅ useAiMessageQuota (22/22), MultiStepFormVote (17/17), usePollConversationLink (12/12)
 
 ### Tests Spécifiques
+
 - **Agenda Intelligent** : 6/6 tests E2E (`availability-poll-workflow.spec.ts`) - MVP v1.0
 - **FormPoll Results Access** : 14/14 tests unitaires + 5/5 tests E2E
 - **Authentification & Clés Bêta** : BetaKeyService (25/25), authenticated-workflow (6 tests), beta-key-activation (9 tests)
 - **Supabase Integration** : 11 tests E2E automatisés (anciennement manuels)
 - **Tests unitaires services** : +140 tests (ConversationService: 9, QuotaService: 38, PollCreatorService: 32, PollCreationBusinessLogic: 23, useGeminiAPI: 38)
 - **Ultra Simple** : 1/1 test passe sur Firefox (16.8s) et WebKit (19.2s)
-- **Quizz (Aide aux Devoirs)** : 54 tests unitaires (728 lignes) + 4 scénarios E2E (122 lignes) ✅ NOUVEAU (Décembre 2025) 
+- **Quizz (Aide aux Devoirs)** : 54 tests unitaires (728 lignes) + 4 scénarios E2E (122 lignes) ✅ NOUVEAU (Décembre 2025)
 
 ### Corrections E2E
+
 - **Sharding** : Tests rendus indépendants avec fonctions helper (3 fichiers corrigés)
 - **Persistance mocks** : `setupAllMocks()` ajouté avant chaque `page.goto()` dans helpers
 - **Calendrier Firefox/WebKit** : Initialisation directe dans `useState` au lieu de `useEffect` - Amélioration de ~200-500ms pour l'affichage du calendrier (17/11/2025)
@@ -1205,14 +1315,16 @@ Approche alternative gratuite :
 #### 1. Ne JAMAIS utiliser `waitForTimeout()` avec des valeurs fixes
 
 **❌ MAUVAIS** :
+
 ```typescript
 await button.click();
 await page.waitForTimeout(500); // ❌ Fragile et lent
 ```
 
 **✅ BON** :
+
 ```typescript
-import { waitForElementReady, waitForReactStable } from './helpers/wait-helpers';
+import { waitForElementReady, waitForReactStable } from "./helpers/wait-helpers";
 
 await button.click();
 await waitForElementReady(page, '[data-testid="dialog"]', { browserName });
@@ -1225,20 +1337,22 @@ await waitForReactStable(page, { browserName });
 #### 2. Ne JAMAIS utiliser `.catch()` silencieux
 
 **❌ MAUVAIS** :
+
 ```typescript
 await button.click().catch(() => {}); // ❌ Masque les erreurs
 const isVisible = await element.isVisible().catch(() => false);
 ```
 
 **✅ BON** :
-```typescript
-import { safeClick, safeIsVisible } from './helpers/safe-helpers';
-import { createLogger } from './utils';
 
-const log = createLogger('MyTest');
+```typescript
+import { safeClick, safeIsVisible } from "./helpers/safe-helpers";
+import { createLogger } from "./utils";
+
+const log = createLogger("MyTest");
 const clicked = await safeClick(button, { log });
 if (!clicked) {
-  log('Button click failed, trying alternative approach');
+  log("Button click failed, trying alternative approach");
   // Gérer explicitement
 }
 ```
@@ -1248,29 +1362,31 @@ if (!clicked) {
 #### 3. Utiliser les factories pour créer des données de test
 
 **❌ MAUVAIS** :
+
 ```typescript
 await page.evaluate(() => {
   const tags = [
-    { id: 'tag-1', name: 'Test Tag 1', color: '#3b82f6', createdAt: new Date().toISOString() },
+    { id: "tag-1", name: "Test Tag 1", color: "#3b82f6", createdAt: new Date().toISOString() },
     // ... répété dans chaque test
   ];
-  localStorage.setItem('doodates_tags', JSON.stringify(tags));
+  localStorage.setItem("doodates_tags", JSON.stringify(tags));
 });
 ```
 
 **✅ BON** :
+
 ```typescript
-import { createTestTags, setupTestData } from './helpers/test-data';
+import { createTestTags, setupTestData } from "./helpers/test-data";
 
 await createTestTags(page, [
-  { name: 'Test Tag 1', color: '#3b82f6' },
-  { name: 'Test Tag 2', color: '#ef4444' },
+  { name: "Test Tag 1", color: "#3b82f6" },
+  { name: "Test Tag 2", color: "#ef4444" },
 ]);
 
 // OU pour un setup complet
 await setupTestData(page, {
-  tags: [{ name: 'Tag 1', color: '#3b82f6' }],
-  folders: [{ name: 'Folder 1', color: '#ef4444', icon: '📁' }],
+  tags: [{ name: "Tag 1", color: "#3b82f6" }],
+  folders: [{ name: "Folder 1", color: "#ef4444", icon: "📁" }],
 });
 ```
 
@@ -1279,6 +1395,7 @@ await setupTestData(page, {
 #### 4. Utiliser la configuration centralisée des timeouts
 
 **❌ MAUVAIS** :
+
 ```typescript
 await expect(element).toBeVisible({ timeout: 10000 });
 await expect(element).toBeVisible({ timeout: 5000 });
@@ -1286,8 +1403,9 @@ await expect(element).toBeVisible({ timeout: 15000 }); // Incohérent
 ```
 
 **✅ BON** :
+
 ```typescript
-import { getTimeouts } from './config/timeouts';
+import { getTimeouts } from "./config/timeouts";
 
 const timeouts = getTimeouts(browserName);
 await expect(element).toBeVisible({ timeout: timeouts.element });
@@ -1299,6 +1417,7 @@ await expect(element).toBeVisible({ timeout: timeouts.network });
 #### 5. Utiliser `setupTestEnvironment()` pour le setup initial
 
 **❌ MAUVAIS** :
+
 ```typescript
 test.beforeEach(async ({ page }) => {
   const guard = attachConsoleGuard(page, {
@@ -1311,7 +1430,7 @@ test.beforeEach(async ({ page }) => {
   try {
     await enableE2ELocalMode(page);
     await warmup(page);
-    await page.goto('/workspace');
+    await page.goto("/workspace");
     await waitForPageLoad(page, browserName);
   } finally {
     await guard.assertClean();
@@ -1321,15 +1440,16 @@ test.beforeEach(async ({ page }) => {
 ```
 
 **✅ BON** :
+
 ```typescript
-import { setupTestEnvironment } from './helpers/test-setup';
+import { setupTestEnvironment } from "./helpers/test-setup";
 
 test.beforeEach(async ({ page, browserName }) => {
   await setupTestEnvironment(page, browserName, {
     enableE2ELocalMode: true,
     warmup: true,
     consoleGuard: { enabled: true },
-    navigation: { path: '/workspace', waitForReady: true },
+    navigation: { path: "/workspace", waitForReady: true },
     mocks: { all: true },
   });
 });
@@ -1340,20 +1460,22 @@ test.beforeEach(async ({ page, browserName }) => {
 #### 6. Utiliser les fixtures Playwright quand possible
 
 **❌ MAUVAIS** :
+
 ```typescript
-test('My test', async ({ page, browserName }) => {
+test("My test", async ({ page, browserName }) => {
   await setupAllMocks(page);
   await authenticateUser(page, browserName);
-  await page.goto('/workspace');
+  await page.goto("/workspace");
   // ... test logic
 });
 ```
 
 **✅ BON** :
-```typescript
-import { test } from './fixtures';
 
-test('My test', async ({ authenticatedPage }) => {
+```typescript
+import { test } from "./fixtures";
+
+test("My test", async ({ authenticatedPage }) => {
   // authenticatedPage est déjà configurée avec mocks + auth + navigation
   // ... test logic directement
 });
@@ -1364,6 +1486,7 @@ test('My test', async ({ authenticatedPage }) => {
 ### 📚 Helpers Disponibles
 
 #### Attente Conditionnelle (`helpers/wait-helpers.ts`)
+
 - `waitForElementReady()` : Attend qu'un élément soit visible + stable
 - `waitForNetworkIdle()` : Attend que le réseau soit inactif
 - `waitForReactStable()` : Attend que React ait fini de rendre
@@ -1372,6 +1495,7 @@ test('My test', async ({ authenticatedPage }) => {
 - `waitForVisibleAndStable()` : Attend visibilité + stabilité
 
 #### Gestion d'Erreurs (`helpers/safe-helpers.ts`)
+
 - `safeClick()` : Clique avec fallback et logging
 - `safeIsVisible()` : Vérifie visibilité avec logging
 - `safeFill()` : Remplit avec gestion d'erreurs explicite
@@ -1379,6 +1503,7 @@ test('My test', async ({ authenticatedPage }) => {
 - `safeTextContent()` : Récupère texte avec gestion d'erreurs
 
 #### Test Data (`helpers/test-data.ts`)
+
 - `createTestTags()` : Crée des tags de test
 - `createTestFolders()` : Crée des dossiers de test
 - `createTestConversation()` : Crée une conversation de test
@@ -1388,13 +1513,16 @@ test('My test', async ({ authenticatedPage }) => {
 - `clearTestData()` : Nettoie les données de test
 
 #### Configuration (`config/timeouts.ts`)
+
 - `getTimeouts(browserName, isMobile)` : Récupère timeouts adaptés au navigateur
 - `TIMEOUTS` : Timeouts de base pour utilisation directe
 
 #### Setup (`helpers/test-setup.ts`)
+
 - `setupTestEnvironment()` : Setup complet avec options configurables
 
 #### Fixtures (`fixtures.ts`)
+
 - `mockedPage` : Page avec Gemini mock
 - `mockedPageFull` : Page avec tous les mocks
 - `authenticatedPage` : Page authentifiée
@@ -1414,6 +1542,7 @@ test('My test', async ({ authenticatedPage }) => {
 **Cause** : `waitForTimeout()` avec valeurs fixes ne garantit pas que l'élément est prêt
 
 **Solution** : Utiliser les helpers d'attente conditionnelle
+
 ```typescript
 // ❌ AVANT
 await page.waitForTimeout(500);
@@ -1433,6 +1562,7 @@ await waitForElementReady(page, selector, { browserName });
 **Cause** : `.catch()` silencieux masque les erreurs
 
 **Solution** : Utiliser les helpers `safe*` avec logging
+
 ```typescript
 // ❌ AVANT
 await button.click().catch(() => {});
@@ -1455,15 +1585,18 @@ if (!clicked) {
 **Cause** : Pas de factories centralisées
 
 **Solution** : Utiliser les factories de test data
+
 ```typescript
 // ❌ AVANT
 await page.evaluate(() => {
-  const tags = [/* ... code répété ... */];
-  localStorage.setItem('doodates_tags', JSON.stringify(tags));
+  const tags = [
+    /* ... code répété ... */
+  ];
+  localStorage.setItem("doodates_tags", JSON.stringify(tags));
 });
 
 // ✅ APRÈS
-await createTestTags(page, [{ name: 'Tag 1', color: '#3b82f6' }]);
+await createTestTags(page, [{ name: "Tag 1", color: "#3b82f6" }]);
 ```
 
 **Référence** : `tests/e2e/helpers/test-data.ts`
@@ -1477,6 +1610,7 @@ await createTestTags(page, [{ name: 'Tag 1', color: '#3b82f6' }]);
 **Cause** : Timeouts hardcodés identiques pour tous les navigateurs
 
 **Solution** : Utiliser la configuration centralisée des timeouts
+
 ```typescript
 // ❌ AVANT
 await expect(element).toBeVisible({ timeout: 10000 }); // Trop court pour Firefox
@@ -1497,6 +1631,7 @@ await expect(element).toBeVisible({ timeout: timeouts.element }); // Adapté au 
 **Cause** : Pas de fonction de setup centralisée
 
 **Solution** : Utiliser `setupTestEnvironment()`
+
 ```typescript
 // ❌ AVANT
 test.beforeEach(async ({ page }) => {
@@ -1525,6 +1660,7 @@ test.beforeEach(async ({ page, browserName }) => {
 **Cause** : `waitForTimeout()` attend toujours le délai complet même si l'élément est prêt
 
 **Solution** : Utiliser les helpers d'attente conditionnelle qui vérifient des conditions réelles
+
 ```typescript
 // ❌ AVANT
 await action();
@@ -1542,12 +1678,14 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 ## 📊 Métriques d'Amélioration
 
 ### Avant les Améliorations
+
 - **Code dupliqué** : ~40% dans les fichiers de tests
 - **Timeouts fixes** : 252 occurrences
 - **Erreurs silencieuses** : 232 occurrences
 - **Temps d'exécution** : ~15-20 minutes (tous navigateurs)
 
 ### Après les Améliorations
+
 - **Code dupliqué** : ~10% (réduction de 75%)
 - **Timeouts fixes** : 0 (remplacés par helpers conditionnels)
 - **Erreurs silencieuses** : 0 (remplacées par helpers avec logging)
@@ -1569,6 +1707,7 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 **Couverture** : 54 tests, 728 lignes
 
 **Fonctionnalités testées** :
+
 - ✅ **Validation** : `validateQuizz` avec tous les cas d'erreur (titre vide, questions manquantes, options manquantes)
 - ✅ **CRUD complet** : `getQuizz`, `saveQuizz`, `addQuizz`, `deleteQuizzById`, `duplicateQuizz`, `getQuizzBySlugOrId`
 - ✅ **Gestion des réponses** : `addQuizzResponse` pour tous les types de questions :
@@ -1594,6 +1733,7 @@ await waitForElementReady(page, selector); // Continue dès que prêt
   - `explorer` - 5 quiz différents
 
 **Exécution** :
+
 ```bash
 # Tests unitaires quizz
 npm run test:unit -- src/lib/products/quizz/__tests__/quizz-service.test.ts
@@ -1608,12 +1748,14 @@ npm run test:unit -- src/lib/products/__tests__/products-integration.test.ts
 **Couverture** : 4 scénarios, 122 lignes
 
 **Scénarios testés** :
+
 1. ✅ Navigation Landing → Dashboard
 2. ✅ Création manuelle de quiz
 3. ✅ Affichage de la liste dans le dashboard
 4. ✅ Navigation vers l'historique enfant (si disponible)
 
 **Exécution** :
+
 ```bash
 # PowerShell (Windows)
 node scripts/run-playwright-with-port.cjs test tests/e2e/products/quizz/navigation.spec.ts --project=chromium
@@ -1625,11 +1767,13 @@ npm run test:e2e -- tests/e2e/products/quizz/navigation.spec.ts
 ### Intégration CI/CD
 
 **Inclusion automatique** :
+
 - ✅ **Tests unitaires** : Inclus automatiquement dans `npm run test:unit` (exécuté dans tous les workflows)
 - ✅ **Tests E2E** : Inclus automatiquement dans `npm run test:e2e:smoke` et `npm run test:e2e:functional`
 - ✅ **Tests d'intégration** : Quizz inclus dans `products-integration.test.ts` pour vérifier la cohérence avec les autres produits
 
 **Workflows concernés** :
+
 - `1-pr-validation.yml` : Tests unitaires + E2E smoke/functional
 - `3-main-validation.yml` : Tests complets avant déploiement
 - Tous les workflows exécutent automatiquement les tests quizz
@@ -1637,14 +1781,15 @@ npm run test:e2e -- tests/e2e/products/quizz/navigation.spec.ts
 ### Routes E2E
 
 Les routes quizz sont définies dans `tests/e2e/utils.ts` :
+
 ```typescript
 PRODUCT_ROUTES.quizz = {
-  landing: '/DooDates/quizz',
-  workspace: '/DooDates/quizz/workspace',
-  dashboard: '/DooDates/quizz/dashboard',
-  docs: '/DooDates/quizz/docs',
-  pricing: '/DooDates/quizz/pricing',
-}
+  landing: "/DooDates/quizz",
+  workspace: "/DooDates/quizz/workspace",
+  dashboard: "/DooDates/quizz/dashboard",
+  docs: "/DooDates/quizz/docs",
+  pricing: "/DooDates/quizz/pricing",
+};
 ```
 
 ### Statistiques

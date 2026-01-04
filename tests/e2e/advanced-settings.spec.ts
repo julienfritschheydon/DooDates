@@ -1,16 +1,18 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Advanced Settings - Date Polls", () => {
-  test("should access date poll creation page with advanced settings available", async ({ page }) => {
+  test("should access date poll creation page with advanced settings available", async ({
+    page,
+  }) => {
     // Vérifier que la page de création est accessible
     try {
       await page.goto("/date-polls/workspace/date");
       await page.waitForLoadState("networkidle");
-      
+
       // Vérifier que la page est vraiment accessible
-      await expect(page.locator('body')).toBeVisible({ timeout: 3000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: 3000 });
     } catch (e) {
-      console.log('⚠️ Page Date Poll inaccessible, test skip');
+      console.log("⚠️ Page Date Poll inaccessible, test skip");
       test.skip();
       return;
     }
@@ -24,12 +26,12 @@ test.describe("Advanced Settings - Date Polls", () => {
       // Vérifier qu'il y a un input de titre (sans forcément le remplir)
       const titleSelectors = [
         'input[placeholder*="Réunion"]',
-        'input[placeholder*="réunion"]', 
+        'input[placeholder*="réunion"]',
         'input[placeholder*="titre"]',
         'input[placeholder*="Titre"]',
-        'input[type="text"]:visible'
+        'input[type="text"]:visible',
       ];
-      
+
       let titleFound = false;
       for (const selector of titleSelectors) {
         try {
@@ -41,9 +43,9 @@ test.describe("Advanced Settings - Date Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!titleFound) {
-        console.log('⚠️ Input titre non trouvé, mais page accessible');
+        console.log("⚠️ Input titre non trouvé, mais page accessible");
       }
 
       // Vérifier la présence d'un bouton de création/continuation
@@ -53,10 +55,10 @@ test.describe("Advanced Settings - Date Polls", () => {
         'button:has-text("Suivant")',
         'button:has-text("Enregistrer")',
         'button[type="submit"]',
-        '.create-button',
-        '.submit-button'
+        ".create-button",
+        ".submit-button",
       ];
-      
+
       let createFound = false;
       for (const selector of createSelectors) {
         try {
@@ -68,9 +70,9 @@ test.describe("Advanced Settings - Date Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!createFound) {
-        console.log('⚠️ Bouton création non trouvé, mais page accessible');
+        console.log("⚠️ Bouton création non trouvé, mais page accessible");
       }
 
       // Vérifier la présence de sections de paramètres avancés
@@ -80,10 +82,10 @@ test.describe("Advanced Settings - Date Polls", () => {
         'button:has-text("Options")',
         '[data-testid*="settings"]',
         '[data-testid*="advanced"]',
-        '.settings-button',
-        '.advanced-button'
+        ".settings-button",
+        ".advanced-button",
       ];
-      
+
       let advancedSettingsFound = false;
       for (const selector of advancedSettingsSelectors) {
         try {
@@ -95,30 +97,31 @@ test.describe("Advanced Settings - Date Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!advancedSettingsFound) {
-        console.log('⚠️ Paramètres avancés non visibles, mais page accessible');
+        console.log("⚠️ Paramètres avancés non visibles, mais page accessible");
       }
-      
     } catch (e) {
-      console.log('⚠️ Erreur vérification éléments, mais page accessible');
+      console.log("⚠️ Erreur vérification éléments, mais page accessible");
     }
 
-    console.log('✅ Test Date Poll - accessibilité vérifiée');
+    console.log("✅ Test Date Poll - accessibilité vérifiée");
   });
 });
 
 test.describe("Advanced Settings - Form Polls", () => {
-  test("should access form poll creation page with advanced settings available", async ({ page }) => {
+  test("should access form poll creation page with advanced settings available", async ({
+    page,
+  }) => {
     // Vérifier que la page de création est accessible
     try {
       await page.goto("/form-polls/workspace/form");
       await page.waitForLoadState("networkidle");
-      
+
       // Vérifier que la page est vraiment accessible
-      await expect(page.locator('body')).toBeVisible({ timeout: 3000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: 3000 });
     } catch (e) {
-      console.log('⚠️ Page Form Poll inaccessible, test skip');
+      console.log("⚠️ Page Form Poll inaccessible, test skip");
       test.skip();
       return;
     }
@@ -135,9 +138,9 @@ test.describe("Advanced Settings - Form Polls", () => {
         'input[placeholder*="Formulaire"]',
         'input[placeholder*="titre"]',
         'input[placeholder*="Titre"]',
-        'input[type="text"]:visible'
+        'input[type="text"]:visible',
       ];
-      
+
       let titleFound = false;
       for (const selector of titleSelectors) {
         try {
@@ -149,9 +152,9 @@ test.describe("Advanced Settings - Form Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!titleFound) {
-        console.log('⚠️ Input titre non trouvé, mais page accessible');
+        console.log("⚠️ Input titre non trouvé, mais page accessible");
       }
 
       // Vérifier la présence d'un bouton pour ajouter des questions
@@ -160,9 +163,9 @@ test.describe("Advanced Settings - Form Polls", () => {
         'button:has-text("Add question")',
         'button:has-text("+ Question")',
         '[data-testid*="add-question"]',
-        '.add-question-btn'
+        ".add-question-btn",
       ];
-      
+
       let addQuestionFound = false;
       for (const selector of addQuestionSelectors) {
         try {
@@ -174,9 +177,9 @@ test.describe("Advanced Settings - Form Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!addQuestionFound) {
-        console.log('⚠️ Bouton ajouter question non trouvé, mais page accessible');
+        console.log("⚠️ Bouton ajouter question non trouvé, mais page accessible");
       }
 
       // Vérifier la présence de sections de paramètres avancés
@@ -186,10 +189,10 @@ test.describe("Advanced Settings - Form Polls", () => {
         'button:has-text("Options")',
         '[data-testid*="settings"]',
         '[data-testid*="advanced"]',
-        '.settings-button',
-        '.advanced-button'
+        ".settings-button",
+        ".advanced-button",
       ];
-      
+
       let advancedSettingsFound = false;
       for (const selector of advancedSettingsSelectors) {
         try {
@@ -201,30 +204,31 @@ test.describe("Advanced Settings - Form Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!advancedSettingsFound) {
-        console.log('⚠️ Paramètres avancés non visibles, mais page accessible');
+        console.log("⚠️ Paramètres avancés non visibles, mais page accessible");
       }
-      
     } catch (e) {
-      console.log('⚠️ Erreur vérification éléments, mais page accessible');
+      console.log("⚠️ Erreur vérification éléments, mais page accessible");
     }
 
-    console.log('✅ Test Form Poll - accessibilité vérifiée');
+    console.log("✅ Test Form Poll - accessibilité vérifiée");
   });
 });
 
 test.describe("Advanced Settings - Availability Polls", () => {
-  test("should access availability poll creation page with advanced settings available", async ({ page }) => {
+  test("should access availability poll creation page with advanced settings available", async ({
+    page,
+  }) => {
     // Vérifier que la page de création est accessible
     try {
       await page.goto("/availability-polls/workspace/availability");
       await page.waitForLoadState("networkidle");
-      
+
       // Vérifier que la page est vraiment accessible
-      await expect(page.locator('body')).toBeVisible({ timeout: 3000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: 3000 });
     } catch (e) {
-      console.log('⚠️ Page Availability Poll inaccessible, test skip');
+      console.log("⚠️ Page Availability Poll inaccessible, test skip");
       test.skip();
       return;
     }
@@ -241,9 +245,9 @@ test.describe("Advanced Settings - Availability Polls", () => {
         'input[placeholder*="Disponibilité"]',
         'input[placeholder*="titre"]',
         'input[placeholder*="Titre"]',
-        'input[type="text"]:visible'
+        'input[type="text"]:visible',
       ];
-      
+
       let titleFound = false;
       for (const selector of titleSelectors) {
         try {
@@ -255,9 +259,9 @@ test.describe("Advanced Settings - Availability Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!titleFound) {
-        console.log('⚠️ Input titre non trouvé, mais page accessible');
+        console.log("⚠️ Input titre non trouvé, mais page accessible");
       }
 
       // Vérifier la présence d'éléments de sélection de dates/creneaux
@@ -266,10 +270,10 @@ test.describe("Advanced Settings - Availability Polls", () => {
         'input[placeholder*="date"]',
         'input[placeholder*="Date"]',
         '[data-testid*="date"]',
-        '.date-picker',
-        '.calendar'
+        ".date-picker",
+        ".calendar",
       ];
-      
+
       let dateFound = false;
       for (const selector of dateSelectors) {
         try {
@@ -281,9 +285,9 @@ test.describe("Advanced Settings - Availability Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!dateFound) {
-        console.log('⚠️ Sélecteur date non trouvé, mais page accessible');
+        console.log("⚠️ Sélecteur date non trouvé, mais page accessible");
       }
 
       // Vérifier la présence de sections de paramètres avancés
@@ -293,10 +297,10 @@ test.describe("Advanced Settings - Availability Polls", () => {
         'button:has-text("Options")',
         '[data-testid*="settings"]',
         '[data-testid*="advanced"]',
-        '.settings-button',
-        '.advanced-button'
+        ".settings-button",
+        ".advanced-button",
       ];
-      
+
       let advancedSettingsFound = false;
       for (const selector of advancedSettingsSelectors) {
         try {
@@ -308,16 +312,15 @@ test.describe("Advanced Settings - Availability Polls", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!advancedSettingsFound) {
-        console.log('⚠️ Paramètres avancés non visibles, mais page accessible');
+        console.log("⚠️ Paramètres avancés non visibles, mais page accessible");
       }
-      
     } catch (e) {
-      console.log('⚠️ Erreur vérification éléments, mais page accessible');
+      console.log("⚠️ Erreur vérification éléments, mais page accessible");
     }
 
-    console.log('✅ Test Availability Poll - accessibilité vérifiée');
+    console.log("✅ Test Availability Poll - accessibilité vérifiée");
   });
 });
 
@@ -327,11 +330,11 @@ test.describe("Advanced Settings - Quizzes", () => {
     try {
       await page.goto("/quizzes/workspace/quiz");
       await page.waitForLoadState("networkidle");
-      
+
       // Vérifier que la page est vraiment accessible
-      await expect(page.locator('body')).toBeVisible({ timeout: 3000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: 3000 });
     } catch (e) {
-      console.log('⚠️ Page Quiz inaccessible, test skip');
+      console.log("⚠️ Page Quiz inaccessible, test skip");
       test.skip();
       return;
     }
@@ -349,9 +352,9 @@ test.describe("Advanced Settings - Quizzes", () => {
         'input[placeholder*="questionnaire"]',
         'input[placeholder*="titre"]',
         'input[placeholder*="Titre"]',
-        'input[type="text"]:visible'
+        'input[type="text"]:visible',
       ];
-      
+
       let titleFound = false;
       for (const selector of titleSelectors) {
         try {
@@ -363,9 +366,9 @@ test.describe("Advanced Settings - Quizzes", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!titleFound) {
-        console.log('⚠️ Input titre non trouvé, mais page accessible');
+        console.log("⚠️ Input titre non trouvé, mais page accessible");
       }
 
       // Vérifier la présence d'un bouton pour ajouter des questions
@@ -374,9 +377,9 @@ test.describe("Advanced Settings - Quizzes", () => {
         'button:has-text("Add question")',
         'button:has-text("+ Question")',
         '[data-testid*="add-question"]',
-        '.add-question-btn'
+        ".add-question-btn",
       ];
-      
+
       let addQuestionFound = false;
       for (const selector of addQuestionSelectors) {
         try {
@@ -388,9 +391,9 @@ test.describe("Advanced Settings - Quizzes", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!addQuestionFound) {
-        console.log('⚠️ Bouton ajouter question non trouvé, mais page accessible');
+        console.log("⚠️ Bouton ajouter question non trouvé, mais page accessible");
       }
 
       // Vérifier la présence de sections de paramètres avancés
@@ -400,10 +403,10 @@ test.describe("Advanced Settings - Quizzes", () => {
         'button:has-text("Options")',
         '[data-testid*="settings"]',
         '[data-testid*="advanced"]',
-        '.settings-button',
-        '.advanced-button'
+        ".settings-button",
+        ".advanced-button",
       ];
-      
+
       let advancedSettingsFound = false;
       for (const selector of advancedSettingsSelectors) {
         try {
@@ -415,15 +418,14 @@ test.describe("Advanced Settings - Quizzes", () => {
           // Continuer avec le sélecteur suivant
         }
       }
-      
+
       if (!advancedSettingsFound) {
-        console.log('⚠️ Paramètres avancés non visibles, mais page accessible');
+        console.log("⚠️ Paramètres avancés non visibles, mais page accessible");
       }
-      
     } catch (e) {
-      console.log('⚠️ Erreur vérification éléments, mais page accessible');
+      console.log("⚠️ Erreur vérification éléments, mais page accessible");
     }
 
-    console.log('✅ Test Quiz - accessibilité vérifiée');
+    console.log("✅ Test Quiz - accessibilité vérifiée");
   });
 });
