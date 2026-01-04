@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useResultsAccess } from "@/hooks/useResultsAccess";
 import { ResultsAccessDenied } from "@/components/polls/ResultsAccessDenied";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Poll } from "../../lib/pollStorage";
 import { buildAbsoluteUrl } from "@/lib/baseUrlUtils";
 
 // Composant QR Code simple (génération via API externe)
@@ -70,7 +71,7 @@ export default function QuizzResults() {
   }, [quizz, results, user]);
 
   // Vérifier l'accès aux résultats
-  const accessStatus = useResultsAccess(quizz as Poll, hasVoted);
+  const accessStatus = useResultsAccess(quizz as unknown as Poll, hasVoted);
 
   // Charger le quiz et les résultats
   useEffect(() => {
@@ -228,9 +229,9 @@ export default function QuizzResults() {
   if (!accessStatus.allowed) {
     return (
       <ResultsAccessDenied
-        message={accessStatus.message || "Accès non autorisé"}
+        message={(accessStatus as any).message || "Accès non autorisé"}
         pollSlug={quizz.slug}
-        showVoteButton={accessStatus.reason === "not-voted"}
+        showVoteButton={(accessStatus as any).reason === "not-voted"}
       />
     );
   }
