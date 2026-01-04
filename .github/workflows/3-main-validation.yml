@@ -444,6 +444,12 @@ jobs:
           ls -la dist/manifest.json || echo "manifest.json MANQUANT"
           ls -la dist/logo-doodates.svg || echo "logo-doodates.svg MANQUANT"
 
+      - name: 🛠️ GitHub Pages SPA Fallback (404.html)
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+          echo "✅ SPA fallback and .nojekyll created"
+
       - name: 📤 Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

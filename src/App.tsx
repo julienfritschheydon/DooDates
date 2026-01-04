@@ -556,7 +556,7 @@ const App = () => {
                               <Routes>
                                 {/* Route / vers MainLanding (Nouvelle Landing) */}
                                 <Route path="/" element={<MainLanding />} />
-                                
+
                                 {/* Redirection /DooDates/ vers / pour GitHub Pages */}
                                 <Route path="/DooDates" element={<Navigate to="/" replace />} />
                                 <Route path="/DooDates/" element={<Navigate to="/" replace />} />
