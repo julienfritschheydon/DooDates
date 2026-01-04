@@ -199,16 +199,14 @@ jobs:
       - name: 📤 Upload build artifact for GitHub Pages
         run: |
           mkdir -p github-pages-dist
-          # Copier seulement les fichiers essentiels qui existent
+          # Copier seulement l'essentiel pour GitHub Pages
           cp dist/index.html github-pages-dist/ || echo "index.html not found"
           cp -r dist/assets github-pages-dist/ || echo "assets not found"
-          cp dist/manifest.json github-pages-dist/ || echo "manifest.json not found"
-          cp dist/robots.txt github-pages-dist/ || echo "robots.txt not found"
-          cp dist/sw.js github-pages-dist/ || echo "sw.js not found"
-          cp dist/logo-doodates.svg github-pages-dist/ || echo "logo-doodates.svg not found"
-          cp dist/placeholder.svg github-pages-dist/ || echo "placeholder.svg not found"
-          # Lister ce qui a été copié
-          ls -la github-pages-dist/
+          # Vérifier qu'il n'y a pas de symlinks
+          find github-pages-dist -type l 2>/dev/null || echo "No symlinks found"
+          # Lister les fichiers pour debug
+          echo "=== Files in github-pages-dist ==="
+          find github-pages-dist -type f | head -20
 
       - name: 📤 Upload artifact for GitHub Pages
         uses: actions/upload-artifact@v4
