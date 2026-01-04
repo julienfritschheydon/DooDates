@@ -65,9 +65,9 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
   // Determine dashboard URL based on current path
   const getDashboardUrl = () => {
-    if (location.pathname.includes("/form")) return "/form-polls/dashboard";
-    if (location.pathname.includes("/availability")) return "/availability-polls/dashboard";
-    return "/date-polls/dashboard"; // Default to date polls
+    if (location.pathname.includes("/form")) return "/form/dashboard";
+    if (location.pathname.includes("/availability")) return "/availability/dashboard";
+    return "/date/dashboard"; // Default to date
   };
 
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);

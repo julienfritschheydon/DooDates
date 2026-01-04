@@ -82,7 +82,7 @@ export default function DatePollsDataControl() {
           <div className="mb-8">
             <Button
               variant="ghost"
-              onClick={() => navigate("/date-polls/dashboard")}
+              onClick={() => navigate("/date/dashboard")}
               className="mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -184,14 +184,14 @@ export default function DatePollsDataControl() {
             <div className="space-y-2">
               <Button
                 variant="ghost"
-                onClick={() => navigate("/date-polls/privacy")}
+                onClick={() => navigate("/date/privacy")}
                 className="w-full justify-start"
               >
                 Politique de confidentialité
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => navigate("/date-polls/settings")}
+                onClick={() => navigate("/date/settings")}
                 className="w-full justify-start"
               >
                 Paramètres du compte

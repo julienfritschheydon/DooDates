@@ -378,7 +378,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     return (
       <VoteCompletionScreen
         voterName={voterName}
-        onBack={() => (window.location.href = "/form-polls")}
+        onBack={() => (window.location.href = "/form")}
         onViewResults={
           canSeeResults
             ? () => (window.location.href = `/poll/${poll.slug || poll.id}/results`)

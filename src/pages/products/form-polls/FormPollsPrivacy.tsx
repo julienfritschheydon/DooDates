@@ -12,7 +12,7 @@ export default function FormPollsPrivacy() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("/form-polls/dashboard")}
+            onClick={() => navigate("/form/dashboard")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -150,7 +150,7 @@ export default function FormPollsPrivacy() {
             </ul>
             <div className="mt-4">
               <Button
-                onClick={() => navigate("/form-polls/data-control")}
+                onClick={() => navigate("/form/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
               >
                 Gérer mes données

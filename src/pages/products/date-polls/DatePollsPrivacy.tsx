@@ -12,7 +12,7 @@ export default function DatePollsPrivacy() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("/date-polls/dashboard")}
+            onClick={() => navigate("/date/dashboard")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -144,7 +144,7 @@ export default function DatePollsPrivacy() {
             </ul>
             <div className="mt-4">
               <Button
-                onClick={() => navigate("/date-polls/data-control")}
+                onClick={() => navigate("/date/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
               >
                 Gérer mes données

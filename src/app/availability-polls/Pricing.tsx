@@ -17,16 +17,16 @@ export default function AvailabilityPollsPricing() {
             </div>
             <nav className="flex items-center gap-6">
               <Link
-                to="/availability-polls/dashboard"
+                to="/availability/dashboard"
                 className="text-gray-400 hover:text-emerald-400 transition-colors"
               >
                 Tableau de bord
               </Link>
-              <Link to="/availability-polls/pricing" className="text-emerald-400 font-medium">
+              <Link to="/availability/pricing" className="text-emerald-400 font-medium">
                 Tarifs
               </Link>
               <Link
-                to="/availability-polls/documentation"
+                to="/availability/documentation"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Documentation

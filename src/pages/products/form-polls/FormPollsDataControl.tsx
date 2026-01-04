@@ -73,7 +73,7 @@ export default function FormPollsDataControl() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("/form-polls/dashboard")}
+            onClick={() => navigate("/form/dashboard")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -165,14 +165,14 @@ export default function FormPollsDataControl() {
           <div className="space-y-2">
             <Button
               variant="ghost"
-              onClick={() => navigate("/form-polls/privacy")}
+              onClick={() => navigate("/form/privacy")}
               className="w-full justify-start"
             >
               Politique de confidentialité
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate("/form-polls/settings")}
+              onClick={() => navigate("/form/settings")}
               className="w-full justify-start"
             >
               Paramètres du compte

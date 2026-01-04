@@ -23,7 +23,7 @@ const AvailabilityPollsApp: React.FC = () => {
   const location = useLocation();
 
   // Page landing avec son propre layout
-  if (location.pathname === "/availability-polls" || location.pathname === "/availability-polls/") {
+  if (location.pathname === "/availability" || location.pathname === "/availability/") {
     return <LandingPage />;
   }
 

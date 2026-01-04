@@ -305,7 +305,7 @@ const AvailabilityPollResults = () => {
           <Loader2 className="w-6 h-6" />
         </Button>
         <Button
-          onClick={() => navigate("/availability-polls/dashboard")}
+          onClick={() => navigate("/availability/dashboard")}
           variant="ghost"
           size="icon"
           className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"

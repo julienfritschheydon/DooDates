@@ -57,10 +57,13 @@ export default defineConfig(({ command }): UserConfig => {
   };
 
   // ⚠️ CRITIQUE: GitHub Pages routing - Configuration finale
-  // base="/" partout (local ET prod) car repo sera renommé en julienfritschheydon.github.io
-  // URLs identiques : http://localhost:8080/date-polls ET https://julienfritschheydon.github.io/date-polls
-  // BrowserRouter SANS basename
-  config.base = "/";
+  // En dev (serve): base="/" pour tester en local
+  // En prod (build): base="/DooDates/" pour GitHub Pages (repo DooDates)
+  // Routes simplifiées : /date, /form, /availability, /quizz
+  // URLs prod : https://julienfritschheydon.github.io/DooDates/date
+  if (command !== "serve") {
+    config.base = "/DooDates/";
+  }
 
   return config;
 });

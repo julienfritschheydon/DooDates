@@ -34,16 +34,16 @@ export default function DatePollsDocumentation() {
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link
-                to="/date-polls/dashboard"
+                to="/date/dashboard"
                 className="text-gray-400 hover:text-blue-400 transition-colors"
               >
                 Tableau de bord
               </Link>
-              <Link to="/date-polls/documentation" className="text-blue-400 font-medium">
+              <Link to="/date/documentation" className="text-blue-400 font-medium">
                 Documentation
               </Link>
               <Link
-                to="/date-polls/pricing"
+                to="/date/pricing"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Tarifs
@@ -260,7 +260,7 @@ export default function DatePollsDocumentation() {
           <h2 className="text-xl font-semibold mb-4">🔗 Liens Rapides</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link
-              to="/date-polls/dashboard"
+              to="/date/dashboard"
               className="block text-blue-400 hover:text-blue-300 transition-colors"
             >
               → Tableau de bord
@@ -272,7 +272,7 @@ export default function DatePollsDocumentation() {
               → Créer un sondage
             </Link>
             <Link
-              to="/date-polls/pricing"
+              to="/date/pricing"
               className="block text-blue-400 hover:text-blue-300 transition-colors"
             >
               → Tarifs

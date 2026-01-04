@@ -226,7 +226,7 @@ const PollCreator = () => {
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
-                  to="/date-polls/dashboard"
+                  to="/date/dashboard"
                   className={`inline-flex items-center justify-center gap-2 px-6 py-3 ${buttonClass} text-white rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all`}
                   data-testid="go-to-dashboard-button"
                 >

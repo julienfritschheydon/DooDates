@@ -20,11 +20,11 @@ const ProductRoutes: React.FC = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        <Route path="/date-polls/*" element={<DatePollsApp />} />
-        <Route path="/form-polls/*" element={<FormPollsApp />} />
-        <Route path="/quizz/*" element={<QuizzApp />} />
-        <Route path="/availability-polls/*" element={<AvailabilityPollsApp />} />
-        <Route path="/" element={<Navigate to="/date-polls" replace />} />
+        <Route path="/date/*" element={<DatePollsApp />} />
+        <Route path="/form/*" element={<FormPollsApp />} />
+        {/* Availability Polls */}
+        <Route path="/availability/*" element={<AvailabilityPollsApp />} />
+        <Route path="/" element={<Navigate to="/date" replace />} />
       </Routes>
     </Suspense>
   );

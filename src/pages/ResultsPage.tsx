@@ -31,7 +31,7 @@ export default function ResultsPage() {
           <CardContent>
             <p className="text-gray-600">Page en cours de développement...</p>
             <Button
-              onClick={() => navigate("/date-polls/dashboard")}
+              onClick={() => navigate("/date/dashboard")}
               className="mt-4"
               data-testid="results-page-dashboard"
             >

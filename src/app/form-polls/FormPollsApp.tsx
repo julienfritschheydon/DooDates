@@ -24,7 +24,7 @@ const FormPollsApp: React.FC = () => {
   const location = useLocation();
 
   // Page landing avec son propre layout
-  if (location.pathname === "/form-polls" || location.pathname === "/form-polls/") {
+  if (location.pathname === "/form" || location.pathname === "/form/") {
     return <LandingPage />;
   }
 

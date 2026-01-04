@@ -49,12 +49,12 @@ const Vote = () => {
   const getProductLanding = (pollType?: string) => {
     switch (pollType) {
       case "form":
-        return "/form-polls";
+        return "/form";
       case "availability":
-        return "/availability-polls";
+        return "/availability";
       case "date":
       default:
-        return "/date-polls";
+        return "/date";
     }
   };
 

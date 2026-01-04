@@ -66,21 +66,21 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/date-polls/workspace/date"
+              to="/date/workspace/date"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-colors font-semibold text-lg shadow-lg"
             >
               Créer un sondage
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              to="/form-polls/workspace/form"
+              to="/form/workspace/form"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-lg hover:from-violet-600 hover:to-violet-700 transition-colors font-semibold text-lg shadow-lg"
             >
               Créer un formulaire
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              to="/availability-polls/workspace/availability"
+              to="/availability/workspace/availability"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors font-semibold text-lg shadow-lg"
             >
               Créer une disponibilité
@@ -208,7 +208,7 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/date-polls/workspace/date"
+                    to="/date/workspace/date"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Créer un sondage
@@ -216,7 +216,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <Link
-                    to="/date-polls/dashboard"
+                    to="/date/dashboard"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Tableau de bord

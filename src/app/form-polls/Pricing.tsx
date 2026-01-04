@@ -17,16 +17,16 @@ export default function FormPollsPricing() {
             </div>
             <nav className="flex items-center gap-6">
               <Link
-                to="/form-polls/dashboard"
+                to="/form/dashboard"
                 className="text-gray-400 hover:text-violet-400 transition-colors"
               >
                 Tableau de bord
               </Link>
-              <Link to="/form-polls/pricing" className="text-violet-400 font-medium">
+              <Link to="/form/pricing" className="text-violet-400 font-medium">
                 Tarifs
               </Link>
               <Link
-                to="/form-polls/documentation"
+                to="/form/documentation"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Documentation

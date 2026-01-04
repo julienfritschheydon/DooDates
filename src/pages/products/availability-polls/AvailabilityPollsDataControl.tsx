@@ -70,7 +70,7 @@ export default function AvailabilityPollsDataControl() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("/availability-polls/dashboard")}
+            onClick={() => navigate("/availability/dashboard")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -151,14 +151,14 @@ export default function AvailabilityPollsDataControl() {
           <div className="space-y-2">
             <Button
               variant="ghost"
-              onClick={() => navigate("/availability-polls/privacy")}
+              onClick={() => navigate("/availability/privacy")}
               className="w-full justify-start"
             >
               Politique de confidentialité
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate("/availability-polls/settings")}
+              onClick={() => navigate("/availability/settings")}
               className="w-full justify-start"
             >
               Paramètres du compte

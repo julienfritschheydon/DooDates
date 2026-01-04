@@ -135,7 +135,7 @@ export const LandingPage: React.FC = () => {
                   product="date"
                   variantRole="primary"
                   size="lg"
-                  onClick={() => navigate("/date-polls/workspace/date")}
+                  onClick={() => navigate("/date/workspace/date")}
                   className="group relative px-8 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
                   data-testid="create-date-poll-button"
                 >
@@ -342,8 +342,8 @@ export const LandingPage: React.FC = () => {
               product="date"
               variantRole="primary"
               size="lg"
-              onClick={() => navigate("/date-polls/workspace/date")}
-              className="px-10 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-blue-500/25"
+              onClick={() => navigate("/date/workspace/date")}
+              className="px-10 py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-lg shadow-blue-500/25"
             >
               Créer mon premier sondage — Gratuit
             </ProductButton>

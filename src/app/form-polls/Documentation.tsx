@@ -35,16 +35,16 @@ export default function FormPollsDocumentation() {
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link
-                to="/form-polls/dashboard"
+                to="/form/dashboard"
                 className="text-gray-400 hover:text-purple-400 transition-colors"
               >
                 Tableau de bord
               </Link>
-              <Link to="/form-polls/documentation" className="text-purple-400 font-medium">
+              <Link to="/form/documentation" className="text-purple-400 font-medium">
                 Documentation
               </Link>
               <Link
-                to="/form-polls/pricing"
+                to="/form/pricing"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Tarifs
@@ -269,7 +269,7 @@ export default function FormPollsDocumentation() {
             plus encore.
           </p>
           <Link
-            to="/form-polls/documentation/advanced"
+            to="/form/documentation/advanced"
             className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-400 hover:bg-purple-500/30 transition-colors"
           >
             Documentation avancée →
@@ -281,7 +281,7 @@ export default function FormPollsDocumentation() {
           <h2 className="text-xl font-semibold mb-4">🔗 Liens Rapides</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link
-              to="/form-polls/dashboard"
+              to="/form/dashboard"
               className="block text-purple-400 hover:text-purple-300 transition-colors"
             >
               → Tableau de bord
@@ -293,7 +293,7 @@ export default function FormPollsDocumentation() {
               → Créer un formulaire
             </Link>
             <Link
-              to="/form-polls/pricing"
+              to="/form/pricing"
               className="block text-purple-400 hover:text-purple-300 transition-colors"
             >
               → Tarifs

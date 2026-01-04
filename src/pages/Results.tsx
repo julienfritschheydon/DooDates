@@ -146,7 +146,7 @@ const Results: React.FC = () => {
               message={<>Sondage introuvable.</>}
               action={
                 <button
-                  onClick={() => navigate("/date-polls/dashboard")}
+                  onClick={() => navigate("/date/dashboard")}
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   data-testid="dashboard-button"
                 >
@@ -266,7 +266,7 @@ const Results: React.FC = () => {
                   message={<>Ce sondage n'a aucune date configurée.</>}
                   action={
                     <button
-                      onClick={() => navigate("/date-polls/dashboard")}
+                      onClick={() => navigate("/date/dashboard")}
                       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                       data-testid="dashboard-button"
                     >

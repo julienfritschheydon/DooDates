@@ -240,7 +240,7 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-600">
                   <Button
-                    onClick={() => navigate("/availability-polls/dashboard")}
+                    onClick={() => navigate("/availability/dashboard")}
                     size="lg"
                     className="bg-green-600 hover:bg-green-700 text-white"
                   >

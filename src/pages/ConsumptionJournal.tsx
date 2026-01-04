@@ -67,23 +67,23 @@ export default function ConsumptionJournal() {
   // Déterminer le thème basé sur l'URL
   const theme = (() => {
     let type: ContentTypeFilter = "date"; // default
-    if (location.pathname.includes("/form-polls/")) {
+    if (location.pathname.includes("/form/")) {
       type = "form";
-    } else if (location.pathname.includes("/availability-polls/")) {
+    } else if (location.pathname.includes("/availability/")) {
       type = "availability";
     }
     return getThemeColors(type);
   })();
 
   const handleBack = () => {
-    if (location.pathname.includes("/form-polls/")) {
-      navigate("/form-polls/dashboard");
-    } else if (location.pathname.includes("/availability-polls/")) {
-      navigate("/availability-polls/dashboard");
-    } else if (location.pathname.includes("/date-polls/")) {
-      navigate("/date-polls/dashboard");
+    if (location.pathname.includes("/form/")) {
+      navigate("/form/dashboard");
+    } else if (location.pathname.includes("/availability/")) {
+      navigate("/availability/dashboard");
+    } else if (location.pathname.includes("/date/")) {
+      navigate("/date/dashboard");
     } else {
-      navigate("/date-polls/dashboard"); // Redirection par défaut vers date-polls
+      navigate("/date/dashboard"); // Redirection par défaut vers date
     }
   };
   const [journal, setJournal] = useState<CreditJournalEntry[]>([]);
@@ -119,7 +119,7 @@ export default function ConsumptionJournal() {
         // Utiliser window.location.pathname car location.pathname ne contient pas le basename
         const fullPath = window.location.pathname;
         let filteredEntries = entries;
-        if (fullPath.includes("/date-polls/")) {
+        if (fullPath.includes("/date/")) {
           // Journal des date polls : afficher uniquement les sondages de dates
           filteredEntries = entries.filter((entry) => {
             // Garder toutes les entrées sauf poll_created avec un type différent de date
@@ -128,7 +128,7 @@ export default function ConsumptionJournal() {
             }
             return true; // Garder les autres types d'actions (conversations, messages IA, etc.)
           });
-        } else if (fullPath.includes("/form-polls/")) {
+        } else if (fullPath.includes("/form/")) {
           // Journal des form polls : afficher uniquement les sondages de formulaires
           filteredEntries = entries.filter((entry) => {
             if (entry.action === "poll_created" && entry.metadata?.pollType) {
@@ -136,7 +136,7 @@ export default function ConsumptionJournal() {
             }
             return true;
           });
-        } else if (fullPath.includes("/availability-polls/")) {
+        } else if (fullPath.includes("/availability/")) {
           // Journal des availability polls : afficher uniquement les sondages de disponibilité
           filteredEntries = entries.filter((entry) => {
             if (entry.action === "poll_created" && entry.metadata?.pollType) {

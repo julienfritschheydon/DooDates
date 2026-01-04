@@ -556,11 +556,15 @@ const App = () => {
                               <Routes>
                                 {/* Route / vers MainLanding (Nouvelle Landing) */}
                                 <Route path="/" element={<MainLanding />} />
+                                
+                                {/* Redirection /DooDates/ vers / pour GitHub Pages */}
+                                <Route path="/DooDates" element={<Navigate to="/" replace />} />
+                                <Route path="/DooDates/" element={<Navigate to="/" replace />} />
 
-                                {/* Product Apps - Architecture simplifiée avec wildcard */}
-                                <Route path="/date-polls/*" element={<DatePollsApp />} />
-                                <Route path="/form-polls/*" element={<FormPollsApp />} />
-                                <Route path="/availability-polls/*" element={<AvailabilityPollsApp />} />
+                                {/* Product Apps - Routes simplifiées */}
+                                <Route path="/date/*" element={<DatePollsApp />} />
+                                <Route path="/form/*" element={<FormPollsApp />} />
+                                <Route path="/availability/*" element={<AvailabilityPollsApp />} />
                                 <Route path="/quizz/*" element={<QuizzApp />} />
 
 

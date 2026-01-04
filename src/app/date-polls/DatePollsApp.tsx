@@ -23,7 +23,7 @@ const DatePollsApp: React.FC = () => {
   const location = useLocation();
 
   // Page landing avec son propre layout
-  if (location.pathname === "/date-polls" || location.pathname === "/date-polls/") {
+  if (location.pathname === "/date" || location.pathname === "/date/") {
     return <LandingPage />;
   }
 

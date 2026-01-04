@@ -34,7 +34,7 @@ export default function AvailabilityPollsDocumentation() {
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link
-                to="/availability-polls/dashboard"
+                to="/availability/dashboard"
                 className="text-gray-300 hover:text-green-400 transition-colors"
               >
                 Tableau de bord
@@ -43,7 +43,7 @@ export default function AvailabilityPollsDocumentation() {
                 Documentation
               </Link>
               <Link
-                to="/availability-polls/pricing"
+                to="/availability/pricing"
                 className="text-gray-300 hover:text-white transition-colors"
               >
                 Tarifs
@@ -261,7 +261,7 @@ export default function AvailabilityPollsDocumentation() {
           <h2 className="text-xl font-semibold mb-4">🔗 Liens Rapides</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link
-              to="/availability-polls/dashboard"
+              to="/availability/dashboard"
               className="block text-green-400 hover:text-green-300 transition-colors"
             >
               → Tableau de bord
@@ -273,7 +273,7 @@ export default function AvailabilityPollsDocumentation() {
               → Créer un sondage
             </Link>
             <Link
-              to="/availability-polls/pricing"
+              to="/availability/pricing"
               className="block text-green-400 hover:text-green-300 transition-colors"
             >
               → Tarifs

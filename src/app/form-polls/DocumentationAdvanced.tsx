@@ -39,13 +39,13 @@ export default function FormPollsDocumentationAdvanced() {
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link
-                to="/form-polls/documentation"
+                to="/form/documentation"
                 className="text-gray-400 hover:text-purple-400 transition-colors"
               >
                 ← Documentation
               </Link>
               <Link
-                to="/form-polls/dashboard"
+                to="/form/dashboard"
                 className="text-gray-400 hover:text-purple-400 transition-colors"
               >
                 Tableau de bord
@@ -59,7 +59,7 @@ export default function FormPollsDocumentationAdvanced() {
         {/* Header */}
         <div className="mb-12">
           <Link
-            to="/form-polls/documentation"
+            to="/form/documentation"
             className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -560,13 +560,13 @@ Q3. [Visible si Q1 = Oui]
           <h2 className="text-xl font-semibold mb-4">🔗 Liens Rapides</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link
-              to="/form-polls/documentation"
+              to="/form/documentation"
               className="block text-purple-400 hover:text-purple-300 transition-colors"
             >
               ← Documentation simple
             </Link>
             <Link
-              to="/form-polls/dashboard"
+              to="/form/dashboard"
               className="block text-purple-400 hover:text-purple-300 transition-colors"
             >
               → Tableau de bord

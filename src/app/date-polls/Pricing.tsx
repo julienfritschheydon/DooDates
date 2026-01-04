@@ -17,16 +17,16 @@ export default function DatePollsPricing() {
             </div>
             <nav className="flex items-center gap-6">
               <Link
-                to="/date-polls/dashboard"
+                to="/date/dashboard"
                 className="text-gray-400 hover:text-blue-400 transition-colors"
               >
                 Tableau de bord
               </Link>
-              <Link to="/date-polls/pricing" className="text-blue-400 font-medium">
+              <Link to="/date/pricing" className="text-blue-400 font-medium">
                 Tarifs
               </Link>
               <Link
-                to="/date-polls/documentation"
+                to="/date/documentation"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Documentation

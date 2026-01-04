@@ -23,7 +23,7 @@ export default function AuthCallback() {
 
     // Sauvegarder la valeur AVANT de la supprimer
     const returnTo =
-      returnToFromQuery || returnToFromHash || returnToFromStorage || "/date-polls/dashboard";
+      returnToFromQuery || returnToFromHash || returnToFromStorage || "/date/dashboard";
 
     // Supprimer auth_return_to UNE SEULE FOIS après l'avoir récupéré
     if (returnToFromStorage) {
@@ -177,7 +177,7 @@ export default function AuthCallback() {
               </Alert>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => navigate("/date-polls/dashboard")}
+                  onClick={() => navigate("/date/dashboard")}
                   className="flex-1"
                   data-testid="auth-go-dashboard"
                 >
