@@ -323,6 +323,84 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
 }
 
 /**
+ * Setup Supabase REST API mock to prevent errors during E2E tests
+ */
+export async function setupSupabaseRestApiMock(page: Page) {
+  // Intercepter les requêtes à l'API REST Supabase
+  await page.route(/.*\/rest\/v1\/.*/, async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    const url = request.url();
+
+    // console.log('🔧 Supabase REST API mock - Intercepted request:', method, url);
+
+    // Handle OPTIONS preflight requests for CORS
+    if (method === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    // Handle guest_emails table requests (getGuestEmail)
+    if (url.includes("/rest/v1/guest_emails")) {
+      if (method === "GET") {
+        // Mock response for getGuestEmail - return null (no email found)
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "[]", // Empty array = no guest email found
+        });
+        return;
+      }
+      
+      if (method === "POST") {
+        // Mock response for saveGuestEmail - success
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            guest_id: "test-guest-id",
+            email: "test@example.com",
+            created_at: new Date().toISOString()
+          }),
+        });
+        return;
+      }
+    }
+
+    // Handle other Supabase tables - return empty results for SELECT queries
+    if (method === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]", // Empty array
+      });
+      return;
+    }
+
+    // Handle POST/PATCH/DELETE - return success
+    if (["POST", "PATCH", "DELETE"].includes(method)) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}", // Empty success response
+      });
+      return;
+    }
+
+    // For any other requests, continue normally
+    await route.continue();
+  });
+}
+
+/**
  * Setup Supabase Edge Function mock to prevent CORS errors and API costs during E2E tests
  */
 export async function setupSupabaseEdgeFunctionMock(page: Page) {
@@ -956,6 +1034,7 @@ export async function setupAllMocksWithoutNavigation(page: Page) {
 
   // Setup API mocks
   await setupGeminiMock(page);
+  await setupSupabaseRestApiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
   await setupBetaKeyMocks(page);
 
@@ -986,6 +1065,77 @@ export async function setupAllMocksContext(context: BrowserContext) {
       contentType: "application/json",
       body: JSON.stringify(mockResponse),
     });
+  });
+
+  // Mock Supabase REST API
+  await context.route(/.*\/rest\/v1\/.*/, async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    const url = request.url();
+
+    // Handle OPTIONS preflight requests for CORS
+    if (method === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    // Handle guest_emails table requests (getGuestEmail)
+    if (url.includes("/rest/v1/guest_emails")) {
+      if (method === "GET") {
+        // Mock response for getGuestEmail - return null (no email found)
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "[]", // Empty array = no guest email found
+        });
+        return;
+      }
+      
+      if (method === "POST") {
+        // Mock response for saveGuestEmail - success
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            guest_id: "test-guest-id",
+            email: "test@example.com",
+            created_at: new Date().toISOString()
+          }),
+        });
+        return;
+      }
+    }
+
+    // Handle other Supabase tables - return empty results for SELECT queries
+    if (method === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]", // Empty array
+      });
+      return;
+    }
+
+    // Handle POST/PATCH/DELETE - return success
+    if (["POST", "PATCH", "DELETE"].includes(method)) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}", // Empty success response
+      });
+      return;
+    }
+
+    // For any other requests, continue normally
+    await route.continue();
   });
 
   // Mock Beta Key RPC endpoints
