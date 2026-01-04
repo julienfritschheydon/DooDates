@@ -8,6 +8,7 @@ export default defineConfig({
   // ⚠️ IMPORTANT: Base path configuration for GitHub Pages
   // This handles the /DooDates/ subdirectory deployment
   // VITE_BASE_PATH in .env.production handles React Router basename
+  // 🚨 TEMPORAIRE: Console logs activés en prod pour debugging IA
   base: process.env.NODE_ENV === 'production' ? "/DooDates/" : "/",
   resolve: {
     alias: {
@@ -37,7 +38,7 @@ export default defineConfig({
     minify: "terser" as const,
     terserOptions: {
       compress: {
-        drop_console: process.env.NODE_ENV === "production",
+        drop_console: false, // 🚨 TEMPORAIRE - Garder console en prod pour debugging IA
         drop_debugger: true,
       },
     },
