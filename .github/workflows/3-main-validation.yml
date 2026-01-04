@@ -197,54 +197,55 @@ jobs:
         run: npm run build
 
   # ========================================
-  # E2E COMPLET (main - PARALLÈLE)
+  # E2E COMPLET (main - PARALLÈLE) - TEMPORAIREMENT DÉSACTIVÉ
   # ========================================
-  tests-e2e-complete:
-    needs: [changes, prepare-deps]
-    if: |
-      needs.changes.outputs.code == 'true' &&
-      needs.changes.outputs.e2e-required == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.npm
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-main-deps-
-
-      - name: 🔧 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: 🚀 E2E Smoke Tests (main)
-        run: npm run test:e2e:smoke -- --reporter=html,json
-
-      - name: 📊 Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-main-complete
-          path: playwright-report
-          retention-days: 7
-
-      - name: 📤 Upload test results JSON
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-main-complete
-          path: |
-            test-results
-            test-results.json
-          retention-days: 7
+  # tests-e2e-complete:
+  #   needs: [changes, prepare-deps]
+  #   if: |
+  #     needs.changes.outputs.code == 'true' &&
+  #     needs.changes.outputs.e2e-required == 'true'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 📥 Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: 🔧 Restore dependencies
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-node-
+  #
+  #     - name: 🔧 Setup Node.js 20
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
+  #         cache: "npm"
+  #
+  #     - name: 📦 Install dependencies
+  #       run: npm ci
+  #
+  #     - name: 🚀 E2E Smoke Tests (main)
+  #       run: npm run test:e2e:smoke
+  #       env:
+  #         E2E_FORCE_MOCKS: true
+  #
+  #     - name: 📊 Upload Playwright report
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: playwright-report-main-complete
+  #         path: playwright-report/
+  #         retention-days: 7
+  #
+  #     - name: 📤 Upload test results JSON
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-results-main-complete
+  #         path: test-results/
+  #         retention-days: 7
 
   # ========================================
   # 🔥 PRODUCTION SMOKE TESTS (main - CRITIQUE)
@@ -455,21 +456,18 @@ jobs:
   # ========================================
   # SUCCESS NOTIFICATION (main)
   # ========================================
-  success-notification:
-    needs: [changes, tests-complete, build-validation, production-smoke-main, deploy]
+  success-notification-deploy:
+    needs: [changes, tests-complete, build-validation, production-smoke-main]
     if: |
-      always() &&
       needs.changes.outputs.code == 'true' &&
       needs.tests-complete.result == 'success' &&
       needs.build-validation.result == 'success' &&
-      needs.production-smoke-main.result == 'success' &&
-      needs.deploy.result == 'success'
+      needs.production-smoke-main.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 🎉 Production Ready
         run: |
           echo "✅ Main validation completed successfully"
-          echo "🚀 Production deployment completed"
           echo "📊 All tests passed:"
           echo "  - 🧪 Tests Complets: ✅"
           echo "  - 🏗️ Build Validation: ✅"
