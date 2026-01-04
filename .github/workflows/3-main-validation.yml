@@ -196,34 +196,6 @@ jobs:
       - name: 🏗️ Build production (optimisé)
         run: npm run build
 
-      - name: 📤 Upload GitHub Pages artifact
-        run: |
-          mkdir -p github-pages
-          # Créer un fichier HTML de test minimal
-          cat > github-pages/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>DooDates - Test</title>
-    <meta charset="UTF-8">
-</head>
-<body>
-    <h1>DooPages Test Deployment</h1>
-    <p>CI/CD Test - GitHub Pages Deployment</p>
-</body>
-</html>
-EOF
-          # Vérifier le contenu
-          echo "=== Minimal GitHub Pages artifact content ==="
-          find github-pages -type f
-
-      - name: 📤 Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages
-          path: github-pages/
-          retention-days: 1
-
   # ========================================
   # E2E COMPLET (main - PARALLÈLE)
   # ========================================
