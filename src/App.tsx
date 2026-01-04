@@ -582,65 +582,65 @@ const App = () => {
 
                                 {/* Product Dashboards */}
                                 <Route
-                                  path="/DooDates/date-polls/dashboard"
+                                  path="/date-polls/dashboard"
                                   element={<DatePollsDashboard />}
                                 />
                                 <Route
-                                  path="/DooDates/form-polls/dashboard"
+                                  path="/form-polls/dashboard"
                                   element={<FormPollsDashboard />}
                                 />
                                 <Route
-                                  path="/DooDates/availability-polls/dashboard"
+                                  path="/availability-polls/dashboard"
                                   element={<AvailabilityPollsDashboard />}
                                 />
 
                                 {/* Product Journals */}
                                 <Route
-                                  path="/DooDates/date-polls/journal"
+                                  path="/date-polls/journal"
                                   element={<DatePollsJournalSimple />}
                                 />
                                 <Route
-                                  path="/DooDates/form-polls/journal"
+                                  path="/form-polls/journal"
                                   element={<FormPollsJournalSimple />}
                                 />
                                 <Route
-                                  path="/DooDates/availability-polls/journal"
+                                  path="/availability-polls/journal"
                                   element={<AvailabilityPollsJournalSimple />}
                                 />
 
                                 {/* Product Settings - New Tabbed Interface */}
                                 <Route
-                                  path="/DooDates/date-polls/settings"
+                                  path="/date-polls/settings"
                                   element={<DatePollsSettingsTabs />}
                                 />
                                 <Route
-                                  path="/DooDates/form-polls/settings"
+                                  path="/form-polls/settings"
                                   element={<FormPollsSettingsTabs />}
                                 />
                                 <Route
-                                  path="/DooDates/availability-polls/settings"
+                                  path="/availability-polls/settings"
                                   element={<AvailabilityPollsSettingsTabs />}
                                 />
                                 <Route
-                                  path="/DooDates/quizz-polls/settings"
+                                  path="/quizz-polls/settings"
                                   element={<QuizzPollsSettingsTabs />}
                                 />
 
                                 {/* Product Pricing Pages */}
                                 <Route
-                                  path="/DooDates/date-polls/pricing"
+                                  path="/date-polls/pricing"
                                   element={<DatePollsPricingSimple />}
                                 />
                                 <Route
-                                  path="/DooDates/form-polls/pricing"
+                                  path="/form-polls/pricing"
                                   element={<FormPollsPricingSimple />}
                                 />
                                 <Route
-                                  path="/DooDates/availability-polls/pricing"
+                                  path="/availability-polls/pricing"
                                   element={<AvailabilityPollsPricingSimple />}
                                 />
                                 <Route
-                                  path="/DooDates/quizz-polls/pricing"
+                                  path="/quizz-polls/pricing"
                                   element={<Pricing />}
                                 />
 
