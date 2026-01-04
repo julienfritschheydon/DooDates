@@ -55,6 +55,7 @@ jobs:
               - 'package-lock.json'
               - 'vite.config.ts'
               - 'playwright.config.ts'
+              - '.github/workflows/**'
               - 'tests/e2e/**'
 
             # Code source (hors tests)
