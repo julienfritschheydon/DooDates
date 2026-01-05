@@ -128,9 +128,6 @@ vi.mock("../../lib/logger", () => ({
   },
 }));
 
-// Mock environment variable
-vi.stubEnv("VITE_GEMINI_API_KEY", "test-api-key");
-
 describe("PollAnalyticsService", () => {
   let service: PollAnalyticsService;
   let mockGenerateContent: Mock;

@@ -14,7 +14,7 @@ test.describe("Form Poll - Email Integration", () => {
       "Crée un formulaire de sondage avec email de confirmation",
     );
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Remplir le formulaire
     await page.fill('[data-testid="poll-title"]', "Test Email Confirmation");
@@ -31,7 +31,7 @@ test.describe("Form Poll - Email Integration", () => {
 
     // Finaliser le formulaire
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Accéder au formulaire et voter
     const formUrl = page.url();
@@ -39,7 +39,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="voter-name"]', "Test Voter");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que l'email de confirmation est envoyé (simulé)
     const emailConfirmation = await page.locator('[data-testid="email-confirmation-sent"]').count();
@@ -52,7 +52,7 @@ test.describe("Form Poll - Email Integration", () => {
     // Créer un formulaire avec notification au créateur
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire avec notification créateur");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Notification Creator");
     await page.click('[data-testid="add-question"]');
@@ -65,7 +65,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="creator-email"]', "creator@example.com");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Voter sur le formulaire
     const formUrl = page.url();
@@ -73,7 +73,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="voter-name"]', "Test Voter");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que la notification au créateur est envoyée
     const creatorNotification = await page
@@ -86,7 +86,7 @@ test.describe("Form Poll - Email Integration", () => {
     // Créer un formulaire avec email invalide pour tester la gestion d'erreur
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire avec email invalide");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Email Error");
     await page.click('[data-testid="add-question"]');
@@ -99,7 +99,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="creator-email"]', "email-invalide");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que l'erreur d'email est gérée
     const emailError = await page.locator('[data-testid="email-error"]').count();
@@ -113,7 +113,7 @@ test.describe("Form Poll - Email Integration", () => {
       "Crée un formulaire complet pour test email template",
     );
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Email Template");
     await page.fill('[data-testid="poll-description"]', "Description du formulaire de test");
@@ -128,7 +128,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="creator-email"]', "template@example.com");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Voter pour déclencher l'email
     const formUrl = page.url();
@@ -136,7 +136,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="voter-name"]', "Template Tester");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que les données du template sont correctes
     const emailSent = await page.locator('[data-testid="email-template-data"]').textContent();
@@ -148,7 +148,7 @@ test.describe("Form Poll - Email Integration", () => {
     // Créer un formulaire et tester les préférences email
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire avec préférences email");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Email Preferences");
     await page.click('[data-testid="add-question"]');
@@ -161,7 +161,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.uncheck('[data-testid="enable-creator-notification"]');
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Voter et vérifier qu'aucun email n'est envoyé
     const formUrl = page.url();
@@ -169,7 +169,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="voter-name"]', "No Email Voter");
     await page.click('[data-testid="option-0"]');
     await page.click('[data-testid="submit-vote"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier qu'aucun email n'est envoyé
     const emailSent = await page.locator('[data-testid="email-confirmation-sent"]').count();
@@ -180,7 +180,7 @@ test.describe("Form Poll - Email Integration", () => {
     // Créer un formulaire et simuler plusieurs réponses
     await page.fill('[data-testid="chat-input"]', "Crée un formulaire pour test emails multiples");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     await page.fill('[data-testid="poll-title"]', "Test Bulk Emails");
     await page.click('[data-testid="add-question"]');
@@ -192,7 +192,7 @@ test.describe("Form Poll - Email Integration", () => {
     await page.fill('[data-testid="creator-email"]', "bulk@example.com");
 
     await page.click('[data-testid="finalize-form"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     const formUrl = page.url();
 
@@ -202,7 +202,7 @@ test.describe("Form Poll - Email Integration", () => {
       await page.fill('[data-testid="voter-name"]', `Voter ${i}`);
       await page.click('[data-testid="option-0"]');
       await page.click('[data-testid="submit-vote"]');
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
     }
 
     // Vérifier que les emails multiples sont gérés

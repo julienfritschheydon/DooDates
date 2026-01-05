@@ -156,9 +156,7 @@ test.describe("Availability Polls - API Contract", () => {
     expect(results.dateGroups.weekdays).toBeDefined();
 
     // 4. Tester les exports
-    const exportResponse = await request.get(
-      `/api/availability/${poll.slug}/export?format=csv`,
-    );
+    const exportResponse = await request.get(`/api/availability/${poll.slug}/export?format=csv`);
 
     expect(exportResponse.status()).toBe(200);
     expect(exportResponse.headers()["content-type"]).toBe("text/csv");

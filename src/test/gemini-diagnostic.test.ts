@@ -107,8 +107,8 @@ describe("🔬 Diagnostic Gemini - MODE NORMAL (Secure)", () => {
         normalResult?.success && normalResult.data && (normalResult.data.dates?.length || 0) > 0;
 
       // Le test passe si le mode normal fonctionne (ou échoue proprement si backend KO, mais on attend un succès idéalement)
-      // Pour les tests unitaires sans backend, cela peut échouer. 
-      // On log le succès mais on ne fail pas forcément le test si pas de backend mocké? 
+      // Pour les tests unitaires sans backend, cela peut échouer.
+      // On log le succès mais on ne fail pas forcément le test si pas de backend mocké?
       // Si c'est un test d'intégration, on attend un succès.
       if (!normalSuccess) {
         console.warn("⚠️ Le test a échoué (pas de résultat), vérifiez la connexion au backend.");

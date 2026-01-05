@@ -48,7 +48,7 @@ test.describe("Mobile UX - Touch Interactions", () => {
     await page.touchscreen.tap(100, 200);
 
     // Wait a moment for scroll
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
     // Verify scroll position changed (or content is scrollable)
     const finalScrollY = await page.evaluate(() => window.scrollY);

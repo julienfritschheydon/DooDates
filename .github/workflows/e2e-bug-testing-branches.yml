@@ -90,7 +90,6 @@ jobs:
       CI: true
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
 
     steps:
       - name: 📥 Checkout code

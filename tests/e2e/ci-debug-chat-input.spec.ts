@@ -252,7 +252,7 @@ test.describe("🔍 CI Debug - Chat Input Analysis", () => {
     });
 
     // Attendre que la page soit stable pour capturer les erreurs
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     if (consoleLogs.length > 0) {
       log(`📊 ${consoleLogs.length} messages console détectés:`);
@@ -289,7 +289,10 @@ test.describe("🔍 CI Debug - Chat Input Analysis", () => {
 
     // 10. Attendre pour voir si le chat input apparaît plus tard
     log("⏳ Attente pour voir si le chat input apparaît...");
-    await page.locator('[data-testid="chat-input"]').waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+    await page
+      .locator('[data-testid="chat-input"]')
+      .waitFor({ state: "visible", timeout: 10000 })
+      .catch(() => {});
 
     const chatInputAfterWait = await page.locator('[data-testid="chat-input"]').count();
     log(`📊 Chat input après 10s: ${chatInputAfterWait}`);

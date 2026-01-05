@@ -35,11 +35,6 @@ test.describe("Gemini API - Tests Réels", () => {
     // Il est le SEUL autorisé à consommer des crédits Gemini
 
     // Vérifier que la clé API est présente
-    const geminiApiKey = process.env.VITE_GEMINI_API_KEY;
-    if (!geminiApiKey || geminiApiKey === "fake-key-for-e2e-tests") {
-      test.skip(true, "⚠️ VITE_GEMINI_API_KEY non configurée ou fake - test ignoré");
-      return;
-    }
 
     // Test simple : créer un sondage via IA
     await page
@@ -59,13 +54,6 @@ test.describe("Gemini API - Tests Réels", () => {
 
   test("✅ Test quota tracking avec appel réel @real-gemini", async ({ page }) => {
     console.log("🧪 Test quota tracking avec appel réel");
-
-    // Vérifier que la clé API est présente
-    const geminiApiKey = process.env.VITE_GEMINI_API_KEY;
-    if (!geminiApiKey || geminiApiKey === "fake-key-for-e2e-tests") {
-      test.skip(true, "⚠️ VITE_GEMINI_API_KEY non configurée ou fake - test ignoré");
-      return;
-    }
 
     // Faire un appel réel et vérifier le quota
     await page.locator('[data-testid="chat-input"]').fill("Test quota tracking");

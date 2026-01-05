@@ -481,7 +481,7 @@ export async function createDatePollWithTimeSlots(
   }
 
   // Attendre un peu que le localStorage soit mis à jour
-  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+  await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
   const result = await page.evaluate((existingIds) => {
     const parseArray = (key: string) => {

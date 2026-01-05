@@ -30,7 +30,7 @@ test.describe("🔒 RGPD - Droit de rectification (Article 16)", () => {
     testEmail = generateTestEmail("gdpr-rectification");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe("🔒 RGPD - Droit de rectification (Article 16)", () => {
 
       if (saveButtonVisible) {
         await saveButton.click();
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
         // Verify success message or updated value
         const successMessage = page.locator("text=/enregistré|saved|mis à jour|updated/i");
@@ -140,7 +140,7 @@ test.describe("🔒 RGPD - Droit de rectification (Article 16)", () => {
     });
 
     // Wait for save to complete
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Verify profile was updated in database
     const { data: updatedProfile } = await supabase
@@ -202,7 +202,7 @@ test.describe("🔒 RGPD - Droit de rectification (Article 16)", () => {
 
     // Reload page
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
     // Re-authenticate after reload
     await authenticateUserInPage(page, testEmail, testPassword);

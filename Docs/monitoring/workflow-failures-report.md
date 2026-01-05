@@ -25,6 +25,4 @@ _Workflow run #999 (ID 20721040831) — génération UTC 2026-01-05T15:58:25.983
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
----
-
+## ✅ Aucun nouvel échec détecté - tout fonctionne correctement !

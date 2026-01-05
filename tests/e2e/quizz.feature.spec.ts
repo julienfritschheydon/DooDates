@@ -281,7 +281,7 @@ test.describe("Quizz - UI Mirror", () => {
     // Pour chaque question, répondre et passer à la suivante
     for (let i = 0; i < Math.min(questionCount, 5); i++) {
       // Attendre que la question s'affiche
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Répondre à la question (première option disponible)
       const answerOption = page.locator('[data-testid="answer-option"]').first();
@@ -477,7 +477,7 @@ test.describe("Quizz - UI Mirror", () => {
       const csvExport = page.locator('[data-testid="export-csv"]');
       if (await csvExport.isVisible()) {
         await csvExport.click();
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {}); // Attendre le téléchargement
+        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {}); // Attendre le téléchargement
       }
     }
 

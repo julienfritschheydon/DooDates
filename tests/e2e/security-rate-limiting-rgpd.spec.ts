@@ -18,7 +18,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
   test.beforeEach(async ({ page, browserName }) => {
     // Setup minimal pour éviter les timeouts
     await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {}); // Attendre le chargement de base
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {}); // Attendre le chargement de base
   });
 
   test.describe("⚡ Rate Limiting", () => {
@@ -45,12 +45,12 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
       try {
         // Naviguer et déclencher des requêtes
         await page.goto("//DooDates/workspace", { waitUntil: "networkidle" });
-        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+        await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
         // Simuler 15 requêtes rapides
         for (let i = 0; i < 15; i++) {
           await page.reload({ waitUntil: "networkidle" });
-          await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+          await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
         }
 
         // Afficher les requêtes capturées pour le débogage
@@ -75,7 +75,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
     test("RATE-02: Injection quotas manuels résistée", async ({ page, browserName }) => {
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Tenter de modifier des quotas via console (simulation XSS)
       const quotaInjectionResult = await page.evaluate(() => {
@@ -100,7 +100,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
       // Vérifier que les valeurs par défaut sont toujours appliquées
       await page.reload({ waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       console.log("✅ RATE-02: Injection quotas manuels résistée");
     });
@@ -108,7 +108,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
     test("RATE-03: Contournement guest limits bloqué", async ({ page, browserName }) => {
       // Mode guest (non authentifié)
       await page.goto("//DooDates/workspace", { waitUntil: "networkidle" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Tenter d'accéder à des fonctionnalités premium
       const premiumFeatures = [
@@ -194,7 +194,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
       // Vérifier que le système répond encore
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Le site doit toujours fonctionner
       await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
@@ -206,7 +206,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
   test.describe("🔒 RGPD & Consentement", () => {
     test("RGPD-01: Consentement cookies requis", async ({ page, browserName }) => {
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Vérifier la présence de bannière consentement
       const consentBanner = page.locator(
@@ -239,7 +239,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
     test("RGPD-02: Données personnelles protégées", async ({ page, browserName }) => {
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Vérifier que les données sensibles ne sont pas exposées
       const pageContent = await page.content();
@@ -273,7 +273,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
     test("RGPD-03: Droit à l'oubli simulé", async ({ page, browserName }) => {
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Simuler un utilisateur qui veut supprimer ses données
       const deletionResult = await page.evaluate(() => {
@@ -311,7 +311,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
       // Vérifier que le site fonctionne toujours après suppression
       await page.reload({ waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
       await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
 
       console.log(`✅ RGPD-03: Droit à l'oubli - ${deletionResult}`);
@@ -344,7 +344,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
     test("SEC-02: Pas de fuites d'informations", async ({ page, browserName }) => {
       await page.goto("//DooDates/workspace", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
       // Vérifier les erreurs console
       const consoleLogs: string[] = [];
@@ -356,7 +356,7 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
 
       // Déclencher des actions qui pourraient causer des erreurs
       await page.click("body", { position: { x: 100, y: 100 } });
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Vérifier qu'il n'y a pas de fuites d'infos sensibles dans les erreurs
       const sensitivePatterns = [/password/i, /token/i, /secret/i, /api[_-]?key/i];

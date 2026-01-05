@@ -106,6 +106,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
     // Valider et normaliser la structure
     const availabilities: ParsedAvailability[] = (parsed.availabilities || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (avail: any) => ({
         day: normalizeDay(String(avail.day)),
         timeRange: {

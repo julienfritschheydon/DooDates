@@ -95,7 +95,6 @@
     "ai-audit": "cd ../max-doc-ai-test && venv\\Scripts\\python scripts/automate_contact_doc.py"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",

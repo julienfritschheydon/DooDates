@@ -92,7 +92,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           await sendChatMessage(page, prompt, { timeout: timeouts.element });
 
           // Attendre la réponse IA
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
           // CLIQUER SUR LE BOUTON "CRÉER" pour vraiment créer le formulaire
           log("🔘 Clic sur le bouton CRÉER");
@@ -101,7 +101,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           await createButton.click();
 
           // Attendre que le formulaire soit créé en brouillon
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
           // CLIQUER SUR LE BOUTON "PUBLICATION" pour publier le formulaire
           log("🔘 Clic sur le bouton PUBLICATION");
@@ -113,7 +113,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           await publishButton.click();
 
           // Attendre que le formulaire soit publié et affiché
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
           // Vérifier que le formulaire est créé
           const formTitle = await page.locator("h1").first().textContent({ timeout: 15000 });
@@ -128,20 +128,20 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
             chatInput,
             "ajoute une question sur les préférences alimentaires",
           );
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
           log("✅ Question supplémentaire ajoutée");
 
           // Étape 3 — Suppression d'une question via IA
           log("🗑️ Suppression d'une question via IA");
           await sendChatCommand(page, browserName, chatInput, "supprime la dernière question");
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
           log("✅ Question supprimée");
 
           // Étape 4 — Reprise après refresh
           log("🔁 Test reprise après refresh");
           const urlBeforeReload = page.url();
           await page.reload({ waitUntil: "domcontentloaded" });
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
           log("✅ Reprise ok après refresh");
 
           // Étape 5 — Test vote
@@ -152,7 +152,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
             waitUntil: "domcontentloaded",
             timeout: 30000,
           });
-          await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
           log("✅ Navigation vers le dashboard réussie");
 

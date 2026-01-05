@@ -65,7 +65,7 @@ export async function createFormPollViaAI(
   );
   const errorText = page.getByText(/(désolé|quota.*dépassé|erreur|échec|impossible)/i);
 
-  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+  await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
   try {
     await expect(successText).toBeVisible({ timeout: 30000 });

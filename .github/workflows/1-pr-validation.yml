@@ -110,7 +110,6 @@ jobs:
           VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 🚀 Start preview server
         run: |
@@ -211,7 +210,6 @@ jobs:
           CI: true
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 🧪 Run E2E Functional Tests (Chromium)
         run: E2E_FORCE_MOCKS=true npx playwright test --project=chromium --reporter=html,json --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow|RGPD|RGPD-"
@@ -220,7 +218,6 @@ jobs:
           CI: true
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 🧪 Run E2E Matrix Tests (Multi-navigateurs)
         run: |
@@ -235,7 +232,6 @@ jobs:
           CI: true
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 📊 Upload Playwright report (Supabase Health)
         if: failure()
@@ -309,7 +305,6 @@ jobs:
       - name: Run AI Tests (Quick)
         run: npm run test:gemini:quick
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: Validate AI Performance
         run: |

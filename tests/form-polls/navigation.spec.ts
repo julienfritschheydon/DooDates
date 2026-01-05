@@ -32,7 +32,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
     });
 
     // Attendre un peu pour capturer les erreurs
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier qu'il n'y a pas d'erreurs critiques
     const criticalErrors = logs.filter(
@@ -60,7 +60,7 @@ test.describe("FormPolls Navigation - Smoke Tests", () => {
       }
     });
 
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     const criticalErrors = logs.filter(
       (log) => log.includes("Error") || log.includes("Uncaught") || log.includes("TypeError"),

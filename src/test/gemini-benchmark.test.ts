@@ -191,8 +191,7 @@ describe("📊 Benchmark Gemini - MODE NORMAL (Secure)", () => {
     // Statistiques globales
     const successCount = results.filter((r) => r.normal.success).length;
     const avgTime = results.reduce((sum, r) => sum + r.normal.durationMs, 0) / results.length;
-    const avgPrecision =
-      results.reduce((sum, r) => sum + r.precisionScore, 0) / results.length;
+    const avgPrecision = results.reduce((sum, r) => sum + r.precisionScore, 0) / results.length;
     const successRate = successCount / results.length;
 
     console.log("\n📈 STATISTIQUES GLOBALES:");

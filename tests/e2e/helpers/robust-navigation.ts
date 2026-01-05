@@ -148,7 +148,7 @@ export async function safeNavigationWithRetry(
 
       // Attendre avant de réessayer
       console.log(`⏳ Attente avant retry ${attempt + 1}...`);
-      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     }
   }
 }

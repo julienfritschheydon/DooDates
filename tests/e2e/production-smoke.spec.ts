@@ -109,7 +109,8 @@ test.describe("🔥 Production Smoke Tests", () => {
       const bodyText = await page.innerText("body");
 
       // Ignorer les erreurs 404 spécifiques au routing en environnement test
-      const has404Error = bodyText && bodyText.includes("404") && bodyText.includes("Oops! Page not found");
+      const has404Error =
+        bodyText && bodyText.includes("404") && bodyText.includes("Oops! Page not found");
       if (has404Error) {
         console.log("⚠️ 404 page détectée - Ignorée (routing test environment)");
       }

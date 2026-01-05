@@ -148,7 +148,7 @@ async function submitVoteAndVerifyConfirmation(
   await nameInput.fill(voterName);
 
   // Attendre que le formulaire soit complètement chargé
-  await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+  await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
   // Pour un formulaire avec question de date, voter sur les boutons disponibles
   console.log(`[DEBUG] Recherche des boutons de vote pour les dates...`);
@@ -163,7 +163,7 @@ async function submitVoteAndVerifyConfirmation(
     const firstVoteButton = voteButtons.first();
     if (await firstVoteButton.isVisible({ timeout: 2000 }).catch(() => false)) {
       await firstVoteButton.click();
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
       console.log(`[DEBUG] Vote effectué sur le premier bouton`);
     } else {
       console.log(`[DEBUG] Aucun bouton de vote visible`);
@@ -266,7 +266,7 @@ async function simplifyFormToSingleQuestion(page: Page, browserName: BrowserName
 
         // Cliquer sur l'onglet pour l'activer
         await tab.click();
-        await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+        await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
         // Chercher et cliquer sur le bouton de suppression
         const deleteButton = page
@@ -283,7 +283,7 @@ async function simplifyFormToSingleQuestion(page: Page, browserName: BrowserName
             await confirmButton.click();
           }
 
-          await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+          await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
         }
       }
     } catch (e) {
@@ -299,7 +299,7 @@ async function simplifyFormToSingleQuestion(page: Page, browserName: BrowserName
     const firstTab = questionTabs.first();
     if (await firstTab.isVisible({ timeout: 2000 }).catch(() => false)) {
       await firstTab.click();
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
     }
 
     // Trouver le select de type de question et le changer en "text"
@@ -315,7 +315,7 @@ async function simplifyFormToSingleQuestion(page: Page, browserName: BrowserName
       .first();
     if (await titleInput.isVisible({ timeout: 2000 }).catch(() => false)) {
       await titleInput.fill("Comment avez-vous trouvé ce formulaire ?");
-      await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
     }
 
     // S'assurer que la question est marquée comme obligatoire
@@ -460,7 +460,7 @@ export async function createFormWithDateQuestion(
   console.log("[DEBUG] Dates sélectionnées, publication du formulaire");
 
   // Attendre un peu pour que l'état se mette à jour
-  await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+  await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
   // Vérifier combien de dates sont sélectionnées dans l'état après les clics
   const selectedDatesCount = await page.evaluate(() => {

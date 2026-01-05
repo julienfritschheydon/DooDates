@@ -70,7 +70,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await page.goto("/DooDates/quizz/create", { waitUntil: "domcontentloaded" });
 
         // Attendre un peu pour que la page se stabilise (au lieu de waitForNetworkIdle)
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
         // Vérifier qu'on est sur la page de création de quiz
         await expect(page).toHaveURL(/\/quizz\/create/);
@@ -92,7 +92,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await addButton.click();
 
         // Attendre que le formulaire s'ouvre et que la question soit automatiquement dépliée
-        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+        await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
         // Remplir la question (maintenant visible automatiquement)
         const questionInput = page.locator('input[placeholder*="Entrez la question"]').first();
@@ -106,7 +106,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         await option2Input.fill("3");
 
         // Attendre que la question soit ajoutée
-        await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+        await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
         log("✅ Question ajoutée avec 2 options");
 
@@ -131,7 +131,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
         // Prendre une photo après le clic
         await page.screenshot({ path: "test-results/quiz-bouton-creer-apres.png" });
 
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
         // 5. Vérifier l'écran de succès
         log("✅ Vérification écran de succès");

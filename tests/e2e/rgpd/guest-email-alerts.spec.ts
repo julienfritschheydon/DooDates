@@ -4,7 +4,7 @@ test.describe("🔒 RGPD - Composants Invité", () => {
   test("RGPD-VERIF-01: La page d'accueil charge la bannière invité", async ({ page }) => {
     await page.goto("/DooDates/");
     // Attendre un peu pour le chargement du quota et du useEffect
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const bodyContent = await page.textContent("body");
     expect(bodyContent).toMatch(/Mode Invité/i);
   });
@@ -13,7 +13,7 @@ test.describe("🔒 RGPD - Composants Invité", () => {
     page,
   }) => {
     await page.goto("/DooDates/form/workspace/form");
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput.first()).toBeVisible({ timeout: 10000 });
   });
@@ -22,7 +22,7 @@ test.describe("🔒 RGPD - Composants Invité", () => {
     page,
   }) => {
     await page.goto("/DooDates/date/workspace/date");
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput.first()).toBeVisible({ timeout: 10000 });
   });

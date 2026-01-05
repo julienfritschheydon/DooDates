@@ -30,15 +30,15 @@ loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 interface FormPollPromptSpec {
   id: string;
   category:
-  | "simples"
-  | "rating"
-  | "nps"
-  | "matrix"
-  | "validation"
-  | "mix"
-  | "event"
-  | "feedback"
-  | "complex";
+    | "simples"
+    | "rating"
+    | "nps"
+    | "matrix"
+    | "validation"
+    | "mix"
+    | "event"
+    | "feedback"
+    | "complex";
   input: string;
   description: string;
   expectedType: "form";
@@ -530,8 +530,8 @@ describe("Gemini Form Polls Tests", () => {
             : [],
           validationTypes: Array.isArray(poll.questions)
             ? poll.questions
-              .map((q: any) => String(q.validationType ?? ""))
-              .filter((v: string) => v)
+                .map((q: any) => String(q.validationType ?? ""))
+                .filter((v: string) => v)
             : [],
           violations: scoring.violations,
           scoreBreakdown: scoring.breakdown,

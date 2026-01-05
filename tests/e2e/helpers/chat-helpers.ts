@@ -192,7 +192,7 @@ export async function navigateToWorkspace(
       }
 
       // Attendre un peu pour laisser le temps à la page de se stabiliser
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Vérification après le temps d'attente
       if (page.isClosed()) {
@@ -289,7 +289,7 @@ export async function navigateToWorkspace(
 
       // Attendre avant de réessayer
       console.log(`⏳ Attente avant retry ${navigationAttempts + 1}...`);
-      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     }
   }
 }
@@ -651,7 +651,7 @@ export async function waitForConversationCreated(
   let attempts = 0;
 
   while (!conversationId && attempts < maxAttempts) {
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
     conversationId = await getLatestConversationId(page);
     attempts++;
   }

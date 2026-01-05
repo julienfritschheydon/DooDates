@@ -273,7 +273,7 @@ test.describe("Quizz - Sidebar Navigation", () => {
     }
 
     // Attendre que la sidebar s'ouvre
-    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
 
     // Vérifier que les liens de navigation sont présents - sélecteurs flexibles
     const navigationSelectors = [

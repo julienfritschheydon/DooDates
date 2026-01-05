@@ -359,7 +359,7 @@ export async function setupSupabaseRestApiMock(page: Page) {
         });
         return;
       }
-      
+
       if (method === "POST") {
         // Mock response for saveGuestEmail - success
         await route.fulfill({
@@ -368,7 +368,7 @@ export async function setupSupabaseRestApiMock(page: Page) {
           body: JSON.stringify({
             guest_id: "test-guest-id",
             email: "test@example.com",
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           }),
         });
         return;
@@ -1098,7 +1098,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
         });
         return;
       }
-      
+
       if (method === "POST") {
         // Mock response for saveGuestEmail - success
         await route.fulfill({
@@ -1107,7 +1107,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
           body: JSON.stringify({
             guest_id: "test-guest-id",
             email: "test@example.com",
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           }),
         });
         return;

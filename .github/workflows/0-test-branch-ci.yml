@@ -87,7 +87,6 @@ jobs:
             --reporter=html,json
         env:
           CI: true
-          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
 
       - name: 📊 Upload Playwright HTML report
         if: always()

@@ -67,7 +67,7 @@ test.describe("Accessibility Tests", () => {
       await submitButton.click();
 
       // Wait a bit for validation messages
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Check that error messages are associated with inputs
       const errorMessages = page.locator('[role="alert"], .error, .invalid-feedback');

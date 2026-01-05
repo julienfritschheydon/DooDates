@@ -577,8 +577,8 @@ test.describe("Console Errors & React Warnings", () => {
       );
       throw new Error(
         `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
-        `Vérifiez que l'Edge Function Supabase est configurée et accessible. ` +
-        `Erreur: ${errorText}`,
+          `Vérifiez que l'Edge Function Supabase est configurée et accessible. ` +
+          `Erreur: ${errorText}`,
       );
     }
 
@@ -627,7 +627,7 @@ test.describe("Console Errors & React Warnings", () => {
       // Attendre que la navigation soit terminée
       await page
         .waitForURL(/\/poll\/|\/dashboard/, { timeout: timeouts.navigation })
-        .catch(() => { });
+        .catch(() => {});
     }
 
     // Rafraîchir la page plusieurs fois pour détecter les memory leaks

@@ -6,7 +6,7 @@ import path from "path";
 export default defineConfig(({ command }): UserConfig => {
   const config = {
     plugins: [react()],
-    base: "/",  // Développement = "/"
+    base: "/", // Développement = "/"
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
@@ -24,7 +24,6 @@ export default defineConfig(({ command }): UserConfig => {
             "react-vendor": ["react", "react-dom"],
             "ui-vendor": ["framer-motion", "lucide-react"],
             "supabase-vendor": ["@supabase/supabase-js"],
-            "gemini-vendor": ["@google/generative-ai"],
           },
         },
       },

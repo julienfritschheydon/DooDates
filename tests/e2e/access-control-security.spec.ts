@@ -28,7 +28,7 @@ test.describe("Access Control - Security Tests", () => {
     await page.click('[data-testid="send-message-button"]');
 
     // Attendre la réponse et vérifier si authentification requise
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que le système demande l'authentification
     const authRequired = await page.locator('[data-testid="auth-required"]').count();
@@ -45,7 +45,7 @@ test.describe("Access Control - Security Tests", () => {
     // Simuler création d'un sondage
     await page.fill('[data-testid="chat-input"]', "Crée un sondage date pour test de sécurité");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Simuler un autre utilisateur (vider localStorage)
     await page.evaluate(() => localStorage.clear());
@@ -91,7 +91,7 @@ test.describe("Access Control - Security Tests", () => {
     // Tenter une action qui nécessite l'authentification
     await page.fill('[data-testid="chat-input"]', "Montre mes sondages");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que le système gère la session expirée
     const sessionExpired = await page.locator('[data-testid="session-expired"]').count();
@@ -107,7 +107,7 @@ test.describe("Access Control - Security Tests", () => {
     const xssPayload = '<script>alert("XSS")</script>';
     await page.fill('[data-testid="chat-input"]', xssPayload);
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que le script ne s'exécute pas
     // En vérifiant que le contenu est échappé/sanitisé
@@ -128,7 +128,7 @@ test.describe("Access Control - Security Tests", () => {
     // Tenter d'accéder à une fonctionnalité restreinte
     await page.fill('[data-testid="chat-input"]', "Montre les paramètres admin");
     await page.click('[data-testid="send-message-button"]');
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Vérifier que l'accès est refusé
     const restrictedAccess = await page.locator('[data-testid="restricted-access"]').count();

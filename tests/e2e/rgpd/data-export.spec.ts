@@ -38,7 +38,7 @@ test.describe("🔒 RGPD - Droit d'accès (Article 15)", () => {
     testEmail = generateTestEmail("gdpr-access");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests
-    await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -100,7 +100,7 @@ test.describe("🔒 RGPD - Droit d'accès (Article 15)", () => {
     await triggerDataExport(page);
 
     // Wait for export to complete
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Verify export was triggered (check for success message or download)
     const successMessage = page.locator("text=/export.*terminé|export.*succès|export.*complete/i");

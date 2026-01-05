@@ -29,7 +29,7 @@ test.describe("🔒 RGPD - Logs et audit", () => {
     testEmail = generateTestEmail("gdpr-audit");
     testPassword = "TestPassword123!";
     // Délai pour éviter le rate limiting entre les tests (augmenté)
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
@@ -79,7 +79,7 @@ test.describe("🔒 RGPD - Logs et audit", () => {
       await triggerDataExport(page);
 
       // Verify export was triggered (UI responds)
-      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
       // Check for success message or toast
       const successMessage = page.locator(
@@ -119,7 +119,7 @@ test.describe("🔒 RGPD - Logs et audit", () => {
 
     if (selectVisible) {
       await retentionSelect.selectOption({ index: 1 });
-      await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => {});
 
       // Verify change was saved
       const localStorageValue = await page.evaluate(() => {
@@ -180,7 +180,7 @@ test.describe("🔒 RGPD - Logs et audit", () => {
     // Trigger data export (which should include logs)
     try {
       await triggerDataExport(page);
-      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
       // Verify export was triggered
       const pageContent = await page.locator("body").textContent();

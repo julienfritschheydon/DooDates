@@ -117,7 +117,7 @@ test.describe("Cross-Product Workflow Tests", () => {
       ) {
         return;
       }
-      await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
       await waitForReactStable(page, { browserName });
     }
     throw new Error(
@@ -167,14 +167,14 @@ test.describe("Cross-Product Workflow Tests", () => {
     await resetQuota(page, "guest");
 
     // Attendre que localStorage soit mis à jour
-    await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
 
     // Vérifier les quotas initiaux
     let quota = await getQuotaData(page, "guest");
     // Si quota est null, initialiser avec des valeurs par défaut
     if (!quota) {
       await resetQuota(page, "guest");
-      await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
       quota = await getQuotaData(page, "guest");
     }
 
@@ -235,7 +235,7 @@ test.describe("Cross-Product Workflow Tests", () => {
     });
 
     // Attendre que le quota soit mis à jour
-    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
     await waitForReactStable(page, { browserName });
 
     // Vérifier le quota après création du Date Poll
@@ -295,7 +295,7 @@ test.describe("Cross-Product Workflow Tests", () => {
     });
 
     // Attendre que le quota soit mis à jour
-    await page.waitForLoadState('domcontentloaded', { timeout: 2000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
     await waitForReactStable(page, { browserName });
 
     // 3. Vérifier que les quotas sont séparés
@@ -577,7 +577,7 @@ test.describe("Cross-Product Workflow Tests", () => {
     });
 
     // Attendre que React traite la modification
-    await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
     await waitForReactStable(page, { browserName });
 
     // 4. Vérifier que tous les produits sont affectés de manière cohérente
@@ -618,14 +618,14 @@ test.describe("Cross-Product Workflow Tests", () => {
     await resetQuota(page, "guest");
 
     // Attendre que localStorage soit mis à jour
-    await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
 
     // 1. Vérifier les quotas initiaux
     let quota = await getQuotaData(page, "guest");
     // Si quota est null, initialiser avec des valeurs par défaut
     if (!quota) {
       await resetQuota(page, "guest");
-      await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: 1000 }).catch(() => {});
       quota = await getQuotaData(page, "guest");
     }
 
