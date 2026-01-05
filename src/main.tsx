@@ -15,7 +15,7 @@ declare global {
   interface Window {
     testFingerprint?: () => Promise<Awaited<ReturnType<typeof generateBrowserFingerprint>>>;
     getCachedFingerprint?: () => Promise<string>;
-    checkAI?: () => Promise<boolean>;
+
   }
 }
 // Exposer getCachedFingerprint pour les tests E2E (DEV ou E2E)
@@ -36,23 +36,6 @@ if (import.meta.env.DEV || isE2ETestingEnvironment() || true) {
     return await getCachedFingerprint();
   };
 
-  // Debug AI connection
-  window.checkAI = async () => {
-    console.log("🕵️ Checking AI Connection...");
-    const hasKey = !!import.meta.env.VITE_GEMINI_API_KEY;
-    console.log("🔑 API Key configured:", hasKey ? "YES" : "NO");
-
-    try {
-      const { enhancedGeminiService } = await import("@/lib/enhanced-gemini");
-      console.log("🔄 Testing connection...");
-      const result = await enhancedGeminiService.testConnection();
-      console.log("📡 Connection Result:", result ? "SUCCESS ✅" : "FAILED ❌");
-      return result;
-    } catch (e) {
-      console.log("💥 Error checking AI:", e);
-      return false;
-    }
-  };
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

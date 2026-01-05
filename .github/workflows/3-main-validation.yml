@@ -285,7 +285,7 @@ jobs:
           VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
 
       - name: 🚀 Start preview server
         run: |
@@ -434,6 +434,11 @@ jobs:
 
       - name: 🔨 Build production
         run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_BASE_PATH: /DooDates/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: 📋 Vérifier contenu du build
         run: |
