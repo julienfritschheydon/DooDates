@@ -105,18 +105,19 @@ test.describe("🔥 Production Smoke Tests", () => {
       // Le titre peut varier légèrement, on vérifie juste qu'il y a du contenu pertinent
 
       // Vérifier qu'il n'y a pas d'erreur visible
-      const bodyText = await page.textContent("body");
-      
+      // Utiliser innerText pour éviter de lire les scripts/commentaires
+      const bodyText = await page.innerText("body");
+
       // Ignorer les erreurs 404 spécifiques au routing en environnement test
       const has404Error = bodyText && bodyText.includes("404") && bodyText.includes("Oops! Page not found");
       if (has404Error) {
         console.log("⚠️ 404 page détectée - Ignorée (routing test environment)");
       }
-      
+
       // Vérifier les erreurs critiques (en ignorant le 404 spécifique ci-dessus)
       expect(bodyText).not.toContain("500");
       expect(bodyText).not.toContain("Internal Server Error");
-      
+
       // Pour le 404, on vérifie seulement si ce n'est PAS le cas spécifique qu'on ignore
       if (!has404Error) {
         expect(bodyText).not.toContain("404");
@@ -350,7 +351,7 @@ test.describe("🔥 Production Smoke Tests", () => {
     // Vérifier que l'application React a du contenu
     // Note: On ne vérifie pas que #root est visible car il peut être caché en CSS
     // mais on vérifie que l'app a rendu du contenu
-    const bodyText = await page.locator("body").textContent();
+    const bodyText = await page.locator("body").innerText();
     expect(bodyText).toBeTruthy();
 
     // Vérifier qu'il y a du contenu significatif (pas juste du white space)
@@ -390,7 +391,7 @@ test.describe("🔥 Production Smoke Tests", () => {
       )
       .toBeGreaterThan(0);
 
-    const bodyText = await page.textContent("body");
+    const bodyText = await page.innerText("body");
 
     // Vérifier qu'il n'y a pas de message d'erreur Supabase visible dans l'UI
     // Si ces erreurs sont visibles, cela signifie que la config Supabase est manquante ou invalide
@@ -442,7 +443,8 @@ test.describe("🔥 Production Smoke Tests", () => {
       .toBeGreaterThan(20);
 
     // La page ne doit pas afficher une vraie 404 GitHub Pages
-    const bodyText = await page.textContent("body");
+    // Utiliser innerText pour éviter de lire les commentaires du script de redirection (qui contiennent "GitHub Pages")
+    const bodyText = await page.innerText("body");
 
     // Doit rediriger vers l'app, pas afficher une erreur GitHub Pages
     // Note: L'app peut afficher sa propre page 404 (Not Found), c'est OK
@@ -477,7 +479,7 @@ test.describe("🔥 Production Smoke Tests", () => {
       .toBeGreaterThan(50);
 
     // Vérifier que l'app a du contenu dans le body (pas juste un écran blanc)
-    const bodyText = await page.locator("body").textContent();
+    const bodyText = await page.locator("body").innerText();
     expect(bodyText).toBeTruthy();
 
     const trimmedText = bodyText!.trim().replace(/\s+/g, " ");
@@ -551,7 +553,7 @@ test.describe("👤 Fonctionnalités Critiques Utilisateur", () => {
 
     // Chercher des signes que l'app fonctionne en mode invité
     // (boutons, formulaires, etc.)
-    const bodyText = await page.textContent("body");
+    const bodyText = await page.innerText("body");
 
     // L'app ne doit pas être bloquée sur un écran de connexion forcée
     expect(bodyText).toBeTruthy();
