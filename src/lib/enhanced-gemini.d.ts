@@ -1,4 +1,4 @@
-import { GenerativeModel } from "@google/generative-ai";
+// import { GenerativeModel } from "@google/generative-ai";
 interface SimpleTemporalAnalysis {
   originalText: string;
   confidence: number;
@@ -41,7 +41,7 @@ export interface EnhancedGeminiResponse {
 export declare class EnhancedGeminiService {
   private static instance;
   private genAI;
-  model: GenerativeModel | null;
+  readonly model: { generateContent: (prompt: string) => Promise<{ response: { text: () => string } }> };
   private calendarQuery;
   constructor();
   static getInstance(): EnhancedGeminiService;
@@ -66,4 +66,4 @@ export declare class EnhancedGeminiService {
   testConnection(): Promise<boolean>;
 }
 export declare const enhancedGeminiService: EnhancedGeminiService;
-export {};
+export { };

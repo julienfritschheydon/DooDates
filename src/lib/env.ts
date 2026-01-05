@@ -108,7 +108,7 @@ export function validateEnvVars(requiredVars: string[]): {
  * @returns Array of required environment variable keys
  */
 export function getRequiredProductionVars(): string[] {
-  return ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_GEMINI_API_KEY"];
+  return ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"];
 }
 
 /**

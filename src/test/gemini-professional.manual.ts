@@ -235,12 +235,6 @@ describe("Gemini – prompts réalistes", () => {
   beforeAll(async () => {
     const module = await import("../lib/gemini");
     geminiService = module.GeminiService.getInstance();
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error(
-        "VITE_GEMINI_API_KEY manquante. Définis la clé dans .env.local ou l'environnement avant de lancer ce test.",
-      );
-    }
   });
 
   Object.entries(promptsByCategory).forEach(([category, categoryPrompts]) => {

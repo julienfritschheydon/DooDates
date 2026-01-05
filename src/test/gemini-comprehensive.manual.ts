@@ -420,11 +420,6 @@ describe("Gemini Comprehensive Tests", () => {
     const module = await import("@/lib/ai/gemini");
     geminiService = module.GeminiService.getInstance();
 
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("VITE_GEMINI_API_KEY manquante. Définissez la clé dans .env.local.");
-    }
-
     // Afficher les filtres actifs
     console.log("\n📋 Configuration des tests:");
     console.log(`   Total prompts: ${allPrompts.length}`);

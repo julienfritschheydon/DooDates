@@ -7,7 +7,6 @@
  */
 
 import { secureGeminiService } from "./SecureGeminiService";
-import { directGeminiService } from "./DirectGeminiService";
 import { logger } from "../lib/logger";
 import { getEnv } from "../lib/env";
 import type { QuizzQuestion } from "../lib/products/quizz/quizz-service";

@@ -15,7 +15,6 @@ declare global {
   interface Window {
     testFingerprint?: () => Promise<Awaited<ReturnType<typeof generateBrowserFingerprint>>>;
     getCachedFingerprint?: () => Promise<string>;
-
   }
 }
 // Exposer getCachedFingerprint pour les tests E2E (DEV ou E2E)
@@ -35,7 +34,6 @@ if (import.meta.env.DEV || isE2ETestingEnvironment() || true) {
   window.getCachedFingerprint = async () => {
     return await getCachedFingerprint();
   };
-
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

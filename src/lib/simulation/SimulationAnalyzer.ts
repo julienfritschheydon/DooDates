@@ -374,10 +374,7 @@ Sois concret et actionnable dans tes recommandations.`;
     const result = await secureGeminiService.generateContent("", prompt);
 
     if (!result.success) {
-      throw ErrorFactory.api(
-        result.error || "Gemini error",
-        "Erreur validation IA"
-      );
+      throw ErrorFactory.api(result.error || "Gemini error", "Erreur validation IA");
     }
 
     const responseText = (result.data || "").trim();

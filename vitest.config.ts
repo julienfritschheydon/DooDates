@@ -18,11 +18,6 @@ export default defineConfig({
     "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify(
       process.env.VITE_SUPABASE_ANON_KEY || "test-anon-key",
     ),
-    // Permettre aussi VITE_GEMINI_API_KEY et VITE_USE_DIRECT_GEMINI depuis .env.local
-    "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(process.env.VITE_GEMINI_API_KEY || ""),
-    "import.meta.env.VITE_USE_DIRECT_GEMINI": JSON.stringify(
-      process.env.VITE_USE_DIRECT_GEMINI || "false",
-    ),
   },
   test: {
     environment: "jsdom",

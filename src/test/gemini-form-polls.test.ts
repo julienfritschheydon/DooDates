@@ -30,15 +30,15 @@ loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 interface FormPollPromptSpec {
   id: string;
   category:
-    | "simples"
-    | "rating"
-    | "nps"
-    | "matrix"
-    | "validation"
-    | "mix"
-    | "event"
-    | "feedback"
-    | "complex";
+  | "simples"
+  | "rating"
+  | "nps"
+  | "matrix"
+  | "validation"
+  | "mix"
+  | "event"
+  | "feedback"
+  | "complex";
   input: string;
   description: string;
   expectedType: "form";
@@ -479,11 +479,6 @@ describe("Gemini Form Polls Tests", () => {
     const module = await import("@/lib/ai/gemini");
     geminiService = module.GeminiService.getInstance();
 
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("VITE_GEMINI_API_KEY manquante. Définissez la clé dans .env.local.");
-    }
-
     console.log("\n" + "=".repeat(70));
     console.log("🧪 TESTS GEMINI - FORM POLLS");
     console.log("=".repeat(70));
@@ -535,8 +530,8 @@ describe("Gemini Form Polls Tests", () => {
             : [],
           validationTypes: Array.isArray(poll.questions)
             ? poll.questions
-                .map((q: any) => String(q.validationType ?? ""))
-                .filter((v: string) => v)
+              .map((q: any) => String(q.validationType ?? ""))
+              .filter((v: string) => v)
             : [],
           violations: scoring.violations,
           scoreBreakdown: scoring.breakdown,

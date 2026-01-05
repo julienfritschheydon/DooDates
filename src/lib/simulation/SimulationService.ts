@@ -5,8 +5,8 @@
  * en utilisant des personas et optionnellement Gemini pour les questions texte.
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "../logger";
+import { ErrorFactory } from "../error-handling";
 import { GEMINI_CONFIG } from "../../config/gemini";
 import type {
   SimulationConfig,
@@ -24,7 +24,6 @@ import { v4 as uuidv4 } from "uuid";
 // ============================================================================
 
 const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // ============================================================================
 // TYPES INTERNES
@@ -160,22 +159,14 @@ async function generateTextResponseWithGemini(
   question: Question,
   persona: Persona,
 ): Promise<string> {
-  if (!API_KEY) {
-    // Fallback sur template simple si pas de clé API
-    return generateTextResponseFallback(question, persona);
-  }
-
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-
     const detailInstructions = {
       low: "Réponds en 1 phrase courte (5-10 mots), de manière naturelle et spontanée.",
       medium: "Réponds en 2-3 phrases (15-30 mots), de manière claire et constructive.",
       high: "Réponds en 3-5 phrases (30-60 mots), de manière détaillée et réfléchie.",
     };
 
-    const contextDescription = {
+    const contextDescription: Record<string, string> = {
       event: "un événement (soirée, mariage, anniversaire)",
       feedback: "un retour d'expérience ou une satisfaction",
       leisure: "une activité de loisirs entre amis ou en famille",
@@ -183,7 +174,7 @@ async function generateTextResponseWithGemini(
       research: "une étude ou une recherche",
     };
 
-    const prompt = `Tu es un participant à un questionnaire sur ${contextDescription[persona.context]}.
+    const prompt = `Tu es un participant à un questionnaire sur ${contextDescription[persona.context] || "un sujet général"}.
 
 Question : ${question.title}
 
@@ -191,9 +182,19 @@ ${detailInstructions[persona.traits.detailLevel]}
 
 Réponds de manière naturelle, comme une vraie personne. Ne mentionne pas que tu es une IA.`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    return response.text().trim();
+    // Import dynamique pour éviter les dépendances circulaires
+    const { secureGeminiService } = await import("../../services/SecureGeminiService");
+
+    const result = await secureGeminiService.generateContent("", prompt);
+
+    if (!result.success) {
+      throw ErrorFactory.api(
+        result.error || result.message || "Erreur Gemini Simulation",
+        "Erreur lors de la simulation",
+      );
+    }
+
+    return (result.data || "").trim();
   } catch (error) {
     logger.error("Erreur Gemini lors de la génération de réponse", "api", {
       error,

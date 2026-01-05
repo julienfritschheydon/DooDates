@@ -15,8 +15,6 @@ export default defineConfig({
     "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify(
       process.env.VITE_SUPABASE_ANON_KEY || "test-anon-key",
     ),
-    "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(process.env.VITE_GEMINI_API_KEY || ""),
-    "import.meta.env.VITE_USE_DIRECT_GEMINI": '"true"',
     "import.meta.env.VITE_DISABLE_POST_PROCESSING": JSON.stringify(
       process.env.VITE_DISABLE_POST_PROCESSING || "false",
     ),

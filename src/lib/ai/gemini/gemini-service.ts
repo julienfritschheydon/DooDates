@@ -3,10 +3,7 @@ import CalendarQuery, { CalendarDay } from "../../calendar-generator";
 import { handleError, ErrorFactory, logError } from "../../error-handling";
 import { logger } from "../../logger";
 import { formatDateLocal, getTodayLocal } from "../../date-utils";
-// ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
-// import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "../../../services/SecureGeminiService";
-import { directGeminiService } from "../../../services/DirectGeminiService";
 import { getEnv, isDev } from "../../env";
 import type { ParsedTemporalInput } from "../../temporalParser";
 
@@ -81,21 +78,9 @@ export interface GeminiResponse {
   error?: string;
 }
 
-// Choisir entre appel direct Gemini ou Edge Function
-const USE_DIRECT_GEMINI = getEnv("VITE_USE_DIRECT_GEMINI") === "true";
-const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiService;
-
-if (USE_DIRECT_GEMINI) {
-  logger.info("🔵 Mode DIRECT GEMINI API activé (bypass Edge Function)", "api");
-  const apiKey = getEnv("VITE_GEMINI_API_KEY");
-  if (!apiKey) {
-    logger.error("VITE_GEMINI_API_KEY non configurée en mode direct", "api");
-  } else {
-    logger.info(`VITE_GEMINI_API_KEY configurée: ${apiKey.substring(0, 10)}...`, "api");
-  }
-} else {
-  logger.info("🟢 Mode Edge Function activé", "api");
-}
+// Force Edge Function usage
+const geminiBackend = secureGeminiService;
+logger.info("🟢 Mode Edge Function activé (Secure)", "api");
 
 // Constantes pour la gestion des quotas
 const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {

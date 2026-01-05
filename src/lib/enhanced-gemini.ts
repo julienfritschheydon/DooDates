@@ -1,11 +1,9 @@
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import CalendarQuery from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
 import { logger } from "./logger";
-import { GEMINI_CONFIG } from "../config/gemini";
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// import { GEMINI_CONFIG } from "../config/gemini"; // Non utilisé en mode sécurisé
+import { secureGeminiService } from "@/services/SecureGeminiService";
 
 // Interface simplifiée pour éviter les problèmes d'import
 interface SimpleTemporalAnalysis {
@@ -52,8 +50,13 @@ export interface EnhancedGeminiResponse {
 
 export class EnhancedGeminiService {
   private static instance: EnhancedGeminiService;
-  private genAI: GoogleGenerativeAI | null = null;
-  public model: GenerativeModel | null = null;
+  // private genAI: GoogleGenerativeAI | null = null; // Supprimé
+  // public model: GenerativeModel | null = null; // Supprimé - le modèle n'est plus exposé directement
+
+  // NOTE: Pour compatibilité avec le code existant qui accède à .model, on pourrait simuler un objet model
+  // mais idéalement il faut refactorer les appelants (GeminiIntentService, etc.)
+  // Pour l'instant on va adapter ce service pour qu'il fasse proxy vers SecureGeminiService
+
   private calendarQuery: CalendarQuery;
 
   constructor() {
@@ -68,25 +71,33 @@ export class EnhancedGeminiService {
   }
 
   public async ensureInitialized(): Promise<boolean> {
-    if (!this.genAI && API_KEY) {
-      try {
-        this.genAI = new GoogleGenerativeAI(API_KEY);
-        this.model = this.genAI.getGenerativeModel({
-          model: GEMINI_CONFIG.MODEL_NAME,
-        });
-        return true;
-      } catch (error) {
-        logError(
-          ErrorFactory.api(
-            "Failed to initialize Gemini",
-            "Erreur lors de l'initialisation de Gemini",
-          ),
-          { metadata: { originalError: error } },
-        );
-        return false;
-      }
-    }
-    return !!this.model;
+    // Le service sécurisé est toujours "initialisé" (config dans l'Edge Function)
+    return true;
+  }
+
+  /**
+   * Méthode wrapper pour simuler l'ancien accès via .model.generateContent
+   * Utilisé par GeminiIntentService et autres
+   */
+  public get model() {
+    return {
+      generateContent: async (prompt: string) => {
+        const response = await secureGeminiService.generateContent("", prompt);
+
+        if (!response.success) {
+          throw ErrorFactory.api(
+            response.error || response.message || "Erreur Gemini",
+            "Erreur du service IA",
+          );
+        }
+
+        return {
+          response: {
+            text: () => response.data || "",
+          },
+        };
+      },
+    };
   }
 
   /**
@@ -177,7 +188,7 @@ export class EnhancedGeminiService {
 
   async generateEnhancedPoll(userInput: string): Promise<EnhancedGeminiResponse> {
     const initialized = await this.ensureInitialized();
-    if (!initialized || !this.model) {
+    if (!initialized) {
       return {
         success: false,
         message: "Service IA temporairement indisponible",
@@ -194,10 +205,18 @@ export class EnhancedGeminiService {
       // 2. Génération du prompt avec techniques Counterfactual-Consistency
       const enhancedPrompt = this.buildCounterfactualPrompt(userInput, temporalAnalysis);
 
-      // 3. Génération par Gemini
-      const result = await this.model.generateContent(enhancedPrompt);
-      const response = await result.response;
-      const text = response.text();
+      // 3. Génération par Gemini via SecureGeminiService
+      // Note: On passe une chaine vide comme userInput car le contexte est déjà dans le prompt
+      const result = await secureGeminiService.generateContent("", enhancedPrompt);
+
+      if (!result.success || !result.data) {
+        throw ErrorFactory.api(
+          result.error || result.message || "Erreur service IA",
+          "Erreur de génération",
+        );
+      }
+
+      const text = result.data;
 
       logger.debug("Réponse Gemini améliorée", "api", { textLength: text.length });
 
@@ -457,9 +476,8 @@ Réponds SEULEMENT avec le JSON validé.`;
     if (!initialized || !this.model) return false;
 
     try {
-      const result = await this.model.generateContent('Test de connexion - réponds juste "OK"');
-      const response = await result.response;
-      return response.text().includes("OK");
+      const result = await secureGeminiService.generateContent("Test de connexion");
+      return result.success;
     } catch (error) {
       logError(ErrorFactory.network("Connection test failed", "Test de connexion échoué"), {
         metadata: { originalError: error },

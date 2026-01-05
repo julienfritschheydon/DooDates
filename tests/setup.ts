@@ -12,17 +12,6 @@ if (typeof jest !== "undefined") {
 // Variables d'environnement pour les tests
 process.env.NODE_ENV = "test";
 
-// Vérifier que l'API key est chargée (réduire le bruit en CI)
-const hasGeminiKey = !!process.env.VITE_GEMINI_API_KEY;
-const isCI = process.env.GITHUB_ACTIONS === "true";
-if (!isCI) {
-  if (hasGeminiKey) {
-    console.log("✅ API key Gemini chargée pour les tests");
-  } else {
-    console.info("ℹ️ API key Gemini non trouvée (tests IA seront ignorés si non requise)");
-  }
-}
-
 // Mock des console.log pour les tests sauf erreurs
 const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
@@ -42,7 +31,6 @@ if (typeof global !== "undefined") {
   global.import.meta.env = {
     DEV: process.env.NODE_ENV === "development",
     PROD: process.env.NODE_ENV === "production",
-    VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY,
     VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
   };

@@ -169,12 +169,6 @@ async function main() {
   const runner = new TestRunner();
 
   try {
-    // Vérifier les variables d'environnement
-    if (!process.env.VITE_GEMINI_API_KEY) {
-      console.error("❌ VITE_GEMINI_API_KEY non définie");
-      process.exit(1);
-    }
-
     // Lancer les tests
     const summary = await runner.runTests();
 

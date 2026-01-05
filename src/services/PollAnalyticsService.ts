@@ -12,7 +12,7 @@
  * - Cache des résultats pour optimiser les coûts API
  */
 
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
+import { secureGeminiService } from "@/services/SecureGeminiService";
 import { getFormResults, getFormResponses } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 import { handleError, ErrorFactory } from "@/lib/error-handling";
@@ -57,8 +57,8 @@ interface CacheEntry {
 
 export class PollAnalyticsService {
   private static instance: PollAnalyticsService;
-  private genAI: GoogleGenerativeAI | null = null;
-  private model: GenerativeModel | null = null;
+  // private genAI: GoogleGenerativeAI | null = null; // Removed
+  // private model: GenerativeModel | null = null; // Removed
   private cache: Map<string, CacheEntry> = new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
   private readonly MAX_CACHE_SIZE = 50;
@@ -75,20 +75,8 @@ export class PollAnalyticsService {
   }
 
   private initializeGemini(): void {
-    try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        logger.warn("VITE_GEMINI_API_KEY not set, analytics will not work", "analytics");
-        return;
-      }
-
-      this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
-      logger.info("Poll Analytics Service initialized", "analytics");
-    } catch (error) {
-      logger.error("Failed to initialize Gemini for analytics", error);
-      this.model = null;
-    }
+    // No initialization needed for SecureGeminiService (Edge Function)
+    logger.info("Poll Analytics Service initialized (Secure Mode)", "analytics");
   }
 
   /**
@@ -238,13 +226,6 @@ export class PollAnalyticsService {
       const cached = this.getFromCache(query.pollId, query.question);
       if (cached) return cached;
 
-      if (!this.model) {
-        throw ErrorFactory.api(
-          "Gemini model not initialized",
-          "Service d'analytics non disponible",
-        );
-      }
-
       // Récupérer le poll
       const { getPollBySlugOrId } = await import("@/lib/pollStorage");
       const poll = getPollBySlugOrId(query.pollId);
@@ -281,9 +262,16 @@ Réponds maintenant à la question de l'utilisateur.`;
         question: query.question,
       });
 
-      const result = await this.model.generateContent(prompt);
-      const response = result.response;
-      const answer = response.text();
+      const result = await secureGeminiService.generateContent("", prompt);
+
+      if (!result.success) {
+        throw ErrorFactory.api(
+          result.error || result.message || "Erreur Gemini Analytics",
+          "Erreur lors de l'analyse",
+        );
+      }
+
+      const answer = result.data || "";
 
       // Extraire les insights mentionnés (simple heuristique)
       const insights: string[] = [];
@@ -354,13 +342,6 @@ Réponds maintenant à la question de l'utilisateur.`;
    */
   async generateAutoInsights(pollId: string): Promise<AutoInsight[]> {
     try {
-      if (!this.model) {
-        throw ErrorFactory.api(
-          "Gemini model not initialized",
-          "Service d'analytics non disponible",
-        );
-      }
-
       const { getPollBySlugOrId } = await import("@/lib/pollStorage");
       const poll = getPollBySlugOrId(pollId);
       if (!poll) {
@@ -400,9 +381,16 @@ Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`;
 
       logger.info("Generating auto insights", "analytics", { pollId });
 
-      const result = await this.model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
+      const result = await secureGeminiService.generateContent("", prompt);
+
+      if (!result.success) {
+        throw ErrorFactory.api(
+          result.error || result.message || "Erreur Gemini Auto-Insights",
+          "Erreur lors de la génération des insights",
+        );
+      }
+
+      const text = result.data || "";
 
       // Parser le JSON
       const jsonMatch = text.match(/\[[\s\S]*\]/);

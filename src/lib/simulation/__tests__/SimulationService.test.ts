@@ -6,19 +6,16 @@ import { describe, it, expect, vi } from "vitest";
 import { simulate } from "../SimulationService";
 import type { SimulationConfig } from "../../../types/simulation";
 
-// Mock Gemini
-vi.mock("@google/generative-ai", () => ({
-  GoogleGenerativeAI: vi.fn(() => ({
-    getGenerativeModel: vi.fn(() => ({
-      generateContent: vi.fn(() =>
-        Promise.resolve({
-          response: {
-            text: () => "C'était vraiment sympa, j'ai passé une bonne soirée.",
-          },
-        }),
-      ),
-    })),
-  })),
+// Mock SecureGeminiService
+vi.mock("../../services/SecureGeminiService", () => ({
+  secureGeminiService: {
+    generateContent: vi.fn(() =>
+      Promise.resolve({
+        success: true,
+        data: "C'était vraiment sympa, j'ai passé une bonne soirée.",
+      }),
+    ),
+  },
 }));
 
 describe("SimulationService", () => {

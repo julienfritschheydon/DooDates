@@ -1,5 +1,5 @@
 import { logger } from "./logger";
-import { logError } from "./error-handling";
+import { logError, ErrorFactory } from "./error-handling";
 import { GEMINI_CONFIG } from "../config/gemini";
 
 const MODEL = GEMINI_CONFIG.MODEL_NAME;
@@ -82,7 +82,10 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     const result = await secureGeminiService.generateContent("", prompt);
 
     if (!result.success) {
-      throw new Error(result.error || result.message || "Erreur Gemini Parsing");
+      throw ErrorFactory.api(
+        result.error || result.message || "Erreur Gemini Parsing",
+        "Erreur lors de l'analyse des disponibilités",
+      );
     }
 
     const responseText = result.data || "";
@@ -103,7 +106,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
     // Valider et normaliser la structure
     const availabilities: ParsedAvailability[] = (parsed.availabilities || []).map(
-      (avail: Record<string, unknown>) => ({
+      (avail: any) => ({
         day: normalizeDay(String(avail.day)),
         timeRange: {
           start: normalizeTime(String(avail.timeRange?.start || avail.start || "09:00")),

@@ -924,12 +924,12 @@ RÈGLE ABSOLUE - PLUSIEURS JOURS + PÉRIODE:
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-          .map((d: string) => {
-            const dateObj = new Date(d + "T00:00:00");
-            const dayName = dayNames[dateObj.getDay()];
-            return `  - ${d} (${dayName})`;
-          })
-          .join("\n")}
+  .map((d: string) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`
         : "";
@@ -942,8 +942,9 @@ Jour demandé: ${jourName}
 Période: dans ${parsed.relativeWeeks} semaines
 Date de référence: ${targetDate}
 ${multipleDaysHint}
-${!hasMultipleDays
-          ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
+${
+  !hasMultipleDays
+    ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
 - Proposer UNIQUEMENT les ${jourName}s autour de la période (1-2 dates MAXIMUM)
 - Filtrer pour ne garder QUE les ${jourName}s
 - Générer 2-3 créneaux par date
@@ -952,8 +953,8 @@ Dates autorisées (filtrer pour ne garder que les ${jourName}s):
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 
 ⚠️ CRITIQUE : Ne proposer QUE des ${jourName}s, pas d'autres jours !`
-          : ""
-        }
+    : ""
+}
 `;
     }
 
@@ -994,12 +995,12 @@ ${parsed.isMealContext ? `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entr
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-            .map((d: string, idx: number) => {
-              const dateObj = new Date(d + "T00:00:00");
-              const dayName = dayNames[dateObj.getDay()];
-              return `  - ${d} (${dayName})`;
-            })
-            .join("\n")}
+  .map((d: string, idx: number) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`;
       }
@@ -1027,14 +1028,16 @@ ${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends
 ${multipleDaysHint}
 ${jourHint}
 ${partenariatsHint}
-${!hasMultipleDays && !hasMultipleNumericDates
-          ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
+${
+  !hasMultipleDays && !hasMultipleNumericDates
+    ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
 - Proposer CETTE DATE UNIQUEMENT (${targetDate})
 - Ajouter MAXIMUM 1-2 alternatives très proches (±1 jour) SEULEMENT si vraiment nécessaire`
-          : ""
-        }
-${parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
-          ? `
+    : ""
+}
+${
+  parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
+    ? `
 ⚠️⚠️⚠️ CAS SPÉCIAL REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
 Pour "${userInput}" :
 → OBLIGATOIRE : 1 DATE UNIQUEMENT (${targetDate})
@@ -1042,8 +1045,8 @@ Pour "${userInput}" :
 → INTERDIT : Générer plusieurs créneaux (pas 2, pas 3, UNIQUEMENT 1)
 → INTERDIT : Générer plusieurs dates
 Cette règle PRIME sur toutes les autres !`
-          : ""
-        }
+    : ""
+}
 
 Dates autorisées${hasMultipleDays || hasMultipleNumericDates ? " (OBLIGATOIRE de générer TOUTES ces dates)" : " (pour alternatives seulement si vraiment nécessaire ET pas repas)"}:
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
