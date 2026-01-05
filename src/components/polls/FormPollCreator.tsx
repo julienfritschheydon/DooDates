@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import FormEditor from "./FormEditor";
+import { GuestPollSuccessDialog } from "./GuestPollSuccessDialog";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import {
   getAllPolls,
@@ -183,36 +184,8 @@ export default function FormPollCreator({
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
   const isFinalizingRef = useRef(false);
-  const [guestEmail, setGuestEmail] = useState("");
-  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
-  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
-
-  // Charger l'email existant si guest
-  useEffect(() => {
-    if (!user && typeof window !== "undefined") {
-      setIsLoadingEmail(true);
-      guestEmailService
-        .getGuestEmail()
-        .then((email) => {
-          if (email) setGuestEmail(email);
-          setIsLoadingEmail(false);
-        })
-        .catch((error) => {
-          logError(error, {
-            component: "FormPollCreator",
-            operation: "getGuestEmail",
-          });
-          setIsLoadingEmail(false);
-        });
-      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
-      setIsEmailFieldDismissed(dismissed);
-    }
-  }, [user]);
-
-  const handleDismissEmailField = () => {
-    setIsEmailFieldDismissed(true);
-    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
-  };
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [finalizedPoll, setFinalizedPoll] = useState<Poll | undefined>(undefined);
 
   // Suggestion IA intelligente pour displayMode
   const suggestedDisplayMode = useMemo(() => {
@@ -693,7 +666,12 @@ export default function FormPollCreator({
       savePolls(withoutOldDrafts);
 
       // Passer le poll sauvegardé complet (avec slug) au callback
-      if (onFinalize) onFinalize(draft, saved);
+      setFinalizedPoll(saved);
+      if (!user) {
+        setShowSuccessDialog(true);
+      } else if (onFinalize) {
+        onFinalize(draft, saved);
+      }
       logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
     } finally {
       // Reset après un délai pour éviter les double-clics rapides
@@ -775,37 +753,6 @@ export default function FormPollCreator({
                 }
               />
 
-              {/* Champ Email Invité (RGPD) - Moins proéminent, après l'éditeur */}
-              {!user && !isEmailFieldDismissed && (
-                <div className="mt-6 p-3 bg-[#1a1a1a] rounded-lg border border-gray-800 relative group">
-                  <button
-                    onClick={handleDismissEmailField}
-                    className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-400 transition-colors"
-                    title="Ne plus afficher"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <Label className="text-xs font-medium text-gray-400">
-                      Email pour les alertes RGPD
-                    </Label>
-                  </div>
-                  <Input
-                    type="email"
-                    placeholder="votre@email.com"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
-                    className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
-                  />
-                  <p className="text-xs text-gray-600 mt-1">
-                    Invité : données conservées 1 an. Email recommandé pour alerte avant
-                    suppression.
-                  </p>
-                </div>
-              )}
-
               <Collapsible open={isConfigPanelOpen} onOpenChange={setIsConfigPanelOpen}>
                 <CollapsibleTrigger
                   className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
@@ -844,6 +791,19 @@ export default function FormPollCreator({
           </div>
         </div>
       </div>
+      <GuestPollSuccessDialog
+        isOpen={showSuccessDialog}
+        onClose={() => {
+          setShowSuccessDialog(false);
+          if (onFinalize && finalizedPoll) onFinalize(currentDraft, finalizedPoll);
+        }}
+        pollUrl={
+          finalizedPoll
+            ? `${window.location.origin}/form/${finalizedPoll.slug || finalizedPoll.id}`
+            : ""
+        }
+        pollTitle={finalizedPoll?.title || ""}
+      />
     </div>
   );
 }

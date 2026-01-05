@@ -44,7 +44,7 @@ const Vote = () => {
 
   // Router vers le bon flux selon le type de sondage
   const p = getPollBySlugOrId(actualPollId);
-  
+
   // Déterminer la landing page selon le type de poll
   const getProductLanding = (pollType?: string) => {
     switch (pollType) {

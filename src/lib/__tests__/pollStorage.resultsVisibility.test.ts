@@ -49,7 +49,7 @@ describe("getCurrentUserId", () => {
 });
 
 describe("checkIfUserHasVoted", () => {
-  it("should return false when user has not voted", () => {
+  it("should return false when user has not voted", async () => {
     const poll: Poll = {
       id: "form-1",
       slug: "form-1",
@@ -73,13 +73,13 @@ describe("checkIfUserHasVoted", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     const hasVoted = checkIfUserHasVoted(poll.id);
     expect(hasVoted).toBe(false);
   });
 
-  it("should return true when user has voted anonymously", () => {
+  it("should return true when user has voted anonymously", async () => {
     const poll: Poll = {
       id: "form-2",
       slug: "form-2",
@@ -103,7 +103,7 @@ describe("checkIfUserHasVoted", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     // User votes anonymously (no name)
     addFormResponse({
@@ -115,7 +115,7 @@ describe("checkIfUserHasVoted", () => {
     expect(hasVoted).toBe(true);
   });
 
-  it("should return true when user has voted with name (deviceId is now stored)", () => {
+  it("should return true when user has voted with name (deviceId is now stored)", async () => {
     const poll: Poll = {
       id: "form-2b",
       slug: "form-2b",
@@ -139,7 +139,7 @@ describe("checkIfUserHasVoted", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     // User votes with name (deviceId is now stored in response)
     addFormResponse({
@@ -153,7 +153,7 @@ describe("checkIfUserHasVoted", () => {
     expect(hasVoted).toBe(true);
   });
 
-  it("should return true when user has voted anonymously (by device ID)", () => {
+  it("should return true when user has voted anonymously (by device ID)", async () => {
     const poll: Poll = {
       id: "form-3",
       slug: "form-3",
@@ -177,7 +177,7 @@ describe("checkIfUserHasVoted", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     // Anonymous vote (no name)
     addFormResponse({
@@ -191,7 +191,7 @@ describe("checkIfUserHasVoted", () => {
 });
 
 describe("addFormResponse with respondentEmail", () => {
-  it("should save email when provided", () => {
+  it("should save email when provided", async () => {
     const poll: Poll = {
       id: "form-email-1",
       slug: "form-email-1",
@@ -215,7 +215,7 @@ describe("addFormResponse with respondentEmail", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     const response = addFormResponse({
       pollId: poll.id,
@@ -230,7 +230,7 @@ describe("addFormResponse with respondentEmail", () => {
     expect(stored[0].respondentEmail).toBe("test@example.com");
   });
 
-  it("should not save email when not provided", () => {
+  it("should not save email when not provided", async () => {
     const poll: Poll = {
       id: "form-email-2",
       slug: "form-email-2",
@@ -254,7 +254,7 @@ describe("addFormResponse with respondentEmail", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     const response = addFormResponse({
       pollId: poll.id,
@@ -268,7 +268,7 @@ describe("addFormResponse with respondentEmail", () => {
     expect(stored[0].respondentEmail).toBeUndefined();
   });
 
-  it("should update email when replacing existing response", () => {
+  it("should update email when replacing existing response", async () => {
     const poll: Poll = {
       id: "form-email-3",
       slug: "form-email-3",
@@ -292,7 +292,7 @@ describe("addFormResponse with respondentEmail", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     // First response without email
     const r1 = addFormResponse({

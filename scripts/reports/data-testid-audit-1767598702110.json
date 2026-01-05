@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-01-05T07:38:22.109Z",
+  "summary": {
+    "totalFiles": 316,
+    "totalButtons": 16,
+    "missingDataTestId": 1,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\GuestPollSuccessDialog.tsx",
+      "line": 109,
+      "content": "<Button variant=\"ghost\" onClick={onClose} className=\"text-gray-400 hover:text-white\">",
+      "button": "<Button variant=\"ghost\" onClick={onClose} className=\"text-gray-400 hover:text-white\">",
+      "suggestedTestId": "guestpollsuccessdialog-button"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "1 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

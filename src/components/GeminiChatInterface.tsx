@@ -45,6 +45,7 @@ import { useConnectionStatus } from "../hooks/useConnectionStatus";
 import { useIntentDetection } from "../hooks/useIntentDetection";
 import { usePollManagement } from "../hooks/usePollManagement";
 import { useMessageSender } from "../hooks/useMessageSender";
+import { usePollQuotaListener } from "../hooks/usePollQuotaListener";
 import { SurveyRequestAggregator } from "../services/SurveyRequestAggregator";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import { AuthModal } from "./modals/AuthModal";
@@ -253,6 +254,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [attachedFile, setAttachedFile] = useState<File | null>(null);
+    const [quotaExceeded, setQuotaExceeded] = useState(false);
 
     // État pour le feedback IA
     const [lastAIProposal, setLastAIProposal] = useState<PollSuggestion | null>(null);
@@ -350,6 +352,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const aiQuota = useAiMessageQuota(autoSave.getRealConversationId() || undefined);
     const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
     const { toast } = useToast();
+
+    // Écouter les événements de quota de poll dépassé (affiche le toast et désactive le chat)
+    usePollQuotaListener(() => {
+      setQuotaExceeded(true);
+    });
 
     // 🎤 Voice recognition - Utiliser le hook externe s'il existe, sinon créer le nôtre
     const internalVoiceRecognition = useVoiceRecognition({
@@ -1079,6 +1086,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           messagesEndRef={messagesEndRef}
           isLoading={isLoading}
           pollType={pollTypeFromUrl}
+          quotaExceeded={quotaExceeded}
+          onOpenAuthModal={() => {
+            setAuthModalOpen(true);
+            setAuthModalMode("signin");
+          }}
         />
 
         {/* Zone de saisie - Fixe en bas de l'écran */}
@@ -1097,6 +1109,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               pollType={pollTypeFromUrl}
               attachedFile={attachedFile}
               onAttachFile={setAttachedFile}
+              disabled={quotaExceeded}
             />
 
             {/* Icône RGPD discrète en bas à gauche */}

@@ -12,6 +12,7 @@ export default function FormPollsPrivacy() {
         <div className="mb-8">
           <Button
             variant="ghost"
+            data-testid="back-to-dashboard-button"
             onClick={() => navigate("/form/dashboard")}
             className="mb-4"
           >

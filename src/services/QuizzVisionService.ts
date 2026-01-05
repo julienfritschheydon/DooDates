@@ -137,27 +137,26 @@ class QuizzVisionService {
 
   /**
    * Extrait un quiz depuis un fichier de devoir (photo ou PDF scanné)
-   * Utilise l'API directe Gemini (car l'Edge Function ne supporte pas ces fichiers binaires)
+   * Utilise l'Edge Function Supabase (SecureGeminiService) qui supporte maintenant les fichiers binaires.
    */
   async extractFromImage(imageBase64: string, mimeType: string): Promise<QuizzVisionResult> {
-    // Vérifier si l'API directe est disponible
-    const apiKey = getEnv("VITE_GEMINI_API_KEY");
-    if (!apiKey) {
-      logger.warn("🔍 Extraction fichier (vision) - Clé API Gemini non configurée", "api");
-      return {
-        success: false,
-        error:
-          "Pour analyser un fichier (photo ou PDF), configurez VITE_GEMINI_API_KEY dans .env.local",
-      };
-    }
-
     try {
-      logger.info("🔍 Extraction quiz depuis fichier (API directe)", "api", { mimeType });
+      // Estimation de la taille du fichier depuis la base64
+      const size = Math.round((imageBase64.length * 3) / 4);
+      const extension = mimeType.split("/")[1] || "bin";
+      const name = `upload_${Date.now()}.${extension}`;
 
-      const response = await directGeminiService.generateContentWithImage(
-        imageBase64,
-        mimeType,
+      logger.info("🔍 Extraction quiz depuis fichier (via Supabase)", "api", { mimeType, size });
+
+      const response = await secureGeminiService.generateContent(
+        "Analyse ce fichier et extrais-en un quiz selon les règles éducatives.",
         QUIZZ_EXTRACTION_PROMPT,
+        {
+          name,
+          mimeType,
+          size,
+          contentBase64: imageBase64,
+        },
       );
 
       if (!response.success || !response.data) {

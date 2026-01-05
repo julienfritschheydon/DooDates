@@ -9,8 +9,12 @@ const AvailabilityPollsJournalSimple = lazy(() => import("./JournalSimple"));
 const AvailabilityPollsSettingsTabs = lazy(() => import("./SettingsTabs"));
 const AvailabilityPollsPricingSimple = lazy(() => import("./PricingSimple"));
 const AvailabilityPollsDocumentationSimple = lazy(() => import("./DocumentationSimple"));
-const AvailabilityPollsPrivacy = lazy(() => import("@/pages/products/availability-polls/AvailabilityPollsPrivacy"));
-const AvailabilityPollsDataControl = lazy(() => import("@/pages/products/availability-polls/AvailabilityPollsDataControl"));
+const AvailabilityPollsPrivacy = lazy(
+  () => import("@/pages/products/availability-polls/AvailabilityPollsPrivacy"),
+);
+const AvailabilityPollsDataControl = lazy(
+  () => import("@/pages/products/availability-polls/AvailabilityPollsDataControl"),
+);
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">

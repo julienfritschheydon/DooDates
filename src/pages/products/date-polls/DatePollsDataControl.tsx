@@ -82,6 +82,7 @@ export default function DatePollsDataControl() {
           <div className="mb-8">
             <Button
               variant="ghost"
+              data-testid="back-to-dashboard-button"
               onClick={() => navigate("/date/dashboard")}
               className="mb-4"
             >

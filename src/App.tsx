@@ -567,7 +567,6 @@ const App = () => {
                                 <Route path="/availability/*" element={<AvailabilityPollsApp />} />
                                 <Route path="/quizz/*" element={<QuizzApp />} />
 
-
                                 {/* Pages globales (site principal) */}
                                 <Route path="/terms" element={<Terms />} />
                                 <Route path="/privacy" element={<Privacy />} />

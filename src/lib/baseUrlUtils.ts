@@ -1,6 +1,6 @@
 /**
  * 🛡️ BASE URL UTILITIES - GitHub Pages Protection
- * 
+ *
  * Utilisez cette fonction pour toutes les URLs dynamiques
  * Évite les doubles préfixes /DooDates/DooDates/
  */
@@ -17,9 +17,10 @@ export function buildUrl(path: string): string {
 }
 
 export function buildAbsoluteUrl(path: string): string {
-  const origin = typeof window !== "undefined" && window.location?.origin 
-    ? window.location.origin 
-    : "http://localhost:8080";
+  const origin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "http://localhost:8080";
   return `${origin}${buildUrl(path)}`;
 }
 

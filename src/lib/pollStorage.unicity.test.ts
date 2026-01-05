@@ -52,7 +52,7 @@ describe("unicity helpers", () => {
 });
 
 describe("addFormResponse normalization and deduplication", () => {
-  it("normalizes respondentName and replaces existing response for same poll+name", () => {
+  it("normalizes respondentName and replaces existing response for same poll+name", async () => {
     const poll: Poll = {
       id: "form-1",
       slug: "form-1",
@@ -75,7 +75,7 @@ describe("addFormResponse normalization and deduplication", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     const r1 = addFormResponse({
       pollId: poll.id,
@@ -103,7 +103,7 @@ describe("addFormResponse normalization and deduplication", () => {
     expect(latest.items[0].value).toBe("o2");
   });
 
-  it("should preserve email when replacing response with same name", () => {
+  it("should preserve email when replacing response with same name", async () => {
     const poll: Poll = {
       id: "form-email-dedup",
       slug: "form-email-dedup",
@@ -125,7 +125,7 @@ describe("addFormResponse normalization and deduplication", () => {
       ],
     } as any;
 
-    addPoll(poll);
+    await addPoll(poll);
 
     // First response with email
     const r1 = addFormResponse({

@@ -50,6 +50,7 @@ import { guestEmailService } from "@/lib/guestEmailService";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import type { DatePollSettings } from "@/lib/products/date-polls/date-polls-service";
+import { GuestPollSuccessDialog } from "./polls/GuestPollSuccessDialog";
 
 // Type pour identifier un slot avec sa date (défini en dehors du composant)
 interface TimeSlotWithDate {
@@ -140,24 +141,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const targetTimeSlotRefMobile = useRef<HTMLDivElement>(null); // 12:00 mobile
   const targetTimeSlotRefDesktop = useRef<HTMLDivElement>(null); // 12:00 desktop
   const hasAutoScrolled = useRef<boolean>(false);
-  const [guestEmail, setGuestEmail] = useState("");
-
-  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
-
-  useEffect(() => {
-    if (!user) {
-      guestEmailService.getGuestEmail().then((email) => {
-        if (email) setGuestEmail(email);
-      });
-      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
-      setIsEmailFieldDismissed(dismissed);
-    }
-  }, [user]);
-
-  const handleDismissEmailField = () => {
-    setIsEmailFieldDismissed(true);
-    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
-  };
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const { state, setState, visibleMonths, setVisibleMonths, timeSlotsByDate, setTimeSlotsByDate } =
     usePollCreatorState({
@@ -426,16 +410,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           });
         }
 
-        // Déclencher l'écran de succès via onBack
-        logger.debug("Poll created, calling onBack", "poll", {
-          hasOnBack: !!onBack,
-          pollId: result.poll.id,
-          pollSlug: result.poll.slug,
-        });
-        if (onBack) {
-          onBack(result.poll);
+        // Déclencher l'écran de succès ou la navigation
+        if (!user) {
+          setShowSuccessDialog(true);
         } else {
-          logger.warn("onBack not provided, cannot show success screen", "poll");
+          if (onBack) {
+            onBack(result.poll);
+          } else {
+            handleBackToHome();
+          }
         }
       } else {
         logger.error("No poll in result and no error", "poll", { result });
@@ -1715,36 +1698,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               />
             </div>
 
-            {/* Champ Email Invité (RGPD) - Moins proéminent, juste avant les actions */}
-            {!user && !isEmailFieldDismissed && (
-              <div className="mt-6 p-3 bg-[#1a1a1a] rounded-lg border border-gray-800 relative group">
-                <button
-                  onClick={handleDismissEmailField}
-                  className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-400 transition-colors"
-                  title="Ne plus afficher"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-                <div className="flex items-center gap-2 mb-2">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <Label className="text-xs font-medium text-gray-400">
-                    Email pour les alertes RGPD
-                  </Label>
-                </div>
-                <Input
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
-                  className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
-                />
-                <p className="text-xs text-gray-600 mt-1">
-                  Invité : données conservées 1 an. Email recommandé pour alerte avant suppression.
-                </p>
-              </div>
-            )}
-
             {/* Boutons d'action - Toujours visibles, désactivés si aucune date sélectionnée */}
             <TooltipProvider>
               <div className="mt-8 flex flex-wrap gap-3 justify-end pt-4">
@@ -1807,6 +1760,18 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           </div>
         </div>
       </div>
+      <GuestPollSuccessDialog
+        isOpen={showSuccessDialog}
+        onClose={() => {
+          setShowSuccessDialog(false);
+          if (onBack && createdPoll) onBack(createdPoll);
+          else handleBackToHome();
+        }}
+        pollUrl={
+          createdPoll ? `${window.location.origin}/vote/${createdPoll.slug || createdPoll.id}` : ""
+        }
+        pollTitle={createdPoll?.title || ""}
+      />
     </div>
   );
 };

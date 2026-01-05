@@ -50,11 +50,11 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       expect(hasVoted).toBe(false);
     });
 
-    it("détecte un vote via deviceId stocké dans la réponse", () => {
+    it("détecte un vote via deviceId stocké dans la réponse", async () => {
       const pollId = "poll-123";
 
       // Initialize poll
-      addPoll({
+      await addPoll({
         id: pollId,
         title: "Test Poll",
         type: "form",
@@ -81,13 +81,13 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       expect(hasVoted).toBe(true);
     });
 
-    it("détecte un vote via respondentId anonyme contenant deviceId", () => {
+    it("détecte un vote via respondentId anonyme contenant deviceId", async () => {
       // Ce test simule le cas des anciennes réponses ou des réponses créées sans champ deviceId explicite
       // mais dont le respondentId a été généré avec le deviceId
       const pollId = "poll-legacy-123";
 
       // Initialize poll
-      addPoll({
+      await addPoll({
         id: pollId,
         title: "Test Poll",
         type: "form",
@@ -151,11 +151,11 @@ describe("Poll Storage Helpers - Visibility Features", () => {
       expect(hasVoted).toBe(false);
     });
 
-    it("gère correctement les réponses mixtes (avec et sans deviceId)", () => {
+    it("gère correctement les réponses mixtes (avec et sans deviceId)", async () => {
       const pollId = "poll-mixed-123";
 
       // Initialize poll to pass validation
-      addPoll({
+      await addPoll({
         id: pollId,
         title: "Test Poll",
         type: "form",

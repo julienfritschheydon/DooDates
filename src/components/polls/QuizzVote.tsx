@@ -565,7 +565,7 @@ Réponds UNIQUEMENT en JSON:
                   `/quizz/history/${encodeURIComponent(respondentName.trim().toLowerCase())}`,
                 )
               }
-              className="mb-4 text-sm text-amber-700 hover:text-amber-800 underline"
+              className="w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white"
             >
               Voir mon historique et tous mes badges →
             </Button>
@@ -621,7 +621,7 @@ Réponds UNIQUEMENT en JSON:
               onClick={() => navigate("/quizz")}
               size="sm"
               variant="ghost"
-              className="w-full text-gray-600 py-3 hover:text-gray-800 transition-colors"
+              className="w-full text-gray-500 py-3 hover:text-amber-600 hover:bg-amber-50 transition-colors"
             >
               Retour aux quiz
             </Button>

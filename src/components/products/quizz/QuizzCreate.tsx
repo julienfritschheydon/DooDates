@@ -13,6 +13,7 @@ import {
   X,
   Check,
   ExternalLink,
+  FileText,
 } from "lucide-react";
 import { addQuizz, type Quizz, type QuizzQuestion } from "@/lib/products/quizz/quizz-service";
 import {
@@ -34,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { guestEmailService } from "@/lib/guestEmailService";
 import { useAuth } from "@/contexts/AuthContext";
+import { SafeguardSection } from "@/components/polls/SafeguardSection";
 import { fileToGeminiAttachment } from "@/services/FileAttachmentService";
 import { PollSettingsForm } from "@/components/polls/PollSettingsForm";
 import type { QuizzSettings } from "@/lib/products/quizz/quizz-settings";
@@ -66,11 +68,13 @@ export const QuizzCreate: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  // State for file upload flow
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState<QuizzQuestion[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [textPrompt, setTextPrompt] = useState("");
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
   const [advancedSettings, setAdvancedSettings] = useState<QuizzSettings>({
     showEstimatedTime: true,
@@ -83,8 +87,6 @@ export const QuizzCreate: React.FC = () => {
     showCorrectAnswers: true,
   });
   const { user } = useAuth();
-  const [guestEmail, setGuestEmail] = useState("");
-  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
   const [published, setPublished] = useState(false);
   const [publishedQuiz, setPublishedQuiz] = useState<Quizz | null>(null);
   const [advancedSettingsOpen, setAdvancedSettingsOpen] = useState(false);
@@ -96,14 +98,6 @@ export const QuizzCreate: React.FC = () => {
 
   // Charger l'email existant si guest + vérifier le draft
   React.useEffect(() => {
-    if (!user) {
-      guestEmailService.getGuestEmail().then((email) => {
-        if (email) setGuestEmail(email);
-      });
-      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
-      setIsEmailFieldDismissed(dismissed);
-    }
-
     // Vérifier s'il y a un draft à charger
     const draft = loadQuizzDraft();
     if (draft && hasDraftWithContent()) {
@@ -170,11 +164,6 @@ export const QuizzCreate: React.FC = () => {
     });
   };
 
-  const handleDismissEmailField = () => {
-    setIsEmailFieldDismissed(true);
-    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
-  };
-
   // Toggle question expansion
   const toggleQuestion = (questionId: string) => {
     setExpandedQuestions((prev) => {
@@ -198,185 +187,78 @@ export const QuizzCreate: React.FC = () => {
     setExpandedQuestions(new Set());
   };
 
-  // Génération depuis texte
-  const handleGenerateFromText = async () => {
-    console.log("[QuizzCreate] handleGenerateFromText appelé, textPrompt:", textPrompt);
+  // Suppression de textPrompt et handleGenerateFromText car l'utilisateur ne souhaite pas de champ libre
 
-    if (!textPrompt.trim()) {
-      console.log("[QuizzCreate] textPrompt vide, affichage toast");
-      toast({ title: "Veuillez décrire le quiz souhaité", variant: "destructive" });
-      return;
-    }
-
-    console.log("[QuizzCreate] Début génération...");
-    setIsGenerating(true);
-    toast({ title: "Génération en cours...", description: "Gemini analyse votre demande" });
-
-    try {
-      // Construire le contexte complet pour la génération
-      let fullPrompt = textPrompt;
-      if (title.trim()) {
-        fullPrompt = `CONTEXTE DÉJÀ SAISI:\nTitre: "${title}"\n\nDEMANDE COMPLÉMENTAIRE: ${textPrompt}`;
-      }
-
-      console.log("[QuizzCreate] Génération avec contexte complet:", fullPrompt);
-      const result = await quizzVisionService.generateFromText(fullPrompt);
-      console.log("[QuizzCreate] Résultat:", result);
-
-      if (result.success && result.data) {
-        // Mettre à jour le titre seulement si non déjà saisi manuellement
-        if (!title.trim()) {
-          setTitle(result.data.title);
-        }
-        setQuestions(result.data.questions);
-        toast({ title: `✅ ${result.data.questions.length} questions générées !` });
-      } else {
-        const error = ErrorFactory.api(
-          "Erreur génération quiz",
-          "Erreur lors de la génération du quiz",
-          {
-            originalError: result.error,
-            source: "QuizzCreate.handleGenerateFromText",
-          },
-        );
-        logError(error, { component: "QuizzCreate", operation: "generateFromText" });
-        toast({
-          title: "Erreur de génération",
-          description: result.error || "Vérifiez que VITE_GEMINI_API_KEY est configurée",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      const processedError = ErrorFactory.api(
-        "Exception génération quiz",
-        "Erreur lors de la génération du quiz",
-        {
-          originalError: error,
-          source: "QuizzCreate.handleGenerateFromText",
-        },
-      );
-      logError(processedError, { component: "QuizzCreate", operation: "generateFromText" });
-      toast({
-        title: "Erreur",
-        description: error?.message || "Erreur inconnue",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  // Génération depuis fichier (image, PDF, ...)
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("[QuizzCreate] handleImageUpload appelé");
+  // Sélection de fichier (sans génération immédiate)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      console.log("[QuizzCreate] Aucun fichier sélectionné");
-      return;
-    }
+    if (!file) return;
 
-    console.log("[QuizzCreate] Fichier sélectionné:", file.name, file.type);
-    // Validation de base sur le fichier avant de lancer la génération
-    const { size, type, name } = file;
-
-    if (size > MAX_QUIZZ_ATTACHMENT_SIZE_BYTES) {
-      const processedError = ErrorFactory.validation(
-        "Fichier trop volumineux pour le quizz",
-        "Le fichier dépasse la taille maximale autorisée (10 Mo).",
-        { size, name, limit: MAX_QUIZZ_ATTACHMENT_SIZE_BYTES },
-      );
-      logError(processedError, {
-        component: "QuizzCreate",
-        operation: "validateImageAttachmentSize",
-      });
+    // Validation basique
+    if (file.size > MAX_QUIZZ_ATTACHMENT_SIZE_BYTES) {
       toast({
         title: "Fichier trop volumineux",
-        description: "Le fichier dépasse 10 Mo. Essayez avec un fichier plus léger.",
+        description: "Le fichier dépasse 10 Mo.",
         variant: "destructive",
       });
       return;
     }
 
-    const isAllowedMime =
-      !type ||
-      ALLOWED_QUIZZ_ATTACHMENT_MIME_EXACT.includes(type) ||
-      ALLOWED_QUIZZ_ATTACHMENT_MIME_PREFIXES.some((prefix) => type.startsWith(prefix));
+    setSelectedFile(file);
+    // Reset inputs pour permettre de re-sélectionner le même fichier si besoin
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+  };
 
-    if (!isAllowedMime) {
-      const processedError = ErrorFactory.validation(
-        "Type de fichier non supporté pour le quizz",
-        "Ce type de fichier n'est pas encore supporté pour l'analyse automatique.",
-        { mimeType: type, name },
-      );
-      logError(processedError, {
-        component: "QuizzCreate",
-        operation: "validateImageAttachmentMimeType",
-      });
-      toast({
-        title: "Type de fichier non supporté",
-        description: "Formats conseillés : image (PNG/JPEG) ou PDF.",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Traitement du fichier sélectionné
+  const handleAnalyzeFile = async () => {
+    if (!selectedFile) return;
 
     setIsGenerating(true);
-    toast({ title: "Analyse en cours...", description: "Gemini analyse votre photo" });
+    toast({ title: "Analyse en cours...", description: "Gemini analyse votre document" });
 
     try {
-      console.log("[QuizzCreate] Analyse image:", file.name, file.type);
-      const attachment = await fileToGeminiAttachment(file);
+      console.log("[QuizzCreate] Analyse fichier:", selectedFile.name);
+
+      const attachment = await fileToGeminiAttachment(selectedFile);
       const result = await quizzVisionService.extractFromImage(
         attachment.contentBase64,
         attachment.mimeType,
       );
-      console.log("[QuizzCreate] Résultat:", result);
 
       if (result.success && result.data) {
-        // Mettre à jour le titre seulement si non déjà saisi manuellement
         if (!title.trim()) {
           setTitle(result.data.title);
         }
         setQuestions(result.data.questions);
+
         if (result.data.questions.length === 0) {
           toast({
             title: "Aucune question détectée",
-            description:
-              "Cette image ne semble pas contenir de devoir. Essayez avec une photo d'exercice scolaire.",
+            description: "Le document ne semble pas contenir de questions claires.",
             variant: "destructive",
           });
         } else {
           toast({ title: `✅ ${result.data.questions.length} questions extraites !` });
         }
+
+        // Optionnel : on peut vider le fichier après succès, ou le laisser affiché
+        // setSelectedFile(null);
       } else {
-        const error = ErrorFactory.api(
-          "Erreur extraction quiz depuis image",
-          "Erreur lors de l'extraction du quiz depuis l'image",
-          {
-            originalError: result.error,
-            source: "QuizzCreate.handleImageUpload",
-          },
-        );
-        logError(error, { component: "QuizzCreate", operation: "extractFromImage" });
-        toast({
-          title: "Erreur d'extraction",
-          description: result.error || "Vérifiez que VITE_GEMINI_API_KEY est configurée",
-          variant: "destructive",
-        });
+        if (result.error) {
+          throw ErrorFactory.api(result.error);
+        } else {
+          throw ErrorFactory.api("Erreur lors de l'analyse");
+        }
       }
     } catch (error: any) {
-      const processedError = ErrorFactory.api(
-        "Exception extraction quiz depuis image",
-        "Erreur lors de l'extraction du quiz depuis l'image",
-        {
-          originalError: error,
-          source: "QuizzCreate.handleImageUpload",
-        },
-      );
-      logError(processedError, { component: "QuizzCreate", operation: "extractFromImage" });
+      logError(error, {
+        component: "QuizzCreate",
+        operation: "handleAnalyzeFile",
+      });
       toast({
         title: "Erreur",
-        description: error?.message || "Erreur inconnue",
+        description: error.message || "Impossible d'analyser le fichier",
         variant: "destructive",
       });
     } finally {
@@ -540,6 +422,11 @@ export const QuizzCreate: React.FC = () => {
               </div>
 
               {/* Actions */}
+              {!user && (
+                <div className="mb-6 max-w-md mx-auto">
+                  <SafeguardSection />
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
                   to="/quizz/dashboard"
@@ -644,7 +531,7 @@ export const QuizzCreate: React.FC = () => {
               ref={fileInputRef}
               type="file"
               accept="image/*,application/pdf"
-              onChange={handleImageUpload}
+              onChange={handleFileSelect}
               className="hidden"
             />
             {/* Input pour prendre une photo (caméra) */}
@@ -653,13 +540,14 @@ export const QuizzCreate: React.FC = () => {
               type="file"
               accept="image/*,application/pdf"
               capture="environment"
-              onChange={handleImageUpload}
+              onChange={handleFileSelect}
               className="hidden"
             />
+
             <div className="grid grid-cols-2 gap-2">
               <Button
                 onClick={() => cameraInputRef.current?.click()}
-                disabled={isGenerating}
+                disabled={isGenerating || !!selectedFile}
                 variant="outline"
                 className="flex items-center justify-center gap-1.5 sm:gap-2 border-amber-600/50 hover:border-amber-500 hover:bg-gray-800 bg-gray-800/50"
               >
@@ -670,7 +558,7 @@ export const QuizzCreate: React.FC = () => {
               </Button>
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isGenerating}
+                disabled={isGenerating || !!selectedFile}
                 variant="outline"
                 className="flex items-center justify-center gap-1.5 sm:gap-2 border-gray-600 hover:border-gray-500 hover:bg-gray-800 bg-gray-800/50"
               >
@@ -679,9 +567,64 @@ export const QuizzCreate: React.FC = () => {
                 </span>
               </Button>
             </div>
-            <p className="text-xs text-gray-400 mt-2 text-center">
-              L'IA générera automatiquement le titre et les questions
-            </p>
+
+            {/* Prévisualisation du fichier sélectionné */}
+            {selectedFile && (
+              <div className="mt-3 bg-gray-900/50 border border-amber-500/30 rounded-lg p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-10 h-10 rounded bg-gray-800 flex items-center justify-center flex-shrink-0">
+                      {selectedFile.type.startsWith("image/") ? (
+                        <img
+                          src={URL.createObjectURL(selectedFile)}
+                          alt="Aperçu"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      ) : (
+                        <FileText className="w-5 h-5 text-amber-500" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate max-w-[150px] sm:max-w-[200px]">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedFile(null)}
+                    className="p-1.5 hover:bg-gray-800 rounded-full text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Bouton de génération - Visible uniquement quand un fichier est présent */}
+                <Button
+                  onClick={handleAnalyzeFile}
+                  disabled={isGenerating}
+                  className="w-full mt-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-900/20"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyse de l'image...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" /> Générer les questions
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {!selectedFile && (
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                L'IA générera automatiquement le titre et les questions (photo ou PDF)
+              </p>
+            )}
           </div>
         </div>
 
@@ -891,36 +834,6 @@ export const QuizzCreate: React.FC = () => {
                 />
               </div>
             )}
-          </div>
-        )}
-
-        {/* Champ Email Invité (RGPD) - Moins proéminent, juste avant les actions */}
-        {!user && !isEmailFieldDismissed && (
-          <div className="mt-6 p-3 bg-[#1a1a1a] rounded-lg border border-gray-800 relative group">
-            <button
-              onClick={handleDismissEmailField}
-              className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-400 transition-colors"
-              title="Ne plus afficher"
-            >
-              <X className="w-3 h-3" />
-            </button>
-            <div className="flex items-center gap-2 mb-2">
-              <Mail className="w-4 h-4 text-gray-400" />
-              <Label className="text-xs font-medium text-gray-400">
-                Email pour les alertes RGPD
-              </Label>
-            </div>
-            <Input
-              type="email"
-              placeholder="votre@email.com"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
-              className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
-            />
-            <p className="text-xs text-gray-600 mt-1">
-              Invité : données conservées 1 an. Email recommandé pour alerte avant suppression.
-            </p>
           </div>
         )}
 

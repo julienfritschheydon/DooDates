@@ -24,6 +24,7 @@ interface ChatInputProps {
   className?: string;
   attachedFile?: File | null;
   onAttachFile?: (file: File | null) => void;
+  disabled?: boolean;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -40,6 +41,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   className,
   attachedFile,
   onAttachFile,
+  disabled = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -77,15 +79,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 fileInputRef.current?.click();
               }}
               className={`rounded-full p-2 transition-all flex-shrink-0 ${
-                isLoading
-                  ? "bg-transparent text-gray-500 cursor-not-allowed"
+                isLoading || disabled
+                  ? "bg-transparent text-gray-500 cursor-not-allowed opacity-60"
                   : darkTheme
                     ? "bg-transparent text-gray-300 hover:bg-gray-700"
                     : "bg-transparent text-gray-600 hover:bg-gray-100"
               }`}
               aria-label="Joindre un fichier"
               title="Joindre un fichier"
-              disabled={isLoading}
+              disabled={isLoading || disabled}
             >
               <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
             </button>
@@ -105,16 +107,18 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             }}
             onKeyDown={onKeyPress}
             placeholder={
-              isLoading
-                ? "Génération en cours..."
-                : pollType === "form"
-                  ? "Décrivez votre formulaire..."
-                  : "Décrivez votre sondage..."
+              disabled
+                ? "Connectez-vous pour continuer..."
+                : isLoading
+                  ? "Génération en cours..."
+                  : pollType === "form"
+                    ? "Décrivez votre formulaire..."
+                    : "Décrivez votre sondage..."
             }
-            disabled={isLoading}
+            disabled={isLoading || disabled}
             className={`flex-1 min-w-0 resize-none border-0 px-2 md:px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
               darkTheme ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
-            } ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+            } ${isLoading || disabled ? "opacity-60 cursor-not-allowed" : ""}`}
             rows={1}
           />
 
@@ -131,12 +135,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   voiceRecognition.startListening();
                 }
               }}
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               className={`
                 rounded-full p-2 transition-all flex-shrink-0
                 ${
-                  isLoading
-                    ? "bg-transparent text-gray-500 cursor-not-allowed"
+                  isLoading || disabled
+                    ? "bg-transparent text-gray-500 cursor-not-allowed opacity-60"
                     : voiceRecognition.isListening
                       ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
                       : darkTheme
@@ -158,11 +162,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <button
             data-testid="send-message-button"
             onClick={onSend}
-            disabled={isLoading || !value.trim()}
+            disabled={isLoading || !value.trim() || disabled}
             className={`
               rounded-full p-2 transition-all flex-shrink-0
               ${
-                isLoading || !value.trim()
+                isLoading || !value.trim() || disabled
                   ? "bg-transparent text-gray-500 cursor-not-allowed"
                   : darkTheme
                     ? "bg-transparent text-gray-300 hover:bg-gray-700"

@@ -43,10 +43,7 @@ export default function FormPollsDocumentation() {
               <Link to="/form/documentation" className="text-purple-400 font-medium">
                 Documentation
               </Link>
-              <Link
-                to="/form/pricing"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
+              <Link to="/form/pricing" className="text-gray-400 hover:text-white transition-colors">
                 Tarifs
               </Link>
               <Link to="/" className="text-gray-400 hover:text-white transition-colors">

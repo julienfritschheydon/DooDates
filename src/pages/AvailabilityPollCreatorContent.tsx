@@ -26,6 +26,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { motion } from "framer-motion";
 import { Mail, X } from "lucide-react";
 import { guestEmailService } from "@/lib/guestEmailService";
+import { SafeguardSection } from "@/components/polls/SafeguardSection";
 
 interface AvailabilityPollCreatorContentProps {
   onBack?: (createdPoll?: StoragePoll) => void;
@@ -65,24 +66,6 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [guestEmail, setGuestEmail] = useState("");
-  const [isEmailFieldDismissed, setIsEmailFieldDismissed] = useState(false);
-
-  // Charger l'email existant si guest
-  React.useEffect(() => {
-    if (!user) {
-      guestEmailService.getGuestEmail().then((email) => {
-        if (email) setGuestEmail(email);
-      });
-      const dismissed = localStorage.getItem("doodates_dismiss_guest_email_field") === "true";
-      setIsEmailFieldDismissed(dismissed);
-    }
-  }, [user]);
-
-  const handleDismissEmailField = () => {
-    setIsEmailFieldDismissed(true);
-    localStorage.setItem("doodates_dismiss_guest_email_field", "true");
-  };
 
   const handleCreate = (asDraft = false) => {
     if (!title.trim()) {
@@ -198,6 +181,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     <p className="text-gray-300 text-sm">{publishedPoll.description}</p>
                   )}
                 </div>
+
+                {!user && <SafeguardSection />}
 
                 {/* Lien de partage */}
                 <TooltipProvider>
@@ -362,36 +347,6 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 </div>
               </CollapsibleContent>
             </Collapsible>
-
-            {/* Champ Email Invité (RGPD) - Moins proéminent, juste avant les actions */}
-            {!user && !isEmailFieldDismissed && (
-              <div className="mt-6 p-3 bg-[#1a1a1a] rounded-lg border border-gray-800 relative group">
-                <button
-                  onClick={handleDismissEmailField}
-                  className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-400 transition-colors"
-                  title="Ne plus afficher"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-                <div className="flex items-center gap-2 mb-2">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <Label className="text-xs font-medium text-gray-400">
-                    Email pour les alertes RGPD
-                  </Label>
-                </div>
-                <Input
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  onBlur={() => guestEmail && guestEmailService.saveGuestEmail(guestEmail)}
-                  className="bg-[#0a0a0a] border-gray-700 text-gray-300 text-sm h-8"
-                />
-                <p className="text-xs text-gray-600 mt-1">
-                  Invité : données conservées 1 an. Email recommandé pour alerte avant suppression.
-                </p>
-              </div>
-            )}
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-600">

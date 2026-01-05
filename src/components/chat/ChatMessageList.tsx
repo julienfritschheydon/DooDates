@@ -31,6 +31,8 @@ interface ChatMessageListProps {
   messagesEndRef: React.RefObject<HTMLDivElement>;
   isLoading?: boolean;
   pollType?: "date" | "form" | "availability";
+  quotaExceeded?: boolean;
+  onOpenAuthModal?: () => void;
 }
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({
@@ -47,6 +49,8 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   messagesEndRef,
   isLoading = false,
   pollType = "date",
+  quotaExceeded = false,
+  onOpenAuthModal,
 }) => {
   // Vérifier si l'utilisateur a déjà créé au moins un sondage ou formulaire
   const [hasCreatedPoll, setHasCreatedPoll] = useState(() => {
@@ -184,11 +188,28 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 Bonjour ! 👋
               </h3>
               <p className={`mb-4 ${darkTheme ? "text-gray-300" : "text-gray-600"}`}>
-                {pollType === "form"
-                  ? "Je suis votre assistant IA pour créer des formulaires et des questionnaires. Décrivez-moi ce que vous souhaitez !"
-                  : "Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !"}
+                {quotaExceeded ? (
+                  <>
+                    Vous avez atteint la limite de sondages gratuits.{" "}
+                    {onOpenAuthModal ? (
+                      <button
+                        onClick={onOpenAuthModal}
+                        className={`underline font-medium ${darkTheme ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}
+                      >
+                        Connectez-vous
+                      </button>
+                    ) : (
+                      "Connectez-vous"
+                    )}{" "}
+                    pour continuer à utiliser l'assistant IA.
+                  </>
+                ) : pollType === "form" ? (
+                  "Je suis votre assistant IA pour créer des formulaires et des questionnaires. Décrivez-moi ce que vous souhaitez !"
+                ) : (
+                  "Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !"
+                )}
               </p>
-              {!hasCreatedPoll && (
+              {!hasCreatedPoll && !quotaExceeded && (
                 <div
                   className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}
                 >

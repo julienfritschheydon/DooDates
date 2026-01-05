@@ -42,10 +42,7 @@ export default function DatePollsDocumentation() {
               <Link to="/date/documentation" className="text-blue-400 font-medium">
                 Documentation
               </Link>
-              <Link
-                to="/date/pricing"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
+              <Link to="/date/pricing" className="text-gray-400 hover:text-white transition-colors">
                 Tarifs
               </Link>
               <Link to="/" className="text-gray-400 hover:text-white transition-colors">

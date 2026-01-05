@@ -143,6 +143,20 @@ describe("FormPollCreator - resultsVisibility", () => {
     // Finalize the draft
     FormPollCreatorTestHelper.clickFinalize();
 
+    // If we are in guest mode (default in tests), the success dialog will appear.
+    // We need to wait for it and close it to trigger onFinalize.
+    try {
+      const closeDialogBtn = await screen.findByText(
+        /Fermer et aller au sondage/i,
+        {},
+        { timeout: 2000 },
+      );
+      fireEvent.click(closeDialogBtn);
+    } catch (e) {
+      // Dialog didn't appear, likely we are authenticated or logic skipped it.
+      // Continue to check expectation.
+    }
+
     // Wait for the async finalize operation to complete
     await waitFor(() => {
       expect(mockOnFinalize).toHaveBeenCalled();
