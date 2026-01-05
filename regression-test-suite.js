@@ -3,20 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-
-function getApiKey() {
-  const envPath = path.join(__dirname, ".env.local");
-  if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, "utf8");
-    const match = envContent.match(/VITE_GEMINI_API_KEY=(.+)/);
-    if (match) {
-      return match[1].trim();
-    }
-  }
-  return null;
-}
-
-const API_KEY = getApiKey();
+const API_KEY = null; // Direct access disabled
 const GEMINI_CONFIG = require("./src/config/gemini-constants.json");
 const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
 

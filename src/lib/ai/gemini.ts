@@ -5,7 +5,6 @@ import { formatDateLocal, getTodayLocal } from "../date-utils";
 // ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
 // import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
-import { directGeminiService } from "@/services/DirectGeminiService";
 import type { GeminiAttachedFile } from "@/services/FileAttachmentService";
 import { getEnv, isDev } from "../env";
 // ARCHIVÉ 2025-12-06: ParsedTemporalInput plus utilisé après simplification
@@ -20,22 +19,10 @@ import { formPollService, type FormPollSuggestion } from "./products/form/FormPo
 
 export type PollSuggestion = DatePollSuggestion | FormPollSuggestion;
 
-// Choisir entre appel direct Gemini ou Edge Function
-// Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
-const USE_DIRECT_GEMINI = getEnv("VITE_USE_DIRECT_GEMINI") === "true";
-const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiService;
+// Toujours utiliser l'Edge Function sécurisée
+const geminiBackend = secureGeminiService;
 
-if (USE_DIRECT_GEMINI) {
-  logger.info("🔵 Mode DIRECT GEMINI API activé (bypass Edge Function)", "api");
-  const apiKey = getEnv("VITE_GEMINI_API_KEY");
-  if (!apiKey) {
-    logger.error("VITE_GEMINI_API_KEY non configurée en mode direct", "api");
-  } else {
-    logger.info(`VITE_GEMINI_API_KEY configurée: ${apiKey.substring(0, 10)}...`, "api");
-  }
-} else {
-  logger.info("🟢 Mode Edge Function activé", "api");
-}
+logger.info("🟢 Mode Edge Function activé (SecureGeminiService)", "api");
 
 // Constantes pour la gestion des quotas
 const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {
@@ -367,7 +354,7 @@ export class GeminiService {
       if (isDev()) {
         logger.info("🔵 Appel geminiBackend.generateContent", "api", {
           requestId,
-          mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+          mode: "EDGE_FUNCTION",
           hasUserInput: !!userInput,
           hasPrompt: !!prompt,
           promptLength: prompt?.length || 0,
@@ -404,11 +391,7 @@ export class GeminiService {
       if (!secureResponse.success) {
         // Gérer les erreurs spécifiques
         if (secureResponse.error === "CONFIG_ERROR") {
-          const apiKey = getEnv("VITE_GEMINI_API_KEY");
           logger.error("CONFIG_ERROR détectée", "api", {
-            useDirectGemini: USE_DIRECT_GEMINI,
-            hasApiKey: !!apiKey,
-            apiKeyLength: apiKey?.length || 0,
             errorMessage: secureResponse.message,
           });
 
@@ -445,7 +428,7 @@ export class GeminiService {
 
         if (secureResponse.error === "NETWORK_ERROR") {
           logger.error("NETWORK_ERROR détectée", "api", {
-            mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+            mode: "EDGE_FUNCTION",
             errorMessage: secureResponse.message,
             hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
             hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
@@ -460,7 +443,7 @@ export class GeminiService {
 
         if (secureResponse.error === "API_ERROR") {
           logger.error("API_ERROR détectée", "api", {
-            mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+            mode: "EDGE_FUNCTION",
             errorMessage: secureResponse.message,
             hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
             hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
@@ -941,12 +924,12 @@ RÈGLE ABSOLUE - PLUSIEURS JOURS + PÉRIODE:
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-  .map((d: string) => {
-    const dateObj = new Date(d + "T00:00:00");
-    const dayName = dayNames[dateObj.getDay()];
-    return `  - ${d} (${dayName})`;
-  })
-  .join("\n")}
+          .map((d: string) => {
+            const dateObj = new Date(d + "T00:00:00");
+            const dayName = dayNames[dateObj.getDay()];
+            return `  - ${d} (${dayName})`;
+          })
+          .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`
         : "";
@@ -959,9 +942,8 @@ Jour demandé: ${jourName}
 Période: dans ${parsed.relativeWeeks} semaines
 Date de référence: ${targetDate}
 ${multipleDaysHint}
-${
-  !hasMultipleDays
-    ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
+${!hasMultipleDays
+          ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
 - Proposer UNIQUEMENT les ${jourName}s autour de la période (1-2 dates MAXIMUM)
 - Filtrer pour ne garder QUE les ${jourName}s
 - Générer 2-3 créneaux par date
@@ -970,8 +952,8 @@ Dates autorisées (filtrer pour ne garder que les ${jourName}s):
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 
 ⚠️ CRITIQUE : Ne proposer QUE des ${jourName}s, pas d'autres jours !`
-    : ""
-}
+          : ""
+        }
 `;
     }
 
@@ -1012,12 +994,12 @@ ${parsed.isMealContext ? `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entr
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-  .map((d: string, idx: number) => {
-    const dateObj = new Date(d + "T00:00:00");
-    const dayName = dayNames[dateObj.getDay()];
-    return `  - ${d} (${dayName})`;
-  })
-  .join("\n")}
+            .map((d: string, idx: number) => {
+              const dateObj = new Date(d + "T00:00:00");
+              const dayName = dayNames[dateObj.getDay()];
+              return `  - ${d} (${dayName})`;
+            })
+            .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`;
       }
@@ -1045,16 +1027,14 @@ ${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends
 ${multipleDaysHint}
 ${jourHint}
 ${partenariatsHint}
-${
-  !hasMultipleDays && !hasMultipleNumericDates
-    ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
+${!hasMultipleDays && !hasMultipleNumericDates
+          ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
 - Proposer CETTE DATE UNIQUEMENT (${targetDate})
 - Ajouter MAXIMUM 1-2 alternatives très proches (±1 jour) SEULEMENT si vraiment nécessaire`
-    : ""
-}
-${
-  parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
-    ? `
+          : ""
+        }
+${parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
+          ? `
 ⚠️⚠️⚠️ CAS SPÉCIAL REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
 Pour "${userInput}" :
 → OBLIGATOIRE : 1 DATE UNIQUEMENT (${targetDate})
@@ -1062,8 +1042,8 @@ Pour "${userInput}" :
 → INTERDIT : Générer plusieurs créneaux (pas 2, pas 3, UNIQUEMENT 1)
 → INTERDIT : Générer plusieurs dates
 Cette règle PRIME sur toutes les autres !`
-    : ""
-}
+          : ""
+        }
 
 Dates autorisées${hasMultipleDays || hasMultipleNumericDates ? " (OBLIGATOIRE de générer TOUTES ces dates)" : " (pour alternatives seulement si vraiment nécessaire ET pas repas)"}:
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
@@ -1350,12 +1330,6 @@ Reste concis et pratique.Réponds en français.`;
 
   async testConnection(): Promise<boolean> {
     try {
-      // En mode DIRECT, considérer la connexion comme OK si la clé API est configurée
-      if (USE_DIRECT_GEMINI) {
-        const apiKey = getEnv("VITE_GEMINI_API_KEY");
-        return !!apiKey;
-      }
-
       // Sinon, utiliser l'Edge Function pour tester la connexion
       return await secureGeminiService.testConnection();
     } catch (error) {
