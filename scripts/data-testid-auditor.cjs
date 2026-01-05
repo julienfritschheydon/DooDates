@@ -13,8 +13,9 @@ const glob = require("glob");
 const SRC_DIR = "src";
 const OUTPUT_DIR = "scripts/reports";
 
-// Patterns pour détecter les boutons
-const BUTTON_PATTERNS = [/<Button[^>]*onClick[^>]*>/g, /<button[^>]*onClick[^>]*>/g];
+// Patterns pour détecter les boutons (balises ouvrantes uniquement)
+// On capture tout ce qui ressemble à une balise ouvrante Button ou button, potentiellement sur plusieurs lignes
+const BUTTON_PATTERNS = [/<Button([\s\S]*?)>/g, /<button([\s\S]*?)>/g];
 
 class DataTestIdAuditor {
   constructor(options = {}) {
@@ -35,15 +36,15 @@ class DataTestIdAuditor {
   }
 
   audit() {
-    console.log("🔍 Audit Data-testid en cours...\n");
+    console.log("🔍 Audit Data-testid en cours (Version améliorée)...\n");
 
     // Créer le répertoire de sortie
     if (!fs.existsSync(this.options.outputDir)) {
       fs.mkdirSync(this.options.outputDir, { recursive: true });
     }
 
-    // Trouver tous les fichiers TSX
-    const files = glob.sync(`${SRC_DIR}/**/*.tsx`);
+    // Trouver tous les fichiers TSX et TS
+    const files = glob.sync(`${SRC_DIR}/**/*.{tsx,ts}`);
     this.stats.totalFiles = files.length;
 
     files.forEach((file) => {
@@ -62,45 +63,56 @@ class DataTestIdAuditor {
 
   auditFile(filePath) {
     const content = fs.readFileSync(filePath, "utf8");
-    const lines = content.split("\n");
 
-    lines.forEach((line, index) => {
-      BUTTON_PATTERNS.forEach((pattern) => {
-        const matches = line.matchAll(pattern);
-        for (const match of matches) {
-          this.stats.totalButtons++;
+    BUTTON_PATTERNS.forEach((pattern) => {
+      const matches = content.matchAll(pattern);
+      for (const match of matches) {
+        const buttonHtml = match[0];
+        const index = match.index;
 
-          if (!match[0].includes("data-testid")) {
-            this.stats.missingDataTestId++;
+        // On ignore les commentaires ou les cas triviaux (ex: dans les chaines de caractères si possible,
+        // mais ici on reste simple par regex)
 
-            const issue = {
-              type: "missing-data-testid",
-              file: filePath,
-              line: index + 1,
-              content: line.trim(),
-              button: match[0],
-              suggestedTestId: this.generateSuggestedTestId(match[0], line, filePath),
-            };
+        this.stats.totalButtons++;
 
-            this.issues.push(issue);
+        if (!buttonHtml.includes("data-testid")) {
+          this.stats.missingDataTestId++;
 
-            if (this.options.verbose) {
-              console.log(`❌ ${filePath}:${index + 1} - ${issue.suggestedTestId}`);
-            }
+          // Calculer le numéro de ligne
+          const lineNumber = content.substring(0, index).split("\n").length;
+
+          const issue = {
+            type: "missing-data-testid",
+            file: filePath,
+            line: lineNumber,
+            content: buttonHtml.split("\n")[0].trim() + "...", // Aperçu
+            button: buttonHtml,
+            suggestedTestId: this.generateSuggestedTestId(buttonHtml, content, index, filePath),
+          };
+
+          this.issues.push(issue);
+
+          if (this.options.verbose) {
+            console.log(`❌ ${filePath}:${lineNumber} - ${issue.suggestedTestId}`);
           }
         }
-      });
+      }
     });
   }
 
-  generateSuggestedTestId(buttonHtml, line, filePath) {
-    // Extraire le texte du bouton
+  generateSuggestedTestId(buttonHtml, fullContent, matchIndex, filePath) {
+    // 1. Essayer d'extraire le texte après la balise ouvrante
     let buttonText = "";
-
-    // Essayer différentes méthodes pour extraire le texte
-    const textMatch = buttonHtml.match(/>([^<]+)</);
+    const contentAfterButton = fullContent.substring(matchIndex + buttonHtml.length);
+    const textMatch = contentAfterButton.match(/^\s*([^<>\n{]+)/);
     if (textMatch) {
       buttonText = textMatch[1].trim();
+    }
+
+    // 2. Si pas de texte direct, chercher un ID ou un label Lucide ou un contenu JSX
+    if (!buttonText) {
+      const idMatch = buttonHtml.match(/id=["']([^"']+)["']/);
+      if (idMatch) buttonText = idMatch[1];
     }
 
     // Nettoyer le texte du bouton
@@ -110,20 +122,29 @@ class DataTestIdAuditor {
       .replace(/\s+/g, "-")
       .trim();
 
-    // Stratégie de nommage
-    const fileName = path.basename(filePath, ".tsx").toLowerCase();
-    const componentName = fileName.replace(/page$/, "").replace(/component$/, "");
+    // Stratégie de nommage basée sur le nom du fichier
+    const fileName = path.basename(filePath, path.extname(filePath)).toLowerCase();
+    const componentName = fileName
+      .replace(/page$/, "")
+      .replace(/component$/, "")
+      .replace(/content$/, "");
 
     if (cleanText) {
       return `${componentName}-${cleanText}`;
     }
 
-    // Si pas de texte, utiliser des heuristiques simples
+    // Heuristiques basées sur le contenu de la balise
     if (buttonHtml.includes("navigate")) return `${componentName}-navigate`;
     if (buttonHtml.includes("submit")) return `${componentName}-submit`;
     if (buttonHtml.includes("delete")) return `${componentName}-delete`;
     if (buttonHtml.includes("edit")) return `${componentName}-edit`;
-    if (buttonHtml.includes("close")) return `${componentName}-close`;
+    if (buttonHtml.includes("close") || buttonHtml.includes("<X")) return `${componentName}-close`;
+    if (buttonHtml.includes("ArrowLeft") || buttonHtml.includes("back"))
+      return `${componentName}-back`;
+    if (buttonHtml.includes("Download")) return `${componentName}-download`;
+    if (buttonHtml.includes("Save") || buttonHtml.includes("save")) return `${componentName}-save`;
+    if (buttonHtml.includes("Refresh") || buttonHtml.includes("refresh"))
+      return `${componentName}-refresh`;
 
     return `${componentName}-button`;
   }
