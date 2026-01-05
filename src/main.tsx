@@ -20,7 +20,8 @@ declare global {
 }
 // Exposer getCachedFingerprint pour les tests E2E (DEV ou E2E)
 // eslint-disable-next-line no-constant-condition
-if (import.meta.env.DEV || isE2ETestingEnvironment() || true) { // Force enable for production debugging
+if (import.meta.env.DEV || isE2ETestingEnvironment() || true) {
+  // Force enable for production debugging
   if (import.meta.env.DEV) {
     window.testFingerprint = async () => {
       const fp = await generateBrowserFingerprint();

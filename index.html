@@ -86,11 +86,11 @@
     <!-- Script immédiat pour correction focus Android -->
     <script>
       // GitHub Pages SPA - Restore path from 404.html redirect
-      (function() {
-        var redirectPath = sessionStorage.getItem('redirectPath');
+      (function () {
+        var redirectPath = sessionStorage.getItem("redirectPath");
         if (redirectPath) {
-          sessionStorage.removeItem('redirectPath');
-          history.replaceState(null, '', redirectPath);
+          sessionStorage.removeItem("redirectPath");
+          history.replaceState(null, "", redirectPath);
         }
       })();
 
