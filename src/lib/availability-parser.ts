@@ -1,10 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "./logger";
-import { getEnv } from "./env";
 import { logError } from "./error-handling";
 import { GEMINI_CONFIG } from "../config/gemini";
 
-const API_KEY = getEnv("VITE_GEMINI_API_KEY");
 const MODEL = GEMINI_CONFIG.MODEL_NAME;
 
 export interface ParsedAvailability {
@@ -35,26 +32,15 @@ export interface ParsedAvailabilitiesResult {
  * - "Lundi 14h, mercredi 10h ou 15h"
  */
 export async function parseAvailabilitiesWithAI(text: string): Promise<ParsedAvailabilitiesResult> {
-  if (!API_KEY) {
-    logger.error("VITE_GEMINI_API_KEY non configurée", "availability-parser");
-    return {
-      availabilities: [],
-      rawText: text,
-      parsedAt: new Date().toISOString(),
-      confidence: 0,
-      errors: ["Clé API Gemini non configurée"],
-    };
-  }
+  // Plus de vérification de clé API locale nécessaire (Edge Function)
+  // if (!API_KEY) { ... }
 
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: MODEL });
-
     const prompt = `Tu es un assistant spécialisé dans l'analyse de disponibilités temporelles.
 
-Analyse le texte suivant et extrais toutes les disponibilités mentionnées. Retourne UNIQUEMENT un JSON valide, sans texte supplémentaire.
+Analyse le texte suivant et extrais toutes les disponibilités mentionnées.Retourne UNIQUEMENT un JSON valide, sans texte supplémentaire.
 
-Format de réponse attendu :
+Format de réponse attendu:
 {
   "availabilities": [
     {
@@ -63,36 +49,43 @@ Format de réponse attendu :
         "start": "HH:MM",
         "end": "HH:MM"
       },
-      "confidence": 0.0-1.0,
+      "confidence": 0.0 - 1.0,
       "originalText": "extrait du texte original"
     }
   ],
-  "confidence": 0.0-1.0
+    "confidence": 0.0 - 1.0
 }
 
-Règles :
-- Utilise les jours en anglais (monday, tuesday, etc.)
-- Pour "matin" : 09:00-12:00
-- Pour "après-midi" : 14:00-18:00
-- Pour "soir" : 18:00-21:00
-- Si une heure précise est mentionnée, utilise-la
-- Si plusieurs jours sont mentionnés, crée une entrée par jour
-- Si "semaine prochaine" est mentionné, utilise la semaine suivante à partir d'aujourd'hui
-- confidence : 1.0 si très clair, 0.7 si ambigu, 0.5 si incertain
+Règles:
+- Utilise les jours en anglais(monday, tuesday, etc.)
+  - Pour "matin" : 09:00 - 12:00
+    - Pour "après-midi" : 14:00 - 18:00
+      - Pour "soir" : 18:00 - 21:00
+        - Si une heure précise est mentionnée, utilise - la
+          - Si plusieurs jours sont mentionnés, crée une entrée par jour
+            - Si "semaine prochaine" est mentionné, utilise la semaine suivante à partir d'aujourd'hui
+              - confidence : 1.0 si très clair, 0.7 si ambigu, 0.5 si incertain
 
-Texte à analyser :
+Texte à analyser:
 "${text}"
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
-    logger.debug("Parsing disponibilités avec Gemini", "api", {
+    logger.debug("Parsing disponibilités avec Gemini (Secure)", "api", {
       textLength: text.length,
       model: MODEL,
     });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const responseText = response.text();
+    // Import dynamique pour éviter cycles si nécessaire, ou utilisation directe
+    const { secureGeminiService } = await import("../services/SecureGeminiService");
+
+    const result = await secureGeminiService.generateContent("", prompt);
+
+    if (!result.success) {
+      throw new Error(result.error || result.message || "Erreur Gemini Parsing");
+    }
+
+    const responseText = result.data || "";
 
     logger.debug("Réponse Gemini reçue", "api", {
       responseLength: responseText.length,
@@ -102,7 +95,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     let jsonText = responseText.trim();
 
     // Supprimer les markdown code blocks si présents
-    jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+    jsonText = jsonText.replace(/```json\n ? /g, "").replace(/```\n?/g, "");
     jsonText = jsonText.trim();
 
     // Parser le JSON
@@ -111,13 +104,13 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     // Valider et normaliser la structure
     const availabilities: ParsedAvailability[] = (parsed.availabilities || []).map(
       (avail: Record<string, unknown>) => ({
-        day: normalizeDay(avail.day),
+        day: normalizeDay(String(avail.day)),
         timeRange: {
-          start: normalizeTime(avail.timeRange?.start || avail.start || "09:00"),
-          end: normalizeTime(avail.timeRange?.end || avail.end || "17:00"),
+          start: normalizeTime(String(avail.timeRange?.start || avail.start || "09:00")),
+          end: normalizeTime(String(avail.timeRange?.end || avail.end || "17:00")),
         },
-        confidence: Math.max(0, Math.min(1, avail.confidence || 0.7)),
-        originalText: avail.originalText || text.substring(0, 50),
+        confidence: Math.max(0, Math.min(1, Number(avail.confidence) || 0.7)),
+        originalText: String(avail.originalText || text.substring(0, 50)),
       }),
     );
 
@@ -192,7 +185,7 @@ function normalizeTime(time: string): string {
   if (hourMatch) {
     const hour = hourMatch[1].padStart(2, "0");
     const minute = hourMatch[2] || "00";
-    return `${hour}:${minute}`;
+    return `${hour}:${minute} `;
   }
 
   // Si format "9:00" ou "09:00", vérifier et normaliser
@@ -200,7 +193,7 @@ function normalizeTime(time: string): string {
   if (timeMatch) {
     const hour = timeMatch[1].padStart(2, "0");
     const minute = timeMatch[2];
-    return `${hour}:${minute}`;
+    return `${hour}:${minute} `;
   }
 
   // Format par défaut si non reconnu

@@ -18,7 +18,6 @@ import type {
   ObjectiveValidation,
 } from "../../types/simulation";
 import { v4 as uuidv4 } from "uuid";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "../logger";
 import { GEMINI_CONFIG } from "../../config/gemini";
 
@@ -27,7 +26,6 @@ import { GEMINI_CONFIG } from "../../config/gemini";
 // ============================================================================
 
 const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // ============================================================================
 // SEUILS DE DÉTECTION (adaptatifs selon contexte)
@@ -327,21 +325,9 @@ async function validateObjective(
   }>,
   metrics: SimulationMetrics,
 ): Promise<ObjectiveValidation> {
-  if (!API_KEY) {
-    // Fallback si pas de clé API
-    return {
-      objective,
-      alignmentScore: 50,
-      strengths: ["Questionnaire créé"],
-      weaknesses: ["Validation IA indisponible (clé API manquante)"],
-      suggestions: ["Configurer VITE_GEMINI_API_KEY pour activer la validation IA"],
-    };
-  }
+  // Plus de vérification de API_KEY local
 
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-
     const questionsText = questions
       .map((q, i) => {
         const optionsText = q.options
@@ -382,8 +368,19 @@ Réponds UNIQUEMENT au format JSON suivant (sans markdown, sans backticks) :
 
 Sois concret et actionnable dans tes recommandations.`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text().trim();
+    // Import dynamique
+    const { secureGeminiService } = await import("../../services/SecureGeminiService");
+
+    const result = await secureGeminiService.generateContent("", prompt);
+
+    if (!result.success) {
+      throw ErrorFactory.api(
+        result.error || "Gemini error",
+        "Erreur validation IA"
+      );
+    }
+
+    const responseText = (result.data || "").trim();
 
     // Parser la réponse JSON
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
