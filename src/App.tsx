@@ -533,9 +533,9 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <BrowserRouter
-              // ⚠️ CRITIQUE: GitHub Pages routing - NE JAMAIS MODIFIER
-              // PAS de basename - GitHub Pages gère /DooDates/ automatiquement
-              // Voir Docs/routing-config-simple.md
+              // ⚠️ CRITIQUE: GitHub Pages routing
+              // basename is required for deployment to a subdirectory (e.g. /DooDates/)
+              basename={import.meta.env.BASE_URL}
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <AppLayout>
@@ -556,10 +556,6 @@ const App = () => {
                               <Routes>
                                 {/* Route / vers MainLanding (Nouvelle Landing) */}
                                 <Route path="/" element={<MainLanding />} />
-
-                                {/* Redirection /DooDates/ vers / pour GitHub Pages */}
-                                <Route path="/DooDates" element={<Navigate to="/" replace />} />
-                                <Route path="/DooDates/" element={<Navigate to="/" replace />} />
 
                                 {/* Product Apps - Routes simplifiées */}
                                 <Route path="/date/*" element={<DatePollsApp />} />
