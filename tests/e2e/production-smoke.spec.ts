@@ -85,9 +85,9 @@ test.describe("🔥 Production Smoke Tests", () => {
    */
   test("Pages produits chargent correctement", async ({ page, browserName }) => {
     const products = [
-      { url: "/DooDates/date-polls", title: /Sondages de Dates/i },
-      { url: "/DooDates/form-polls", title: /Formulaires/i },
-      { url: "/DooDates/availability-polls", title: /Sondages de Disponibilité/i },
+      { url: "/date-polls", title: /Sondages de Dates/i },
+      { url: "/form-polls", title: /Formulaires/i },
+      { url: "/availability-polls", title: /Sondages de Disponibilité/i },
     ];
 
     for (const product of products) {
@@ -269,7 +269,7 @@ test.describe("🔥 Production Smoke Tests", () => {
           !text.includes("runtime/sendMessage") && // Erreurs extensions
           !text.includes("ws://localhost:8080") && // WebSocket dev inexistant
           !text.includes("force-deployment") && // Fichier temporaire de déploiement
-          !text.includes("404 Error: User attempted to access non-existent route: /DooDates/") // Route racine 404 en test
+          !text.includes("404 Error: User attempted to access non-existent route: /") // Route racine 404 en test
         ) {
           console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);

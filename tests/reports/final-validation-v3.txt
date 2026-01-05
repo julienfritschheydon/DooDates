@@ -1,7 +1,0 @@
-
-  Score moyen: 0.65/1.0
- ❯ src/test/temporal-prompts-validation.manual.ts (18 tests | 2 failed | 16 skipped) 4477ms
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
- Test Files  1 failed (1)
-      Tests  2 failed | 16 skipped (18)
-

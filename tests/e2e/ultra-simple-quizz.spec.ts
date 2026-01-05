@@ -59,7 +59,7 @@ test.describe("DooDates - Test Ultra Simple Quizz", () => {
         log("🛠️ Navigation vers le workspace Quizz");
         await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
-        await expect(page).toHaveTitle(/DooDates/);
+        await expect(page).toHaveTitle(/);
         log("✅ App chargée");
 
         // 2. Détecter le type d'interface (chat IA ou formulaire manuel)

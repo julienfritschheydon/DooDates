@@ -35,7 +35,7 @@ test.describe("Test Poll Sharing", () => {
     console.log("🧪 TEST 1: Création du poll");
 
     // Clear localStorage
-    await page.goto("/DooDates/");
+    await page.goto("/");
     await page.evaluate(() => localStorage.clear());
     await page.reload();
 

@@ -38,7 +38,7 @@ export function ResultsAccessDenied({
               <button
                 onClick={() => navigate(`/poll/${pollSlug}`)}
                 className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
+               data-testid="resultsaccessdenied-voter-maintenant">
                 Voter maintenant
               </button>
             )}
@@ -46,7 +46,7 @@ export function ResultsAccessDenied({
             <button
               onClick={() => navigate(-1)}
               className="w-full px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
+             data-testid="resultsaccessdenied-navigate">
               <ArrowLeft className="w-4 h-4" />
               Retour
             </button>

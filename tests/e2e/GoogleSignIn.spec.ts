@@ -8,14 +8,14 @@ test.describe("Google Sign In Flow", () => {
     // We can intercept the triggered navigation or just test the *callback* handling
 
     // 1. Visit the app
-    await page.goto("/DooDates/");
+    await page.goto("/");
 
     // 2. Mock the auth state change that happens after a successful redirect
     // In a real app, the callback URL contains access_token in the hash
 
     // Simulate a return from Google with a fake token
     await page.goto(
-      "/DooDates/#access_token=mock-google-token&expires_in=3600&refresh_token=mock-refresh&token_type=bearer&type=recovery",
+      "/#access_token=mock-google-token&expires_in=3600&refresh_token=mock-refresh&token_type=bearer&type=recovery",
     );
 
     // 3. Verify that the app handles this token and signs the user in
@@ -42,7 +42,7 @@ test.describe("Google Sign In Flow", () => {
   test("should handle auth errors gracefully", async ({ page }) => {
     // Simulate an error callback
     await page.goto(
-      "/DooDates/#error=access_denied&error_code=403&error_description=User+denied+access",
+      "/#error=access_denied&error_code=403&error_description=User+denied+access",
     );
 
     // Verify error message toast or alert

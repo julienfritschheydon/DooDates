@@ -303,7 +303,7 @@ export function ConversationCard({
                     size="sm"
                     className="h-5 px-1 text-xs text-blue-600 hover:text-blue-800"
                     onClick={handleViewPoll}
-                  >
+                   data-testid="conversationcard-button">
                     <ExternalLink className="h-3 w-3 mr-1" />
                     Voir sondage
                   </Button>
@@ -318,7 +318,7 @@ export function ConversationCard({
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
+                 data-testid="conversationcard-button">
                   <MoreVertical className="h-4 w-4" />
                   <span className="sr-only">Actions</span>
                 </Button>

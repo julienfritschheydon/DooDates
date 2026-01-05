@@ -6,12 +6,13 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 
 # 1. Audit Data-testid (Boutons/Accessibilité) - ULTRA RAPIDE (<1s)
 echo "🔍 Audit Data-testid (Boutons)..."
-node scripts/data-testid-auditor.cjs
+node scripts/data-testid-auditor.cjs --fix
 if [ $? -ne 0 ]; then
-  echo "❌ Boutons sans data-testid détectés - Commit bloqué"
-  echo "💡 Pour corriger automatiquement: npm run audit:data-testid:fix"
+  echo "❌ Boutons sans data-testid détectés et non-corrigibles automatiquement - Commit bloqué"
   exit 1
 fi
+# Ré-ajouter les fichiers modifiés par l'auditeur s'il y en a
+git add src
 
 # 2. Linting (Strict) - MOYEN (~5-10s)
 echo "🔍 ESLint (Strict)..."

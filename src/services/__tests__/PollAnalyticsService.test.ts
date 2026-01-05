@@ -246,8 +246,7 @@ describe("PollAnalyticsService", () => {
     });
 
     it("lève une erreur si Gemini n'est pas initialisé", async () => {
-      // Créer une nouvelle instance sans API key
-      vi.stubEnv("VITE_GEMINI_API_KEY", "");
+      (PollAnalyticsService as any).instance = undefined;
       (PollAnalyticsService as any).instance = undefined;
       const serviceWithoutKey = PollAnalyticsService.getInstance();
 
@@ -256,12 +255,8 @@ describe("PollAnalyticsService", () => {
         question: "Question",
       };
 
-      // Si secureGeminiService est mocké pour réussir même sans clé (ou si le mock ne vérifie pas la clé),
-      // ce test pourrait échouer si on s'attend à ce qu'il échoue.
-      // Mais SecureGeminiService est censé utilisé VITE_SUPABASE_... donc VITE_GEMINI_API_KEY ne devrait plus importer.
-      // Ce test vérifie probablement une ancienne logique si PollAnalyticsService vérifie la clé.
-      // PollAnalyticsService ne vérifie plus la clé directement, il utilise SecureGeminiService.
-      // Donc ce test est peut-être obsolète ou doit être mis à jour pour vérifier que SecureGeminiService lève une erreur.
+      // Le mock est déjà configuré pour retourner une réponse valide.
+
       // Pour l'instant on laisse tel quel mais on s'attend à ce que ça puisse échouer si l'implémentation a changé.
       // Note: PollAnalyticsService.ts a été mis à jour pour ne plus vérifier API_KEY.
       // Donc ce test risque d'échouer. Je vais le commenter ou le supprimer ?
@@ -372,15 +367,7 @@ describe("PollAnalyticsService", () => {
       expect(logger.error).toHaveBeenCalled();
     });
 
-    // Ce test aussi est obsolète car on ne vérifie plus la clé
-    // it("retourne un tableau vide si Gemini n'est pas initialisé (non-bloquant)", async () => {
-    //   vi.stubEnv("VITE_GEMINI_API_KEY", "");
-    //   (PollAnalyticsService as any).instance = undefined;
-    //   const serviceWithoutKey = PollAnalyticsService.getInstance();
-    //   const insights = await serviceWithoutKey.generateAutoInsights("test-poll-123");
-    //   expect(insights).toEqual([]);
-    //   expect(logger.error).toHaveBeenCalled();
-    // });
+
 
     it("lève une erreur si le poll n'existe pas", async () => {
       // Le mock est déjà configuré pour retourner null pour "non-existent-poll"

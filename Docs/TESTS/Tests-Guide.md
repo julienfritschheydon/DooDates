@@ -990,13 +990,13 @@ npm run prepare
 
 # 4. Créer .env.local
 cp .env.example .env.local
-# Ajouter VITE_GEMINI_API_KEY
+# Ajouter [DEPRECATED_KEY]
 ```
 
 ### Secrets GitHub Requis
 
 ```bash
-VITE_GEMINI_API_KEY           # API Gemini (requis)
+[DEPRECATED_KEY]           # API Gemini (requis)
 RESEND_API_KEY                # Email alertes (optionnel)
 ALERT_EMAIL_TO                # Email destination (optionnel)
 ```
@@ -1005,7 +1005,7 @@ ALERT_EMAIL_TO                # Email destination (optionnel)
 
 ```bash
 # .env.local
-VITE_GEMINI_API_KEY=your_key_here
+[DEPRECATED_KEY]=your_key_here
 VITE_SUPABASE_URL=https://...
 VITE_SUPABASE_ANON_KEY=...
 ```
@@ -1053,7 +1053,7 @@ npm run test:e2e:debug         # Mode debug
 **Solutions** :
 
 ```bash
-echo $VITE_GEMINI_API_KEY      # Vérifier API key
+echo $[DEPRECATED_KEY]      # Vérifier API key
 npm run test:gemini            # Tester connexion
 # Attendre si quota dépassé
 # Consulter rapports dans tests/reports/ pour détails

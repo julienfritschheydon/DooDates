@@ -10,13 +10,13 @@ import { test, expect } from "@playwright/test";
 test.describe("FormPoll Voting - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers une page de vote simulée
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 
   test("Smoke - Accès page vote FormPoll", async ({ page }) => {
     // 1. Simuler un URL de vote
-    await page.goto("/DooDates/poll/test-form-poll/vote");
+    await page.goto("/poll/test-form-poll/vote");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que la page se charge (même si le poll n'existe pas)
@@ -49,7 +49,7 @@ test.describe("FormPoll Voting - Smoke Tests", () => {
 
   test("Smoke - Interface vote disponible", async ({ page }) => {
     // 1. Naviguer vers une page de vote
-    await page.goto("/DooDates/poll/test-form-poll/vote");
+    await page.goto("/poll/test-form-poll/vote");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Chercher des éléments de vote
@@ -110,11 +110,11 @@ test.describe("FormPoll Voting - Smoke Tests", () => {
 
   test("Smoke - Navigation depuis dashboard vers vote", async ({ page }) => {
     // 1. Commencer par le dashboard
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Naviguer vers une page de vote
-    await page.goto("/DooDates/poll/test-form-poll/vote");
+    await page.goto("/poll/test-form-poll/vote");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier que la navigation fonctionne
@@ -129,7 +129,7 @@ test.describe("FormPoll Voting - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Navigation et chargement
-    await page.goto("/DooDates/poll/test-form-poll/vote");
+    await page.goto("/poll/test-form-poll/vote");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Simulation de vote rapide

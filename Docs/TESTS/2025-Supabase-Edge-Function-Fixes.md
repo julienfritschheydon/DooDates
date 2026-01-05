@@ -36,13 +36,13 @@ const GEMINI_API_URL =
 
 ### Étape 1 : Vérifier la Variable d'Environnement Supabase
 
-L'Edge Function utilise la variable **`GEMINI_API_KEY`** (pas `VITE_GEMINI_API_KEY`).
+L'Edge Function utilise la variable **`GEMINI_API_KEY`** (pas `[DEPRECATED_KEY]`).
 
 **Vérifiez dans Supabase Dashboard :**
 
 1. Allez sur : https://supabase.com/dashboard/project/[votre-project-id]
 2. Naviguez vers : **Settings** → **Edge Functions** → **Environment Variables**
-3. Vérifiez que `GEMINI_API_KEY` existe avec la même valeur que votre secret GitHub `VITE_GEMINI_API_KEY`
+3. Vérifiez que `GEMINI_API_KEY` existe avec la même valeur que votre secret GitHub `[DEPRECATED_KEY]`
 
 **Si la variable manque, ajoutez-la :**
 
@@ -109,7 +109,7 @@ curl -X POST "https://[VOTRE_SUPABASE_URL]/functions/v1/hyper-task" \
 
 | Secret                   | Statut                | Utilisation    |
 | ------------------------ | --------------------- | -------------- |
-| `VITE_GEMINI_API_KEY`    | ✅ Présent (5 months) | Workflow tests |
+| `[DEPRECATED_KEY]`    | ✅ Présent (5 months) | Workflow tests |
 | `VITE_SUPABASE_URL`      | ✅ Présent (3 days)   | Workflow tests |
 | `VITE_SUPABASE_ANON_KEY` | ✅ Présent (3 days)   | Workflow tests |
 
@@ -134,7 +134,7 @@ npm run test:gemini
 
 ```
 📋 Configuration détectée:
-  - VITE_GEMINI_API_KEY: ✅ Présente
+  - [DEPRECATED_KEY]: ✅ Présente
   - VITE_SUPABASE_URL: ✅ Présente
   - VITE_SUPABASE_ANON_KEY: ✅ Présente
   - Mode: EDGE FUNCTION

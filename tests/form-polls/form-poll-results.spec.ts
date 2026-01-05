@@ -10,13 +10,13 @@ import { test, expect } from "@playwright/test";
 test.describe("FormPoll Results - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers dashboard pour initialiser le système
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 
   test("Smoke - Accès page résultats FormPoll", async ({ page }) => {
     // 1. Simuler un URL de résultats
-    await page.goto("/DooDates/poll/test-form-poll/results");
+    await page.goto("/poll/test-form-poll/results");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que la page se charge
@@ -49,7 +49,7 @@ test.describe("FormPoll Results - Smoke Tests", () => {
 
   test("Smoke - Interface résultats disponible", async ({ page }) => {
     // 1. Naviguer vers une page de résultats
-    await page.goto("/DooDates/poll/test-form-poll/results");
+    await page.goto("/poll/test-form-poll/results");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Chercher des éléments de résultats
@@ -131,11 +131,11 @@ test.describe("FormPoll Results - Smoke Tests", () => {
 
   test("Smoke - Navigation depuis dashboard vers résultats", async ({ page }) => {
     // 1. Commencer par le dashboard
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Naviguer vers une page de résultats
-    await page.goto("/DooDates/poll/test-form-poll/results");
+    await page.goto("/poll/test-form-poll/results");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier que la navigation fonctionne
@@ -150,7 +150,7 @@ test.describe("FormPoll Results - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Navigation et chargement
-    await page.goto("/DooDates/poll/test-form-poll/results");
+    await page.goto("/poll/test-form-poll/results");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Simulation de résultats rapide

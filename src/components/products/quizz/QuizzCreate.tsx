@@ -496,13 +496,13 @@ export const QuizzCreate: React.FC = () => {
               <button
                 onClick={handleContinueDraft}
                 className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
+               data-testid="quizzcreate-continuer">
                 Continuer
               </button>
               <button
                 onClick={handleDismissDraft}
                 className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm font-medium transition-colors"
-              >
+               data-testid="quizzcreate-ignorer">
                 Ignorer
               </button>
             </div>
@@ -550,7 +550,7 @@ export const QuizzCreate: React.FC = () => {
                 disabled={isGenerating || !!selectedFile}
                 variant="outline"
                 className="flex items-center justify-center gap-1.5 sm:gap-2 border-amber-600/50 hover:border-amber-500 hover:bg-gray-800 bg-gray-800/50"
-              >
+               data-testid="quizzcreate-button">
                 <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 flex-shrink-0" />
                 <span className="font-medium text-amber-300 text-xs sm:text-sm truncate">
                   Prendre une photo
@@ -561,7 +561,7 @@ export const QuizzCreate: React.FC = () => {
                 disabled={isGenerating || !!selectedFile}
                 variant="outline"
                 className="flex items-center justify-center gap-1.5 sm:gap-2 border-gray-600 hover:border-gray-500 hover:bg-gray-800 bg-gray-800/50"
-              >
+               data-testid="quizzcreate-button">
                 <span className="font-medium text-gray-300 text-xs sm:text-sm truncate">
                   📎 Fichier (photo/PDF)
                 </span>
@@ -596,7 +596,7 @@ export const QuizzCreate: React.FC = () => {
                   <button
                     onClick={() => setSelectedFile(null)}
                     className="p-1.5 hover:bg-gray-800 rounded-full text-gray-400 hover:text-red-400 transition-colors"
-                  >
+                   data-testid="quizzcreate-button">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -606,7 +606,7 @@ export const QuizzCreate: React.FC = () => {
                   onClick={handleAnalyzeFile}
                   disabled={isGenerating}
                   className="w-full mt-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-900/20"
-                >
+                 data-testid="quizzcreate-button">
                   {isGenerating ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyse de l'image...
@@ -659,7 +659,7 @@ export const QuizzCreate: React.FC = () => {
                 <button
                   onClick={expandedQuestions.size === questions.length ? collapseAll : expandAll}
                   className="text-xs text-gray-400 hover:text-white transition-colors"
-                >
+                 data-testid="quizzcreate-button">
                   {expandedQuestions.size === questions.length ? "Tout replier" : "Tout déplier"}
                 </button>
               )}
@@ -688,7 +688,7 @@ export const QuizzCreate: React.FC = () => {
                   className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 cursor-pointer hover:bg-gray-800/30 transition-colors"
                   onClick={() => toggleQuestion(q.id)}
                 >
-                  <button className="text-gray-400 flex-shrink-0">
+                  <button className="text-gray-400 flex-shrink-0" data-testid="quizzcreate-button">
                     {isExpanded ? (
                       <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : (
@@ -713,7 +713,7 @@ export const QuizzCreate: React.FC = () => {
                         removeQuestion(idx);
                       }}
                       className="p-1.5 sm:p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
-                    >
+                     data-testid="quizzcreate-button">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -777,7 +777,7 @@ export const QuizzCreate: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className="h-auto px-0 text-xs sm:text-sm text-amber-400 hover:text-amber-300 hover:bg-transparent"
-                        >
+                         data-testid="quizzcreate--ajouter-une-option">
                           + Ajouter une option
                         </Button>
                       </div>
@@ -810,7 +810,7 @@ export const QuizzCreate: React.FC = () => {
             <button
               onClick={() => setAdvancedSettingsOpen(!advancedSettingsOpen)}
               className="w-full flex items-center justify-between gap-2 p-4 sm:p-6 hover:bg-gray-700/50 transition-colors"
-            >
+             data-testid="quizzcreate-button">
               <div className="flex items-center gap-2">
                 <Settings className="w-5 h-5 text-gray-400" />
                 <h3 className="text-lg font-semibold text-white">Paramètres avancés</h3>
@@ -842,7 +842,7 @@ export const QuizzCreate: React.FC = () => {
           <button
             onClick={() => navigate("/quizz")}
             className="w-full sm:w-auto px-6 py-2.5 text-gray-300 bg-gray-800 rounded-lg hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-          >
+           data-testid="quizzcreate-annuler">
             Annuler
           </button>
           <button

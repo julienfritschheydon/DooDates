@@ -25,7 +25,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
       warmup: false,
-      navigation: { path: "/DooDates/quizz/workspace" },
+      navigation: { path: "/quizz/workspace" },
       consoleGuard: {
         enabled: true,
         allowlist: [
@@ -67,7 +67,7 @@ test.describe("DooDates - Test Ultra Simple Quiz (Génération Fichier)", () => 
 
         // 1. Naviguer vers la page de création de quiz
         log("🛠️ Navigation vers création quiz");
-        await page.goto("/DooDates/quizz/create", { waitUntil: "domcontentloaded" });
+        await page.goto("/quizz/create", { waitUntil: "domcontentloaded" });
 
         // Attendre un peu pour que la page se stabilise (au lieu de waitForNetworkIdle)
         await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});

@@ -587,7 +587,7 @@ const AvailabilityPollVote = () => {
                         }}
                         variant="outline"
                         className="flex-1 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                      >
+                       data-testid="availabilitypollvote-button">
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Outlook
                       </Button>

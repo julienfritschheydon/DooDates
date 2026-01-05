@@ -244,7 +244,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     });
 
     // Navigate to vote page
-    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -343,7 +343,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to results page
-    await page.goto(`/DooDates/poll/${pollData.slug}/results`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/poll/${pollData.slug}/results`, { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -453,7 +453,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     // No calendar API mocks = calendar not connected scenario
 
     // Navigate to vote page
-    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -534,7 +534,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to vote page
-    await page.goto(`/DooDates/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/poll/${pollData.slug}`, { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -584,7 +584,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to dashboard
-    await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

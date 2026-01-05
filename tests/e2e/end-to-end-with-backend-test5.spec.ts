@@ -106,7 +106,7 @@ test.describe.skip("Debug - Test 5 fusion localStorage + Supabase", () => {
       await setupGeminiMock(pageB);
 
       // ===== APPAREIL A : Créer une conversation =====
-      await pageA.goto("/DooDates/date/workspace/date", { waitUntil: "domcontentloaded" });
+      await pageA.goto("/date/workspace/date", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(pageA, { browserName: "chromium" });
       await waitForReactStable(pageA, { browserName: "chromium" });
 
@@ -159,7 +159,7 @@ test.describe.skip("Debug - Test 5 fusion localStorage + Supabase", () => {
       expect(conversationInLocalStorage?.userId).toBe(testUserId);
 
       // ===== APPAREIL B : Voir la conversation depuis le dashboard =====
-      await pageB.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+      await pageB.goto("/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(pageB, { browserName: "chromium" });
       await waitForReactStable(pageB, { browserName: "chromium" });
 
@@ -241,7 +241,7 @@ test.describe.skip("Debug - Test 5 fusion localStorage + Supabase", () => {
       });
 
       // ===== APPAREIL A : Vérifier la synchronisation =====
-      await pageA.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+      await pageA.goto("/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(pageA, { browserName: "chromium" });
       await waitForReactStable(pageA, { browserName: "chromium" });
 

@@ -246,7 +246,7 @@ test.describe("🔒 RGPD - Anonymisation Form Polls", () => {
     await authenticateUserInPage(page, testEmail, testPassword);
 
     // Navigate to a page to verify anonymization feature exists
-    await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     // Verify page loads (anonymization feature exists in codebase)

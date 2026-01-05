@@ -187,14 +187,14 @@ export default function DatePollsDataControl() {
                 variant="ghost"
                 onClick={() => navigate("/date/privacy")}
                 className="w-full justify-start"
-              >
+               data-testid="datepollsdatacontrol-politique-de-confidentialit">
                 Politique de confidentialité
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => navigate("/date/settings")}
                 className="w-full justify-start"
-              >
+               data-testid="datepollsdatacontrol-paramtres-du-compte">
                 Paramètres du compte
               </Button>
             </div>

@@ -65,7 +65,7 @@ export function MobileNavigationTabs({
               : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/50"
           }`}
           aria-label="Afficher le chat"
-        >
+         data-testid="mobilenavigationtabs-button">
           <MessageSquare className="w-6 h-6" />
           {activeTab === "chat" && (
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-blue-500 rounded-t-full" />
@@ -85,7 +85,7 @@ export function MobileNavigationTabs({
               : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/50"
           }`}
           aria-label={`Afficher ${editorInfo.label.toLowerCase()}`}
-        >
+         data-testid="mobilenavigationtabs-edit">
           <div className="relative">
             <EditorIcon className="w-6 h-6" />
             {/* Badge de notification quand un poll est créé */}

@@ -556,7 +556,7 @@
 //                   onClick={onOpenMenu}
 //                   className="p-1 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
 //                   aria-label="Ouvrir le menu"
-//                 >
+//                  data-testid="pollcreatorcalendriervertical-button">
 //                   <Menu className="w-5 h-5 text-gray-600" />
 //                 </button>
 //               )}
@@ -567,7 +567,7 @@
 //                   onClick={onBack}
 //                   className="p-1 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
 //                   aria-label="Fermer"
-//                 >
+//                  data-testid="pollcreatorcalendriervertical-button">
 //                   <X className="w-5 h-5 text-gray-400" />
 //                 </button>
 //               )}
@@ -626,7 +626,7 @@
 //                                   : 'text-gray-700 hover:bg-gray-100 hover:scale-105'
 //                                 }
 //                               `}
-//                             >
+//                              data-testid="pollcreatorcalendriervertical-button">
 //                               {day}
 //                             </button>
 //                           );
@@ -648,7 +648,7 @@
 //                         <button
 //                           onClick={() => setState((prev) => ({ ...prev, showCalendarConnection: false }))}
 //                           className="text-gray-400 hover:text-gray-600"
-//                         >
+//                          data-testid="pollcreatorcalendriervertical-button">
 //                           <X className="w-4 h-4" />
 //                         </button>
 //                       </div>
@@ -659,7 +659,7 @@
 //                     <button
 //                       onClick={() => setState((prev) => ({ ...prev, showTimeSlots: !prev.showTimeSlots }))}
 //                       className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-300 transition-colors"
-//                     >
+//                      data-testid="pollcreatorcalendriervertical-button">
 //                       <Clock className="w-4 h-4" />
 //                       Horaires
 //                     </button>
@@ -677,7 +677,7 @@
 //                       <button
 //                         onClick={() => setState((prev) => ({ ...prev, showGranularitySettings: false }))}
 //                         className="text-gray-400 hover:text-gray-600"
-//                       >
+//                        data-testid="pollcreatorcalendriervertical-button">
 //                         <X className="w-4 h-4" />
 //                       </button>
 //                     </div>
@@ -703,7 +703,7 @@
 //                                 : 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed'
 //                               }
 //                             `}
-//                           >
+//                            data-testid="pollcreatorcalendriervertical-button">
 //                             {option.label}
 //                           </button>
 //                         );
@@ -723,7 +723,7 @@
 //                         onClick={() => setState((prev) => ({ ...prev, showGranularitySettings: !prev.showGranularitySettings }))}
 //                         className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
 //                         title="Précision des créneaux"
-//                       >
+//                        data-testid="pollcreatorcalendriervertical-button">
 //                         <Settings className="w-3 h-3" />
 //                       </button>
 //                     </div>
@@ -771,7 +771,7 @@
 //                                 ${slot?.enabled ? 'bg-blue-50' : ''}
 //                                 ${state.timeGranularity >= 60 ? 'min-h-[40px] p-1' : 'min-h-[24px] p-0.5'}
 //                               `}
-//                             >
+//                              data-testid="pollcreatorcalendriervertical-button">
 //                               {slot?.enabled && (
 //                                 <div
 //                                   className={`absolute bg-blue-500 transition-all
@@ -814,7 +814,7 @@
 //                       <button
 //                         onClick={() => setState((prev) => ({ ...prev, showExtendedHours: true }))}
 //                         className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
-//                       >
+//                        data-testid="pollcreatorcalendriervertical-button">
 //                         <Plus className="w-3 h-3" />
 //                         Afficher plus d'horaires (0h-6h, 23h)
 //                       </button>
@@ -827,7 +827,7 @@
 //                   <button
 //                     onClick={() => setState(prev => ({ ...prev, showShare: true }))}
 //                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-//                   >
+//                    data-testid="pollcreatorcalendriervertical-button">
 //                     <Share2 className="w-4 h-4" />
 //                     Partager
 //                   </button>
@@ -841,7 +841,7 @@
 //                 <button
 //                   onClick={() => setState(prev => ({ ...prev, showShare: true }))}
 //                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-//                 >
+//                  data-testid="pollcreatorcalendriervertical-button">
 //                   <Share2 className="w-4 h-4" />
 //                   Partager
 //                 </button>
@@ -898,7 +898,7 @@
 //                         onClick={copyPollLink}
 //                         className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
 //                         title="Copier le lien du sondage"
-//                       >
+//                        data-testid="pollcreatorcalendriervertical-button">
 //                         <Copy className="w-4 h-4" />
 //                         {state.pollLinkCopied ? '✓' : 'Copier'}
 //                       </button>
@@ -923,7 +923,7 @@
 //                       <button
 //                         onClick={() => window.location.href = '/auth'}
 //                         className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
-//                       >
+//                        data-testid="pollcreatorcalendriervertical--se-connecter-maintenant">
 //                         Se connecter maintenant
 //                       </button>
 //                     </div>
@@ -997,7 +997,7 @@
 //                       onClick={handleFinalize}
 //                       disabled={!canFinalize() || pollLoading}
 //                       className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-//                     >
+//                      data-testid="pollcreatorcalendriervertical-button">
 //                       {pollLoading && <Loader2 className="w-4 h-4 animate-spin" />}
 //                       {pollLoading
 //                         ? 'Création en cours...'

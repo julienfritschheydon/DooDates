@@ -51,7 +51,7 @@ const urlsToCache = [
 - [ ] **GitHub Pages activé** : https://github.com/julienfritschheydon/DooDates/settings/pages
   - Source : `GitHub Actions`
 - [ ] **Secrets configurés** : https://github.com/julienfritschheydon/DooDates/settings/secrets/actions
-  - `VITE_GEMINI_API_KEY` : Clé API Gemini (requis)
+  - `[DEPRECATED_KEY]` : Clé API Gemini (requis)
   - `VITE_SUPABASE_URL` : URL Supabase (optionnel, localStorage si absent)
   - `VITE_SUPABASE_ANON_KEY` : Clé Supabase (optionnel)
 
@@ -122,9 +122,9 @@ Uncaught (in promise) TypeError: Failed to execute 'addAll' on 'cache'
 
 **Solutions :**
 
-1. Vérifier que `VITE_GEMINI_API_KEY` est dans les secrets GitHub
+1. Vérifier que `[DEPRECATED_KEY]` est dans les secrets GitHub
 2. Re-déployer après avoir ajouté le secret
-3. Vérifier la console : `import.meta.env.VITE_GEMINI_API_KEY` ne doit pas être `undefined`
+3. Vérifier la console : `import.meta.env.[DEPRECATED_KEY]` ne doit pas être `undefined`
 
 ### Mode localStorage vs Supabase
 

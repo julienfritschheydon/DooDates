@@ -22,7 +22,7 @@ test.describe.skip("Supabase Integration", () => {
 
   test("should have all Supabase tests passing", async ({ page }) => {
     // Naviguer vers la page de diagnostic (utilise baseURL de playwright.config.ts)
-    await page.goto("//DooDates/diagnostic/supabase", {
+    await page.goto("//diagnostic/supabase", {
       waitUntil: "networkidle",
     });
 
@@ -99,7 +99,7 @@ test.describe.skip("Supabase Integration", () => {
   });
 
   test("should not have timeout errors", async ({ page }) => {
-    await page.goto("//DooDates/diagnostic/supabase", {
+    await page.goto("//diagnostic/supabase", {
       waitUntil: "networkidle",
     });
 
@@ -136,7 +136,7 @@ test.describe.skip("Supabase Integration", () => {
   });
 
   test("should display test results in a readable format", async ({ page }) => {
-    await page.goto("//DooDates/diagnostic/supabase");
+    await page.goto("//diagnostic/supabase");
 
     // Vérifier que la page a un titre
     await expect(page.locator("h1, h2").first()).toContainText("Supabase");

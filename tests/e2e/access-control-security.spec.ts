@@ -9,7 +9,7 @@ test.describe("Access Control - Security Tests", () => {
 
   test("should protect admin endpoints from unauthorized access", async ({ page }) => {
     // Tenter d'accéder à une page admin sans être authentifié
-    await page.goto("http://localhost:8080/DooDates/admin");
+    await page.goto("http://localhost:8080/admin");
 
     // Vérifier qu'on est redirigé vers login ou page d'erreur
     await expect(page.url()).toMatch(/(login|signin|auth)/);
@@ -56,7 +56,7 @@ test.describe("Access Control - Security Tests", () => {
     const pollId = currentUrl.match(/\/([^\/]+)$/)?.[1];
 
     if (pollId) {
-      await page.goto(`http://localhost:8080/DooDates/poll/${pollId}/delete`);
+      await page.goto(`http://localhost:8080/poll/${pollId}/delete`);
 
       // Vérifier que l'accès est refusé
       const accessDenied = await page.locator('[data-testid="access-denied"]').count();
@@ -69,7 +69,7 @@ test.describe("Access Control - Security Tests", () => {
 
   test("should protect API endpoints from direct access", async ({ page }) => {
     // Tenter d'accéder directement à un endpoint API
-    const response = await page.goto("http://localhost:8080/DooDates/api/polls");
+    const response = await page.goto("http://localhost:8080/api/polls");
 
     // Vérifier que l'endpoint est protégé
     if (response) {

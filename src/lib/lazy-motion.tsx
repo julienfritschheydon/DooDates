@@ -41,21 +41,34 @@ const AnimatePresenceComponent = lazy(() =>
   loadMotion().then((m) => ({ default: m.AnimatePresence })),
 );
 
+// Helper pour extraire uniquement les props HTML valides (sans les props framer-motion)
+const getHtmlProps = <T extends Record<string, unknown>>(props: T): Record<string, unknown> => {
+  const {
+    animate, initial, exit, variants, transition,
+    whileHover, whileTap, whileFocus, whileDrag, whileInView,
+    drag, dragConstraints, dragElastic, dragMomentum,
+    layout, layoutId, style, // style peut contenir MotionStyle
+    ...htmlProps
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = props as any;
+  return htmlProps;
+};
+
 // Wrappers avec Suspense pour un fallback transparent
 // eslint-disable-next-line react-refresh/only-export-components
 export const motion = {
   div: (props: React.ComponentProps<typeof MotionDiv>) => (
-    <Suspense fallback={<div {...props} />}>
+    <Suspense fallback={<div {...getHtmlProps(props)} />}>
       <MotionDiv {...props} />
     </Suspense>
   ),
   span: (props: React.ComponentProps<typeof MotionSpan>) => (
-    <Suspense fallback={<span {...props} />}>
+    <Suspense fallback={<span {...getHtmlProps(props)} />}>
       <MotionSpan {...props} />
     </Suspense>
   ),
   button: (props: React.ComponentProps<typeof MotionButton>) => (
-    <Suspense fallback={<button {...props} />}>
+    <Suspense fallback={<button {...getHtmlProps(props)} data-testid="lazy-motion-button" />}>
       <MotionButton {...props} />
     </Suspense>
   ),
@@ -68,14 +81,24 @@ export const AnimatePresence = (props: React.ComponentProps<typeof AnimatePresen
 );
 
 // Export des autres utilitaires framer-motion (chargés quand nécessaire)
+// Note: Les hooks ne peuvent pas être lazy-loaded, on exporte des fonctions async à la place
 // eslint-disable-next-line react-refresh/only-export-components
-export const useMotionValue = lazy(() => loadMotion().then((m) => ({ default: m.useMotionValue })));
+export const getMotionValue = async () => {
+  const m = await loadMotion();
+  return m.useMotionValue;
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useTransform = lazy(() => loadMotion().then((m) => ({ default: m.useTransform })));
+export const getTransform = async () => {
+  const m = await loadMotion();
+  return m.useTransform;
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useAnimation = lazy(() => loadMotion().then((m) => ({ default: m.useAnimation })));
+export const getAnimation = async () => {
+  const m = await loadMotion();
+  return m.useAnimation;
+};
 
 // Type pour PanInfo
 export type PanInfo = import("framer-motion").PanInfo;

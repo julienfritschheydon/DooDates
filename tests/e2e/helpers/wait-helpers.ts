@@ -79,11 +79,11 @@ export async function waitForElementReady(
  * @example
  * ```typescript
  * // ❌ AVANT
- * await page.goto('/DooDates/dashboard');
+ * await page.goto('/dashboard');
  * await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
  *
  * // ✅ APRÈS
- * await page.goto('/DooDates/dashboard');
+ * await page.goto('/dashboard');
  * await waitForNetworkIdle(page, { browserName });
  * ```
  */
@@ -318,11 +318,11 @@ export async function waitForCondition(
  * @example
  * ```typescript
  * // ❌ AVANT
- * await page.goto('/DooDates/dashboard');
+ * await page.goto('/dashboard');
  * await page.waitForLoadState('domcontentloaded', { timeout: 3000 }).catch(() => {});
  *
  * // ✅ APRÈS
- * await page.goto('/DooDates/dashboard');
+ * await page.goto('/dashboard');
  * await waitForVisibleAndStable(page.locator('[data-testid="poll-item"]'), { browserName });
  * ```
  */

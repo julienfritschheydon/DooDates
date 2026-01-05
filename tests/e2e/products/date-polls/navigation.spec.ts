@@ -93,7 +93,7 @@ test.describe("Date Polls - Navigation Flow", () => {
       await waitForReactStable(page, { browserName });
     } catch (error) {
       // Étape 4: Fallback - Navigation alternative
-      await page.goto("/DooDates/date/dashboard");
+      await page.goto("/date/dashboard");
       await waitForNetworkIdle(page, { browserName });
     }
 

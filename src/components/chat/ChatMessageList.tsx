@@ -195,7 +195,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       <button
                         onClick={onOpenAuthModal}
                         className={`underline font-medium ${darkTheme ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}
-                      >
+                       data-testid="chatmessagelist-connectezvous">
                         Connectez-vous
                       </button>
                     ) : (
@@ -277,7 +277,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               ? "bg-green-900/30 text-green-400 hover:bg-green-900/50"
                               : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
                           }`}
-                        >
+                         data-testid="chatmessagelist-oui-envoyer">
                           Oui, envoyer
                         </button>
                         <button
@@ -287,7 +287,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               ? "bg-gray-800 text-gray-400 hover:bg-gray-700"
                               : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200"
                           }`}
-                        >
+                         data-testid="chatmessagelist-non-merci">
                           Non merci
                         </button>
                       </div>

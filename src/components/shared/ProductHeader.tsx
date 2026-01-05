@@ -50,7 +50,7 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             {showSettings && (
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" data-testid="productheader-button">
                 <Settings className="h-4 w-4" />
               </Button>
             )}

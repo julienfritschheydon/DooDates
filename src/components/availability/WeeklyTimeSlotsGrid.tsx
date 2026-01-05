@@ -235,7 +235,7 @@ export function WeeklyTimeSlotsGrid({
           onClick={() => setShowGranularitySettings(!showGranularitySettings)}
           className="p-1 text-gray-400 hover:text-white transition-colors"
           aria-label={showGranularitySettings ? "Masquer" : "Modifier"}
-        >
+         data-testid="weeklytimeslotsgrid-button">
           {showGranularitySettings ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
         </button>
       </div>
@@ -268,7 +268,7 @@ export function WeeklyTimeSlotsGrid({
                         ? "bg-[#1e1e1e] border border-gray-700 hover:border-blue-500 text-white"
                         : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
                   }`}
-                >
+                 data-testid="weeklytimeslotsgrid-button">
                   {option.label}
                 </button>
               );
@@ -370,7 +370,7 @@ export function WeeklyTimeSlotsGrid({
                             : "bg-[#1e1e1e]"
                       } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
                       style={{ touchAction: "none" }}
-                    >
+                     data-testid="weeklytimeslotsgrid-button">
                       {slot?.enabled && (
                         <div
                           className={`absolute bg-green-500 transition-all ${
@@ -501,7 +501,7 @@ export function WeeklyTimeSlotsGrid({
                             : "bg-[#1e1e1e]"
                       } ${timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}`}
                       style={{ touchAction: "none" }}
-                    >
+                     data-testid="weeklytimeslotsgrid-button">
                       {slot?.enabled && (
                         <div
                           className={`absolute bg-green-500 transition-all ${
@@ -542,7 +542,7 @@ export function WeeklyTimeSlotsGrid({
         <button
           onClick={() => setShowExtendedHours(!showExtendedHours)}
           className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors"
-        >
+         data-testid="weeklytimeslotsgrid-button">
           <Plus className="w-3 h-3" />
           <span>
             {showExtendedHours ? "Masquer les horaires étendus" : "Afficher plus d'horaires"}

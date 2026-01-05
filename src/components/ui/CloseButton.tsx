@@ -33,7 +33,7 @@ export function CloseButton({
         .filter(Boolean)
         .join(" ")}
       {...props}
-    >
+     data-testid="closebutton-back">
       <X className={sizeClass} />
       <span className="sr-only">{ariaLabel}</span>
     </button>

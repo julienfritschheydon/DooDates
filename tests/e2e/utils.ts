@@ -492,7 +492,7 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 export async function warmup(page: Page) {
   // Warmup workspace (route principale pour les tests)
   // Warmup workspace (route principale pour les tests)
-  await page.goto("/DooDates/date/workspace/date", { waitUntil: "domcontentloaded" });
+  await page.goto("/date/workspace/date", { waitUntil: "domcontentloaded" });
   await page.reload({ waitUntil: "domcontentloaded" });
 }
 
@@ -1018,38 +1018,38 @@ export async function debugScreenshot(
  * Product-specific route constants for E2E tests
  * Centralized route management for the 3 separate products
  *
- * ⚠️ IMPORTANT: All routes MUST include /DooDates/ prefix!
- * This matches Vite's base="/DooDates/" configuration
+ * ⚠️ IMPORTANT: All routes MUST include / prefix!
+ * This matches Vite's base="/" configuration
  * Do NOT remove the prefix or tests will fail on GitHub Pages deployment
  */
 export const PRODUCT_ROUTES = {
   datePoll: {
-    landing: "/DooDates/date-polls",
-    workspace: "/DooDates/date/workspace/date",
-    dashboard: "/DooDates/date/dashboard",
-    docs: "/DooDates/date/docs",
-    pricing: "/DooDates/date/pricing",
+    landing: "/date-polls",
+    workspace: "/date/workspace/date",
+    dashboard: "/date/dashboard",
+    docs: "/date/docs",
+    pricing: "/date/pricing",
   },
   formPoll: {
-    landing: "/DooDates/form-polls",
-    workspace: "/DooDates/form/workspace/form",
-    dashboard: "/DooDates/form/dashboard",
-    docs: "/DooDates/form/docs",
-    pricing: "/DooDates/form/pricing",
+    landing: "/form-polls",
+    workspace: "/form/workspace/form",
+    dashboard: "/form/dashboard",
+    docs: "/form/docs",
+    pricing: "/form/pricing",
   },
   availabilityPoll: {
-    landing: "/DooDates/availability-polls",
-    workspace: "/DooDates/availability/workspace/availability",
-    dashboard: "/DooDates/availability/dashboard",
-    docs: "/DooDates/availability/docs",
-    pricing: "/DooDates/availability/pricing",
+    landing: "/availability-polls",
+    workspace: "/availability/workspace/availability",
+    dashboard: "/availability/dashboard",
+    docs: "/availability/docs",
+    pricing: "/availability/pricing",
   },
   quizz: {
-    landing: "/DooDates/quizz",
-    workspace: "/DooDates/quizz/workspace",
-    dashboard: "/DooDates/quizz/dashboard",
-    docs: "/DooDates/quizz/docs",
-    pricing: "/DooDates/quizz/pricing",
+    landing: "/quizz",
+    workspace: "/quizz/workspace",
+    dashboard: "/quizz/dashboard",
+    docs: "/quizz/docs",
+    pricing: "/quizz/pricing",
   },
 } as const;
 

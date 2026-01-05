@@ -373,7 +373,7 @@ export default function QuestionCard({
               className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition-colors"
               title="Éditer"
               aria-label="Éditer"
-            >
+             data-testid="questioncard-button">
               <Edit2 className="w-4 h-4" />
             </button>
           </div>
@@ -638,7 +638,7 @@ export default function QuestionCard({
                 onClick={addMatrixRow}
                 className="inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs"
                 title="Ajouter une ligne"
-              >
+               data-testid="questioncard-button">
                 <Plus className="w-3 h-3 mr-1" />
                 Ligne
               </button>
@@ -657,7 +657,7 @@ export default function QuestionCard({
                     onClick={() => removeMatrixRow(row.id)}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
                     title="Supprimer la ligne"
-                  >
+                   data-testid="questioncard-button">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -681,7 +681,7 @@ export default function QuestionCard({
                   title={
                     question.matrixColumnsNumeric ? "Passer en texte" : "Passer en numérique (1-5)"
                   }
-                >
+                 data-testid="questioncard-button">
                   {question.matrixColumnsNumeric ? "↻ Texte" : "↻ 1-5"}
                 </button>
                 <button
@@ -689,7 +689,7 @@ export default function QuestionCard({
                   onClick={addMatrixColumn}
                   className="inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs"
                   title="Ajouter une colonne"
-                >
+                 data-testid="questioncard-button">
                   <Plus className="w-3 h-3 mr-1" />
                   Colonne
                 </button>
@@ -709,7 +709,7 @@ export default function QuestionCard({
                     onClick={() => removeMatrixColumn(col.id)}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
                     title="Supprimer la colonne"
-                  >
+                   data-testid="questioncard-button">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

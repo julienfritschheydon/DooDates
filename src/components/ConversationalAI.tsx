@@ -258,13 +258,13 @@
 //                   <button
 //                     onClick={saveEdit}
 //                     className="text-green-600 hover:text-green-700"
-//                   >
+//                    data-testid="conversationalai-save">
 //                     <Check className="w-4 h-4" />
 //                   </button>
 //                   <button
 //                     onClick={cancelEdit}
 //                     className="text-red-600 hover:text-red-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <X className="w-4 h-4" />
 //                   </button>
 //                 </div>
@@ -276,7 +276,7 @@
 //                   <button
 //                     onClick={() => startEdit("title")}
 //                     className="text-blue-600 hover:text-blue-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <Edit3 className="w-3 h-3" />
 //                   </button>
 //                 </div>
@@ -299,13 +299,13 @@
 //                   <button
 //                     onClick={saveEdit}
 //                     className="text-green-600 hover:text-green-700"
-//                   >
+//                    data-testid="conversationalai-save">
 //                     <Check className="w-4 h-4" />
 //                   </button>
 //                   <button
 //                     onClick={cancelEdit}
 //                     className="text-red-600 hover:text-red-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <X className="w-4 h-4" />
 //                   </button>
 //                 </div>
@@ -319,7 +319,7 @@
 //                   <button
 //                     onClick={() => startEdit("dates")}
 //                     className="text-blue-600 hover:text-blue-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <Edit3 className="w-3 h-3" />
 //                   </button>
 //                 </div>
@@ -354,13 +354,13 @@
 //                   <button
 //                     onClick={saveEdit}
 //                     className="text-green-600 hover:text-green-700"
-//                   >
+//                    data-testid="conversationalai-save">
 //                     <Check className="w-4 h-4" />
 //                   </button>
 //                   <button
 //                     onClick={cancelEdit}
 //                     className="text-red-600 hover:text-red-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <X className="w-4 h-4" />
 //                   </button>
 //                 </div>
@@ -374,7 +374,7 @@
 //                   <button
 //                     onClick={() => startEdit("participants")}
 //                     className="text-blue-600 hover:text-blue-700"
-//                   >
+//                    data-testid="conversationalai-button">
 //                     <Edit3 className="w-3 h-3" />
 //                   </button>
 //                 </div>
@@ -387,14 +387,14 @@
 //           <button
 //             onClick={handleCreatePoll}
 //             className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//           >
+//            data-testid="conversationalai--crer-le-sondage">
 //             Créer le sondage
 //           </button>
 //           <button
 //             onClick={() => setCurrentDraft(null)}
 //             className="px-3 py-2 text-gray-600 hover:text-gray-700 transition-colors"
 //             title="Supprimer le brouillon"
-//           >
+//            data-testid="conversationalai-button">
 //             <Trash2 className="w-4 h-4" />
 //           </button>
 //         </div>
@@ -469,7 +469,7 @@
 //             onClick={handleSendMessage}
 //             disabled={!inputValue.trim() || isLoading}
 //             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//           >
+//            data-testid="conversationalai-button">
 //             <Send className="w-4 h-4" />
 //           </button>
 //         </div>

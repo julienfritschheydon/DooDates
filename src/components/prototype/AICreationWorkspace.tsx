@@ -632,7 +632,7 @@ export function AICreationWorkspace({
                           className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                           aria-label="Fermer l'éditeur"
                           title="Fermer"
-                        >
+                         data-testid="aicreationworkspace-close">
                           <LazyIconWrapper Icon={X} className="w-5 h-5" />
                         </button>
                       )}
@@ -773,7 +773,7 @@ export function AICreationWorkspace({
                   className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                   aria-label="Retour au chat"
                   title="Retour au chat"
-                >
+                 data-testid="aicreationworkspace-close">
                   <LazyIconWrapper Icon={X} className="w-5 h-5" />
                 </button>
               )}
@@ -825,7 +825,7 @@ export function AICreationWorkspace({
                         className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                         aria-label="Fermer l'éditeur"
                         title="Fermer"
-                      >
+                       data-testid="aicreationworkspace-close">
                         <LazyIconWrapper Icon={X} className="w-5 h-5" />
                       </button>
                       <PollPreview poll={currentPoll} />

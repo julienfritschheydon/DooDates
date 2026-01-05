@@ -98,11 +98,11 @@ test.describe("FormPolls - Smoke Tests", () => {
 
   test("Smoke - Navigation FormPoll", async ({ page }) => {
     // 1. Navigation vers dashboard form-polls
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Navigation vers workspace
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier l'input de chat
@@ -118,7 +118,7 @@ test.describe("FormPolls - Smoke Tests", () => {
 
   test("Smoke - Test localStorage", async ({ page }) => {
     // 1. Navigation vers workspace
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que localStorage est accessible
@@ -141,7 +141,7 @@ test.describe("FormPolls - Smoke Tests", () => {
 test.describe("FormPolls - Tests Robustesse", () => {
   test("Smoke - Gestion des erreurs", async ({ page }) => {
     // 1. Navigation vers workspace avec paramètre invalide
-    await page.goto("/DooDates/form/workspace/form?invalid_param=test");
+    await page.goto("/form/workspace/form?invalid_param=test");
 
     // 2. Ne doit pas crasher
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
@@ -160,7 +160,7 @@ test.describe("FormPolls - Tests Robustesse", () => {
     const startTime = Date.now();
 
     // 2. Navigation et création simple
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier l'input de chat avec fallbacks intelligents
@@ -206,16 +206,16 @@ test.describe("FormPolls - Tests Robustesse", () => {
 
   test("Smoke - Multi-navigations", async ({ page }) => {
     // 1. Navigations rapides entre différentes pages
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
 
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
 
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
 
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
 
     console.log("✅ Multi-navigations stabl es");

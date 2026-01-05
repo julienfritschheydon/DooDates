@@ -8,14 +8,14 @@ import {
 import { getTimeouts } from "./config/timeouts";
 
 /**
- * Tests E2E pour la documentation en mode PRODUCTION (avec base path /DooDates/)
+ * Tests E2E pour la documentation en mode PRODUCTION (avec base path /)
  *
- * Ces tests simulent l'environnement GitHub Pages où l'app est servie depuis /DooDates/
+ * Ces tests simulent l'environnement GitHub Pages où l'app est servie depuis /
  *
  * Pour tester localement:
  * 1. Build production: npm run build
  * 2. Serve avec base path: npx serve dist -s -p 4173 --listen
- * 3. Configurer Playwright pour utiliser http://localhost:4173/DooDates/ comme baseURL
+ * 3. Configurer Playwright pour utiliser http://localhost:4173/ comme baseURL
  *
  * OU utiliser le script: npm run test:docs:production
  */
@@ -25,7 +25,7 @@ test.describe("Documentation - Production Build Tests", () => {
   // Ils sont skippés par défaut et doivent être exécutés manuellement
   // avec: npx playwright test docs-production.spec.ts --project=chromium
 
-  test.skip("Documentation works with production base path /DooDates/ @production", async ({
+  test.skip("Documentation works with production base path / @production", async ({
     page,
     browserName,
   }) => {

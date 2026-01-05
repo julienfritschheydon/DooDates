@@ -53,14 +53,15 @@ if (-not (Test-Path ".env.local")) {
     Write-Warning "   Créez un fichier .env.local avec:"
     Write-Warning "   - VITE_SUPABASE_URL"
     Write-Warning "   - VITE_SUPABASE_ANON_KEY"
-    Write-Warning "   - VITE_GEMINI_API_KEY"
+    Write-Warning "   - VITE_SUPABASE_ANON_KEY"
     Write-Host ""
     $continue = Read-Host "Continuer quand même? (o/N)"
     if ($continue -ne "o" -and $continue -ne "O") {
         Write-Info "Abandon."
         exit 0
     }
-} else {
+}
+else {
     Write-Success "✅ Fichier .env.local trouvé"
 }
 
@@ -81,7 +82,8 @@ if (-not $SkipBuild) {
     
     $buildDuration = (Get-Date) - $buildStart
     Write-Success "✅ Build réussi en $($buildDuration.TotalSeconds.ToString('F1'))s"
-} else {
+}
+else {
     Write-Warning "⏭️  Build ignoré (--SkipBuild)"
 }
 
@@ -121,7 +123,8 @@ while ($attempt -lt $maxAttempts -and -not $serverReady) {
         if ($response.StatusCode -eq 200) {
             $serverReady = $true
         }
-    } catch {
+    }
+    catch {
         # Le serveur n'est pas encore prêt
     }
     
@@ -175,13 +178,15 @@ try {
     if ($testExitCode -eq 0) {
         Write-Success "✅ Tous les tests de smoke ont réussi!"
         Write-Success "   Durée: $($testDuration.TotalSeconds.ToString('F1'))s"
-    } else {
+    }
+    else {
         Write-Error "❌ Certains tests de smoke ont échoué"
         Write-Error "   Durée: $($testDuration.TotalSeconds.ToString('F1'))s"
         Write-Warning "   Consultez le rapport HTML: playwright-report/index.html"
     }
     
-} finally {
+}
+finally {
     # Étape 4: Nettoyer
     Write-Host ""
     Write-Info "🧹 ÉTAPE 4/4: Nettoyage..."
@@ -204,7 +209,8 @@ if ($testExitCode -eq 0) {
     Write-Success "  1. Commit et push vers main"
     Write-Success "  2. Le déploiement GitHub Pages se lancera automatiquement"
     Write-Success "  3. Les tests de smoke en production s'exécuteront après le déploiement"
-} else {
+}
+else {
     Write-Error "❌ TEST DU BUILD DE PRODUCTION: ÉCHEC"
     Write-Error ""
     Write-Error "Votre build de production a des problèmes!"

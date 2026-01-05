@@ -122,10 +122,10 @@ export function BetaKeyModal({ open, onOpenChange }: BetaKeyModalProps) {
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-            >
+             data-testid="betakeymodal-annuler">
               Annuler
             </Button>
-            <Button type="submit" disabled={isSubmitting || !code.trim()}>
+            <Button type="submit" disabled={isSubmitting || !code.trim()} data-testid="betakeymodal-submit">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

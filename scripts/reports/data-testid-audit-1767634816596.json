@@ -1,0 +1,1028 @@
+{
+  "timestamp": "2026-01-05T17:40:16.595Z",
+  "summary": {
+    "totalFiles": 32,
+    "totalButtons": 131,
+    "missingDataTestId": 112,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\VoteDesktopTest.tsx",
+      "line": 259,
+      "index": 9551,
+      "content": "<button...",
+      "button": "<button\n                    onClick={() =>",
+      "suggestedTestId": "votedesktoptest-handlevoteoptionid-yes"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\VoteDesktopTest.tsx",
+      "line": 300,
+      "index": 11414,
+      "content": "<button...",
+      "button": "<button\n                    onClick={() =>",
+      "suggestedTestId": "votedesktoptest-handlevoteoptionid-maybe"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\VoteDesktopTest.tsx",
+      "line": 341,
+      "index": 13312,
+      "content": "<button...",
+      "button": "<button\n                    onClick={() =>",
+      "suggestedTestId": "votedesktoptest-handlevoteoptionid-no"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Vote.tsx",
+      "line": 86,
+      "index": 2901,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "vote-windowhistoryback"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Vote.tsx",
+      "line": 31,
+      "index": 1408,
+      "content": "<button...",
+      "button": "<button\n                onClick={() =>",
+      "suggestedTestId": "vote-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Theme.tsx",
+      "line": 14,
+      "index": 475,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"ghost\"\n            onClick={() =>",
+      "suggestedTestId": "theme-navigate1"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Theme.tsx",
+      "line": 33,
+      "index": 1101,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "theme-navigatesettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Pricing.tsx",
+      "line": 231,
+      "index": 10007,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"outline\"\n                onClick={() =>",
+      "suggestedTestId": "pricing-navigatesettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Pricing.tsx",
+      "line": 344,
+      "index": 13367,
+      "content": "<Button...",
+      "button": "<Button\n        className=\"w-full mb-6\"\n        variant={isCurrentPlan ? \"secondary\" : highlighted ? \"default\" : \"outline\"}\n        onClick={onCTA}\n        disabled={isCurrentPlan}\n      >",
+      "suggestedTestId": "pricing-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Pricing.tsx",
+      "line": 91,
+      "index": 3518,
+      "content": "<button...",
+      "button": "<button\n                onClick={() =>",
+      "suggestedTestId": "pricing-setbillingcyclemonthly"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Pricing.tsx",
+      "line": 101,
+      "index": 3943,
+      "content": "<button...",
+      "button": "<button\n                onClick={() =>",
+      "suggestedTestId": "pricing-setbillingcycleannual"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\PollCreator.tsx",
+      "line": 253,
+      "index": 10321,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\DataControl.tsx",
+      "line": 294,
+      "index": 10400,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() =>",
+      "suggestedTestId": "datacontrol-postponedeletionwarningtype"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\DataControl.tsx",
+      "line": 303,
+      "index": 10824,
+      "content": "<button...",
+      "button": "<button\n                      onClick={() =>",
+      "suggestedTestId": "datacontrol-setshowpreviewtrue"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 156,
+      "index": 5440,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigateavailability"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 209,
+      "index": 7225,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigateavailability"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 530,
+      "index": 19766,
+      "content": "<Button...",
+      "button": "<Button\n                        onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 557,
+      "index": 21276,
+      "content": "<Button...",
+      "button": "<Button\n                        onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 576,
+      "index": 22402,
+      "content": "<Button...",
+      "button": "<Button\n                        onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 600,
+      "index": 23679,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigatepoll"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 610,
+      "index": 24162,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigateavailability"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 663,
+      "index": 26686,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigatepoll"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 672,
+      "index": 27168,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigateavailability"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 690,
+      "index": 27661,
+      "content": "<Button...",
+      "button": "<Button\n        onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-navigateavailability"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollVote.tsx",
+      "line": 802,
+      "index": 33388,
+      "content": "<Button...",
+      "button": "<Button\n                                  onClick={() =>",
+      "suggestedTestId": "availabilitypollvote-handlevalidateslotslot"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 156,
+      "index": 5794,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 307,
+      "index": 10422,
+      "content": "<Button...",
+      "button": "<Button\n          onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-navigateavailabilitydashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 442,
+      "index": 16825,
+      "content": "<Button...",
+      "button": "<Button\n                      onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 464,
+      "index": 18145,
+      "content": "<Button...",
+      "button": "<Button\n                      onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 497,
+      "index": 19663,
+      "content": "<Button...",
+      "button": "<Button\n                      onClick={async () =>",
+      "suggestedTestId": "availabilitypollresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollResults.tsx",
+      "line": 670,
+      "index": 28431,
+      "content": "<Button...",
+      "button": "<Button\n                              onClick={() =>",
+      "suggestedTestId": "availabilitypollresults-handleremoveslotindex"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 202,
+      "index": 7563,
+      "content": "<Button...",
+      "button": "<Button\n                            onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 227,
+      "index": 8689,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-navigateavailabilitydashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 235,
+      "index": 9040,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-navigatepoll"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 244,
+      "index": 9462,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 353,
+      "index": 13889,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-handlecreatefalse"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AvailabilityPollCreatorContent.tsx",
+      "line": 362,
+      "index": 14232,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={() =>",
+      "suggestedTestId": "availabilitypollcreator-handlecreatetrue"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AuthCallback.tsx",
+      "line": 179,
+      "index": 6371,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() =>",
+      "suggestedTestId": "authcallback-navigatedatedashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AuthCallback.tsx",
+      "line": 186,
+      "index": 6625,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() =>",
+      "suggestedTestId": "authcallback-windowlocationreload"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 409,
+      "index": 13461,
+      "content": "<button...",
+      "button": "<button\n              key={r}\n              onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-settimeranger"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 585,
+      "index": 20527,
+      "content": "<button...",
+      "button": "<button\n                  onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-setincludetestsessionstrue"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 610,
+      "index": 21859,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-setincludetestsessionstrue"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 656,
+      "index": 24248,
+      "content": "<button...",
+      "button": "<button\n                        type=\"button\"\n                        onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-void-loadquotas"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 674,
+      "index": 25210,
+      "content": "<button...",
+      "button": "<button\n                      onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-setselectedbarnull"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 698,
+      "index": 26268,
+      "content": "<button...",
+      "button": "<button\n                    type=\"button\"\n                    onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-void-loadquotas"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\AdminQuotaDashboard.tsx",
+      "line": 760,
+      "index": 29555,
+      "content": "<button...",
+      "button": "<button\n                                onClick={() =>",
+      "suggestedTestId": "adminquotadashboard-togglerowexpansionqid"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\Admin.tsx",
+      "line": 55,
+      "index": 2163,
+      "content": "<button...",
+      "button": "<button\n          onClick={() =>",
+      "suggestedTestId": "admin-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsDataControl.tsx",
+      "line": 68,
+      "index": 2046,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"ghost\"\n            onClick={() =>",
+      "suggestedTestId": "quizzpollsdatacontrol-navigatequizzpollsdashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsDataControl.tsx",
+      "line": 104,
+      "index": 3694,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={handleExportData}\n                disabled={isExporting}\n                className=\"bg-green-600 hover:bg-green-700\"\n              >",
+      "suggestedTestId": "quizzpollsdatacontrol-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsDataControl.tsx",
+      "line": 150,
+      "index": 5652,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "quizzpollsdatacontrol-navigatequizzpollsprivacy"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsDataControl.tsx",
+      "line": 157,
+      "index": 5891,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "quizzpollsdatacontrol-navigatequizzpollssettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\form-polls\\FormPollsDataControl.tsx",
+      "line": 114,
+      "index": 4084,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={handleExportData}\n                disabled={isExporting}\n                className=\"bg-green-600 hover:bg-green-700\"\n              >",
+      "suggestedTestId": "formpollsdatacontrol-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\form-polls\\FormPollsDataControl.tsx",
+      "line": 167,
+      "index": 6399,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "formpollsdatacontrol-navigateformprivacy"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\form-polls\\FormPollsDataControl.tsx",
+      "line": 174,
+      "index": 6631,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "formpollsdatacontrol-navigateformsettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\date-polls\\DatePollsDataControl.tsx",
+      "line": 186,
+      "index": 7428,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                onClick={() =>",
+      "suggestedTestId": "datepollsdatacontrol-navigatedateprivacy"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\date-polls\\DatePollsDataControl.tsx",
+      "line": 193,
+      "index": 7674,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                onClick={() =>",
+      "suggestedTestId": "datepollsdatacontrol-navigatedatesettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsDataControl.tsx",
+      "line": 71,
+      "index": 2109,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"ghost\"\n            onClick={() =>",
+      "suggestedTestId": "availabilitypollsdatacontrol-navigateavailabilitydashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsDataControl.tsx",
+      "line": 106,
+      "index": 3750,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={handleExportData}\n                disabled={isExporting}\n                className=\"bg-green-600 hover:bg-green-700\"\n              >",
+      "suggestedTestId": "availabilitypollsdatacontrol-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsDataControl.tsx",
+      "line": 152,
+      "index": 5723,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "availabilitypollsdatacontrol-navigateavailabilityprivacy"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsDataControl.tsx",
+      "line": 159,
+      "index": 5963,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"ghost\"\n              onClick={() =>",
+      "suggestedTestId": "availabilitypollsdatacontrol-navigateavailabilitysettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\UserMenu.tsx",
+      "line": 71,
+      "index": 2346,
+      "content": "<Button...",
+      "button": "<Button\n        variant=\"outline\"\n        size=\"sm\"\n        onClick={handleSignOut}\n        className=\"flex items-center gap-1 flex-shrink-0 text-xs px-2 py-1\"\n      >",
+      "suggestedTestId": "usermenu-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 755,
+      "index": 27506,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() =>",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 776,
+      "index": 28762,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() =>",
+      "suggestedTestId": "pollcreator-setstateprev-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 819,
+      "index": 30759,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() =>",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 843,
+      "index": 32101,
+      "content": "<button...",
+      "button": "<button\n                            onClick={handleAnalyzeCalendar}\n                            disabled={isAnalyzingCalendar || !user}\n                            className=\"flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-600\"\n                          >",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 903,
+      "index": 35139,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() =>",
+      "suggestedTestId": "pollcreator-setstateprev-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 922,
+      "index": 36069,
+      "content": "<button...",
+      "button": "<button\n                            onClick={() =>",
+      "suggestedTestId": "pollcreator-setstateprev-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 947,
+      "index": 37289,
+      "content": "<button...",
+      "button": "<button\n                                key={option.value}\n                                onClick={() =>",
+      "suggestedTestId": "pollcreator-pollcreatorservicehandlegranularitychangeoptionvalue-setstate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 969,
+      "index": 38497,
+      "content": "<button...",
+      "button": "<button\n                            onClick={() =>",
+      "suggestedTestId": "pollcreator-pollcreatorserviceundogranularitychangesetstate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 1308,
+      "index": 59315,
+      "content": "<button...",
+      "button": "<button\n                      onClick={() =>",
+      "suggestedTestId": "pollcreator-setstateprev-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 1611,
+      "index": 76369,
+      "content": "<button...",
+      "button": "<button\n                              onClick={async () =>",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 1707,
+      "index": 81391,
+      "content": "<button...",
+      "button": "<button\n                        type=\"button\"\n                        onClick={handleSaveDraft}\n                        disabled={\n                          !state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading\n                        }\n                        className=\"px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed\"\n                      >",
+      "suggestedTestId": "pollcreator-enregistrer-le-brouillon"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\PollCreator.tsx",
+      "line": 1734,
+      "index": 82729,
+      "content": "<button...",
+      "button": "<button\n                        type=\"button\"\n                        onClick={handleFinalize}\n                        disabled={!canFinalize() || pollLoading}\n                        className=\"px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed\"\n                      >",
+      "suggestedTestId": "pollcreator-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 494,
+      "index": 17072,
+      "content": "<Button...",
+      "button": "<Button\n            onClick={() =>",
+      "suggestedTestId": "quizzvote-navigatequizz"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 562,
+      "index": 19859,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "quizzvote-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 575,
+      "index": 20285,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 592,
+      "index": 20931,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={copyQuizLink}\n              size=\"lg\"\n              className=\"w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors active:scale-[0.98]\"\n            >",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 611,
+      "index": 21661,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "quizzvote-navigatequizz"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 620,
+      "index": 22057,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "quizzvote-navigatequizz"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 641,
+      "index": 22830,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={copyQuizLink}\n              className=\"flex items-center gap-1 text-sm text-gray-500 hover:text-amber-600 transition-colors\"\n              title=\"Copier le lien\"\n            >",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 692,
+      "index": 25011,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() =>",
+      "suggestedTestId": "quizzvote-settimerenabledtimerenabled"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 726,
+      "index": 26504,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() =>",
+      "suggestedTestId": "quizzvote-sethasstartedtrue"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 837,
+      "index": 30845,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={handleNextQuestion}\n                className=\"w-full bg-amber-600 text-white py-5 sm:py-4 px-6 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]\"\n              >",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 853,
+      "index": 31652,
+      "content": "<Button...",
+      "button": "<Button\n                      key={idx}\n                      onClick={() =>",
+      "suggestedTestId": "quizzvote-updateanswercurrentquestionid-option"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 875,
+      "index": 32758,
+      "content": "<Button...",
+      "button": "<Button\n                        key={idx}\n                        onClick={() =>",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 909,
+      "index": 34472,
+      "content": "<Button...",
+      "button": "<Button\n                        key={String(value)}\n                        onClick={() =>",
+      "suggestedTestId": "quizzvote-updateanswercurrentquestionid-value"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 937,
+      "index": 35972,
+      "content": "<Button...",
+      "button": "<Button\n                          type=\"button\"\n                          onClick={() =>",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 993,
+      "index": 38887,
+      "content": "<Button...",
+      "button": "<Button\n                          type=\"button\"\n                          onClick={() =>",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzVote.tsx",
+      "line": 1043,
+      "index": 41297,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={handleSubmitAnswer}\n                disabled={!hasAnswer || isChecking}\n                className={cn(\n                  \"w-full py-5 sm:py-4 px-6 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98]\",\n                  hasAnswer && !isChecking\n                    ? \"bg-amber-600 text-white hover:bg-amber-700\"\n                    : \"bg-gray-200 text-gray-400 cursor-not-allowed\",\n                )}\n              >",
+      "suggestedTestId": "quizzvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 295,
+      "index": 11205,
+      "content": "<button...",
+      "button": "<button\n                  onClick={() =>",
+      "suggestedTestId": "multistepformvote-navigatepoll"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 307,
+      "index": 11824,
+      "content": "<button...",
+      "button": "<button\n              onClick={() =>",
+      "suggestedTestId": "multistepformvote-navigateform"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 423,
+      "index": 16723,
+      "content": "<button...",
+      "button": "<button\n              onClick={goBack}\n              disabled={currentStep === 0}\n              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${\n                currentStep === 0\n                  ? \"bg-gray-200 text-gray-400 cursor-not-allowed\"\n                  : \"bg-white text-gray-700 hover:bg-gray-100 shadow-md hover:shadow-lg\"\n              }`}\n            >",
+      "suggestedTestId": "multistepformvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 437,
+      "index": 17271,
+      "content": "<button...",
+      "button": "<button\n                onClick={handleSubmit}\n                className=\"flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-green-600 to-green-600 text-white hover:from-green-700 hover:to-green-700 shadow-md hover:shadow-lg\"\n              >",
+      "suggestedTestId": "multistepformvote-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 445,
+      "index": 17702,
+      "content": "<button...",
+      "button": "<button\n                onClick={goNext}\n                disabled={!isCurrentQuestionAnswered}\n                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${\n                  isCurrentQuestionAnswered\n                    ? \"bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg\"\n                    : \"bg-gray-200 text-gray-400 cursor-not-allowed\"\n                }`}\n              >",
+      "suggestedTestId": "multistepformvote-continuer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 458,
+      "index": 18332,
+      "content": "<button...",
+      "button": "<button\n                onClick={goNext}\n                disabled={!isCurrentQuestionAnswered}\n                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${\n                  isCurrentQuestionAnswered\n                    ? \"bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg\"\n                    : \"bg-gray-200 text-gray-400 cursor-not-allowed\"\n                }`}\n              >",
+      "suggestedTestId": "multistepformvote-suivant-vos-coordonnes"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 511,
+      "index": 20092,
+      "content": "<button...",
+      "button": "<button\n            key={option.id}\n            onClick={() =>",
+      "suggestedTestId": "multistepformvote-onchangeoptionid"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 551,
+      "index": 21496,
+      "content": "<button...",
+      "button": "<button\n            key={option.id}\n            onClick={() =>",
+      "suggestedTestId": "multistepformvote-toggleoptionoptionid"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 615,
+      "index": 23809,
+      "content": "<button...",
+      "button": "<button\n              key={num}\n              onClick={() =>",
+      "suggestedTestId": "multistepformvote-onchangenum"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 646,
+      "index": 24861,
+      "content": "<button...",
+      "button": "<button\n              key={num}\n              onClick={() =>",
+      "suggestedTestId": "multistepformvote-onchangenum"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\MultiStepFormVote.tsx",
+      "line": 716,
+      "index": 27405,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() =>",
+      "suggestedTestId": "multistepformvote-handlematrixchangerowid-colid"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\FormPollVote.tsx",
+      "line": 959,
+      "index": 38083,
+      "content": "<Button...",
+      "button": "<Button\n            type=\"submit\"\n            size=\"lg\"\n            className=\"text-white px-4 py-2 rounded transition-colors\"\n            style={{\n              backgroundColor: \"var(--theme-primary, #3B82F6)\",\n              borderColor: \"var(--theme-primary, #3B82F6)\",\n            }}\n            onMouseEnter={(e) =>",
+      "suggestedTestId": "formpollvote-submit"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\FormPollVote.tsx",
+      "line": 433,
+      "index": 15025,
+      "content": "<button...",
+      "button": "<button\n            type=\"button\"\n            className=\"w-full flex items-center justify-between gap-2 rounded-md bg-slate-50 border border-slate-200 px-3 py-2 hover:bg-slate-100 transition-colors text-left\"\n            onClick={() =>",
+      "suggestedTestId": "formpollvote-setshowdatainfoprev-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsGrid.tsx",
+      "line": 234,
+      "index": 7924,
+      "content": "<button...",
+      "button": "<button\n          onClick={() =>",
+      "suggestedTestId": "weeklytimeslotsgrid-setshowgranularitysettingsshowgranularitysettings"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsGrid.tsx",
+      "line": 257,
+      "index": 8950,
+      "content": "<button...",
+      "button": "<button\n                  key={option.value}\n                  onClick={() =>",
+      "suggestedTestId": "weeklytimeslotsgrid-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsGrid.tsx",
+      "line": 343,
+      "index": 13031,
+      "content": "<button...",
+      "button": "<button\n                      key={`${day.value}-${timeSlot.hour}-${timeSlot.minute}`}\n                      aria-label={`${day.label} à ${timeSlot.label}`}\n                      aria-pressed={slot?.enabled || isSlotDraggedOver}\n                      onClick={() =>",
+      "suggestedTestId": "weeklytimeslotsgrid-handletimeslottoggledayvalue-timeslothour-timeslotminute"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsGrid.tsx",
+      "line": 474,
+      "index": 19654,
+      "content": "<button...",
+      "button": "<button\n                      key={`${day.value}-${timeSlot.hour}-${timeSlot.minute}`}\n                      aria-label={`${day.label} à ${timeSlot.label}`}\n                      aria-pressed={slot?.enabled || isSlotDraggedOver}\n                      onClick={() =>",
+      "suggestedTestId": "weeklytimeslotsgrid-handletimeslottoggledayvalue-timeslothour-timeslotminute"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsGrid.tsx",
+      "line": 542,
+      "index": 23207,
+      "content": "<button...",
+      "button": "<button\n          onClick={() =>",
+      "suggestedTestId": "weeklytimeslotsgrid-setshowextendedhoursshowextendedhours"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\auth\\SignUpForm.tsx",
+      "line": 105,
+      "index": 3215,
+      "content": "<Button...",
+      "button": "<Button\n          type=\"button\"\n          variant=\"outline\"\n          className=\"w-full relative\"\n          disabled={isGoogleSubmitting || loading}\n          onClick={handleGoogleSignIn}\n        >",
+      "suggestedTestId": "signupform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\auth\\SignUpForm.tsx",
+      "line": 227,
+      "index": 7880,
+      "content": "<Button...",
+      "button": "<Button\n            type=\"button\"\n            variant=\"link\"\n            className=\"p-0 h-auto font-normal\"\n            onClick={onSwitchToSignIn}\n          >",
+      "suggestedTestId": "signupform-se-connecter"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\app\\quizz\\ChildHistory.tsx",
+      "line": 166,
+      "index": 5464,
+      "content": "<button...",
+      "button": "<button\n              onClick={() =>",
+      "suggestedTestId": "childhistory-navigatequizzdashboard"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\app\\quizz\\ChildHistory.tsx",
+      "line": 257,
+      "index": 9625,
+      "content": "<button...",
+      "button": "<button\n            onClick={() =>",
+      "suggestedTestId": "childhistory-navigatequizzhistory"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\app\\quizz\\ChildHistory.tsx",
+      "line": 273,
+      "index": 10104,
+      "content": "<button...",
+      "button": "<button\n            onClick={() =>",
+      "suggestedTestId": "childhistory-navigatequizzhistory"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "112 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

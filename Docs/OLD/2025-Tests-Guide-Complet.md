@@ -575,14 +575,14 @@ npx husky install
 
 # 4. Variables d'environnement
 cp .env.example .env.local
-# Ajouter VITE_GEMINI_API_KEY
+# Ajouter [DEPRECATED_KEY]
 ```
 
 ### Secrets GitHub Requis
 
 ```bash
 # Repository Secrets
-VITE_GEMINI_API_KEY       # Tests IA
+[DEPRECATED_KEY]       # Tests IA
 RESEND_API_KEY            # Alertes email (optionnel)
 ALERT_EMAIL_TO            # Email destination (optionnel)
 ```
@@ -591,7 +591,7 @@ ALERT_EMAIL_TO            # Email destination (optionnel)
 
 ```bash
 # .env.local
-VITE_GEMINI_API_KEY=your_key_here
+[DEPRECATED_KEY]=your_key_here
 VITE_SUPABASE_URL=https://test.supabase.co
 VITE_SUPABASE_ANON_KEY=test-anon-key
 ```
@@ -635,7 +635,7 @@ await robustClick(page.locator('button'));
 
 ```bash
 # Vérifier API key
-echo $VITE_GEMINI_API_KEY
+echo $[DEPRECATED_KEY]
 
 # Tester connexion
 npm run test:gemini:quick

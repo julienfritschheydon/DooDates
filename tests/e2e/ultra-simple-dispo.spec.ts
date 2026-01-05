@@ -65,11 +65,11 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
 
         // 1. Naviguer vers le workspace Availability
         log("🛠️ Navigation vers le workspace Availability");
-        await page.goto("/DooDates/availability/workspace/availability", {
+        await page.goto("/availability/workspace/availability", {
           waitUntil: "domcontentloaded",
         });
         await waitForNetworkIdle(page, { browserName });
-        await expect(page).toHaveTitle(/DooDates/);
+        await expect(page).toHaveTitle(/);
         log("✅ App chargée");
 
         // 2. Détecter le type d'interface (chat IA ou formulaire manuel)

@@ -110,7 +110,7 @@ name: 🎯 E2E Tests Centralized
 
 # VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-# VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
+# [DEPRECATED_KEY]: fake-key-for-e2e-tests
 
 # - name: 📊 Upload results
 
@@ -168,7 +168,7 @@ name: 🎯 E2E Tests Centralized
 
 # VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-# VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
+# [DEPRECATED_KEY]: fake-key-for-e2e-tests
 
 # ========================================
 

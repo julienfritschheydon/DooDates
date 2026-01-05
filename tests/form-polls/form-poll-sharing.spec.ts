@@ -10,13 +10,13 @@ import { test, expect } from "@playwright/test";
 test.describe("FormPoll Sharing - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers dashboard pour initialiser le système
-    await page.goto("/DooDates/dashboard");
+    await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 
   test("Smoke - Accès page partage FormPoll", async ({ page }) => {
     // 1. Simuler un URL de partage
-    await page.goto("/DooDates/poll/test-form-poll/share");
+    await page.goto("/poll/test-form-poll/share");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier que la page se charge
@@ -128,7 +128,7 @@ test.describe("FormPoll Sharing - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Navigation et chargement
-    await page.goto("/DooDates/poll/test-form-poll/share");
+    await page.goto("/poll/test-form-poll/share");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Simulation de partage rapide

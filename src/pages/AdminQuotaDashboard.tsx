@@ -412,7 +412,7 @@ const AdminQuotaDashboard: React.FC = () => {
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 timeRange === r ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
               }`}
-            >
+             data-testid="adminquotadashboard-button">
               {r}
             </button>
           ))}
@@ -585,7 +585,7 @@ const AdminQuotaDashboard: React.FC = () => {
                 <button
                   onClick={() => setIncludeTestSessions(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                >
+                 data-testid="adminquotadashboard-button">
                   <Eye className="w-4 h-4" />
                   Afficher les sessions de test
                 </button>
@@ -610,7 +610,7 @@ const AdminQuotaDashboard: React.FC = () => {
                       <button
                         onClick={() => setIncludeTestSessions(true)}
                         className="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600"
-                      >
+                       data-testid="adminquotadashboard-afficher-tout">
                         Afficher tout <span aria-hidden="true">&rarr;</span>
                       </button>
                     </p>
@@ -658,7 +658,7 @@ const AdminQuotaDashboard: React.FC = () => {
                         onClick={() => void loadQuotas()}
                         disabled={isLoadingData}
                         className="w-full justify-center inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
-                      >
+                       data-testid="adminquotadashboard-button">
                         {isLoadingData ? "Chargement..." : "Rafraîchir les données"}
                       </button>
                     </div>
@@ -674,7 +674,7 @@ const AdminQuotaDashboard: React.FC = () => {
                     <button
                       onClick={() => setSelectedBar(null)}
                       className="text-blue-400 hover:text-blue-600 font-bold"
-                    >
+                     data-testid="adminquotadashboard-button">
                       ×
                     </button>
                   </div>
@@ -701,7 +701,7 @@ const AdminQuotaDashboard: React.FC = () => {
                     disabled={isLoadingData}
                     className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm"
                     title="Rafraîchir les données"
-                  >
+                   data-testid="adminquotadashboard-button">
                     <span
                       className={`transition-transform duration-700 ${isLoadingData ? "animate-spin" : ""}`}
                     >
@@ -761,7 +761,7 @@ const AdminQuotaDashboard: React.FC = () => {
                                 onClick={() => toggleRowExpansion(q.id)}
                                 className="text-blue-600 hover:text-blue-800 text-[10px] font-medium"
                                 title="Voir les détails"
-                              >
+                               data-testid="adminquotadashboard-button">
                                 {isExpanded ? "📖" : "📋"}
                               </button>
                             </td>

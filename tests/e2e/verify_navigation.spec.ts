@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("UI Consistency and Navigation", () => {
   test("Date Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/date/dashboard");
+    await page.goto("/date/dashboard");
     // Check for Quota section text
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
@@ -11,14 +11,14 @@ test.describe("UI Consistency and Navigation", () => {
   });
 
   test("Form Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
     await expect(page.getByTitle("Voir le journal de consommation")).toBeVisible();
   });
 
   test("Availability Polls Dashboard has Quota section", async ({ page }) => {
-    await page.goto("/DooDates/availability/dashboard");
+    await page.goto("/availability/dashboard");
     await expect(page.getByText("crédits utilisés")).toBeVisible();
     await expect(page.getByText("Voir le journal")).toBeVisible();
     await expect(page.getByTitle("Voir le journal de consommation")).toBeVisible();
@@ -26,7 +26,7 @@ test.describe("UI Consistency and Navigation", () => {
 
   test("AICreationWorkspace Dashboard link points to correct dashboard", async ({ page }) => {
     // Navigate to Date Poll creation
-    await page.goto("/DooDates/workspace/date");
+    await page.goto("/workspace/date");
 
     // Check if "Tableau de bord" is visible. If not, try toggling sidebar - sélecteurs flexibles
     if (!(await page.getByText("Tableau de bord").isVisible())) {
@@ -99,7 +99,7 @@ test.describe("UI Consistency and Navigation", () => {
   });
 
   test("AICreationWorkspace Form Dashboard link points to correct dashboard", async ({ page }) => {
-    await page.goto("/DooDates/workspace/form");
+    await page.goto("/workspace/form");
 
     // Check if "Tableau de bord" is visible. If not, try toggling sidebar - sélecteurs flexibles
     if (!(await page.getByText("Tableau de bord").isVisible())) {

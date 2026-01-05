@@ -517,7 +517,7 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
                 <button
                   onClick={() => toggleDate(date)}
                   className="w-full p-3 flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                >
+                 data-testid="votegrid-button">
                   <div className="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
                     <Calendar className="h-5 w-5 text-blue-600" />
                   </div>

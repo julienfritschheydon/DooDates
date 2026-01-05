@@ -338,7 +338,7 @@ export function AICreationWorkspace() {
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="Documentation"
                 title="Voir la documentation"
-              > */}
+               data-testid="workspacelayoutprototype-navigate"> */}
               {/* <Book className="w-5 h-5 text-gray-300" /> */}
               {/* </button> */}
               {/* Bouton Aide - Onboarding désactivé temporairement */}
@@ -351,7 +351,7 @@ export function AICreationWorkspace() {
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="Aide"
                 title="Voir le tour guidé"
-              >
+               data-testid="workspacelayoutprototype-button">
                 <svg
                   className="w-5 h-5 text-gray-300"
                   fill="none"
@@ -372,7 +372,7 @@ export function AICreationWorkspace() {
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Fermer le menu"
                 title="Fermer le menu"
-              >
+               data-testid="workspacelayoutprototype-button">
                 <LazyIconWrapper Icon={X} className="w-5 h-5 text-gray-300" />
               </button>
             </div>
@@ -388,7 +388,7 @@ export function AICreationWorkspace() {
                     navigate(`/workspace/date?new=${Date.now()}`);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
-                >
+                 data-testid="workspacelayoutprototype-navigate">
                   <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
                   <span>Créer un sondage</span>
                 </button>
@@ -400,7 +400,7 @@ export function AICreationWorkspace() {
                     navigate("/dashboard");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
+                 data-testid="workspacelayoutprototype-navigate">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -419,7 +419,7 @@ export function AICreationWorkspace() {
                     navigate("/pricing");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
+                 data-testid="workspacelayoutprototype-navigate">
                   <LazyIconWrapper Icon={DollarSign} className="w-5 h-5" />
                   <span>Tarifs</span>
                 </button>
@@ -435,7 +435,7 @@ export function AICreationWorkspace() {
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
+                 data-testid="workspacelayoutprototype-button">
                   <LazyIconWrapper Icon={Key} className="w-5 h-5" />
                   <span>Clé bêta</span>
                 </button>
@@ -447,7 +447,7 @@ export function AICreationWorkspace() {
                     navigate("/docs");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
+                 data-testid="workspacelayoutprototype-navigate">
                   <LazyIconWrapper Icon={Book} className="w-5 h-5" />
                   <span>Documentation</span>
                 </button>
@@ -587,7 +587,7 @@ export function AICreationWorkspace() {
                     }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-700/30 hover:border-gray-600/50"
                     title="Paramètres"
-                  >
+                   data-testid="workspacelayoutprototype-button">
                     <LazyIconWrapper Icon={Settings} className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate">Paramètres</span>
                   </button>
@@ -595,7 +595,7 @@ export function AICreationWorkspace() {
                     onClick={() => setSignOutDialogOpen(true)}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
                     title="Déconnexion"
-                  >
+                   data-testid="workspacelayoutprototype-button">
                     <LazyIconWrapper Icon={LogOut} className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate">Déconnexion</span>
                   </button>
@@ -615,7 +615,7 @@ export function AICreationWorkspace() {
                 <button
                   onClick={() => setAuthModalOpen(true)}
                   className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
-                >
+                 data-testid="workspacelayoutprototype-se-connecter">
                   Se connecter
                 </button>
               </div>
@@ -650,7 +650,7 @@ export function AICreationWorkspace() {
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
                 aria-expanded={isSidebarOpen}
-              >
+               data-testid="workspacelayoutprototype-button">
                 <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
               </button>
               <h1 className="text-xl font-medium text-white">DooDates</h1>
@@ -660,7 +660,7 @@ export function AICreationWorkspace() {
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="Fermer"
               title="Fermer"
-            >
+             data-testid="workspacelayoutprototype-navigate">
               <LazyIconWrapper Icon={X} className="w-5 h-5 text-gray-300" />
             </button>
           </div>
@@ -712,7 +712,7 @@ export function AICreationWorkspace() {
                     className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                     aria-label="Fermer l'éditeur"
                     title="Fermer"
-                  >
+                   data-testid="workspacelayoutprototype-close">
                     <LazyIconWrapper Icon={X} className="w-5 h-5" />
                   </button>
                   <PollPreview poll={currentPoll} />
@@ -759,7 +759,7 @@ export function AICreationWorkspace() {
                     className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                     aria-label="Fermer l'éditeur"
                     title="Fermer"
-                  >
+                   data-testid="workspacelayoutprototype-close">
                     <LazyIconWrapper Icon={X} className="w-5 h-5" />
                   </button>
                   <PollPreview poll={currentPoll} />

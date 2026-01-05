@@ -67,7 +67,7 @@ export function SafeguardSection() {
           size="sm"
           onClick={handleSaveEmail}
           className="bg-amber-600 hover:bg-amber-700 text-white h-9"
-        >
+         data-testid="safeguardsection-sauvegarder">
           Sauvegarder
         </Button>
       </div>

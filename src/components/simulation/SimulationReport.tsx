@@ -337,7 +337,7 @@ export function SimulationReport({
                             <button
                               onClick={() => handleApplySuggestion(suggestion)}
                               className="ml-2 px-3 py-1 text-xs bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors opacity-0 group-hover:opacity-100 whitespace-nowrap"
-                            >
+                             data-testid="simulationreport-appliquer">
                               Appliquer
                             </button>
                           )}
@@ -406,7 +406,7 @@ export function SimulationReport({
             <button
               onClick={onExportPdf}
               className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2 border border-gray-700"
-            >
+             data-testid="simulationreport-button">
               <Download className="w-4 h-4" />
               Exporter PDF
             </button>
@@ -414,7 +414,7 @@ export function SimulationReport({
           <button
             onClick={onClose}
             className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
+           data-testid="simulationreport-fermer">
             Fermer
           </button>
         </div>

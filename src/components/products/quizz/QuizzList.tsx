@@ -132,7 +132,7 @@ export const QuizzList: React.FC = () => {
                     onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}
                     size="sm"
                     className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-amber-900/20 text-amber-400 rounded-lg hover:bg-amber-900/30 transition-colors"
-                  >
+                   data-testid="quizzlist-navigate">
                     <Eye className="h-4 w-4" />
                     Tester
                   </Button>
@@ -141,7 +141,7 @@ export const QuizzList: React.FC = () => {
                     size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-900/20 text-blue-400 rounded-lg hover:bg-blue-900/30 transition-colors"
                     title="Voir les résultats"
-                  >
+                   data-testid="quizzlist-navigate">
                     <BarChart3 className="h-4 w-4" />
                   </Button>
                   <Button
@@ -149,7 +149,7 @@ export const QuizzList: React.FC = () => {
                     size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
                     title="Copier le lien"
-                  >
+                   data-testid="quizzlist-button">
                     <Copy className="h-4 w-4" />
                   </Button>
                   <Button
@@ -157,7 +157,7 @@ export const QuizzList: React.FC = () => {
                     size="sm"
                     className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-900/20 text-red-400 rounded-lg hover:bg-red-900/30 transition-colors"
                     title="Supprimer"
-                  >
+                   data-testid="quizzlist-button">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

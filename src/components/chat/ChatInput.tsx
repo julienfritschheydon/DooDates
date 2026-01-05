@@ -88,7 +88,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               aria-label="Joindre un fichier"
               title="Joindre un fichier"
               disabled={isLoading || disabled}
-            >
+             data-testid="chatinput-button">
               <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </>
@@ -150,7 +150,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               `}
               title={voiceRecognition.isListening ? "Arrêter l'écoute" : "Activer le micro"}
               aria-label={voiceRecognition.isListening ? "Arrêter l'écoute" : "Activer le micro"}
-            >
+             data-testid="chatinput-button">
               {voiceRecognition.isListening ? (
                 <MicOff className="w-4 h-4 md:w-5 md:h-5" />
               ) : (
@@ -197,7 +197,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 type="button"
                 onClick={() => onAttachFile(null)}
                 className="ml-2 text-gray-400 hover:text-gray-200"
-              >
+               data-testid="chatinput-retirer">
                 Retirer
               </button>
             )}

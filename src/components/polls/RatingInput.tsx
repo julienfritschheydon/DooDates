@@ -38,7 +38,7 @@ export function RatingInput({
               ? "bg-purple-600 text-white scale-110 shadow-lg"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
           }`}
-        >
+         data-testid="ratinginput-button">
           {num}
         </button>
       ))}
@@ -53,7 +53,7 @@ export function RatingInput({
           type="button"
           onClick={() => onChange(num)}
           className="transition-transform hover:scale-110"
-        >
+         data-testid="ratinginput-button">
           <Star
             className={`w-8 h-8 ${
               value && num <= value
@@ -106,7 +106,7 @@ export function RatingInput({
                   ? "bg-purple-100 scale-110 shadow-md"
                   : "hover:bg-gray-100 hover:scale-105"
               }`}
-            >
+             data-testid="ratinginput-button">
               <Icon className={`w-8 h-8 ${value === num ? "text-purple-600" : color}`} />
             </button>
           );

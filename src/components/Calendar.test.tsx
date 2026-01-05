@@ -16,7 +16,7 @@ vi.mock("../lib/logger", () => ({
 // Mock framer-motion
 vi.mock("framer-motion", () => ({
   motion: {
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    button: ({ children, ...props }: any) => <button {...props} data-testid="calendar.test-button">{children}</button>,
     div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     h3: ({ children, ...props }: any) => <h3 {...props}>{children}</h3>,
   },

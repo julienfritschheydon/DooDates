@@ -36,7 +36,7 @@
 //     // Créer un contexte temporaire pour nettoyer le localStorage
 //     const context = await browser.newContext();
 //     const page = await context.newPage();
-//     await page.goto('/DooDates/');
+//     await page.goto('/');
 //     await page.evaluate(() => localStorage.clear());
 //     await context.close();
 //   });
@@ -49,7 +49,7 @@
 //     // Pour les tests suivants, vérifier si pollUrl existe et naviguer vers le poll
 //     if (!pollCreated || !pollUrl) {
 //       // Premier test ou pollUrl non défini : laisser le test créer le poll
-//       await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+//       await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
 //       await waitForNetworkIdle(page, { browserName });
 //       // Attendre que le chat input soit visible (indicateur que la page est prête)
 //       await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });

@@ -12,7 +12,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Navigation Intelligente - Smoke Tests", () => {
   test.beforeEach(async ({ page }) => {
     // Navigation vers dashboard date-polls comme point de départ
-    await page.goto("/DooDates/date/dashboard");
+    await page.goto("/date/dashboard");
     // Attendre que la page soit chargée
     await expect(page.locator("body")).toBeVisible({ timeout: 15000 });
   });
@@ -22,7 +22,7 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible();
 
     // 2. Naviguer vers workspace form-polls (plus stable que date-polls)
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
 
     // 3. Vérifier qu'on arrive dans le workspace
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
@@ -60,11 +60,11 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
   test("Smoke - Navigation workspace vers dashboard", async ({ page }) => {
     // 1. Aller sur workspace
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Retourner au dashboard
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
 
     // 3. Vérifier qu'on est sur le dashboard
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
@@ -97,19 +97,19 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
   test("Smoke - Navigation entre produits", async ({ page }) => {
     // 1. Dashboard date-polls
-    await page.goto("/DooDates/date/dashboard");
+    await page.goto("/date/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Dashboard form-polls
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Dashboard quizz
-    await page.goto("/DooDates/quizz/dashboard");
+    await page.goto("/quizz/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 4. Dashboard availability-polls
-    await page.goto("/DooDates/availability/dashboard");
+    await page.goto("/availability/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     console.log("✅ Navigation entre tous les produits réussie");
@@ -117,7 +117,7 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
   test("Smoke - Workspace creation flow", async ({ page }) => {
     // 1. Aller sur workspace form-polls
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Vérifier qu'on peut créer quelque chose (input présent)
@@ -140,9 +140,9 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
     const startTime = Date.now();
 
     // 2. Navigation rapide entre pages
-    await page.goto("/DooDates/date/dashboard");
-    await page.goto("/DooDates/form/workspace/form");
-    await page.goto("/DooDates/quizz/dashboard");
+    await page.goto("/date/dashboard");
+    await page.goto("/form/workspace/form");
+    await page.goto("/quizz/dashboard");
 
     // 3. Vérifier que tout est stable
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
@@ -157,7 +157,7 @@ test.describe("Navigation Intelligente - Smoke Tests", () => {
 
   test("Smoke - Gestion des erreurs 404", async ({ page }) => {
     // 1. Navigation vers URL invalide
-    await page.goto("/DooDates/page-inexistante");
+    await page.goto("/page-inexistante");
 
     // 2. Ne doit pas crasher
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
@@ -181,7 +181,7 @@ test.describe("Navigation Intelligente - Cas limites (Simplifiés)", () => {
     await page.setViewportSize({ width: 375, height: 667 });
 
     // Navigation simple
-    await page.goto("/DooDates/form/dashboard");
+    await page.goto("/form/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     console.log(`✅ Navigation mobile (${browserName}) réussie`);
@@ -189,7 +189,7 @@ test.describe("Navigation Intelligente - Cas limites (Simplifiés)", () => {
 
   test("Smoke - Refresh page", async ({ page }) => {
     // 1. Aller sur une page
-    await page.goto("/DooDates/form/workspace/form");
+    await page.goto("/form/workspace/form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Refresh

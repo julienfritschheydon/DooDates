@@ -31,7 +31,7 @@ module.exports = {
       .replace(/typeof\s+import\.meta\s*!==\s*["']undefined["']/g, 'typeof process !== "undefined"')
       .replace(/typeof\s+import\.meta\s*===\s*["']undefined["']/g, 'typeof process === "undefined"')
       // Transform specific environment variables (must come before generic .env replacement)
-      .replace(/import\.meta\.env\.VITE_GEMINI_API_KEY/g, "process.env.VITE_GEMINI_API_KEY")
+
       .replace(/import\.meta\.env\.VITE_SUPABASE_URL/g, "process.env.VITE_SUPABASE_URL")
       .replace(/import\.meta\.env\.VITE_SUPABASE_ANON_KEY/g, "process.env.VITE_SUPABASE_ANON_KEY")
       .replace(/import\.meta\.env\.DEV\s*===\s*true/g, '(process.env.NODE_ENV === "development")')

@@ -182,7 +182,7 @@ jobs:
       - name: Run AI Tests (Quick)
         run: npm run test:gemini:quick
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          [DEPRECATED_KEY]: ${{ secrets.[DEPRECATED_KEY] }}
 
       - name: Validate AI Performance
         run: |
@@ -267,7 +267,7 @@ jobs:
       - name: "Gate 2: Tests IA Complets"
         run: npm run test:gemini:production
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          [DEPRECATED_KEY]: ${{ secrets.[DEPRECATED_KEY] }}
         timeout-minutes: 30
 
       - name: "Gate 2: Validation Score IA"
@@ -406,7 +406,7 @@ jobs:
       - name: Run Full AI Test Suite
         run: npm run test:gemini:monitoring
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          [DEPRECATED_KEY]: ${{ secrets.[DEPRECATED_KEY] }}
         timeout-minutes: 60
 
       - name: Generate Weekly Report

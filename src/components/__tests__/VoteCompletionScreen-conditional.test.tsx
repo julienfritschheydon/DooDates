@@ -7,7 +7,7 @@ import VoteCompletionScreen from "../voting/VoteCompletionScreen";
 vi.mock("framer-motion", () => ({
   motion: {
     div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    button: ({ children, ...props }: any) => <button {...props} data-testid="votecompletionscreen-conditional.test-button">{children}</button>,
   },
 }));
 

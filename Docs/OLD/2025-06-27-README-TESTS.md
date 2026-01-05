@@ -25,10 +25,10 @@ Les dépendances Jest sont automatiquement installées via `package.json`.
 
 ### 2. Configuration des variables d'environnement
 
-Assurez-vous que `VITE_GEMINI_API_KEY` est configurée dans votre `.env.local` :
+Assurez-vous que `[DEPRECATED_KEY]` est configurée dans votre `.env.local` :
 
 ```bash
-VITE_GEMINI_API_KEY=your_api_key_here
+[DEPRECATED_KEY]=your_api_key_here
 ```
 
 ### 3. Première exécution
@@ -111,7 +111,7 @@ Le workflow `gemini-tests.yml` :
 
 ```bash
 # Dans les secrets GitHub du repo
-VITE_GEMINI_API_KEY=your_gemini_api_key
+[DEPRECATED_KEY]=your_gemini_api_key
 ```
 
 ---
@@ -245,10 +245,10 @@ Modifier `generateQualityReport()` dans `quality-metrics.ts` pour :
 
 ```bash
 # Vérifier l'API key
-echo $VITE_GEMINI_API_KEY
+echo $[DEPRECATED_KEY]
 
 # Tester la connexion Gemini
-node -e "console.log('API Key:', process.env.VITE_GEMINI_API_KEY)"
+node -e "console.log('API Key:', process.env.[DEPRECATED_KEY])"
 ```
 
 **Quotas API dépassés** :

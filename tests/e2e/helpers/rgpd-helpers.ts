@@ -14,17 +14,17 @@ import { getTestSupabaseClient } from "./supabase-test-helpers";
 
 /**
  * Get base path from current page URL
- * Handles cases where app is deployed with a base path like /DooDates/
+ * Handles cases where app is deployed with a base path like /
  */
 function getBasePath(page: Page): string {
   const url = page.url();
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
-    // Extract base path (e.g., /DooDates from /DooDates/data-control)
+    // Extract base path (e.g., /DooDates from /data-control)
     const parts = pathname.split("/").filter((p) => p);
     // If pathname starts with something other than the route, it's the base path
-    if (pathname.includes("/DooDates/")) {
+    if (pathname.includes("/")) {
       return "/DooDates";
     }
     return "";
@@ -43,10 +43,10 @@ export async function navigateToDataControl(page: Page): Promise<void> {
   // Try navigating to data-control with base path
   const paths = [
     `${basePath}/data-control`,
-    "/DooDates/data-control",
+    "/data-control",
     "/data-control",
     `${basePath}/date/data-control`,
-    "/DooDates/date/data-control",
+    "/date/data-control",
     "/date/data-control",
   ];
 
@@ -70,7 +70,7 @@ export async function navigateToDataControl(page: Page): Promise<void> {
 
   if (!navigated) {
     // Last resort: try with base path from page context
-    await page.goto("/DooDates/date/data-control", {
+    await page.goto("/date/data-control", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
@@ -256,10 +256,10 @@ export async function navigateToSettings(page: Page): Promise<void> {
   // Try navigating to date-polls/settings (the actual route)
   const paths = [
     `${basePath}/date/settings`,
-    "/DooDates/date/settings",
+    "/date/settings",
     "/date/settings",
     `${basePath}/settings`,
-    "/DooDates/settings",
+    "/settings",
     "/settings",
   ];
 
@@ -317,7 +317,7 @@ export async function navigateToSettings(page: Page): Promise<void> {
   if (!navigated) {
     // Last resort: try with date-polls/settings and wait longer
     try {
-      await page.goto("/DooDates/date/settings", {
+      await page.goto("/date/settings", {
         waitUntil: "networkidle",
         timeout: 30000,
       });

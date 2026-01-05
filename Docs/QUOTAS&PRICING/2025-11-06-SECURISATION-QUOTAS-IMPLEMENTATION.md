@@ -72,7 +72,7 @@
    - ✅ Modifié : `testConnection()` utilise `secureGeminiService`
 
 2. **`src/hooks/useConnectionStatus.ts`**
-   - ✅ Supprimé : Vérifications de VITE_GEMINI_API_KEY
+   - ✅ Supprimé : Vérifications de [DEPRECATED_KEY]
    - ✅ Messages d'erreur simplifiés
 
 3. **`src/services/PollAnalyticsService.ts`**
@@ -102,11 +102,11 @@ Dans le dashboard Supabase → Edge Functions → Secrets :
 \i sql-scripts/create-consume-ai-credit-function.sql
 ```
 
-### 4. Supprimer VITE_GEMINI_API_KEY du .env
+### 4. Supprimer [DEPRECATED_KEY] du .env
 
 ```bash
 # Supprimer cette ligne du .env.local
-# VITE_GEMINI_API_KEY=your_key_here
+# [DEPRECATED_KEY]=your_key_here
 ```
 
 ### 5. Vérifier que les quotas sont initialisés
@@ -153,7 +153,7 @@ Pour chaque utilisateur authentifié, un quota par défaut (20 crédits/mois) se
 
 ## Fichiers à migrer progressivement
 
-Ces fichiers utilisent encore `VITE_GEMINI_API_KEY` mais ne sont pas critiques pour la sécurité des quotas :
+Ces fichiers utilisent encore `[DEPRECATED_KEY]` mais ne sont pas critiques pour la sécurité des quotas :
 
 - `src/lib/enhanced-gemini.ts` - Utilisé par GeminiIntentService
 - `src/lib/simulation/SimulationService.ts` - Service de simulation
@@ -182,6 +182,6 @@ Ces fichiers utilisent encore `VITE_GEMINI_API_KEY` mais ne sont pas critiques p
 3. ✅ GeminiService migré
 4. ⏳ Déployer Edge Function sur Supabase
 5. ⏳ Exécuter script SQL
-6. ⏳ Supprimer VITE_GEMINI_API_KEY du .env
+6. ⏳ Supprimer [DEPRECATED_KEY] du .env
 7. ⏳ Tester en production
 8. ⏳ Migrer services secondaires (enhanced-gemini, simulation)

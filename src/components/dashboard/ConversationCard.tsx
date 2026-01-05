@@ -515,7 +515,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                   navigate(`/workspace/date?conversationId=${item.id}`);
                 }}
                 className={`text-xs transition-colors ${theme.linkText}`}
-              >
+               data-testid="conversationcard-reprendre-la-conversation-">
                 Reprendre la conversation →
               </button>
             </div>
@@ -575,7 +575,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                     navigate(`/poll/${item.poll!.slug}/results`);
                   }}
                   className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
-                >
+                 data-testid="conversationcard-navigate">
                   <BarChart3 className="w-4 h-4" />
                   <span className="hidden lg:inline">Résultats</span>
                 </button>
@@ -585,7 +585,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                     navigate(`/poll/${item.poll!.slug}`);
                   }}
                   className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1"
-                >
+                 data-testid="conversationcard-navigate">
                   <Vote className="w-4 h-4" />
                   <span className="hidden lg:inline">Voter</span>
                 </button>
@@ -599,7 +599,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                       className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
                       onClick={(e) => e.stopPropagation()}
                       aria-label="Menu d'actions"
-                    >
+                     data-testid="conversationcard-button">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -739,7 +739,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                     navigate(`/workspace?conversationId=${item.id}`);
                   }}
                   className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
-                >
+                 data-testid="conversationcard-navigate">
                   <MessageSquare className="w-4 h-4" />
                   Reprendre
                 </button>

@@ -263,7 +263,7 @@ const VoteDesktopTest: React.FC = () => {
                         ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400"
                         : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
                     }`}
-                  >
+                   data-testid="votedesktoptest-button">
                     <div className="flex flex-col items-center text-center relative z-10">
                       <Check
                         className={`w-5 h-5 mb-1 ${
@@ -304,7 +304,7 @@ const VoteDesktopTest: React.FC = () => {
                         ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400"
                         : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
                     }`}
-                  >
+                   data-testid="votedesktoptest-button">
                     <div className="flex flex-col items-center text-center relative z-10">
                       <HelpCircle
                         className={`w-5 h-5 mb-1 ${
@@ -345,7 +345,7 @@ const VoteDesktopTest: React.FC = () => {
                         ? "bg-red-50 border-red-500 ring-2 ring-red-400"
                         : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
                     }`}
-                  >
+                   data-testid="votedesktoptest-button">
                     <div className="flex flex-col items-center text-center relative z-10">
                       <X
                         className={`w-5 h-5 mb-1 ${

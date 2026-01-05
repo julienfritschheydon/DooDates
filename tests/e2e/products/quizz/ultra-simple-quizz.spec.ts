@@ -133,7 +133,7 @@ test.describe("Quizz - Ultra Simple Workflow", () => {
       await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
     } catch (error) {
       // Étape 4: Fallback - Navigation alternative
-      await page.goto("/DooDates/quizz/dashboard");
+      await page.goto("/quizz/dashboard");
     }
 
     await waitForNetworkIdle(page, { browserName });

@@ -74,7 +74,7 @@ async function measureDurationMs(name: string, fn: () => Promise<void>): Promise
 
 async function measureDashboardLoadMs(page: Page, browserName: string) {
   return measureDurationMs("Dashboard - load", async () => {
-    await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     await waitForElementReady(page, '[data-testid="dashboard-ready"]', { browserName });
     await waitForReactStable(page, { browserName });
@@ -233,7 +233,7 @@ test.describe("Dashboard - Performance", () => {
       warmup: true,
       clearLocalStorage: false,
       consoleGuard: { enabled: true },
-      navigation: { path: "/DooDates/", waitForReady: false },
+      navigation: { path: "/", waitForReady: false },
     });
   });
 
@@ -290,7 +290,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/date/dashboard",
+      url: "/date/dashboard",
       // Indicateur stable utilisé dans verify_navigation.spec.ts
       readySelector: "text=crédits utilisés",
     });
@@ -303,7 +303,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/form/dashboard",
+      url: "/form/dashboard",
       readySelector: "text=crédits utilisés",
     });
 
@@ -318,7 +318,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/availability/dashboard",
+      url: "/availability/dashboard",
       readySelector: "text=crédits utilisés",
     });
 
@@ -330,7 +330,7 @@ test.describe("Dashboard - Performance", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
 
     const durationMs = await measureProductDashboardLoadMs(page, browserName, {
-      url: "/DooDates/quizz/dashboard",
+      url: "/quizz/dashboard",
       // Indicateur stable utilisé dans quizz-sidebar-check.spec.ts
       readySelector: 'button[aria-label*="menu"]',
     });

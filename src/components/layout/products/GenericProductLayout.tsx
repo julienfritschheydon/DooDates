@@ -41,7 +41,7 @@ export const GenericProductLayout: React.FC<GenericProductLayoutProps> = ({
           isSidebarOpen ? "left-[272px]" : "left-4"
         }`}
         aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
-      >
+       data-testid="genericproductlayout-button">
         <Menu className="w-5 h-5" />
       </button>
 

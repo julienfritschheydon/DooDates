@@ -35,7 +35,7 @@ Ces variables sont intégrées dans le bundle JavaScript et accessibles côté c
   - Sécurisée pour le client (protégée par RLS)
   - Où trouver : Supabase Dashboard > Settings > API > anon/public key
 
-- **`VITE_GEMINI_API_KEY`** : Clé API Google Gemini
+- **`[DEPRECATED_KEY]`** : Clé API Google Gemini
   - Où trouver : https://makersuite.google.com/app/apikey
 
 #### Variables backend (jamais exposées au client)
@@ -58,7 +58,7 @@ Pour tester la production en local :
 ```bash
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
-VITE_GEMINI_API_KEY=your-gemini-api-key-here
+[DEPRECATED_KEY]=your-gemini-api-key-here
 SUPABASE_SERVICE_KEY=your-service-role-key-here
 ```
 
@@ -72,7 +72,7 @@ Toutes les variables doivent être configurées comme secrets GitHub :
 2. Ajoutez chaque variable comme secret :
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-   - `VITE_GEMINI_API_KEY`
+   - `[DEPRECATED_KEY]`
    - `SUPABASE_SERVICE_KEY`
 
 Les workflows utilisent automatiquement ces secrets lors du build.

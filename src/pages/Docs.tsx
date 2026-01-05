@@ -280,7 +280,7 @@ export const Docs: React.FC = () => {
           className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={isSidebarOpen}
-        >
+         data-testid="docs-button">
           {isSidebarOpen ? (
             <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
           ) : (

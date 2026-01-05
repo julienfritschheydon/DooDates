@@ -197,7 +197,7 @@ return await analyzeSimulation(initialResult, questions);
    - Vérifier score <50%, barre rouge, points faibles affichés
 
 5. **Fallback sans clé API** :
-   - Retirer `VITE_GEMINI_API_KEY`
+   - Retirer `[DEPRECATED_KEY]`
    - Lancer simulation avec objectif
    - Vérifier message "Validation IA indisponible"
 

@@ -34,7 +34,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
   test("@edge - Dashboard vide - Affiche message approprié", async ({ page, browserName }) => {
     await withConsoleGuard(page, async () => {
       // Ne créer aucun sondage
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -105,7 +105,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
         await createTestPoll(page, poll);
       }
 
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -182,7 +182,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
 
       await createTestPoll(page, polls[0]);
 
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -255,7 +255,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
         await createTestPoll(page, poll);
       }
 
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -316,7 +316,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
         await createTestPoll(page, poll);
       }
 
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);
@@ -395,7 +395,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
 
       // Test Desktop
       await page.setViewportSize({ width: 1200, height: 800 });
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       await waitForElementReady(page, '[data-testid="poll-item"]', {
@@ -470,7 +470,7 @@ test.describe("Date Polls Dashboard - Edge Cases", () => {
         await createTestPoll(page, poll);
       }
 
-      await page.goto("/DooDates/date/dashboard", { waitUntil: "domcontentloaded" });
+      await page.goto("/date/dashboard", { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
 
       const timeouts = getTimeouts(browserName);

@@ -17,7 +17,7 @@ test.describe("🔍 CI Debug - Chat Input Analysis", () => {
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
       warmup: false,
-      navigation: { path: "/DooDates/date/workspace/date" },
+      navigation: { path: "/date/workspace/date" },
       consoleGuard: {
         enabled: true,
         allowlist: [

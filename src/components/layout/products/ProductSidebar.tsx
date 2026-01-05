@@ -82,7 +82,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
             isOpen ? "left-[272px]" : "left-4"
           }`}
           aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
-        >
+         data-testid="productsidebar-button">
           <Menu className="w-5 h-5" />
         </button>
       )}
@@ -195,7 +195,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
             <button
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors w-full text-left"
               title="Langue: Français"
-            >
+             data-testid="productsidebar-button">
               <Globe className="w-5 h-5" />
               Français
             </button>
@@ -261,7 +261,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
                       if (onClose) onClose();
                     }}
                     className="flex-1 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-red-500/30"
-                  >
+                   data-testid="productsidebar-button">
                     <LogOut className="w-4 h-4" />
                     <span>Déconnexion</span>
                   </button>
@@ -288,7 +288,7 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
                     theme.authButton,
                     theme.authShadow,
                   )}
-                >
+                 data-testid="productsidebar-se-connecter">
                   Se connecter
                 </button>
               </div>

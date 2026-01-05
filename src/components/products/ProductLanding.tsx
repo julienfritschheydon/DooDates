@@ -28,7 +28,7 @@ export const ProductLanding: React.FC<ProductLandingProps> = ({ productType, chi
             onClick={handleMenuToggle}
             className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
             aria-label={sidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          >
+           data-testid="productlanding-button">
             <Menu className="w-5 h-5" />
           </button>
         </div>

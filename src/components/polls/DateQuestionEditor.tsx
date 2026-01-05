@@ -268,7 +268,7 @@ export default function DateQuestionEditor({
             onClick={onClose}
             className="p-1 rounded-md hover:bg-gray-800 text-gray-400 hover:text-white transition-colors"
             aria-label="Fermer"
-          >
+           data-testid="datequestioneditor-button">
             <X className="w-5 h-5" />
           </button>
         )}
@@ -409,7 +409,7 @@ export default function DateQuestionEditor({
                             ${isLongPressActive && isSlotDraggedOver ? "animate-pulse ring-2 ring-blue-400" : ""}
                           `}
                           style={{ touchAction: "none" }}
-                        >
+                         data-testid="datequestioneditor-button">
                           {slot?.enabled && (
                             <div
                               className={`absolute bg-blue-500 transition-all

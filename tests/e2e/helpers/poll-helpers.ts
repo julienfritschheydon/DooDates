@@ -359,7 +359,7 @@ export async function createFormWithDateQuestion(
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
 
   // Aller sur la page de création
-  await page.goto("/DooDates/form/workspace/form", { waitUntil: "domcontentloaded" });
+  await page.goto("/form/workspace/form", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -534,7 +534,7 @@ async function openFormFromDashboard(
   console.log(`[INFO] Navigation vers le tableau de bord...`);
 
   // Aller au tableau de bord
-  await page.goto("/DooDates/form/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/form/dashboard", { waitUntil: "domcontentloaded" });
 
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
 
@@ -573,7 +573,7 @@ export async function voteOnPollComplete(
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
 
   // Navigation vers page de vote
-  await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -779,7 +779,7 @@ export async function verifyPollInDashboard(
   console.log(`[DASHBOARD] Vérification présence du poll "${expectedTitle}" dans dashboard`);
 
   // Aller au dashboard
-  await page.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   // Attendre et vérifier que le poll apparaît
@@ -848,7 +848,7 @@ export async function verifyPollBySlugInDashboard(
   expectedSlug: string,
   timeout = 10000,
 ): Promise<void> {
-  await page.goto("/DooDates/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
 
   const pollItems = page.locator('[data-testid="poll-item"]');
@@ -861,7 +861,7 @@ export async function verifyPollBySlugInDashboard(
   // 1. Chercher dans tous les poll-item
   for (let i = 0; i < itemCount; i++) {
     const item = pollItems.nth(i);
-    const link = item.locator(`a[href*='/DooDates/poll/${expectedSlug}"]`).first();
+    const link = item.locator(`a[href*='/poll/${expectedSlug}"]`).first();
     if (await link.isVisible({ timeout }).catch(() => false)) {
       console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé dans poll-item #${i}`);
       return;
@@ -869,7 +869,7 @@ export async function verifyPollBySlugInDashboard(
   }
 
   // 2. Fallback : scanner tous les liens de la page
-  const anyLink = page.locator(`a[href*='/DooDates/poll/${expectedSlug}"]`).first();
+  const anyLink = page.locator(`a[href*='/poll/${expectedSlug}"]`).first();
   if (await anyLink.isVisible({ timeout }).catch(() => false)) {
     console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé via scan global des liens`);
     return;
@@ -914,7 +914,7 @@ export async function setupTestWithWorkspace(
     mocks: options.mocks || { all: true },
   });
 
-  await page.goto("/DooDates/workspace", { waitUntil: "domcontentloaded" });
+  await page.goto("/workspace", { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 

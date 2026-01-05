@@ -187,14 +187,14 @@ export function SimulationModal({
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-          >
+           data-testid="simulationmodal-annuler">
             Annuler
           </button>
           <button
             onClick={handleStart}
             disabled={remainingSimulations === 0}
             className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:bg-gray-700 disabled:cursor-not-allowed disabled:text-gray-500"
-          >
+           data-testid="simulationmodal-button">
             <Play className="w-4 h-4" />
             Lancer la simulation
           </button>

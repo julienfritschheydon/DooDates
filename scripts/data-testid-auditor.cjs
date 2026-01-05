@@ -44,7 +44,18 @@ class DataTestIdAuditor {
     }
 
     // Trouver tous les fichiers TSX et TS
-    const files = glob.sync(`${SRC_DIR}/**/*.{tsx,ts}`);
+    let files = glob.sync(`${SRC_DIR}/**/*.{tsx,ts}`);
+
+    // Filtrage si option passée
+    if (this.options.files) {
+      const filterList = this.options.files.split(",").map(f => f.trim().replace(/\\/g, "/"));
+      files = files.filter(file => {
+        const normalizedFile = file.replace(/\\/g, "/");
+        return filterList.some(filter => normalizedFile.includes(filter));
+      });
+      console.log(`🎯 Mode filtré : ${files.length} fichiers conservés.`);
+    }
+
     this.stats.totalFiles = files.length;
 
     files.forEach((file) => {
@@ -61,40 +72,85 @@ class DataTestIdAuditor {
     return this.stats;
   }
 
+  // Trouve la fin d'une balise ouvrante JSX en respectant les accolades et les guillemets
+  findOpeningTagEnd(content, startIndex) {
+    let inQuotes = false;
+    let quoteType = null;
+    let braceLevel = 0;
+
+    for (let i = startIndex; i < content.length; i++) {
+      const char = content[i];
+
+      if (inQuotes) {
+        if (char === quoteType && content[i - 1] !== "\\") {
+          inQuotes = false;
+        }
+        continue;
+      }
+
+      if (char === '"' || char === "'" || char === "`") {
+        inQuotes = true;
+        quoteType = char;
+        continue;
+      }
+
+      if (char === "{") {
+        braceLevel++;
+        continue;
+      }
+
+      if (char === "}") {
+        braceLevel--;
+        continue;
+      }
+
+      if (char === ">" && braceLevel === 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   auditFile(filePath) {
     const content = fs.readFileSync(filePath, "utf8");
+    const START_PATTERNS = [/<Button\b/g, /<button\b/g];
 
-    BUTTON_PATTERNS.forEach((pattern) => {
-      const matches = content.matchAll(pattern);
-      for (const match of matches) {
-        const buttonHtml = match[0];
+    START_PATTERNS.forEach((pattern) => {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
         const index = match.index;
+        const endIndex = this.findOpeningTagEnd(content, index);
 
-        // On ignore les commentaires ou les cas triviaux (ex: dans les chaines de caractères si possible,
-        // mais ici on reste simple par regex)
+        if (endIndex === -1) continue;
+
+        const buttonHtml = content.substring(index, endIndex + 1);
+
+        // On ignore si c'est déjà un data-testid ou si c'est commenté (basique)
+        if (buttonHtml.includes("data-testid")) {
+          this.stats.totalButtons++;
+          continue;
+        }
 
         this.stats.totalButtons++;
+        this.stats.missingDataTestId++;
 
-        if (!buttonHtml.includes("data-testid")) {
-          this.stats.missingDataTestId++;
+        // Calculer le numéro de ligne
+        const lineNumber = content.substring(0, index).split("\n").length;
 
-          // Calculer le numéro de ligne
-          const lineNumber = content.substring(0, index).split("\n").length;
+        const issue = {
+          type: "missing-data-testid",
+          file: filePath,
+          line: lineNumber,
+          index: index,
+          content: buttonHtml.split("\n")[0].trim() + "...",
+          button: buttonHtml,
+          suggestedTestId: this.generateSuggestedTestId(buttonHtml, content, index, filePath),
+        };
 
-          const issue = {
-            type: "missing-data-testid",
-            file: filePath,
-            line: lineNumber,
-            content: buttonHtml.split("\n")[0].trim() + "...", // Aperçu
-            button: buttonHtml,
-            suggestedTestId: this.generateSuggestedTestId(buttonHtml, content, index, filePath),
-          };
+        this.issues.push(issue);
 
-          this.issues.push(issue);
-
-          if (this.options.verbose) {
-            console.log(`❌ ${filePath}:${lineNumber} - ${issue.suggestedTestId}`);
-          }
+        if (this.options.verbose) {
+          console.log(`❌ ${filePath}:${lineNumber} - ${issue.suggestedTestId}`);
         }
       }
     });
@@ -167,14 +223,19 @@ class DataTestIdAuditor {
     console.log("\n🔧 Tentative de correction automatique...\n");
 
     const filesToFix = {};
+    let fixCount = 0;
+    const limit = this.options.limit ? parseInt(this.options.limit) : Infinity;
 
     // Grouper les issues par fichier
-    this.issues.forEach((issue) => {
+    for (const issue of this.issues) {
+      if (fixCount >= limit) break;
+
       if (!filesToFix[issue.file]) {
         filesToFix[issue.file] = [];
       }
       filesToFix[issue.file].push(issue);
-    });
+      fixCount++;
+    }
 
     // Traiter chaque fichier
     Object.entries(filesToFix).forEach(([filePath, issues]) => {
@@ -182,22 +243,22 @@ class DataTestIdAuditor {
         let content = fs.readFileSync(filePath, "utf8");
         let modified = false;
 
-        // Trier par ligne en ordre inverse pour ne pas perturber les indices
-        issues.sort((a, b) => b.line - a.line);
+        // Trier par index en ordre inverse pour ne pas perturber les positions
+        issues.sort((a, b) => b.index - a.index);
 
         issues.forEach((issue) => {
-          const lines = content.split("\n");
-          const targetLine = lines[issue.line - 1];
+          // Vérifier que le contenu à cet index correspond toujours au bouton
+          const currentContent = content.substring(issue.index, issue.index + issue.button.length);
 
-          // Ajouter data-testid
-          const fixedLine = targetLine.replace(
-            issue.button,
-            issue.button.replace(">", ` data-testid="${issue.suggestedTestId}">`),
-          );
+          if (currentContent === issue.button) {
+            // Insérer le data-testid avant la fermeture de la balise ouvrante
+            // On insère juste avant le dernier '>'
+            const fixedButton = issue.button.slice(0, -1) + ` data-testid="${issue.suggestedTestId}">`;
 
-          if (fixedLine !== targetLine) {
-            lines[issue.line - 1] = fixedLine;
-            content = lines.join("\n");
+            content = content.substring(0, issue.index) +
+              fixedButton +
+              content.substring(issue.index + issue.button.length);
+
             modified = true;
             this.stats.fixed++;
 
@@ -206,6 +267,8 @@ class DataTestIdAuditor {
                 `✅ ${filePath}:${issue.line} - Ajouté data-testid="${issue.suggestedTestId}"`,
               );
             }
+          } else {
+            console.warn(`⚠️  Mismatch à ${filePath}:${issue.line}. Le contenu a changé.`);
           }
         });
 
@@ -278,6 +341,12 @@ function main() {
       case "--output":
         options.outputDir = args[++i];
         break;
+      case "--files":
+        options.files = args[++i];
+        break;
+      case "--limit":
+        options.limit = args[++i];
+        break;
       case "--help":
         console.log(`
 Data-testid Auditor - Outil d'audit des data-testid
@@ -303,7 +372,12 @@ Exemples:
   const stats = auditor.audit();
 
   // Exit code basé sur les résultats
-  process.exit(stats.missingDataTestId > 0 ? 1 : 0);
+  // Si --fix est activé, on retourne 0 si tout a été corrigé
+  if (options.fix) {
+    process.exit(stats.missingDataTestId === stats.fixed ? 0 : 1);
+  } else {
+    process.exit(stats.missingDataTestId > 0 ? 1 : 0);
+  }
 }
 
 if (require.main === module) {

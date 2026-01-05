@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
+               data-testid="errorboundary-recharger-la-page">
                 Recharger la page
               </button>
               {this.state.error && (

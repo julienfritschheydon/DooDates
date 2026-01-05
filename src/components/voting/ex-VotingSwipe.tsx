@@ -378,7 +378,7 @@
 //           <button
 //             onClick={onBack}
 //             className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-//           >
+//            data-testid="ex-votingswipe--voir-les-rsultats">
 //             Voir les résultats
 //           </button>
 //         </motion.div>
@@ -399,7 +399,7 @@
 //             <button
 //               onClick={() => setShowForm(false)}
 //               className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
-//             >
+//              data-testid="ex-votingswipe-button">
 //               <ChevronLeft className="w-5 h-5" />
 //             </button>
 //             <h2 className="text-xl font-bold text-gray-800">
@@ -499,7 +499,7 @@
 //                onClick={handleSubmit}
 //                disabled={!voterInfo.name.trim() || !voterInfo.email.trim() || isSubmitting}
 //                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all flex items-center justify-center gap-2"
-//              >
+//               data-testid="ex-votingswipe-button">
 //                {isSubmitting ? (
 //                  <>
 //                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -538,7 +538,7 @@
 //         <button
 //           onClick={onBack}
 //           className="absolute top-4 left-4 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
-//         >
+//          data-testid="ex-votingswipe-button">
 //           <ChevronLeft className="w-4 h-4" />
 //         </button>
 
@@ -771,7 +771,7 @@
 //                         ? 'bg-green-50 border-green-500 ring-2 ring-green-400'  // COLORÉ : fond vert clair + bordure verte + anneau
 //                         : 'bg-white border-gray-200 hover:bg-green-50'  // PAS COLORÉ : fond blanc + bordure grise + hover vert
 //                     }`}
-//                 >
+//                  data-testid="ex-votingswipe-button">
 //                   {/* Contenu du bouton (icône + nombre) - reste visible au-dessus des barres */}
 //                   <div className="flex flex-col items-center text-center relative z-10">
 //                     {/* Icône Check - même logique de coloration */}
@@ -877,7 +877,7 @@
 //                         ? 'bg-orange-50 border-orange-500 ring-2 ring-orange-400'  // COLORÉ : fond orange clair + bordure orange
 //                         : 'bg-white border-gray-200 hover:bg-orange-50'   // PAS COLORÉ : fond blanc + bordure grise
 //                     }`}
-//                 >
+//                  data-testid="ex-votingswipe-button">
 //                   <div className="flex flex-col items-center text-center relative z-10">
 //                     {/* Icône HelpCircle - même logique de coloration complexe */}
 //                     <HelpCircle className={`w-5 h-5 mb-1 ${(userVote === 'maybe' && userHasVoted[option.id]) || currentSwipe[option.id] === 'maybe' || (!userHasVoted[option.id] && userVote === 'maybe')
@@ -953,7 +953,7 @@
 //                         ? 'bg-red-50 border-red-500 ring-2 ring-red-400'  // COLORÉ : fond rouge clair + bordure rouge
 //                         : 'bg-white border-gray-200 hover:bg-red-50' // PAS COLORÉ : fond blanc + bordure grise
 //                     }`}
-//                 >
+//                  data-testid="ex-votingswipe-button">
 //                   <div className="flex flex-col items-center text-center relative z-10">
 //                     {/* Icône X - même logique de coloration que YES */}
 //                     <X className={`w-5 h-5 mb-1 ${(userVote === 'no' && userHasVoted[option.id]) || currentSwipe[option.id] === 'no'
@@ -1023,7 +1023,7 @@
 //         <button
 //           onClick={() => setShowForm(true)}
 //           className="w-full py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-//         >
+//          data-testid="ex-votingswipe--finaliser-mon-vote">
 //           Finaliser mon vote
 //         </button>
 //       </motion.div>

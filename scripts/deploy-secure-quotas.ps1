@@ -32,7 +32,8 @@ if ($deploy -eq "o" -or $deploy -eq "O") {
         exit 1
     }
     Write-Host "✅ Edge Function déployée" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "⏭️  Déploiement ignoré" -ForegroundColor Yellow
 }
 Write-Host ""
@@ -56,33 +57,8 @@ Write-Host "   1. Ouvrez Supabase Dashboard → SQL Editor" -ForegroundColor Gra
 Write-Host "   2. Copiez le contenu de: sql-scripts/create-consume-ai-credit-function.sql" -ForegroundColor Gray
 Write-Host "   3. Exécutez le script" -ForegroundColor Gray
 Write-Host ""
-$sqlDone = Read-Host "Avez-vous exécuté le script SQL? (o/N)"
-if ($sqlDone -ne "o" -and $sqlDone -ne "O") {
-    Write-Host "⚠️  N'oubliez pas d'exécuter le script SQL!" -ForegroundColor Yellow
-}
 Write-Host ""
 
-# Étape 4: Supprimer VITE_GEMINI_API_KEY
-Write-Host "🧹 Étape 4: Nettoyage des variables d'environnement" -ForegroundColor Cyan
-$envFile = ".env.local"
-if (Test-Path $envFile) {
-    $content = Get-Content $envFile
-    $hasKey = $content | Select-String "VITE_GEMINI_API_KEY"
-    if ($hasKey) {
-        Write-Host "⚠️  VITE_GEMINI_API_KEY trouvée dans .env.local" -ForegroundColor Yellow
-        $remove = Read-Host "Voulez-vous la supprimer? (o/N)"
-        if ($remove -eq "o" -or $remove -eq "O") {
-            $newContent = $content | Where-Object { $_ -notmatch "VITE_GEMINI_API_KEY" }
-            $newContent | Set-Content $envFile
-            Write-Host "✅ VITE_GEMINI_API_KEY supprimée" -ForegroundColor Green
-        }
-    } else {
-        Write-Host "✅ VITE_GEMINI_API_KEY non trouvée (déjà supprimée)" -ForegroundColor Green
-    }
-} else {
-    Write-Host "ℹ️  .env.local non trouvé (normal si vous n'utilisez pas de variables locales)" -ForegroundColor Gray
-}
-Write-Host ""
 
 # Résumé
 Write-Host "📋 Résumé:" -ForegroundColor Cyan
@@ -95,7 +71,7 @@ Write-Host "🔴 Actions manuelles requises:" -ForegroundColor Red
 Write-Host "   1. Déployer l'Edge Function (si pas fait)" -ForegroundColor Yellow
 Write-Host "   2. Configurer GEMINI_API_KEY dans Supabase Secrets" -ForegroundColor Yellow
 Write-Host "   3. Exécuter le script SQL dans Supabase SQL Editor" -ForegroundColor Yellow
-Write-Host "   4. Supprimer VITE_GEMINI_API_KEY du .env.local" -ForegroundColor Yellow
+
 Write-Host ""
 Write-Host "📖 Pour plus de détails, consultez: Docs/SECURISATION-QUOTAS-IMPLEMENTATION.md" -ForegroundColor Cyan
 

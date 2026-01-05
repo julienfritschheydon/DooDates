@@ -781,7 +781,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             }))
                           }
                           className="text-gray-400 hover:text-gray-600"
-                        >
+                         data-testid="pollcreator-button">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -844,7 +844,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             onClick={handleAnalyzeCalendar}
                             disabled={isAnalyzingCalendar || !user}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-600"
-                          >
+                           data-testid="pollcreator-button">
                             {isAnalyzingCalendar ? (
                               <>
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -908,7 +908,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           }))
                         }
                         className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                      >
+                       data-testid="pollcreator-button">
                         {state.showGranularitySettings ? "Masquer" : "Modifier"}
                       </button>
                     </div>
@@ -927,7 +927,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               }))
                             }
                             className="text-gray-400 hover:text-gray-600"
-                          >
+                           data-testid="pollcreator-button">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -959,7 +959,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                       : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
                                 }
                               `}
-                              >
+                               data-testid="pollcreator-button">
                                 {option.label}
                               </button>
                             );
@@ -969,7 +969,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <button
                             onClick={() => PollCreatorService.undoGranularityChange(setState)}
                             className="mt-3 text-sm text-gray-600 hover:text-gray-800"
-                          >
+                           data-testid="pollcreator-annuler-les-changements">
                             Annuler les changements
                           </button>
                         )}
@@ -1313,7 +1313,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         }))
                       }
                       className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
-                    >
+                     data-testid="pollcreator-button">
                       <Plus className="w-3 h-3" />
                       <span>
                         {state.showExtendedHours
@@ -1656,7 +1656,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 }
                               }}
                               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                            >
+                             data-testid="pollcreator-button">
                               <CalendarIconLucide className="w-4 h-4" />
                               Connecter Google Calendar
                             </button>
@@ -1711,7 +1711,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           !state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading
                         }
                         className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                       data-testid="pollcreator-enregistrer-le-brouillon">
                         Enregistrer le brouillon
                       </button>
                     </span>
@@ -1736,7 +1736,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         onClick={handleFinalize}
                         disabled={!canFinalize() || pollLoading}
                         className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                       data-testid="pollcreator-button">
                         {pollLoading ? "Création en cours..." : "Publier le sondage"}
                       </button>
                     </span>

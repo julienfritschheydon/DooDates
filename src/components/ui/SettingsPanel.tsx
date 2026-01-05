@@ -59,7 +59,7 @@ export function SettingsPanel({
                       ? "bg-[#1e1e1e] text-white border-b-2 border-blue-500"
                       : "text-gray-400 hover:text-gray-300 hover:bg-[#151515]"
                   }`}
-                >
+                 data-testid="settingspanel-button">
                   <div className="flex items-center justify-center gap-2">
                     {tab.icon && <span className="w-4 h-4">{tab.icon}</span>}
                     <span>{tab.label}</span>

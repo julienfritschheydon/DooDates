@@ -144,7 +144,7 @@ const About = () => {
         </h2>
         <div className="flex justify-center gap-4">
           <Link to="/">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8" data-testid="about-commencer-maintenant">
               Commencer maintenant
             </Button>
           </Link>

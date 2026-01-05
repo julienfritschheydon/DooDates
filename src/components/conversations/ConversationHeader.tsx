@@ -200,7 +200,7 @@ export function ConversationHeader({
               size={compact ? "sm" : "default"}
               onClick={handleViewPoll}
               className="flex items-center gap-1"
-            >
+             data-testid="conversationheader-button">
               <BarChart3 className="h-3 w-3" />
               {compact ? "📊" : t.viewPoll}
             </Button>
@@ -211,7 +211,7 @@ export function ConversationHeader({
               size={compact ? "sm" : "default"}
               onClick={handleResume}
               className="flex items-center gap-1"
-            >
+             data-testid="conversationheader-button">
               <Play className="h-3 w-3" />
               {compact ? "▶️" : t.resume}
             </Button>

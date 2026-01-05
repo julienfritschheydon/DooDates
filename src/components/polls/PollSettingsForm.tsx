@@ -424,7 +424,7 @@ export function PollSettingsForm({
               ? "border-purple-500 bg-purple-900/20"
               : "border-gray-700 hover:border-gray-600 bg-transparent text-gray-300"
           }`}
-        >
+         data-testid="pollsettingsform-button">
           <div className="flex items-center gap-2 mb-2 w-full">
             <List className="w-5 h-5 text-purple-400" />
             <span className="font-medium text-white">Classique</span>
@@ -449,7 +449,7 @@ export function PollSettingsForm({
               ? "border-purple-500 bg-purple-900/20"
               : "border-gray-700 hover:border-gray-600 bg-transparent text-gray-300"
           }`}
-        >
+         data-testid="pollsettingsform-button">
           <div className="flex items-center gap-2 mb-2 w-full">
             <ArrowRight className="w-5 h-5 text-purple-400" />
             <span className="font-medium text-white">Une par une</span>
@@ -491,7 +491,7 @@ export function PollSettingsForm({
                   ? "border-purple-500 text-purple-400 bg-purple-500/10"
                   : "border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600 hover:bg-white/5"
               }`}
-            >
+             data-testid="pollsettingsform-button">
               {tab.icon}
               <span>{tab.label}</span>
             </button>

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Main Landing Page", () => {
   test("should display the main landing page with 3 product cards", async ({ page }) => {
-    await page.goto("/DooDates/");
+    await page.goto("/");
 
     // Check for title
     await expect(page.getByText("Planifiez simplement")).toBeVisible();
@@ -24,18 +24,18 @@ test.describe("Main Landing Page", () => {
   });
 
   test("should navigate to Date Polls", async ({ page }) => {
-    await page.goto("/DooDates/");
+    await page.goto("/");
     await page.getByRole("link", { name: /Sondages de Dates/i }).click();
   });
 
   test("should navigate to Form Polls", async ({ page }) => {
-    await page.goto("/DooDates/");
+    await page.goto("/");
     await page.getByRole("link", { name: /Formulaires/i }).click();
     await expect(page).toHaveURL(/.*form-polls/);
   });
 
   test("should navigate to Availability Polls", async ({ page }) => {
-    await page.goto("/DooDates/");
+    await page.goto("/");
     await page.getByRole("link", { name: /Disponibilités/i }).click();
     await expect(page).toHaveURL(/.*availability-polls/);
   });

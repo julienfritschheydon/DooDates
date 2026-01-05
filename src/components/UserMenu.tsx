@@ -73,7 +73,7 @@ export function UserMenu() {
         size="sm"
         onClick={handleSignOut}
         className="flex items-center gap-1 flex-shrink-0 text-xs px-2 py-1"
-      >
+       data-testid="usermenu-button">
         <LogOut className="w-3 h-3" />
         <span className="hidden sm:inline">Déconnexion</span>
         <span className="sm:hidden">↗</span>

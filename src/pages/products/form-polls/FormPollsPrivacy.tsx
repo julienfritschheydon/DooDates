@@ -153,7 +153,7 @@ export default function FormPollsPrivacy() {
               <Button
                 onClick={() => navigate("/form/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
-              >
+               data-testid="formpollsprivacy-grer-mes-donnes">
                 Gérer mes données
               </Button>
             </div>

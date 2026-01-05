@@ -14,7 +14,7 @@
 2. Ajouter les secrets suivants :
    - `VITE_SUPABASE_URL` : URL Supabase (ou laisser vide si mode local)
    - `VITE_SUPABASE_ANON_KEY` : Clé Supabase (ou laisser vide si mode local)
-   - `VITE_GEMINI_API_KEY` : Clé API Gemini
+   - `[DEPRECATED_KEY]` : Clé API Gemini
 
 **Note** : Si tu veux tester en mode 100% local (localStorage), tu peux laisser les secrets vides.
 

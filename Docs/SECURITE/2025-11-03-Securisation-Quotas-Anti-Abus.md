@@ -16,7 +16,7 @@
 
 ### 2. Clé API Gemini exposée
 
-- ❌ `VITE_GEMINI_API_KEY` présente dans le bundle client (visible par tous)
+- ❌ `[DEPRECATED_KEY]` présente dans le bundle client (visible par tous)
 - ❌ Extraction possible via DevTools → onglet Sources → recherche "GEMINI_API_KEY"
 - ❌ Utilisation directe de la clé pour des appels illimités
 - ❌ Coût potentiellement illimité
@@ -111,7 +111,7 @@
 ### Phase 2 : Migration frontend (4 h) ✅ FAITE
 
 - [x] Modifier `GeminiService` pour utiliser `SecureGeminiService` (Edge Function)
-- [x] Supprimer la dépendance directe à `VITE_GEMINI_API_KEY` côté client
+- [x] Supprimer la dépendance directe à `[DEPRECATED_KEY]` côté client
 - [x] Gérer les erreurs de quota / blocage IA (toasts / UI)
 
 ### Phase 3 : Rate limiting (2 h) ✅ FAITE (backend)

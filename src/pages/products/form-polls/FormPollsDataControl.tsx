@@ -115,7 +115,7 @@ export default function FormPollsDataControl() {
                 onClick={handleExportData}
                 disabled={isExporting}
                 className="bg-green-600 hover:bg-green-700"
-              >
+               data-testid="formpollsdatacontrol-button">
                 <FileJson className="w-4 h-4 mr-2" />
                 {isExporting ? "Export en cours..." : "Exporter mes données"}
               </Button>
@@ -168,14 +168,14 @@ export default function FormPollsDataControl() {
               variant="ghost"
               onClick={() => navigate("/form/privacy")}
               className="w-full justify-start"
-            >
+             data-testid="formpollsdatacontrol-politique-de-confidentialit">
               Politique de confidentialité
             </Button>
             <Button
               variant="ghost"
               onClick={() => navigate("/form/settings")}
               className="w-full justify-start"
-            >
+             data-testid="formpollsdatacontrol-paramtres-du-compte">
               Paramètres du compte
             </Button>
           </div>

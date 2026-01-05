@@ -181,7 +181,7 @@ export default function QuotaAlerts() {
             onClick={checkAlertStatus}
             disabled={loading}
             className="flex items-center gap-2"
-          >
+           data-testid="quotaalerts-button">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
@@ -189,7 +189,7 @@ export default function QuotaAlerts() {
             onClick={triggerAlertCheck}
             disabled={checking}
             className="flex items-center gap-2"
-          >
+           data-testid="quotaalerts-button">
             <Bell className={`h-4 w-4 ${checking ? "animate-pulse" : ""}`} />
             {checking ? "Checking..." : "Check Now"}
           </Button>
@@ -198,7 +198,7 @@ export default function QuotaAlerts() {
             onClick={sendTestAlert}
             disabled={sending}
             className="flex items-center gap-2"
-          >
+           data-testid="quotaalerts-button">
             <Mail className={`h-4 w-4 ${sending ? "animate-pulse" : ""}`} />
             {sending ? "Sending..." : "Send Test"}
           </Button>

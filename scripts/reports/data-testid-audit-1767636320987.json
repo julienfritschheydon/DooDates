@@ -1,0 +1,1379 @@
+{
+  "timestamp": "2026-01-05T18:05:20.987Z",
+  "summary": {
+    "totalFiles": 914,
+    "totalButtons": 496,
+    "missingDataTestId": 151,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\prototype\\AICreationWorkspace.tsx",
+      "line": 823,
+      "index": 35904,
+      "content": "<button...",
+      "button": "<button\n                        onClick={closeEditor}\n                        className=\"fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors\"\n                        aria-label=\"Fermer l'éditeur\"\n                        title=\"Fermer\"\n                      >",
+      "suggestedTestId": "aicreationworkspace-close"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 98,
+      "index": 3232,
+      "content": "<Button...",
+      "button": "<Button\n              variant={state.filters.favorites ? \"secondary\" : \"outline\"}\n              size=\"sm\"\n              onClick={() => actions.setFilters({ favorites: !state.filters.favorites })}\n              className={\n                state.filters.favorites\n                  ? \"bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-200\"\n                  : \"\"\n              }\n            >",
+      "suggestedTestId": "productlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 252,
+      "index": 9545,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"outline\"\n              size=\"sm\"\n              disabled={state.pagination.page === 1}\n              onClick={() => actions.setPagination({ page: state.pagination.page - 1 })}\n            >",
+      "suggestedTestId": "productlist-prcdent"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductList.tsx",
+      "line": 263,
+      "index": 9909,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"outline\"\n              size=\"sm\"\n              disabled={state.pagination.page * state.pagination.limit >= state.pagination.total}\n              onClick={() => actions.setPagination({ page: state.pagination.page + 1 })}\n            >",
+      "suggestedTestId": "productlist-suivant"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductLanding.tsx",
+      "line": 27,
+      "index": 976,
+      "content": "<button...",
+      "button": "<button\n            onClick={handleMenuToggle}\n            className=\"p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors\"\n            aria-label={sidebarOpen ? \"Fermer le menu\" : \"Ouvrir le menu\"}\n          >",
+      "suggestedTestId": "productlanding-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 434,
+      "index": 14634,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}\n            className=\"flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-amber-900/30 text-amber-400 rounded-lg hover:bg-amber-900/50 transition-colors\"\n          >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 441,
+      "index": 14996,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}\n            className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-900/30 text-blue-400 rounded-lg hover:bg-blue-900/50 transition-colors\"\n            title=\"Voir les résultats\"\n          >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 448,
+      "index": 15377,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => handleCopyQuizzLink(quiz.slug || quiz.id)}\n            className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-gray-700/50 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors\"\n            title=\"Copier le lien\"\n          >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 455,
+      "index": 15737,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => handleQuizzDelete(quiz.id, quiz.title)}\n            className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50 transition-colors\"\n            title=\"Supprimer\"\n          >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 534,
+      "index": 19488,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}\n                        className=\"p-2 text-amber-400 hover:bg-amber-900/30 rounded-lg transition-colors\"\n                        title=\"Tester\"\n                      >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 541,
+      "index": 19859,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}\n                        className=\"p-2 text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors\"\n                        title=\"Résultats\"\n                      >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 548,
+      "index": 20240,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() => handleCopyQuizzLink(quiz.slug || quiz.id)}\n                        className=\"p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors\"\n                        title=\"Copier le lien\"\n                      >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 555,
+      "index": 20609,
+      "content": "<button...",
+      "button": "<button\n                        onClick={() => handleQuizzDelete(quiz.id, quiz.title)}\n                        className=\"p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors\"\n                        title=\"Supprimer\"\n                      >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 593,
+      "index": 21950,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => setIsStatsOpen(!isStatsOpen)}\n              className=\"w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300\"\n            >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 669,
+      "index": 25341,
+      "content": "<button...",
+      "button": "<button\n                  onClick={() => navigate(config.journalRoute)}\n                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}\n                  title=\"Voir le journal de consommation\"\n                  aria-label=\"Voir le journal de consommation\"\n                >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 679,
+      "index": 25837,
+      "content": "<button...",
+      "button": "<button\n                  onClick={() => navigate(config.pricingRoute)}\n                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}\n                  title=\"Voir les quotas et tarifs\"\n                  aria-label=\"Voir les quotas et tarifs\"\n                >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 743,
+      "index": 28775,
+      "content": "<button...",
+      "button": "<button\n                onClick={() => navigate(config.createRoute)}\n                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${theme.button} focus:ring-${config.theme}-500`}\n              >",
+      "suggestedTestId": "productdashboard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 827,
+      "index": 32379,
+      "content": "<button...",
+      "button": "<button\n                onClick={handleBulkDelete}\n                disabled={isDeleting}\n                className=\"bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed\"\n              >",
+      "suggestedTestId": "productdashboard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductDashboard.tsx",
+      "line": 835,
+      "index": 32821,
+      "content": "<button...",
+      "button": "<button\n                onClick={clearSelection}\n                disabled={isDeleting}\n                className=\"bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed\"\n              >",
+      "suggestedTestId": "productdashboard-annuler"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductButton.tsx",
+      "line": 24,
+      "index": 800,
+      "content": "<Button className={cn(roleClasses, className)} {...props} />...",
+      "button": "<Button className={cn(roleClasses, className)} {...props} />",
+      "suggestedTestId": "productbutton-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzList.tsx",
+      "line": 131,
+      "index": 4714,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}\n                    size=\"sm\"\n                    className=\"flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-amber-900/20 text-amber-400 rounded-lg hover:bg-amber-900/30 transition-colors\"\n                  >",
+      "suggestedTestId": "quizzlist-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzList.tsx",
+      "line": 139,
+      "index": 5162,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}\n                    size=\"sm\"\n                    className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-900/20 text-blue-400 rounded-lg hover:bg-blue-900/30 transition-colors\"\n                    title=\"Voir les résultats\"\n                  >",
+      "suggestedTestId": "quizzlist-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzList.tsx",
+      "line": 147,
+      "index": 5629,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() => handleCopyLink(quiz.slug || quiz.id)}\n                    size=\"sm\"\n                    className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors\"\n                    title=\"Copier le lien\"\n                  >",
+      "suggestedTestId": "quizzlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzList.tsx",
+      "line": 155,
+      "index": 6067,
+      "content": "<Button...",
+      "button": "<Button\n                    onClick={() => handleDelete(quiz.id)}\n                    size=\"sm\"\n                    className=\"inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-900/20 text-red-400 rounded-lg hover:bg-red-900/30 transition-colors\"\n                    title=\"Supprimer\"\n                  >",
+      "suggestedTestId": "quizzlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 548,
+      "index": 19844,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={() => cameraInputRef.current?.click()}\n                disabled={isGenerating || !!selectedFile}\n                variant=\"outline\"\n                className=\"flex items-center justify-center gap-1.5 sm:gap-2 border-amber-600/50 hover:border-amber-500 hover:bg-gray-800 bg-gray-800/50\"\n              >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 559,
+      "index": 20456,
+      "content": "<Button...",
+      "button": "<Button\n                onClick={() => fileInputRef.current?.click()}\n                disabled={isGenerating || !!selectedFile}\n                variant=\"outline\"\n                className=\"flex items-center justify-center gap-1.5 sm:gap-2 border-gray-600 hover:border-gray-500 hover:bg-gray-800 bg-gray-800/50\"\n              >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 605,
+      "index": 22755,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={handleAnalyzeFile}\n                  disabled={isGenerating}\n                  className=\"w-full mt-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-900/20\"\n                >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 772,
+      "index": 30628,
+      "content": "<Button...",
+      "button": "<Button\n                          onClick={() => {\n                            const newOpts = [...(q.options || []), \"\"];\n                            updateQuestion(idx, { options: newOpts });\n                          }}\n                          variant=\"ghost\"\n                          size=\"sm\"\n                          className=\"h-auto px-0 text-xs sm:text-sm text-amber-400 hover:text-amber-300 hover:bg-transparent\"\n                        >",
+      "suggestedTestId": "quizzcreate--ajouter-une-option"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 496,
+      "index": 17823,
+      "content": "<button...",
+      "button": "<button\n                onClick={handleContinueDraft}\n                className=\"px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors\"\n              >",
+      "suggestedTestId": "quizzcreate-continuer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 502,
+      "index": 18089,
+      "content": "<button...",
+      "button": "<button\n                onClick={handleDismissDraft}\n                className=\"px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm font-medium transition-colors\"\n              >",
+      "suggestedTestId": "quizzcreate-ignorer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 596,
+      "index": 22340,
+      "content": "<button...",
+      "button": "<button\n                    onClick={() => setSelectedFile(null)}\n                    className=\"p-1.5 hover:bg-gray-800 rounded-full text-gray-400 hover:text-red-400 transition-colors\"\n                  >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 659,
+      "index": 25067,
+      "content": "<button...",
+      "button": "<button\n                  onClick={expandedQuestions.size === questions.length ? collapseAll : expandAll}\n                  className=\"text-xs text-gray-400 hover:text-white transition-colors\"\n                >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 691,
+      "index": 26555,
+      "content": "<button className=\"text-gray-400 flex-shrink-0\">...",
+      "button": "<button className=\"text-gray-400 flex-shrink-0\">",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 710,
+      "index": 27576,
+      "content": "<button...",
+      "button": "<button\n                      onClick={(e) => {\n                        e.stopPropagation();\n                        removeQuestion(idx);\n                      }}\n                      className=\"p-1.5 sm:p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors\"\n                    >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 810,
+      "index": 32285,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => setAdvancedSettingsOpen(!advancedSettingsOpen)}\n              className=\"w-full flex items-center justify-between gap-2 p-4 sm:p-6 hover:bg-gray-700/50 transition-colors\"\n            >",
+      "suggestedTestId": "quizzcreate-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\quizz\\QuizzCreate.tsx",
+      "line": 842,
+      "index": 33641,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => navigate(\"/quizz\")}\n            className=\"w-full sm:w-auto px-6 py-2.5 text-gray-300 bg-gray-800 rounded-lg hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium\"\n          >",
+      "suggestedTestId": "quizzcreate-annuler"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\ThemeSelector.tsx",
+      "line": 48,
+      "index": 1350,
+      "content": "<button...",
+      "button": "<button\n      type=\"button\"\n      onClick={onSelect}\n      className={`relative p-3 rounded-lg border-2 transition-all text-left flex-shrink-0 w-40 snap-center sm:w-auto ${\n        isSelected\n          ? \"border-purple-500 bg-purple-900/20\"\n          : \"border-gray-700 bg-gray-800/50 hover:border-gray-600 hover:bg-gray-800\"\n      }`}\n    >",
+      "suggestedTestId": "themeselector-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\SafeguardSection.tsx",
+      "line": 66,
+      "index": 2375,
+      "content": "<Button...",
+      "button": "<Button\n          size=\"sm\"\n          onClick={handleSaveEmail}\n          className=\"bg-amber-600 hover:bg-amber-700 text-white h-9\"\n        >",
+      "suggestedTestId": "safeguardsection-sauvegarder"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\ResultsAccessDenied.tsx",
+      "line": 38,
+      "index": 1213,
+      "content": "<button...",
+      "button": "<button\n                onClick={() => navigate(`/poll/${pollSlug}`)}\n                className=\"w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors\"\n              >",
+      "suggestedTestId": "resultsaccessdenied-voter-maintenant"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\ResultsAccessDenied.tsx",
+      "line": 46,
+      "index": 1511,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => navigate(-1)}\n              className=\"w-full px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2\"\n            >",
+      "suggestedTestId": "resultsaccessdenied-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\RatingInput.tsx",
+      "line": 32,
+      "index": 753,
+      "content": "<button...",
+      "button": "<button\n          key={num}\n          type=\"button\"\n          onClick={() => onChange(num)}\n          className={`w-12 h-12 rounded-lg font-semibold transition-all ${\n            value === num\n              ? \"bg-purple-600 text-white scale-110 shadow-lg\"\n              : \"bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105\"\n          }`}\n        >",
+      "suggestedTestId": "ratinginput-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\RatingInput.tsx",
+      "line": 51,
+      "index": 1286,
+      "content": "<button...",
+      "button": "<button\n          key={num}\n          type=\"button\"\n          onClick={() => onChange(num)}\n          className=\"transition-transform hover:scale-110\"\n        >",
+      "suggestedTestId": "ratinginput-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\RatingInput.tsx",
+      "line": 100,
+      "index": 2776,
+      "content": "<button...",
+      "button": "<button\n              key={num}\n              type=\"button\"\n              onClick={() => onChange(num)}\n              className={`p-2 rounded-lg transition-all ${\n                value === num\n                  ? \"bg-purple-100 scale-110 shadow-md\"\n                  : \"hover:bg-gray-100 hover:scale-105\"\n              }`}\n            >",
+      "suggestedTestId": "ratinginput-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzResults.tsx",
+      "line": 246,
+      "index": 8027,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={() => navigate(\"/quizz\")}\n              className=\"p-2 hover:bg-gray-100 rounded-lg transition-colors\"\n            >",
+      "suggestedTestId": "quizzresults-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzResults.tsx",
+      "line": 257,
+      "index": 8477,
+      "content": "<Button...",
+      "button": "<Button\n            onClick={refreshResults}\n            className=\"p-2 hover:bg-gray-100 rounded-lg transition-colors\"\n            title=\"Rafraîchir les résultats\"\n          >",
+      "suggestedTestId": "quizzresults-refresh"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzResults.tsx",
+      "line": 277,
+      "index": 9376,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={copyQuizLink}\n                  className=\"flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors\"\n                >",
+      "suggestedTestId": "quizzresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzResults.tsx",
+      "line": 293,
+      "index": 9957,
+      "content": "<Button...",
+      "button": "<Button\n                  onClick={() => setShowQRCode(!showQRCode)}\n                  className=\"flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors\"\n                >",
+      "suggestedTestId": "quizzresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuizzResults.tsx",
+      "line": 508,
+      "index": 19784,
+      "content": "<Button...",
+      "button": "<Button\n              onClick={copyQuizLink}\n              className=\"bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-amber-700 transition-colors\"\n            >",
+      "suggestedTestId": "quizzresults-copier-le-lien-du-quiz"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 370,
+      "index": 12266,
+      "content": "<button...",
+      "button": "<button\n              type=\"button\"\n              onClick={onEdit}\n              className=\"inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition-colors\"\n              title=\"Éditer\"\n              aria-label=\"Éditer\"\n            >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 636,
+      "index": 23895,
+      "content": "<button...",
+      "button": "<button\n                type=\"button\"\n                onClick={addMatrixRow}\n                className=\"inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs\"\n                title=\"Ajouter une ligne\"\n              >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 655,
+      "index": 24844,
+      "content": "<button...",
+      "button": "<button\n                    type=\"button\"\n                    onClick={() => removeMatrixRow(row.id)}\n                    className=\"inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors\"\n                    title=\"Supprimer la ligne\"\n                  >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 673,
+      "index": 25660,
+      "content": "<button...",
+      "button": "<button\n                  type=\"button\"\n                  onClick={toggleMatrixColumnsNumeric}\n                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs transition-colors ${\n                    question.matrixColumnsNumeric\n                      ? \"bg-blue-500 border-blue-500 text-white\"\n                      : \"border-gray-700 text-gray-300 hover:bg-gray-800\"\n                  }`}\n                  title={\n                    question.matrixColumnsNumeric ? \"Passer en texte\" : \"Passer en numérique (1-5)\"\n                  }\n                >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 687,
+      "index": 26355,
+      "content": "<button...",
+      "button": "<button\n                  type=\"button\"\n                  onClick={addMatrixColumn}\n                  className=\"inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs\"\n                  title=\"Ajouter une colonne\"\n                >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\QuestionCard.tsx",
+      "line": 707,
+      "index": 27356,
+      "content": "<button...",
+      "button": "<button\n                    type=\"button\"\n                    onClick={() => removeMatrixColumn(col.id)}\n                    className=\"inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors\"\n                    title=\"Supprimer la colonne\"\n                  >",
+      "suggestedTestId": "questioncard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollSettingsForm.tsx",
+      "line": 417,
+      "index": 18002,
+      "content": "<Button...",
+      "button": "<Button\n          type=\"button\"\n          size=\"default\"\n          variant=\"outline\"\n          onClick={() => onDisplayModeChange && onDisplayModeChange(\"all-at-once\")}\n          className={`p-4 h-auto rounded-lg border-2 text-left transition-all flex flex-col items-start ${\n            displayMode === \"all-at-once\"\n              ? \"border-purple-500 bg-purple-900/20\"\n              : \"border-gray-700 hover:border-gray-600 bg-transparent text-gray-300\"\n          }`}\n        >",
+      "suggestedTestId": "pollsettingsform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollSettingsForm.tsx",
+      "line": 442,
+      "index": 19162,
+      "content": "<Button...",
+      "button": "<Button\n          type=\"button\"\n          size=\"default\"\n          variant=\"outline\"\n          onClick={() => onDisplayModeChange && onDisplayModeChange(\"multi-step\")}\n          className={`p-4 h-auto rounded-lg border-2 text-left transition-all flex flex-col items-start ${\n            displayMode === \"multi-step\"\n              ? \"border-purple-500 bg-purple-900/20\"\n              : \"border-gray-700 hover:border-gray-600 bg-transparent text-gray-300\"\n          }`}\n        >",
+      "suggestedTestId": "pollsettingsform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollSettingsForm.tsx",
+      "line": 481,
+      "index": 20779,
+      "content": "<button...",
+      "button": "<button\n              key={tab.id}\n              type=\"button\"\n              role=\"tab\"\n              id={`tab-${tab.id}`}\n              aria-selected={activeTab === tab.id}\n              aria-controls={`panel-${tab.id}`}\n              onClick={() => setActiveTab(tab.id)}\n              className={`py-3 px-4 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e1e1e] ${\n                activeTab === tab.id\n                  ? \"border-purple-500 text-purple-400 bg-purple-500/10\"\n                  : \"border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600 hover:bg-white/5\"\n              }`}\n            >",
+      "suggestedTestId": "pollsettingsform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollAnalyticsPanel.tsx",
+      "line": 179,
+      "index": 5781,
+      "content": "<button...",
+      "button": "<button\n          onClick={loadAutoInsights}\n          disabled={loadingInsights}\n          className=\"flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50\"\n          title=\"Régénérer les insights\"\n        >",
+      "suggestedTestId": "pollanalyticspanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollAnalyticsPanel.tsx",
+      "line": 191,
+      "index": 6348,
+      "content": "<button...",
+      "button": "<button\n        onClick={() => setShowInsights(!showInsights)}\n        className=\"w-full flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors border border-purple-200 dark:border-purple-800\"\n      >",
+      "suggestedTestId": "pollanalyticspanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\PollAnalyticsPanel.tsx",
+      "line": 262,
+      "index": 9631,
+      "content": "<button...",
+      "button": "<button\n          onClick={() => setShowInsights(true)}\n          className=\"text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium\"\n        >",
+      "suggestedTestId": "pollanalyticspanel-afficher-les-insights-automatiques"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\GuestPollSuccessDialog.tsx",
+      "line": 95,
+      "index": 3164,
+      "content": "<Button...",
+      "button": "<Button\n                size=\"icon\"\n                variant=\"outline\"\n                onClick={handleCopy}\n                className=\"border-gray-700 hover:bg-gray-800 hover:text-white\"\n              >",
+      "suggestedTestId": "guestpollsuccessdialog-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\FormWithConditionals.tsx",
+      "line": 188,
+      "index": 6590,
+      "content": "<button...",
+      "button": "<button\n        type=\"submit\"\n        className=\"w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700\"\n      >",
+      "suggestedTestId": "formwithconditionals-envoyer-mes-rponses"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\FormPollResults.tsx",
+      "line": 265,
+      "index": 9289,
+      "content": "<Button...",
+      "button": "<Button\n                type=\"button\"\n                size=\"sm\"\n                variant=\"link\"\n                onClick={() => setShowComparisonDetails(!showComparisonDetails)}\n                className=\"text-sm font-medium mb-3\"\n              >",
+      "suggestedTestId": "formpollresults-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\DateQuestionEditor.tsx",
+      "line": 267,
+      "index": 9186,
+      "content": "<button...",
+      "button": "<button\n            onClick={onClose}\n            className=\"p-1 rounded-md hover:bg-gray-800 text-gray-400 hover:text-white transition-colors\"\n            aria-label=\"Fermer\"\n          >",
+      "suggestedTestId": "datequestioneditor-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\DateQuestionEditor.tsx",
+      "line": 385,
+      "index": 14824,
+      "content": "<button...",
+      "button": "<button\n                          key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}-${isSlotDraggedOver ? \"dragged\" : \"\"}-${slot?.enabled ? \"enabled\" : \"\"}`}\n                          type=\"button\"\n                          onClick={() =>\n                            handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)\n                          }\n                          onPointerDown={(e) =>\n                            handleDragStart(\n                              { date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute },\n                              e,\n                            )\n                          }\n                          onPointerMove={(e) => {\n                            if (isDragging) {\n                              handleDragMove(\n                                { date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute },\n                                e,\n                              );\n                            }\n                          }}\n                          onPointerUp={handleDragEnd}\n                          className={`flex-1 relative transition-all hover:bg-[#2a2a2a] border-r border-gray-700\n                            ${isSlotDraggedOver ? \"bg-blue-500/50 border-2 border-blue-400\" : slot?.enabled ? \"bg-blue-900/30\" : \"bg-[#1e1e1e]\"}\n                            ${granularityMinutes >= 60 ? \"min-h-[32px] p-1\" : \"min-h-[24px] p-0.5\"}\n                            ${isLongPressActive && isSlotDraggedOver ? \"animate-pulse ring-2 ring-blue-400\" : \"\"}\n                          `}\n                          style={{ touchAction: \"none\" }}\n                        >",
+      "suggestedTestId": "datequestioneditor-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\AIProposalFeedback.tsx",
+      "line": 137,
+      "index": 4514,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => setShowFeedbackForm(false)}\n            className=\"text-gray-400 hover:text-gray-600\"\n          >",
+      "suggestedTestId": "aiproposalfeedback-back"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\AIProposalFeedback.tsx",
+      "line": 176,
+      "index": 5932,
+      "content": "<button...",
+      "button": "<button\n            onClick={handleSendFeedback}\n            disabled={isSending || selectedReasons.length === 0}\n            className=\"flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors\"\n          >",
+      "suggestedTestId": "aiproposalfeedback-back"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\AIProposalFeedback.tsx",
+      "line": 184,
+      "index": 6392,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => setShowFeedbackForm(false)}\n            className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors\"\n          >",
+      "suggestedTestId": "aiproposalfeedback-annuler"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\AIProposalFeedback.tsx",
+      "line": 197,
+      "index": 6732,
+      "content": "<button...",
+      "button": "<button\n        onClick={handleThumbUp}\n        className=\"p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors\"\n        title=\"Proposition correcte\"\n        aria-label=\"Thumb up\"\n      >",
+      "suggestedTestId": "aiproposalfeedback-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\polls\\AIProposalFeedback.tsx",
+      "line": 205,
+      "index": 7015,
+      "content": "<button...",
+      "button": "<button\n        onClick={handleThumbDown}\n        className=\"p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors\"\n        title=\"Proposition à améliorer\"\n        aria-label=\"Thumb down\"\n      >",
+      "suggestedTestId": "aiproposalfeedback-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\performance\\PerformanceAlerts.tsx",
+      "line": 118,
+      "index": 4123,
+      "content": "<button...",
+      "button": "<button\n                onClick={() => alert.id && handleResolve(alert.id)}\n                className=\"ml-4 p-1 hover:bg-white rounded-full transition-colors\"\n                title=\"Résoudre l'alerte\"\n              >",
+      "suggestedTestId": "performancealerts-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\modals\\BetaKeyModal.tsx",
+      "line": 120,
+      "index": 3800,
+      "content": "<Button...",
+      "button": "<Button\n              type=\"button\"\n              variant=\"outline\"\n              onClick={() => onOpenChange(false)}\n              disabled={isSubmitting}\n            >",
+      "suggestedTestId": "betakeymodal-annuler"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\modals\\BetaKeyModal.tsx",
+      "line": 128,
+      "index": 4026,
+      "content": "<Button type=\"submit\" disabled={isSubmitting || !code.trim()}>...",
+      "button": "<Button type=\"submit\" disabled={isSubmitting || !code.trim()}>",
+      "suggestedTestId": "betakeymodal-submit"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\modals\\AuthIncentiveModal.tsx",
+      "line": 95,
+      "index": 3384,
+      "content": "<button...",
+      "button": "<button\n            onClick={onClose}\n            className=\"absolute top-4 right-4 p-2 hover:bg-[#2a2a2a] rounded-full transition-colors\"\n          >",
+      "suggestedTestId": "authincentivemodal-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\modals\\AuthIncentiveModal.tsx",
+      "line": 144,
+      "index": 5291,
+      "content": "<button...",
+      "button": "<button\n              onClick={onSignUp}\n              className=\"w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2\"\n            >",
+      "suggestedTestId": "authincentivemodal-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\modals\\AuthIncentiveModal.tsx",
+      "line": 152,
+      "index": 5631,
+      "content": "<button...",
+      "button": "<button\n              onClick={onSignIn}\n              className=\"w-full bg-[#0a0a0a] hover:bg-[#2a2a2a] text-gray-300 font-medium py-3 px-4 rounded-lg transition-colors\"\n            >",
+      "suggestedTestId": "authincentivemodal-jai-dj-un-compte"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\TopNav.tsx",
+      "line": 25,
+      "index": 704,
+      "content": "<button...",
+      "button": "<button\n            onClick={onMenuOpen}\n            className=\"md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors\"\n            aria-label=\"Ouvrir le menu\"\n          >",
+      "suggestedTestId": "topnav-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\Sidebar.tsx",
+      "line": 23,
+      "index": 644,
+      "content": "<button...",
+      "button": "<button\n          onClick={() => setIsOpen(true)}\n          className=\"fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md md:hidden hover:bg-gray-50 transition-colors\"\n          aria-label=\"Ouvrir le menu\"\n        >",
+      "suggestedTestId": "sidebar-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\Sidebar.tsx",
+      "line": 49,
+      "index": 1541,
+      "content": "<button...",
+      "button": "<button\n                onClick={closeSidebar}\n                className=\"absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors\"\n                aria-label=\"Fermer le menu\"\n              >",
+      "suggestedTestId": "sidebar-close"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\HistoryPanel.tsx",
+      "line": 182,
+      "index": 6976,
+      "content": "<button...",
+      "button": "<button\n            onClick={() => {\n              navigate(`/workspace/date?new=${Date.now()}`);\n              onClose();\n            }}\n            className=\"w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors\"\n          >",
+      "suggestedTestId": "historypanel-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\HistoryPanel.tsx",
+      "line": 374,
+      "index": 13560,
+      "content": "<button...",
+      "button": "<button\n      onClick={onClick}\n      className=\"w-full flex items-center gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1\"\n    >",
+      "suggestedTestId": "historypanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\HistoryPanel.tsx",
+      "line": 417,
+      "index": 14700,
+      "content": "<button...",
+      "button": "<button\n      onClick={onClick}\n      className=\"w-full flex items-center gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1\"\n    >",
+      "suggestedTestId": "historypanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\products\\ProductSidebar.tsx",
+      "line": 79,
+      "index": 2138,
+      "content": "<button...",
+      "button": "<button\n          onClick={toggleSidebar}\n          className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${\n            isOpen ? \"left-[272px]\" : \"left-4\"\n          }`}\n          aria-label={isOpen ? \"Fermer le menu\" : \"Ouvrir le menu\"}\n        >",
+      "suggestedTestId": "productsidebar-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\products\\ProductSidebar.tsx",
+      "line": 195,
+      "index": 6839,
+      "content": "<button...",
+      "button": "<button\n              className=\"flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors w-full text-left\"\n              title=\"Langue: Français\"\n            >",
+      "suggestedTestId": "productsidebar-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\products\\ProductSidebar.tsx",
+      "line": 258,
+      "index": 9572,
+      "content": "<button...",
+      "button": "<button\n                    onClick={async () => {\n                      await signOut();\n                      if (onClose) onClose();\n                    }}\n                    className=\"flex-1 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-red-500/30\"\n                  >",
+      "suggestedTestId": "productsidebar-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\products\\ProductSidebar.tsx",
+      "line": 281,
+      "index": 10805,
+      "content": "<button...",
+      "button": "<button\n                  onClick={() => {\n                    setAuthModalOpen(true);\n                    if (onClose) onClose();\n                  }}\n                  className={cn(\n                    \"w-full px-3 py-2.5 text-xs font-semibold text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg\",\n                    theme.authButton,\n                    theme.authShadow,\n                  )}\n                >",
+      "suggestedTestId": "productsidebar-se-connecter"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\layout\\products\\GenericProductLayout.tsx",
+      "line": 38,
+      "index": 1299,
+      "content": "<button...",
+      "button": "<button\n        onClick={toggleSidebar}\n        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${\n          isSidebarOpen ? \"left-[272px]\" : \"left-4\"\n        }`}\n        aria-label={isSidebarOpen ? \"Fermer le menu\" : \"Ouvrir le menu\"}\n      >",
+      "suggestedTestId": "genericproductlayout-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\journal\\PollLink.tsx",
+      "line": 63,
+      "index": 1782,
+      "content": "<button...",
+      "button": "<button\n      onClick={() => navigate(getRoute())}\n      className=\"text-blue-400 hover:text-blue-300 underline underline-offset-2 flex items-center gap-1 text-sm\"\n    >",
+      "suggestedTestId": "polllink-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardTableView.tsx",
+      "line": 524,
+      "index": 18535,
+      "content": "<Button...",
+      "button": "<Button\n                              variant=\"ghost\"\n                              size=\"sm\"\n                              className=\"bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation\"\n                              onClick={(e) => e.stopPropagation()}\n                              aria-label=\"Menu d'actions\"\n                            >",
+      "suggestedTestId": "dashboardtableview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardTableView.tsx",
+      "line": 677,
+      "index": 26321,
+      "content": "<Button...",
+      "button": "<Button\n                              variant=\"ghost\"\n                              size=\"sm\"\n                              className=\"bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation\"\n                              onClick={(e) => e.stopPropagation()}\n                              aria-label=\"Menu d'actions\"\n                            >",
+      "suggestedTestId": "dashboardtableview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardTableView.tsx",
+      "line": 498,
+      "index": 17171,
+      "content": "<button...",
+      "button": "<button\n                          onClick={(e) => {\n                            e.stopPropagation();\n                            navigate(`/poll/${item.poll!.slug}/results`);\n                          }}\n                          className=\"p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation\"\n                          title=\"Résultats\"\n                          aria-label=\"Voir les résultats\"\n                        >",
+      "suggestedTestId": "dashboardtableview-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardTableView.tsx",
+      "line": 509,
+      "index": 17784,
+      "content": "<button...",
+      "button": "<button\n                          onClick={(e) => {\n                            e.stopPropagation();\n                            navigate(`/poll/${item.poll!.slug}`);\n                          }}\n                          className=\"p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation\"\n                          title=\"Voter\"\n                          aria-label=\"Voter\"\n                        >",
+      "suggestedTestId": "dashboardtableview-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardTableView.tsx",
+      "line": 664,
+      "index": 25658,
+      "content": "<button...",
+      "button": "<button\n                          onClick={(e) => {\n                            e.stopPropagation();\n                            navigate(`/workspace/date?conversationId=${item.id}`);\n                          }}\n                          className={`px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 ${theme.primaryButton} text-white text-xs rounded transition-colors touch-manipulation`}\n                        >",
+      "suggestedTestId": "dashboardtableview-reprendre"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 212,
+      "index": 7177,
+      "content": "<button...",
+      "button": "<button\n              type=\"button\"\n              onClick={() => onSearchChange(\"\")}\n              className=\"absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors\"\n              aria-label=\"Effacer la recherche\"\n              title=\"Effacer la recherche\"\n            >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 279,
+      "index": 9905,
+      "content": "<button...",
+      "button": "<button\n          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}\n          className=\"w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300\"\n        >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 345,
+      "index": 12884,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => setShowTagMenu(!showTagMenu)}\n              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${\n                selectedTags.length > 0\n                  ? `${currentTheme.activeBg} text-white ${currentTheme.border}`\n                  : \"bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700\"\n              }`}\n            >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 424,
+      "index": 16492,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => setShowFolderMenu(!showFolderMenu)}\n              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${\n                selectedFolderId\n                  ? `${currentTheme.activeBg} text-white ${currentTheme.border}`\n                  : \"bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700\"\n              }`}\n            >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 469,
+      "index": 18636,
+      "content": "<button...",
+      "button": "<button\n                    onClick={(e) => {\n                      e.stopPropagation();\n                      onFolderChange(undefined);\n                      setShowFolderMenu(false);\n                    }}\n                    className={`w-full text-left px-3 py-2 rounded text-sm ${\n                      !selectedFolderId\n                        ? `${currentTheme.bg} text-white`\n                        : \"text-gray-300 hover:bg-[#2a2a2a]\"\n                    }`}\n                  >",
+      "suggestedTestId": "dashboardfilters-tous-les-dossiers"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 484,
+      "index": 19257,
+      "content": "<button...",
+      "button": "<button\n                      key={folder.id}\n                      onClick={(e) => {\n                        e.stopPropagation();\n                        onFolderChange(folder.id);\n                        setShowFolderMenu(false);\n                      }}\n                      className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${\n                        selectedFolderId === folder.id\n                          ? `${currentTheme.bg} text-white`\n                          : \"text-gray-300 hover:bg-[#2a2a2a]\"\n                      }`}\n                    >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\DashboardFilters.tsx",
+      "line": 521,
+      "index": 20838,
+      "content": "<button...",
+      "button": "<button\n                      onClick={() => toggleTag(tagName)}\n                      className=\"hover:bg-black/20 rounded p-0.5\"\n                    >",
+      "suggestedTestId": "dashboardfilters-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ConversationCard.tsx",
+      "line": 596,
+      "index": 20257,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"ghost\"\n                      size=\"sm\"\n                      className=\"bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600\"\n                      onClick={(e) => e.stopPropagation()}\n                      aria-label=\"Menu d'actions\"\n                    >",
+      "suggestedTestId": "conversationcard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ConversationCard.tsx",
+      "line": 512,
+      "index": 16790,
+      "content": "<button...",
+      "button": "<button\n                onClick={(e) => {\n                  e.stopPropagation();\n                  navigate(`/workspace/date?conversationId=${item.id}`);\n                }}\n                className={`text-xs transition-colors ${theme.linkText}`}\n              >",
+      "suggestedTestId": "conversationcard-reprendre-la-conversation-"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ConversationCard.tsx",
+      "line": 572,
+      "index": 19074,
+      "content": "<button...",
+      "button": "<button\n                  onClick={(e) => {\n                    e.stopPropagation();\n                    navigate(`/poll/${item.poll!.slug}/results`);\n                  }}\n                  className=\"bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1\"\n                >",
+      "suggestedTestId": "conversationcard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ConversationCard.tsx",
+      "line": 582,
+      "index": 19602,
+      "content": "<button...",
+      "button": "<button\n                  onClick={(e) => {\n                    e.stopPropagation();\n                    navigate(`/poll/${item.poll!.slug}`);\n                  }}\n                  className=\"bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1\"\n                >",
+      "suggestedTestId": "conversationcard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\dashboard\\ConversationCard.tsx",
+      "line": 736,
+      "index": 26047,
+      "content": "<button...",
+      "button": "<button\n                  onClick={(e) => {\n                    e.stopPropagation();\n                    navigate(`/workspace?conversationId=${item.id}`);\n                  }}\n                  className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}\n                >",
+      "suggestedTestId": "conversationcard-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 248,
+      "index": 7791,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"ghost\"\n            size=\"sm\"\n            onClick={() => handleQueryChange(\"\")}\n            className=\"absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0\"\n          >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 281,
+      "index": 8910,
+      "content": "<Button...",
+      "button": "<Button\n              key={filter.key}\n              variant={isActive ? \"default\" : \"outline\"}\n              size=\"sm\"\n              onClick={() => handleQuickFilterToggle(filter.key)}\n              className=\"flex items-center gap-1\"\n            >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 298,
+      "index": 9465,
+      "content": "<Button variant=\"outline\" size=\"sm\" className=\"flex items-center gap-1\">...",
+      "button": "<Button variant=\"outline\" size=\"sm\" className=\"flex items-center gap-1\">",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 338,
+      "index": 11330,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"outline\"\n                      size=\"sm\"\n                      onClick={() => {\n                        setTempDateRange({});\n                        setIsDatePickerOpen(false);\n                      }}\n                    >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 382,
+      "index": 12872,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"ghost\"\n            size=\"sm\"\n            onClick={handleClearFilters}\n            className=\"text-gray-500 hover:text-gray-700\"\n          >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 400,
+      "index": 13475,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => handleQueryChange(\"\")}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 414,
+      "index": 13981,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => handleStatusChange(\"all\")}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 429,
+      "index": 14513,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => handleQuickFilterToggle(\"isFavorite\")}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 444,
+      "index": 15075,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => handleQuickFilterToggle(\"hasRelatedPoll\")}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 459,
+      "index": 15627,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => onFiltersChange?.({ ...filters, dateRange: undefined })}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationSearch.tsx",
+      "line": 474,
+      "index": 16163,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={() => handleTagToggle(tag)}\n                className=\"h-4 w-4 p-0 ml-1 hover:bg-gray-200\"\n              >",
+      "suggestedTestId": "conversationsearch-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 219,
+      "index": 7273,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"outline\"\n              size=\"sm\"\n              onClick={() => onViewPoll?.(conversation.relatedPollId!)}\n              className=\"flex items-center gap-1\"\n            >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 230,
+      "index": 7652,
+      "content": "<Button...",
+      "button": "<Button\n              size=\"sm\"\n              onClick={() => onResume?.(conversation.id)}\n              className=\"flex items-center gap-1\"\n            >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 422,
+      "index": 14323,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"outline\"\n                      size=\"sm\"\n                      onClick={handlePreviousMessage}\n                      disabled={!canNavigatePrevious}\n                      className=\"flex items-center gap-1\"\n                    >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 432,
+      "index": 14744,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"outline\"\n                      size=\"sm\"\n                      onClick={handleNextMessage}\n                      disabled={!canNavigateNext || conversation.messageCount <= 1}\n                      className=\"flex items-center gap-1\"\n                    >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 445,
+      "index": 15274,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"ghost\"\n                      size=\"sm\"\n                      onClick={handleScrollToTop}\n                      className=\"flex items-center gap-1\"\n                    >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationPreview.tsx",
+      "line": 454,
+      "index": 15627,
+      "content": "<Button...",
+      "button": "<Button\n                      variant=\"ghost\"\n                      size=\"sm\"\n                      onClick={handleScrollToBottom}\n                      className=\"flex items-center gap-1\"\n                    >",
+      "suggestedTestId": "conversationpreview-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationList.tsx",
+      "line": 390,
+      "index": 12599,
+      "content": "<Button...",
+      "button": "<Button\n              variant={showFavoritesOnly ? \"default\" : \"outline\"}\n              size=\"sm\"\n              onClick={handleToggleFavorites}\n              className=\"gap-2\"\n            >",
+      "suggestedTestId": "conversationlist--favoris"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationList.tsx",
+      "line": 402,
+      "index": 12956,
+      "content": "<Button variant=\"outline\" size=\"sm\" className=\"gap-2\">...",
+      "button": "<Button variant=\"outline\" size=\"sm\" className=\"gap-2\">",
+      "suggestedTestId": "conversationlist-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationList.tsx",
+      "line": 427,
+      "index": 14043,
+      "content": "<Button...",
+      "button": "<Button\n                variant=\"ghost\"\n                size=\"sm\"\n                onClick={handleClearFilters}\n                className=\"text-gray-500 hover:text-gray-700\"\n              >",
+      "suggestedTestId": "conversationlist-effacer-filtres"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationHeader.tsx",
+      "line": 198,
+      "index": 6121,
+      "content": "<Button...",
+      "button": "<Button\n              variant=\"outline\"\n              size={compact ? \"sm\" : \"default\"}\n              onClick={handleViewPoll}\n              className=\"flex items-center gap-1\"\n            >",
+      "suggestedTestId": "conversationheader-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationHeader.tsx",
+      "line": 210,
+      "index": 6503,
+      "content": "<Button...",
+      "button": "<Button\n              size={compact ? \"sm\" : \"default\"}\n              onClick={handleResume}\n              className=\"flex items-center gap-1\"\n            >",
+      "suggestedTestId": "conversationheader-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationCard.tsx",
+      "line": 301,
+      "index": 9262,
+      "content": "<Button...",
+      "button": "<Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    className=\"h-5 px-1 text-xs text-blue-600 hover:text-blue-800\"\n                    onClick={handleViewPoll}\n                  >",
+      "suggestedTestId": "conversationcard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationCard.tsx",
+      "line": 317,
+      "index": 9787,
+      "content": "<Button...",
+      "button": "<Button\n                  variant=\"ghost\"\n                  size=\"sm\"\n                  className=\"h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity\"\n                >",
+      "suggestedTestId": "conversationcard-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationActions.tsx",
+      "line": 197,
+      "index": 5822,
+      "content": "<Button...",
+      "button": "<Button\n            onClick={handleSubmit}\n            disabled={isSubmitting || !title.trim() || title.trim() === currentTitle}\n          >",
+      "suggestedTestId": "conversationactions-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationActions.tsx",
+      "line": 526,
+      "index": 16251,
+      "content": "<Button...",
+      "button": "<Button\n                key={action.key}\n                variant={action.variant}\n                size=\"sm\"\n                onClick={action.onClick}\n                className=\"flex items-center gap-1\"\n              >",
+      "suggestedTestId": "conversationactions-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationActions.tsx",
+      "line": 542,
+      "index": 16728,
+      "content": "<Button variant=\"outline\" size=\"sm\">...",
+      "button": "<Button variant=\"outline\" size=\"sm\">",
+      "suggestedTestId": "conversationactions-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\conversations\\ConversationActions.tsx",
+      "line": 596,
+      "index": 18623,
+      "content": "<Button variant=\"ghost\" size=\"sm\" className=\"h-8 w-8 p-0\">...",
+      "button": "<Button variant=\"ghost\" size=\"sm\" className=\"h-8 w-8 p-0\">",
+      "suggestedTestId": "conversationactions-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatMessageList.tsx",
+      "line": 195,
+      "index": 6744,
+      "content": "<button...",
+      "button": "<button\n                        onClick={onOpenAuthModal}\n                        className={`underline font-medium ${darkTheme ? \"text-blue-400 hover:text-blue-300\" : \"text-blue-600 hover:text-blue-700\"}`}\n                      >",
+      "suggestedTestId": "chatmessagelist-connectezvous"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatMessageList.tsx",
+      "line": 273,
+      "index": 10205,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() => handleConsent(message.id, true, message.metadata?.context)}\n                          className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${\n                            darkTheme\n                              ? \"bg-green-900/30 text-green-400 hover:bg-green-900/50\"\n                              : \"bg-green-50 text-green-700 hover:bg-green-100 border border-green-200\"\n                          }`}\n                        >",
+      "suggestedTestId": "chatmessagelist-oui-envoyer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatMessageList.tsx",
+      "line": 283,
+      "index": 10822,
+      "content": "<button...",
+      "button": "<button\n                          onClick={() => handleConsent(message.id, false, null)}\n                          className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${\n                            darkTheme\n                              ? \"bg-gray-800 text-gray-400 hover:bg-gray-700\"\n                              : \"bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200\"\n                          }`}\n                        >",
+      "suggestedTestId": "chatmessagelist-non-merci"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatInput.tsx",
+      "line": 75,
+      "index": 1965,
+      "content": "<button...",
+      "button": "<button\n              type=\"button\"\n              onClick={() => {\n                if (isLoading) return;\n                fileInputRef.current?.click();\n              }}\n              className={`rounded-full p-2 transition-all flex-shrink-0 ${\n                isLoading || disabled\n                  ? \"bg-transparent text-gray-500 cursor-not-allowed opacity-60\"\n                  : darkTheme\n                    ? \"bg-transparent text-gray-300 hover:bg-gray-700\"\n                    : \"bg-transparent text-gray-600 hover:bg-gray-100\"\n              }`}\n              aria-label=\"Joindre un fichier\"\n              title=\"Joindre un fichier\"\n              disabled={isLoading || disabled}\n            >",
+      "suggestedTestId": "chatinput-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatInput.tsx",
+      "line": 127,
+      "index": 4218,
+      "content": "<button...",
+      "button": "<button\n              onClick={() => {\n                if (voiceRecognition.isListening) {\n                  voiceRecognition.stopListening();\n                  // Garder le texte dans l'input après l'arrêt\n                } else {\n                  // Réinitialiser avant de démarrer pour repartir de zéro\n                  voiceRecognition.resetTranscript();\n                  voiceRecognition.startListening();\n                }\n              }}\n              disabled={isLoading || disabled}\n              className={`\n                rounded-full p-2 transition-all flex-shrink-0\n                ${\n                  isLoading || disabled\n                    ? \"bg-transparent text-gray-500 cursor-not-allowed opacity-60\"\n                    : voiceRecognition.isListening\n                      ? \"bg-red-500 text-white hover:bg-red-600 animate-pulse\"\n                      : darkTheme\n                        ? \"bg-transparent text-gray-300 hover:bg-gray-700\"\n                        : \"bg-transparent text-gray-600 hover:bg-gray-100\"\n                }\n              `}\n              title={voiceRecognition.isListening ? \"Arrêter l'écoute\" : \"Activer le micro\"}\n              aria-label={voiceRecognition.isListening ? \"Arrêter l'écoute\" : \"Activer le micro\"}\n            >",
+      "suggestedTestId": "chatinput-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\chat\\ChatInput.tsx",
+      "line": 196,
+      "index": 7227,
+      "content": "<button...",
+      "button": "<button\n                type=\"button\"\n                onClick={() => onAttachFile(null)}\n                className=\"ml-2 text-gray-400 hover:text-gray-200\"\n              >",
+      "suggestedTestId": "chatinput-retirer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\calendar\\CalendarConflictsPanel.tsx",
+      "line": 65,
+      "index": 2292,
+      "content": "<button...",
+      "button": "<button\n            onClick={onDismiss}\n            className=\"text-gray-400 hover:text-white transition-colors\"\n            aria-label=\"Fermer\"\n          >",
+      "suggestedTestId": "calendarconflictspanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\calendar\\CalendarConflictsPanel.tsx",
+      "line": 120,
+      "index": 4839,
+      "content": "<button...",
+      "button": "<button\n                    onClick={() => onRemoveSlot(conflict)}\n                    className=\"text-sm text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-900/20\"\n                  >",
+      "suggestedTestId": "calendarconflictspanel-retirer"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\calendar\\CalendarConflictsPanel.tsx",
+      "line": 134,
+      "index": 5575,
+      "content": "<button...",
+      "button": "<button\n                          key={suggIdx}\n                          onClick={() => onReplaceSlot(conflict, suggestion)}\n                          className=\"text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded transition-colors\"\n                        >",
+      "suggestedTestId": "calendarconflictspanel-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsPicker.tsx",
+      "line": 199,
+      "index": 6083,
+      "content": "<Button...",
+      "button": "<Button\n                  type=\"button\"\n                  onClick={() => toggleDay(day.value)}\n                  variant=\"ghost\"\n                  size=\"sm\"\n                  className=\"text-gray-400 hover:text-white\"\n                >",
+      "suggestedTestId": "weeklytimeslotspicker-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\WeeklyTimeSlotsPicker.tsx",
+      "line": 247,
+      "index": 8564,
+      "content": "<button...",
+      "button": "<button\n                            key={`${timeSlot.hour}-${timeSlot.minute}`}\n                            type=\"button\"\n                            onClick={() =>\n                              handleTimeSlotToggle(day.value, timeSlot.hour, timeSlot.minute)\n                            }\n                            className={`px-2 py-1 text-xs rounded transition-colors ${\n                              isEnabled\n                                ? \"bg-green-600 text-white hover:bg-green-700\"\n                                : \"bg-[#1e1e1e] text-gray-400 hover:bg-[#2a2a2a] border border-gray-700\"\n                            }`}\n                            title={timeSlot.label}\n                          >",
+      "suggestedTestId": "weeklytimeslotspicker-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\availability\\SchedulingRulesForm.tsx",
+      "line": 369,
+      "index": 15619,
+      "content": "<Button...",
+      "button": "<Button\n                        onClick={async () => {\n                          const result = await signInWithGoogle();\n                          if (result.error) {\n                            toast({\n                              title: \"Erreur de connexion\",\n                              description:\n                                result.error.message ||\n                                \"Impossible de se connecter à Google Calendar.\",\n                              variant: \"destructive\",\n                            });\n                          } else {\n                            toast({\n                              title: \"Connexion en cours\",\n                              description:\n                                \"Redirection vers Google pour autoriser l'accès à votre calendrier...\",\n                            });\n                          }\n                        }}\n                        size=\"sm\"\n                        className=\"bg-green-600 hover:bg-green-700 text-white text-xs h-7 px-3\"\n                      >",
+      "suggestedTestId": "schedulingrulesform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\auth\\SignInForm.tsx",
+      "line": 123,
+      "index": 3993,
+      "content": "<Button...",
+      "button": "<Button\n          type=\"button\"\n          variant=\"outline\"\n          className=\"w-full relative\"\n          disabled={isGoogleSubmitting || loading}\n          onClick={handleGoogleSignIn}\n        >",
+      "suggestedTestId": "signinform-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\auth\\SignInForm.tsx",
+      "line": 194,
+      "index": 6535,
+      "content": "<Button...",
+      "button": "<Button\n            type=\"submit\"\n            className=\"w-full\"\n            disabled={isSubmitting}\n            onClick={(e) => {\n              console.log(\"SignInForm: Bouton cliqué\", {\n                isSubmitting,\n                loading,\n                disabled: isSubmitting,\n              });\n              // Ne pas empêcher la soumission du formulaire\n            }}\n          >",
+      "suggestedTestId": "signinform-submit"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\auth\\SignInForm.tsx",
+      "line": 215,
+      "index": 7241,
+      "content": "<Button...",
+      "button": "<Button\n            type=\"button\"\n            variant=\"link\"\n            className=\"p-0 h-auto font-normal\"\n            onClick={onSwitchToSignUp}\n          >",
+      "suggestedTestId": "signinform-sinscrire"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\admin\\QuotaAlerts.tsx",
+      "line": 179,
+      "index": 5217,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"outline\"\n            onClick={checkAlertStatus}\n            disabled={loading}\n            className=\"flex items-center gap-2\"\n          >",
+      "suggestedTestId": "quotaalerts-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\admin\\QuotaAlerts.tsx",
+      "line": 188,
+      "index": 5516,
+      "content": "<Button...",
+      "button": "<Button\n            onClick={triggerAlertCheck}\n            disabled={checking}\n            className=\"flex items-center gap-2\"\n          >",
+      "suggestedTestId": "quotaalerts-button"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\admin\\QuotaAlerts.tsx",
+      "line": 196,
+      "index": 5817,
+      "content": "<Button...",
+      "button": "<Button\n            variant=\"outline\"\n            onClick={sendTestAlert}\n            disabled={sending}\n            className=\"flex items-center gap-2\"\n          >",
+      "suggestedTestId": "quotaalerts-button"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "151 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

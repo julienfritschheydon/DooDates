@@ -53,12 +53,12 @@ export async function navigateToPollVotingPage(
     }
 
     if (!/\/poll\//.test(page.url())) {
-      await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
       await waitForNetworkIdle(page, { browserName });
       console.log("ℹ️ Navigation forcée vers page votant (URL inchangée après clic)");
     }
   } else {
-    await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/poll/${pollSlug}`, { waitUntil: "domcontentloaded" });
     await waitForNetworkIdle(page, { browserName });
     console.log("✅ Navigation directe vers page votant via slug");
   }
@@ -80,7 +80,7 @@ export async function performDashboardActions(
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
-  const targetDashboardUrl = actions.dashboardUrl || "/DooDates/dashboard";
+  const targetDashboardUrl = actions.dashboardUrl || "/dashboard";
 
   await page.goto(targetDashboardUrl, { waitUntil: "domcontentloaded" });
   await waitForNetworkIdle(page, { browserName });
