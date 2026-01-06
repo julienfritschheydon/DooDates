@@ -39,10 +39,120 @@ export interface TestPoll {
   title: string;
   type: "date" | "form" | "availability";
   status: "active" | "closed";
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
   settings?: Record<string, any>;
   creator_id?: string;
+  // Specific fields for different types
+  resultsVisibility?: "creator-only" | "voters" | "public";
+  questions?: any[];
+  dates?: any[];
+  clientAvailabilities?: string;
+  parsedAvailabilities?: any[];
+  proposedSlots?: any[];
+  validatedSlot?: any;
+}
+
+/**
+ * Seeding helper to create a poll via page.evaluate (active page)
+ */
+export async function seedPollViaEvaluate(
+  page: Page,
+  poll: Partial<TestPoll> & { slug: string; title: string; type: TestPoll["type"] },
+): Promise<TestPoll> {
+  const testPoll = await page.evaluate(
+    ({ p }) => {
+      const devId =
+        p.creator_id || localStorage.getItem("doodates_device_id") || `dev-${Date.now()}`;
+      const selectedDates =
+        p.type === "date" && p.dates
+          ? p.dates.map((d: any) => (typeof d === "string" ? d : d.date))
+          : [];
+
+      const fullPoll: any = {
+        id: p.id || p.slug,
+        slug: p.slug,
+        title: p.title,
+        type: p.type,
+        status: p.status || "active",
+        created_at: p.created_at || new Date().toISOString(),
+        updated_at: p.updated_at || new Date().toISOString(),
+        creator_id: devId,
+        resultsVisibility: p.resultsVisibility || "creator-only",
+        dates: p.dates || [],
+        questions: p.questions || [],
+        settings: {
+          selectedDates: selectedDates,
+          resultsVisibility: p.resultsVisibility || "creator-only",
+          ...(p.settings || {}),
+        },
+        // Availabilities
+        clientAvailabilities: p.clientAvailabilities,
+        parsedAvailabilities: p.parsedAvailabilities,
+        proposedSlots: p.proposedSlots,
+        validatedSlot: p.validatedSlot,
+      };
+
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+      polls.push(fullPoll);
+      localStorage.setItem("doodates_polls", JSON.stringify(polls));
+      localStorage.setItem("doodates_device_id", devId);
+      return fullPoll;
+    },
+    { p: poll },
+  );
+
+  return testPoll;
+}
+
+/**
+ * Seeding helper to create a poll via page.addInitScript (pre-navigation)
+ */
+export async function seedPollViaInitScript(
+  page: Page,
+  poll: Partial<TestPoll> & { slug: string; title: string; type: TestPoll["type"] },
+): Promise<void> {
+  await page.addInitScript(
+    ({ p }) => {
+      try {
+        const devId =
+          p.creator_id || localStorage.getItem("doodates_device_id") || `dev-${Date.now()}`;
+        const selectedDates =
+          p.type === "date" && p.dates
+            ? p.dates.map((d: any) => (typeof d === "string" ? d : d.date))
+            : [];
+
+        const fullPoll: any = {
+          id: p.id || p.slug,
+          slug: p.slug,
+          title: p.title,
+          type: p.type,
+          status: p.status || "active",
+          created_at: p.created_at || new Date().toISOString(),
+          updated_at: p.updated_at || new Date().toISOString(),
+          creator_id: devId,
+          resultsVisibility: p.resultsVisibility || "creator-only",
+          dates: p.dates || [],
+          questions: p.questions || [],
+          settings: {
+            selectedDates: selectedDates,
+            resultsVisibility: p.resultsVisibility || "creator-only",
+            ...(p.settings || {}),
+          },
+          clientAvailabilities: p.clientAvailabilities,
+          parsedAvailabilities: p.parsedAvailabilities,
+          proposedSlots: p.proposedSlots,
+          validatedSlot: p.validatedSlot,
+        };
+
+        const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+        polls.push(fullPoll);
+        localStorage.setItem("doodates_polls", JSON.stringify(polls));
+        localStorage.setItem("doodates_device_id", devId);
+      } catch (e) {}
+    },
+    { p: poll },
+  );
 }
 
 /**
@@ -213,47 +323,14 @@ export async function createTestConversations(
  * @param poll - Données du poll
  * @returns Le poll créé
  */
+/**
+ * @deprecated Use seedPollViaEvaluate instead
+ */
 export async function createTestPoll(
   page: Page,
-  poll: Omit<TestPoll, "id" | "createdAt" | "updatedAt">,
+  poll: Omit<TestPoll, "id" | "created_at" | "updated_at">,
 ): Promise<TestPoll> {
-  const { slug, ...restPoll } = poll;
-  // Récupérer le device ID pour le creator_id par défaut (doit matcher pollStorage.getDeviceId)
-  // Clé attendue par l'app : "doodates_device_id"
-  const deviceId = await page.evaluate(() => {
-    const key = "doodates_device_id";
-    let id = localStorage.getItem(key);
-    if (!id) {
-      id = "test-device-id";
-      localStorage.setItem(key, id);
-    }
-    return id;
-  });
-
-  const testPoll: TestPoll = {
-    id: `test-poll-${Date.now()}`,
-    slug: slug || `test-poll-${Date.now()}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    settings: restPoll.settings || {},
-    creator_id: restPoll.creator_id || deviceId,
-    ...restPoll,
-  };
-
-  // Récupérer les polls existants
-  const existingPolls = await page.evaluate(() => {
-    const stored = localStorage.getItem("doodates_polls");
-    return stored ? JSON.parse(stored) : [];
-  });
-
-  // Ajouter le nouveau poll
-  const updatedPolls = [...existingPolls, testPoll];
-
-  await page.evaluate((polls) => {
-    localStorage.setItem("doodates_polls", JSON.stringify(polls));
-  }, updatedPolls);
-
-  return testPoll;
+  return seedPollViaEvaluate(page, poll as any);
 }
 
 /**

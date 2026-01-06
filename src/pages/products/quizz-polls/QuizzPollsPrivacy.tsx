@@ -177,10 +177,10 @@ export default function QuizzPollsPrivacy() {
           </p>
           <div className="space-y-2 text-gray-700">
             <p>
-              <strong>Email :</strong> privacy@doodates.com
+              <strong>Email :</strong> quizz-privacy@doodates.com
             </p>
             <p>
-              <strong>DPO :</strong> dpo@doodates.com
+              <strong>DPO :</strong> quizz-privacy@doodates.com
             </p>
           </div>
         </div>

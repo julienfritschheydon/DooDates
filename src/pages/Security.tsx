@@ -315,7 +315,7 @@ export const Security: React.FC = () => {
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
               Cette politique s'applique à tous les produits DooDates : Sondages de dates,
-              Formulaires, Quizz, et Chat IA
+              Formulaires, Disponibilités, Quizz, et Chat IA
             </p>
             <div className="flex justify-center gap-4 text-sm">
               <Link to="/privacy" className="hover:text-gray-300">

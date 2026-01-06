@@ -12,6 +12,7 @@ const FormPollsDocumentationSimple = lazy(() => import("./DocumentationSimple"))
 const FormPollsDocumentationAdvancedSimple = lazy(() => import("./DocumentationAdvancedSimple"));
 const FormPollsPrivacy = lazy(() => import("@/pages/products/form-polls/FormPollsPrivacy"));
 const FormPollsDataControl = lazy(() => import("@/pages/products/form-polls/FormPollsDataControl"));
+const FormPollsSecurity = lazy(() => import("@/pages/products/form-polls/FormPollsSecurity"));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
@@ -41,6 +42,7 @@ const FormPollsApp: React.FC = () => {
         <Route path="/documentation" element={<FormPollsDocumentationSimple />} />
         <Route path="/documentation/advanced" element={<FormPollsDocumentationAdvancedSimple />} />
         <Route path="/privacy" element={<FormPollsPrivacy />} />
+        <Route path="/security" element={<FormPollsSecurity />} />
         <Route path="/data-control" element={<FormPollsDataControl />} />
       </Routes>
     </Suspense>

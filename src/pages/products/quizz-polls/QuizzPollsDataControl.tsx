@@ -171,8 +171,8 @@ export default function QuizzPollsDataControl() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Pour toute question :{" "}
-            <a href="mailto:dpo@doodates.com" className="text-blue-600 hover:underline">
-              dpo@doodates.com
+            <a href="mailto:quizz-privacy@doodates.com" className="text-blue-600 hover:underline">
+              quizz-privacy@doodates.com
             </a>
           </p>
         </div>

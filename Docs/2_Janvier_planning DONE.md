@@ -72,3 +72,59 @@
     - Verify error toast/modal appears with correct message
     - **Why**: Rate limiting is deterministic logic based on headers/DB state. Most of it is better tested in isolation, but we keep one E2E test to ensure the UI correctly handles the error state.
 
+---
+    ### 3. RGPD Tests (Consolidation) ✅ COMPLETE
+    **Current Status**: **26.4s** runtime. 47 tests consolidated.
+    - **Problem**: Previously fragmented across 9 files with high overhead.
+    - **Solution**: [tests/e2e/rgpd-consolidated.spec.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/rgpd-consolidated.spec.ts)
+    - **Results**:
+    - Combined 47 functional paths into 7 optimized tests.
+    - Used "Seed User" approach to minimize Supabase auth calls.
+    - Runtime reduced from 2.5m to <30s.
+    - **Deleted Folders**: `tests/e2e/rgpd/` removed.
+    - **Cleaned Files**: `tests/e2e/security-rate-limiting.spec.ts` (RGPD tests removed).
+
+    ### 4. Specific UI Tests (`form-visibility`, `backend`)
+    **Current Status**: Skipped. `form-visibility` tests if elements hide/show. `backend` tests depend on live Supabase.
+    - **Problem**: `form-visibility` is pure React logic (render condition). `backend` tests are flaky in CI.
+    - **Restructuring Plan**:
+    - **Form Visibility**: **Convert to Component Test**. Move to `src/components/polls/__tests__/FormPoll.test.tsx` using React Testing Library. It's faster and less brittle.
+    - **Backend Test**: **Delete from E2E**. Backend logic should be tested via Supabase local (cli) tests, not Playwright frontend tests.
+
+    ### 1. Consolidate Storage Seeding Logic ✅ DONE
+    Seeding logic is now centralized in [tests/e2e/helpers/test-data.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/test-data.ts).
+
+    - **Implementation**: 
+    - `seedPollViaEvaluate` (active sessions)
+    - `seedPollViaInitScript` (pre-navigation)
+    - **Results**:
+    - **Reliability**: Fixed `snake_case` (created_at) schema mismatch.
+    - **Performance**: Verified passing with 50+ polls in **19.6s**.
+    - **Maintenance**: All legacy calls in `poll-helpers.ts` and `poll-storage-helpers.ts` are deprecated/redirected.
+
+    ### 2. Unify Dashboard Verification ✅ DONE
+    Dashboard verification is now centralized in [tests/e2e/helpers/dashboard-helpers.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/dashboard-helpers.ts).
+
+    - **Implementation**: `verifyPollVisibility` (title and slug support).
+    - **Results**: 
+    - Eliminated scattered regex/href scanning.
+    - Shared by Date Polls and Form Polls.
+
+    ### 📌 LUNDI 6 JANVIER
+
+**Thème : 🧪 Tests E2E & Performance**
+
+| Bloc        | Durée | Tâche                                                            |
+| ----------- | ----- | ---------------------------------------------------------------- |
+| 2h Critique | 2h    | **Tests E2E complets**                                           |
+|             |       | - [x] Lancer suite complète tests E2E                            |
+|             |       | - [x] Analyser échecs potentiels                                 |
+|             |       | - [x] Corriger bugs critiques identifiés                         |
+|             |       | - [x] Tests pages `/date/security`, `/form/security`, etc.       |
+| 1h Fond     | 1h    | **Tests performance**                                            |
+|             |       | - [x] Vérifier temps de chargement                               |
+|             |       | - [x] Tester sur mobile/desktop                                  |
+|             |       | - [x] Identifier goulots d'étranglement                          |
+|             |       | - [x] Configurer privacy@doodates.com                            |
+|             |       | - [x] Configurer support@doodates.com                            |
+|             |       | - [x] Tests réception emails                                     |

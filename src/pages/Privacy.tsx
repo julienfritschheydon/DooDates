@@ -72,6 +72,24 @@ export const Privacy: React.FC = () => {
                 </div>
 
                 <div>
+                  <h3 className="font-semibold text-white mb-2">Disponibilités</h3>
+                  <ul className="list-disc list-inside text-gray-300 space-y-1">
+                    <li>Créneaux horaires préférés</li>
+                    <li>Commentaires de disponibilité</li>
+                    <li>Données de calendrier synchronisées (si activé)</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-white mb-2">Quizz</h3>
+                  <ul className="list-disc list-inside text-gray-300 space-y-1">
+                    <li>Réponses aux questions du quizz</li>
+                    <li>Scores et temps de réponse</li>
+                    <li>Pseudonyme ou nom du participant</li>
+                  </ul>
+                </div>
+
+                <div>
                   <h3 className="font-semibold text-white mb-2">Chat IA</h3>
                   <ul className="list-disc list-inside text-gray-300 space-y-1">
                     <li>Messages envoyés à l'IA</li>
@@ -216,7 +234,7 @@ export const Privacy: React.FC = () => {
           <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500">
             <p className="mb-4">
               Cette politique s'applique à tous les produits DooDates : Sondages de dates,
-              Formulaires, Quizz, et Chat IA
+              Formulaires, Disponibilités, Quizz, et Chat IA
             </p>
             <div className="flex justify-center gap-4 text-sm">
               <Link to="/terms" className="hover:text-gray-300">

@@ -11,6 +11,7 @@ const DatePollsPricingSimple = lazy(() => import("./PricingSimple"));
 const DatePollsDocumentationSimple = lazy(() => import("./DocumentationSimple"));
 const DatePollsPrivacy = lazy(() => import("@/pages/products/date-polls/DatePollsPrivacy"));
 const DatePollsDataControl = lazy(() => import("@/pages/products/date-polls/DatePollsDataControl"));
+const DatePollsSecurity = lazy(() => import("@/pages/products/date-polls/DatePollsSecurity"));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
@@ -39,6 +40,7 @@ const DatePollsApp: React.FC = () => {
         <Route path="/docs" element={<DatePollsDocumentationSimple />} />
         <Route path="/documentation" element={<DatePollsDocumentationSimple />} />
         <Route path="/privacy" element={<DatePollsPrivacy />} />
+        <Route path="/security" element={<DatePollsSecurity />} />
         <Route path="/data-control" element={<DatePollsDataControl />} />
       </Routes>
     </Suspense>

@@ -15,6 +15,9 @@ const AvailabilityPollsPrivacy = lazy(
 const AvailabilityPollsDataControl = lazy(
   () => import("@/pages/products/availability-polls/AvailabilityPollsDataControl"),
 );
+const AvailabilityPollsSecurity = lazy(
+  () => import("@/pages/products/availability-polls/AvailabilityPollsSecurity"),
+);
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
@@ -43,6 +46,7 @@ const AvailabilityPollsApp: React.FC = () => {
         <Route path="/docs" element={<AvailabilityPollsDocumentationSimple />} />
         <Route path="/documentation" element={<AvailabilityPollsDocumentationSimple />} />
         <Route path="/privacy" element={<AvailabilityPollsPrivacy />} />
+        <Route path="/security" element={<AvailabilityPollsSecurity />} />
         <Route path="/data-control" element={<AvailabilityPollsDataControl />} />
       </Routes>
     </Suspense>

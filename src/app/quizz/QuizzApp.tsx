@@ -11,6 +11,11 @@ const QuizzResults = lazy(() => import("@/components/polls/QuizzResults"));
 const QuizzDocumentation = lazy(() => import("./Documentation"));
 const QuizzPricing = lazy(() => import("./Pricing"));
 const ChildHistory = lazy(() => import("./ChildHistory"));
+const QuizzPollsSecurity = lazy(() => import("@/pages/products/quizz-polls/QuizzPollsSecurity"));
+const QuizzPollsPrivacy = lazy(() => import("@/pages/products/quizz-polls/QuizzPollsPrivacy"));
+const QuizzPollsDataControl = lazy(
+  () => import("@/pages/products/quizz-polls/QuizzPollsDataControl"),
+);
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
@@ -39,6 +44,9 @@ const QuizzApp: React.FC = () => {
           <Route path="/docs" element={<QuizzDocumentation />} />
           <Route path="/documentation" element={<QuizzDocumentation />} />
           <Route path="/pricing" element={<QuizzPricing />} />
+          <Route path="/security" element={<QuizzPollsSecurity />} />
+          <Route path="/privacy" element={<QuizzPollsPrivacy />} />
+          <Route path="/data-control" element={<QuizzPollsDataControl />} />
           <Route path="/:slug/vote" element={<QuizzVote />} />
           <Route path="/:slug/results" element={<QuizzResults />} />
         </Routes>

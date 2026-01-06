@@ -14,32 +14,9 @@
 4. **Marketing & Traffic** - SEO, social, stratégie de lancement
 
 ---
-
-### 📌 LUNDI 6 JANVIER
-
-**Thème : 🧪 Tests E2E & Performance**
-
-| Bloc        | Durée | Tâche                                                            |
-| ----------- | ----- | ---------------------------------------------------------------- |
-| 2h Critique | 2h    | **Tests E2E complets**                                           |
-|             |       | - [ ] Lancer suite complète tests E2E                            |
-|             |       | - [ ] Analyser échecs potentiels                                 |
-|             |       | - [ ] Corriger bugs critiques identifiés                         |
-|             |       | - [ ] Tests pages `/date-polls/security`, `/form-polls/security` |
-| 1h Fond     | 1h    | **Tests performance**                                            |
-|             |       | - [ ] Vérifier temps de chargement                               |
-|             |       | - [ ] Tester sur mobile/desktop                                  |
-|             |       | - [ ] Identifier goulots d'étranglement                          |
-|             |       | - [ ] Configurer privacy@doodates.com                            |
-|             |       | - [ ] Configurer support@doodates.com                            |
-|             |       | - [ ] Tests réception emails                                     |
-|             |       | - [ ] Configuration réponses automatiques                        |
-
----
-
 ### 📌 MARDI 7 JANVIER
 
-**Thème : 🧪 Tests Intégration & MariaDB**
+**Thème : 🧪 Tests Intégration**
 
 | Bloc        | Durée | Tâche                                                                      |
 | ----------- | ----- | -------------------------------------------------------------------------- |
@@ -49,17 +26,12 @@
 |             |       | - [ ] Tests exports (CSV, PDF, JSON, Markdown)                             |
 |             |       | - [ ] Tests authentification                                               |
 |             |       | - [ ] Installation Sentry + tests alertes                                  |
-| 1h Fond     | 1h    | **Prototype MariaDB**                                                      |
-|             |       | - [ ] Démarrer prototype MariaDB                                           |
-|             |       | - [ ] Schéma de base                                                       |
-|             |       | - [ ] Connexion de base                                                    |
-|             |       | - [ ] Configuration UptimeRobot                                            |
 
 ---
 
 ### 📌 MERCREDI 8 JANVIER
 
-**Thème : 🧪 Tests Edge Cases & MariaDB**
+**Thème : 🧪 Tests Edge Cases**
 
 | Bloc        | Durée | Tâche                                              |
 | ----------- | ----- | -------------------------------------------------- |
@@ -68,17 +40,12 @@
 |             |       | - [ ] Tests concurrence (utilisateurs simultanés)  |
 |             |       | - [ ] Tests erreurs réseau                         |
 |             |       | - [ ] Rédaction posts Reddit/Social pour lancement |
-| 1h Fond     | 1h    | **Développement MariaDB**                          |
-|             |       | - [ ] Implémentation fonctions de base             |
-|             |       | - [ ] Tests CRUD simples                           |
-|             |       | - [ ] Validation performances                      |
-|             |       | - [ ] Vérification sitemap.xml & metadata          |
 
 ---
 
 ### 📌 JEUDI 9 JANVIER
 
-**Thème : 🧪 Tests UX & MariaDB**
+**Thème : 🧪 Tests UX**
 
 | Bloc        | Durée | Tâche                                            |
 | ----------- | ----- | ------------------------------------------------ |
@@ -87,30 +54,16 @@
 |             |       | - [ ] Tests accessibilité                        |
 |             |       | - [ ] Tests erreurs utilisateur                  |
 |             |       | - [ ] Préparation email réseau personnel         |
-| 1h Fond     | 1h    | **Développement MariaDB**                        |
-|             |       | - [ ] Fonctions avancées                         |
-|             |       | - [ ] Tests intégration avec app                 |
-|             |       | - [ ] Benchmark vs Supabase                      |
-|             |       | - [ ] Configuration réponses automatiques emails |
+|             |       | - [ ] Configuration réponses automatiques                        |
 
 ---
 
 ### 📌 VENDREDI 10 JANVIER
 
-**Thème : 🧪 Bilan Tests & MariaDB**
+**Thème : 🧪 
 
 | Bloc        | Durée | Tâche                                                           |
 | ----------- | ----- | --------------------------------------------------------------- |
-| 2h Critique | 2h    | **Bilan tests semaine**                                         |
-|             |       | - [ ] Rapport complet tests                                     |
-|             |       | - [ ] Priorité bugs restants                                    |
-|             |       | - [ ] Documentation résultats                                   |
-|             |       | - [ ] Analyse métriques lancement (sondages créés, votes reçus) |
-| 1h Fond     | 1h    | **Finalisation MariaDB**                                        |
-|             |       | - [ ] Documentation prototype                                   |
-|             |       | - [ ] Recommandations migration                                 |
-|             |       | - [ ] Plan passage production                                   |
-|             |       | - [ ] Identification top 3 améliorations demandées              |
 
 ---
 
@@ -449,7 +402,7 @@
 ## 📋 RÉCAPITULATIF DES LIVRABLES
 
 - [x] ✅ **Semaine 1** : Revue complète & planification décalée
-- [ ] ✅ **Semaine 2** : Tests E2E complets + prototype MariaDB
+- [x] ✅ **Semaine 2** : Tests E2E complets
 - [ ] ✅ **Semaine 3** : Modèle économique validé et documenté
 - [ ] ✅ **Semaine 3** : Intégration paiements fonctionnelle (Lemon Squeezy)
 - [ ] ✅ **Semaine 4** : Pages légales créées (/about, /contact, /terms)
@@ -466,7 +419,5 @@
 **Décision du 2 janvier 2025 :**
 
 - Semaine 1 (2-3 jan) : Terminée avec revue complète
-- Semaine 2 (6-10 jan) : **MODIFIÉE** - Focus Tests E2E + MariaDB (au lieu de Quotas & Paiements)
+- Semaine 2 (6-10 jan) : Focus Tests E2E 
 - Semaines 3-6 : **DÉCALÉES** d'une semaine (13 jan → 3 fév)
-
-**Raison :** Priorité au prototype MariaDB et aux tests exhaustifs avant lancement commercial.

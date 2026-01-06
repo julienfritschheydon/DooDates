@@ -172,10 +172,10 @@ export default function AvailabilityPollsPrivacy() {
           </p>
           <div className="space-y-2 text-gray-700">
             <p>
-              <strong>Email :</strong> privacy@doodates.com
+              <strong>Email :</strong> availability-privacy@doodates.com
             </p>
             <p>
-              <strong>DPO :</strong> dpo@doodates.com
+              <strong>DPO :</strong> availability-privacy@doodates.com
             </p>
           </div>
         </div>

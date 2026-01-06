@@ -1,19 +1,18 @@
 /**
- * Tests E2E Sécurité - Rate Limiting & RGPD
+ * Tests E2E Sécurité - Rate Limiting
  *
  * Tests critiques pour la sécurité:
  * - Rate limiting (10 req/min par IP)
  * - Injection quotas manuels
  * - Contournement guest limits
  * - Protection DDoS basique
- * - Consentement RGPD
  */
 
 import { test, expect } from "@playwright/test";
 import { navigateToWorkspace } from "./helpers/chat-helpers";
 
 // Ces tests de sécurité ne fonctionnent correctement que sur Chromium
-test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
+test.describe("🔒 E2E Security Tests - Rate Limiting", () => {
   test.skip(({ browserName }) => browserName !== "chromium", "Security tests optimized for Chrome");
 
   test.beforeEach(async ({ page, browserName }) => {
@@ -201,121 +200,6 @@ test.describe("🔒 E2E Security Tests - Rate Limiting & RGPD", () => {
       await expect(page.locator("body")).toBeVisible({ timeout: timeouts.element });
 
       console.log(`✅ RATE-04: Protection DDoS basique - ${duration}ms pour 50 requêtes`);
-    });
-  });
-
-  test.describe("🔒 RGPD & Consentement", () => {
-    test("RGPD-01: Consentement cookies requis", async ({ page, browserName }) => {
-      await navigateToWorkspace(page, browserName);
-      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
-
-      // Vérifier la présence de bannière consentement
-      const consentBanner = page.locator(
-        '[data-testid="consent-banner"], .consent-banner, #cookie-consent',
-      );
-      const hasConsentBanner = await consentBanner.count().then((count) => count > 0);
-
-      if (hasConsentBanner) {
-        await expect(consentBanner).toBeVisible({ timeout: 5000 });
-
-        // Tester les boutons de consentement
-        const acceptButton = consentBanner.locator(
-          'button:has-text("Accepter"), button:has-text("Accept all")',
-        );
-        const rejectButton = consentBanner.locator(
-          'button:has-text("Refuser"), button:has-text("Reject")',
-        );
-
-        const hasAcceptButton = await acceptButton.count().then((count) => count > 0);
-        const hasRejectButton = await rejectButton.count().then((count) => count > 0);
-
-        expect(hasAcceptButton || hasRejectButton).toBe(true);
-
-        console.log("✅ RGPD-01: Bannière consentement présente avec options");
-      } else {
-        // Pas de bannière = consentement implicite (acceptable en E2E)
-        console.log("ℹ️ RGPD-01: Pas de bannière consentement (consentement implicite?)");
-      }
-    });
-
-    test("RGPD-02: Données personnelles protégées", async ({ page, browserName }) => {
-      await navigateToWorkspace(page, browserName);
-      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
-
-      // Vérifier que les données sensibles ne sont pas exposées
-      const pageContent = await page.content();
-
-      // Vérifications de sécurité basiques
-      const sensitiveData = ["password", "token", "secret", "api_key", "private_key"];
-
-      for (const sensitive of sensitiveData) {
-        // Vérifier que les données sensibles ne sont pas en clair dans le HTML
-        const regex = new RegExp(`${sensitive}\\s*[:=]\\s*['"][^'"]+['"]`, "i");
-        expect(pageContent).not.toMatch(regex);
-      }
-
-      // Vérifier localStorage et sessionStorage
-      const storageData = await page.evaluate(() => {
-        return {
-          localStorage: Object.keys(localStorage),
-          sessionStorage: Object.keys(sessionStorage),
-        };
-      });
-
-      // Les clés de stockage ne doivent pas contenir de données sensibles en clair
-      const allKeys = [...storageData.localStorage, ...storageData.sessionStorage];
-      for (const key of allKeys) {
-        expect(key.toLowerCase()).not.toContain("password");
-        expect(key.toLowerCase()).not.toContain("token");
-      }
-
-      console.log("✅ RGPD-02: Données personnelles protégées");
-    });
-
-    test("RGPD-03: Droit à l'oubli simulé", async ({ page, browserName }) => {
-      await navigateToWorkspace(page, browserName);
-      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
-
-      // Simuler un utilisateur qui veut supprimer ses données
-      const deletionResult = await page.evaluate(() => {
-        try {
-          // Vérifier s'il existe une fonction de suppression
-          if (typeof window !== "undefined" && (window as any).deleteUserData) {
-            return (window as any).deleteUserData();
-          }
-
-          // Simuler la suppression manuelle du localStorage
-          const keysToRemove: string[] = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && !key.includes("supabase.auth")) {
-              keysToRemove.push(key);
-            }
-          }
-
-          keysToRemove.forEach((key) => localStorage.removeItem(key));
-          return `Removed ${keysToRemove.length} keys`;
-        } catch (error) {
-          return "error";
-        }
-      });
-
-      expect([
-        "error",
-        "Removed 0 keys",
-        "Removed 1 keys",
-        "Removed 2 keys",
-        "Removed 3 keys",
-        "Removed 4 keys",
-        "Removed 5 keys",
-      ]).toContain(deletionResult);
-
-      // Vérifier que le site fonctionne toujours après suppression
-      await page.reload({ waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded", { timeout: 2000 }).catch(() => {});
-      await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
-
-      console.log(`✅ RGPD-03: Droit à l'oubli - ${deletionResult}`);
     });
   });
 

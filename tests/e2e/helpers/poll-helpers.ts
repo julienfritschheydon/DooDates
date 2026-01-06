@@ -17,6 +17,8 @@ import { fillFormTitle } from "./form-helpers";
 import { safeIsVisible } from "./safe-helpers";
 import { getPollSlugFromPage } from "./poll-navigation-helpers";
 import { type BrowserName, getTimeouts } from "./poll-core-helpers";
+import { seedPollViaEvaluate } from "./test-data";
+import { verifyPollVisibility } from "./dashboard-helpers";
 
 export { createFormPollViaAI, voteOnFormPoll } from "./poll-form-helpers";
 
@@ -770,32 +772,20 @@ export async function publishPollAndNavigateToVote(
 /**
  * Helper pour vérifier qu'un poll apparaît dans le dashboard
  */
+/**
+ * @deprecated Use verifyPollVisibility from dashboard-helpers.ts instead
+ */
 export async function verifyPollInDashboard(
   page: Page,
   browserName: BrowserName,
   expectedTitle: string,
-  timeout: number = 10000,
+  timeout?: number,
 ): Promise<void> {
-  console.log(`[DASHBOARD] Vérification présence du poll "${expectedTitle}" dans dashboard`);
-
-  // Aller au dashboard
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-  await waitForNetworkIdle(page, { browserName });
-
-  // Attendre et vérifier que le poll apparaît
-  const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
-    browserName,
-    timeout,
-  });
-  await expect(pollItem).toContainText(expectedTitle, { timeout });
-
-  console.log(`[DASHBOARD] ✅ Poll "${expectedTitle}" trouvé dans dashboard`);
+  return verifyPollVisibility(page, browserName, { title: expectedTitle, timeout });
 }
 
 /**
- * Helper pour créer un poll directement dans localStorage (pour tests d'accès/résultats)
- *
- * IMPORTANT: resultsVisibility doit être dans poll.settings pour que useResultsAccess le lise correctement
+ * @deprecated Use seedPollViaEvaluate from test-data.ts instead
  */
 export async function createPollInStorage(
   page: Page,
@@ -809,99 +799,19 @@ export async function createPollInStorage(
     creator_id?: string;
   },
 ): Promise<void> {
-  const deviceId = pollData.creator_id || `dev-${Date.now()}`;
-
-  await page.evaluate(
-    ({ poll, deviceId }) => {
-      // Extraire les dates au format string pour settings.selectedDates
-      const selectedDates =
-        poll.type === "date" && poll.dates
-          ? poll.dates.map((d: any) => (typeof d === "string" ? d : d.date))
-          : [];
-
-      const fullPoll = {
-        id: poll.slug,
-        slug: poll.slug,
-        title: poll.title,
-        type: poll.type,
-        status: "active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        creator_id: deviceId,
-        resultsVisibility: poll.resultsVisibility || "creator-only", // Legacy: top-level for backward compatibility
-        dates: poll.dates || [], // Garder la structure riche pour d'autres usages potentiels
-        questions: poll.questions || [],
-        settings: {
-          selectedDates: selectedDates,
-          resultsVisibility: poll.resultsVisibility || "creator-only", // CORRECT: useResultsAccess reads from here
-        },
-      };
-
-      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
-      polls.push(fullPoll);
-      localStorage.setItem("doodates_polls", JSON.stringify(polls));
-      localStorage.setItem("doodates_device_id", deviceId);
-    },
-    { poll: pollData, deviceId },
-  );
-
-  console.log(`[STORAGE] ✅ Poll "${pollData.title}" créé dans localStorage`);
+  await seedPollViaEvaluate(page, pollData);
 }
 
 /**
- * Vérifie qu'un poll identifié par son slug apparaît dans le dashboard.
- * Plus robuste que l'ancienne implémentation :
- * - scanne tous les éléments [data-testid="poll-item"]
- * - fallback sur tous les liens de la page si nécessaire
+ * @deprecated Use verifyPollVisibility from dashboard-helpers.ts instead
  */
 export async function verifyPollBySlugInDashboard(
   page: Page,
   browserName: BrowserName,
   expectedSlug: string,
-  timeout = 10000,
+  timeout?: number,
 ): Promise<void> {
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-  await waitForNetworkIdle(page, { browserName });
-
-  const pollItems = page.locator('[data-testid="poll-item"]');
-  const itemCount = await pollItems.count();
-
-  console.log(
-    `[DASHBOARD] Recherche du poll avec slug "${expectedSlug}" (poll-items: ${itemCount})`,
-  );
-
-  // 1. Chercher dans tous les poll-item
-  for (let i = 0; i < itemCount; i++) {
-    const item = pollItems.nth(i);
-    const link = item.locator(`a[href*='/poll/${expectedSlug}"]`).first();
-    if (await link.isVisible({ timeout }).catch(() => false)) {
-      console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé dans poll-item #${i}`);
-      return;
-    }
-  }
-
-  // 2. Fallback : scanner tous les liens de la page
-  const anyLink = page.locator(`a[href*='/poll/${expectedSlug}"]`).first();
-  if (await anyLink.isVisible({ timeout }).catch(() => false)) {
-    console.log(`[DASHBOARD] ✅ Poll avec slug "${expectedSlug}" trouvé via scan global des liens`);
-    return;
-  }
-
-  // 3. Si toujours rien : log détaillé et échec explicite
-  const hrefs = await page.evaluate(() =>
-    Array.from(document.querySelectorAll("a"))
-      .map((a) => (a as HTMLAnchorElement).href)
-      .filter(Boolean),
-  );
-
-  console.log("[DASHBOARD] ❌ Aucun lien de poll trouvé pour ce slug", {
-    expectedSlug,
-    hrefSamples: hrefs.slice(0, 10),
-  });
-
-  throw new Error(
-    `Poll avec slug "${expectedSlug}" introuvable dans le dashboard (voir logs pour les href présents).`,
-  );
+  return verifyPollVisibility(page, browserName, { slug: expectedSlug, timeout });
 }
 
 /**

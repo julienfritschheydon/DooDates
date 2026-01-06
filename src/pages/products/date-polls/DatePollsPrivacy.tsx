@@ -183,10 +183,10 @@ export default function DatePollsPrivacy() {
           </p>
           <div className="space-y-2 text-gray-300">
             <p>
-              <strong>Email :</strong> privacy@doodates.com
+              <strong>Email :</strong> date-privacy@doodates.com
             </p>
             <p>
-              <strong>DPO :</strong> dpo@doodates.com
+              <strong>DPO :</strong> date-privacy@doodates.com
             </p>
           </div>
         </div>
