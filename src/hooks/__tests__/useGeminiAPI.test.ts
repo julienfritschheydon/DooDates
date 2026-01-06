@@ -229,13 +229,10 @@ describe("useGeminiAPI", () => {
 
       expect(response).toEqual({
         success: false,
-        error:
-          "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.",
+        error: "Quota exceeded",
         errorType: "quota",
       });
-      expect(result.current.error).toBe(
-        "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.",
-      );
+      expect(result.current.error).toBe("Quota exceeded");
       expect(onQuotaExceeded).toHaveBeenCalledTimes(1);
     });
 

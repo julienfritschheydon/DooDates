@@ -9,6 +9,7 @@ import "./styles/docs.css";
 import { logger } from "@/lib/logger";
 import { generateBrowserFingerprint, getCachedFingerprint } from "@/lib/browserFingerprint";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
+import { logError } from "@/lib/error-handling";
 
 // DEBUG: Exposer la fonction de fingerprinting sur window pour tests console
 declare global {
@@ -47,7 +48,10 @@ try {
   console.log("[MAIN-DEBUG] React mount called successfully.");
 } catch (error) {
   const errorMessage = error instanceof Error ? error.message : String(error);
-  console.error(`[MAIN-DEBUG] CRITICAL: Failed to mount React application: ${errorMessage}`);
+  logError(error instanceof Error ? error : new Error(errorMessage), {
+    component: "main",
+    operation: "mount",
+  });
 }
 
 // Fonction pour forcer le plein écran sur Android
