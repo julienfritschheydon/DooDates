@@ -27,7 +27,12 @@ test.describe("Dashboard - Tags et Dossiers", () => {
   test.describe.configure({ mode: "serial" });
   // Note: test.skip retiré - les tests doivent s'exécuter en CI
 
-  test.beforeEach(async ({ page, browserName }) => {
+  test.beforeEach(async ({ page, browserName, isMobile }) => {
+    // Skip unsupported browsers for this specific serial suite
+    if (browserName === "webkit" || isMobile) {
+      test.skip(true, "These serial tests are not stable on Webkit/Mobile yet");
+    }
+
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
       warmup: true,

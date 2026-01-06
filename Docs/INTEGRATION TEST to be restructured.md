@@ -30,11 +30,6 @@
 
 ### Improvement Suggestions & Expected Gains
 
-### 3. Clean Up [poll-helpers.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/poll-helpers.ts)
-- **Suggested Action**:
-  - Move [sendChatCommand](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/poll-helpers.ts#43-94) to [chat-helpers.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/chat-helpers.ts).
-  - Move voting helpers to a dedicated `vote-helpers.ts`.
-
 ### 4. Standardize Helper Signatures
 - **Suggested Action**: Standardize all helpers to accept a `context: { page: Page; browserName: string }` object.
 

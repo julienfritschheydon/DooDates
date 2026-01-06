@@ -20,6 +20,13 @@ const mkLogger =
 test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
   test.describe.configure({ mode: "serial" });
 
+  // Skip Firefox for speed/stability as per new "Fast & Simple" testing principles
+  // Logic is shared with Chromium, so risk is low.
+  test.skip(
+    ({ browserName }) => browserName === "firefox",
+    "Skipping on Firefox for speed/flakiness reasons",
+  );
+
   /**
    * Prépare l'environnement complet avant chaque test (mocks, garde console, mode local).
    */

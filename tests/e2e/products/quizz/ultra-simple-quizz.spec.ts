@@ -95,5 +95,93 @@ test.describe("Quizz - Ultra Simple Workflow", () => {
     await expect(quizCard).toBeVisible({ timeout: 10000 });
 
     console.log("✅ Quiz workflow test completed - Workspace → Dashboard");
+
+    // 6. Navigate to Vote Page
+    // Extract slug from URL or assume it based on title/creation (simplified here by navigating from dashboard if possible, or using the share link)
+    // In this "ultra simple" test, we'll try to get the share link from the dashboard/edit page if possible,
+    // or just assume we can find it.
+
+    // Let's go back to the dashboard to find our quiz and get the public link
+    await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    // Click on the quiz to go to detail/edit
+    const quizCardToEdit = page.getByText(quizTitle).first();
+    await quizCardToEdit.click();
+
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    // Check if we are on the detail page
+    await expect(page).toHaveURL(/.*quizz\/[a-z0-9-]+$/);
+
+    // Get the current URL to extract slug
+    const detailUrl = page.url();
+    const slugMatch = detailUrl.match(/quizz\/([a-z0-9-]+)$/);
+    const slug = slugMatch ? slugMatch[1] : null;
+
+    if (slug) {
+      console.log(`Quiz slug found: ${slug}`);
+
+      // 7. Vote on the Quiz (Custom Logic for Quiz UI)
+      const voteUrl = `/quizz/${slug}/vote`; // Using relative URL to benefit from base URL
+      console.log(`Navigating to vote URL: ${voteUrl}`);
+
+      // Use a new context to simulate an incognito user if possible, but here we stay in same context for simplicity
+      // as "User B" or generic user.
+      await page.goto(voteUrl, { waitUntil: "domcontentloaded" });
+      await waitForNetworkIdle(page, { browserName });
+      await waitForReactStable(page, { browserName });
+
+      // Step 7.1: Welcome Screen & Name
+      await expect(page.getByText(quizTitle)).toBeVisible({ timeout: 10000 });
+
+      const nameInput = page.getByPlaceholder("Ton prénom...");
+      if (await nameInput.isVisible()) {
+        await nameInput.fill("Test Voter");
+      }
+
+      // Click "Commencer le quiz"
+      const startButton = page.getByTestId("quizzvote-commencer-le-quiz");
+      await expect(startButton).toBeVisible();
+      await startButton.click();
+
+      await waitForReactStable(page, { browserName });
+
+      // Step 7.2: Answer Question 1
+      // Verify question text
+      await expect(page.getByText("Quelle est la capitale de la France ?")).toBeVisible();
+
+      // Select "Paris" (Button with text "Paris")
+      const parisButton = page.getByRole("button", { name: "Paris" }).first();
+      await expect(parisButton).toBeVisible();
+      await parisButton.click();
+
+      // Verify selection visual state (amber-600 border/bg, simplified check)
+      // Click "Valider ma réponse"
+      const validateButton = page.getByRole("button", { name: "Valider ma réponse" });
+      await validateButton.click();
+
+      // Step 7.3: Feedback Screen
+      await waitForReactStable(page, { browserName });
+      await expect(page.getByText("Correct !")).toBeVisible();
+
+      // Click "Voir mes résultats" (since it's the last question)
+      const nextButton = page.getByRole("button", { name: "Voir mes résultats" });
+      await expect(nextButton).toBeVisible();
+      await nextButton.click();
+
+      // Step 8: Results Screen
+      await waitForReactStable(page, { browserName });
+      await expect(page.getByText("Quiz terminé !")).toBeVisible();
+
+      // Verify Score (100% or similar)
+      await expect(page.getByText("100%")).toBeVisible();
+
+      console.log("✅ Vote workflow completed successfully");
+    } else {
+      console.log("⚠️ Could not extract slug, skipping vote test");
+    }
   });
 });

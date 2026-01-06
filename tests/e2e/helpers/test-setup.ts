@@ -5,6 +5,7 @@
 
 import { Page } from "@playwright/test";
 import { setupAllMocksWithoutNavigation, setupGeminiMock } from "../global-setup";
+import { waitForChatInputReady, waitForNetworkIdle, waitForReactStable } from "./wait-helpers";
 import {
   enableE2ELocalMode,
   waitForPageLoad,
@@ -139,4 +140,34 @@ export async function setupTestEnvironment(
   }
 
   return guard;
+}
+
+/**
+ * Setup commun pour les tests E2E avec navigation vers workspace
+ */
+export async function setupTestWithWorkspace(
+  page: Page,
+  browserName: string,
+  options: {
+    enableE2ELocalMode?: boolean;
+    warmup?: boolean;
+    consoleGuard?: boolean;
+    mocks?: { all?: boolean; gemini?: boolean };
+  } = {},
+): Promise<void> {
+  await setupTestEnvironment(page, browserName, {
+    enableE2ELocalMode: options.enableE2ELocalMode ?? true,
+    warmup: options.warmup ?? true,
+    consoleGuard: options.consoleGuard ? { enabled: true } : undefined,
+    mocks: options.mocks || { all: true },
+  });
+
+  await page.goto("/workspace", { waitUntil: "domcontentloaded" });
+  await waitForNetworkIdle(page, { browserName });
+  await waitForReactStable(page, { browserName });
+
+  // Attendre que le chat input soit prêt via le helper résilient
+  await waitForChatInputReady(page, browserName);
+
+  console.log("[SETUP] ✅ Page workspace prête pour les tests");
 }

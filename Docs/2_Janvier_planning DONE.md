@@ -110,6 +110,11 @@
     - Eliminated scattered regex/href scanning.
     - Shared by Date Polls and Form Polls.
 
+    ### 3. Clean Up [poll-helpers.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/poll-helpers.ts)
+    - **Suggested Action**:
+    - Move [sendChatCommand](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/poll-helpers.ts#43-94) to [chat-helpers.ts](file:///c:/Users/Julien%20Fritsch/Documents/GitHub/DooDates/tests/e2e/helpers/chat-helpers.ts).
+    - Move voting helpers to a dedicated `vote-helpers.ts`.
+
     ### 📌 LUNDI 6 JANVIER
 
 **Thème : 🧪 Tests E2E & Performance**
