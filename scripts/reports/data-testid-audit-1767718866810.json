@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-01-06T17:01:06.809Z",
+  "summary": {
+    "totalFiles": 920,
+    "totalButtons": 505,
+    "missingDataTestId": 9,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsSecurity.tsx",
+      "line": 29,
+      "index": 710,
+      "content": "<Button...",
+      "button": "<Button\r\n                            variant=\"ghost\"\r\n                            onClick={() => navigate(\"/quizz/dashboard\")}\r\n                            className=\"text-gray-400 hover:text-white\"\r\n                        >",
+      "suggestedTestId": "quizzpollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\quizz-polls\\QuizzPollsSecurity.tsx",
+      "line": 96,
+      "index": 5012,
+      "content": "<Button...",
+      "button": "<Button\r\n                                    variant=\"outline\"\r\n                                    onClick={() => navigate(\"/quizz/privacy\")}\r\n                                    className=\"flex items-center justify-between p-3 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white\"\r\n                                >",
+      "suggestedTestId": "quizzpollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\form-polls\\FormPollsSecurity.tsx",
+      "line": 29,
+      "index": 709,
+      "content": "<Button...",
+      "button": "<Button\r\n                            variant=\"ghost\"\r\n                            onClick={() => navigate(\"/form/dashboard\")}\r\n                            className=\"text-gray-400 hover:text-white\"\r\n                        >",
+      "suggestedTestId": "formpollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\form-polls\\FormPollsSecurity.tsx",
+      "line": 114,
+      "index": 6234,
+      "content": "<Button...",
+      "button": "<Button\r\n                                    variant=\"outline\"\r\n                                    onClick={() => navigate(\"/form/privacy\")}\r\n                                    className=\"flex items-center justify-between p-3 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white\"\r\n                                >",
+      "suggestedTestId": "formpollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\date-polls\\DatePollsSecurity.tsx",
+      "line": 29,
+      "index": 709,
+      "content": "<Button...",
+      "button": "<Button\r\n                            variant=\"ghost\"\r\n                            onClick={() => navigate(\"/date/dashboard\")}\r\n                            className=\"text-gray-400 hover:text-white\"\r\n                        >",
+      "suggestedTestId": "datepollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\date-polls\\DatePollsSecurity.tsx",
+      "line": 133,
+      "index": 7490,
+      "content": "<Button...",
+      "button": "<Button\r\n                                    variant=\"outline\"\r\n                                    onClick={() => navigate(\"/date/privacy\")}\r\n                                    className=\"flex items-center justify-between p-3 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white\"\r\n                                >",
+      "suggestedTestId": "datepollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\date-polls\\DatePollsSecurity.tsx",
+      "line": 141,
+      "index": 8078,
+      "content": "<Button...",
+      "button": "<Button\r\n                                    variant=\"outline\"\r\n                                    onClick={() => navigate(\"/date/data-control\")}\r\n                                    className=\"flex items-center justify-between p-3 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white\"\r\n                                >",
+      "suggestedTestId": "datepollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsSecurity.tsx",
+      "line": 29,
+      "index": 717,
+      "content": "<Button...",
+      "button": "<Button\r\n                            variant=\"ghost\"\r\n                            onClick={() => navigate(\"/availability/dashboard\")}\r\n                            className=\"text-gray-400 hover:text-white\"\r\n                        >",
+      "suggestedTestId": "availabilitypollssecurity-navigate"
+    },
+    {
+      "type": "missing-data-testid",
+      "file": "src\\pages\\products\\availability-polls\\AvailabilityPollsSecurity.tsx",
+      "line": 96,
+      "index": 5128,
+      "content": "<Button...",
+      "button": "<Button\r\n                                    variant=\"outline\"\r\n                                    onClick={() => navigate(\"/availability/privacy\")}\r\n                                    className=\"flex items-center justify-between p-3 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white\"\r\n                                >",
+      "suggestedTestId": "availabilitypollssecurity-navigate"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "9 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

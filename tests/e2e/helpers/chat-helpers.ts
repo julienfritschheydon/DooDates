@@ -3,9 +3,10 @@
  * Factorise le code commun pour naviguer vers workspace, envoyer des messages, etc.
  */
 
-import { Page, expect } from "@playwright/test";
+import { Page, expect, Locator } from "@playwright/test";
 import { waitForPageLoad, robustFill } from "../utils";
 import { waitForChatInputReady, waitForReactStable } from "./wait-helpers";
+import { type BrowserName, getTimeouts } from "./poll-core-helpers";
 
 /**
  * Types de workspace disponibles
@@ -657,4 +658,57 @@ export async function waitForConversationCreated(
   }
 
   return conversationId;
+}
+
+/**
+ * Envoie une commande à l'IA via l'input de chat en garantissant que le composant est prêt.
+ * Cette fonction est utilisée pour simuler les interactions avec l'IA dans plusieurs scénarios E2E.
+ */
+export async function sendChatCommand(
+  page: Page,
+  browserName: string,
+  inputLocator: Locator,
+  message: string,
+): Promise<void> {
+  const timeouts = getTimeouts(browserName as BrowserName);
+  const targetInput = inputLocator.first();
+
+  // 1. S'assurer que l'élément est attaché au DOM, même s'il n'est pas encore visible
+  await targetInput.waitFor({ state: "attached", timeout: timeouts.element }).catch(() => {});
+
+  // 2. Essayer de le rendre visible (notamment sur mobile où il peut être hors viewport)
+  try {
+    await targetInput.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(50);
+  } catch {
+    // ignore
+  }
+
+  // 3. Si aucune bounding box (toujours potentiellement hors écran), scroller la page
+  const box = await targetInput.boundingBox().catch(() => null);
+  if (!box) {
+    await page.mouse.wheel(0, 800);
+    await page.waitForTimeout(100);
+  }
+
+  // 4. Remplir le champ, avec fallback en mode force si nécessaire
+  try {
+    await targetInput.fill(message, { timeout: timeouts.action });
+  } catch {
+    await targetInput.fill(message, { timeout: timeouts.action } as any).catch(async () => {
+      await targetInput.fill(message, { timeout: timeouts.action, force: true } as any);
+    });
+  }
+
+  // 5. Envoi du message via "Entrée", avec fallback force
+  try {
+    await targetInput.press("Enter", { timeout: timeouts.action });
+  } catch {
+    await targetInput.press("Enter", { timeout: timeouts.action } as any).catch(async () => {
+      await targetInput.press("Enter", { timeout: timeouts.action, force: true } as any);
+    });
+  }
+
+  // 6. Attendre que React ait fini de stabiliser l'arbre.
+  await waitForReactStable(page, { browserName });
 }
