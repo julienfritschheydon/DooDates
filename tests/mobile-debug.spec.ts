@@ -85,7 +85,7 @@ test.describe("Débogage Gestes Mobiles", () => {
 
   test("Détection des conflits de gestes tactiles", async () => {
     // Aller à la page de test
-    await page.goto("http://localhost:3000");
+    await page.goto("http://localhost:8080");
 
     // Injecter du code pour surveiller les événements tactiles
     await page.addScriptTag({

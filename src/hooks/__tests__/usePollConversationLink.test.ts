@@ -67,7 +67,7 @@ describe("usePollConversationLink", () => {
     } as any);
 
     // Mock BASE_URL for tests
-    vi.stubEnv("BASE_URL", "/");
+    vi.stubEnv("BASE_URL", "/DooDates/");
   });
 
   describe("linkPollToConversation", () => {

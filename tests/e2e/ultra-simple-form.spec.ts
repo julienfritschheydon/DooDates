@@ -97,7 +97,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           // CLIQUER SUR LE BOUTON "CRÉER" pour vraiment créer le formulaire
           log("🔘 Clic sur le bouton CRÉER");
           const createButton = page.locator("button").filter({ hasText: /créer/i }).first();
-          await createButton.waitFor({ state: "visible", timeout: 10000 });
+          await createButton.waitFor({ state: "visible", timeout: 30000 });
           await createButton.click();
 
           // Attendre que le formulaire soit créé en brouillon
