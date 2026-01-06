@@ -1,28 +1,114 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 05/01/2026 16:58:25
+**Dernière mise à jour:** 06/01/2026 16:52:10
 
-_Workflow run #999 (ID 20721040831) — génération UTC 2026-01-05T15:58:25.983Z_
+_Workflow run #local (ID unknown) — génération UTC 2026-01-06T15:52:10.257Z_
 
-## 🎯 Focus: Commit `3fb7140`
-
-**Branche:** `main`
-**Workflow déclencheur:** `unknown`
-
-> Ce rapport analyse **UNIQUEMENT** les échecs du commit actuel.
-
+> Ce rapport analyse les échecs de workflows critiques.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
+
+---
+
+## 1️⃣ PR Complete Validation
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
+
+---
+
+## 2️⃣ Develop → Main (Auto-merge)
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
+
+---
+
+## 3️⃣ Main Post-Merge E2E
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
+
+---
+
+## 4️⃣ Main Deploy Pages
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
+
+---
+
+## 6️⃣ Nightly Full Regression
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
+
+---
+
+## 7️⃣ Monthly Gemini
+
+**Statut:** ⏳ unknown
+
+**Statistiques:**
+- ❌ Échecs (24h): **0**
+- ❌ Échecs (7 jours): **0**
+- 📊 Total runs analysés: **0**
+
+### ✅ Aucun échec récent
+
+Aucun échec détecté dans les 7 derniers jours.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `3fb7140`
-- ❌ **Échecs pour ce commit:** 0
+- ❌ **Total échecs (24h):** 0
+- ❌ **Total échecs (7 jours):** 0
 - 📊 **Workflows monitorés:** 6
 
 ### ✅ État de santé
 
-Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
+Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.
 
-## ✅ Aucun nouvel échec détecté - tout fonctionne correctement !
+✅ Aucun nouvel échec détecté - tout fonctionne correctement !
+---
+
