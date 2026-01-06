@@ -89,6 +89,8 @@ const VoteButton: React.FC<{
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.05 }}
       onClick={handleSelect}
+      data-testid={`vote-button-${type}`}
+      aria-label={label}
       className={`
         flex-1 min-h-[44px] min-w-[80px] rounded-xl flex items-center justify-center gap-1.5 font-medium text-sm
         transition-all duration-200 border-2 active:scale-95

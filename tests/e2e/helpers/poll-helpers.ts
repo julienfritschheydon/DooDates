@@ -794,6 +794,8 @@ export async function verifyPollInDashboard(
 
 /**
  * Helper pour créer un poll directement dans localStorage (pour tests d'accès/résultats)
+ *
+ * IMPORTANT: resultsVisibility doit être dans poll.settings pour que useResultsAccess le lise correctement
  */
 export async function createPollInStorage(
   page: Page,
@@ -826,11 +828,12 @@ export async function createPollInStorage(
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         creator_id: deviceId,
-        resultsVisibility: poll.resultsVisibility || "creator-only",
+        resultsVisibility: poll.resultsVisibility || "creator-only", // Legacy: top-level for backward compatibility
         dates: poll.dates || [], // Garder la structure riche pour d'autres usages potentiels
         questions: poll.questions || [],
         settings: {
           selectedDates: selectedDates,
+          resultsVisibility: poll.resultsVisibility || "creator-only", // CORRECT: useResultsAccess reads from here
         },
       };
 

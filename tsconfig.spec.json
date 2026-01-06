@@ -5,6 +5,7 @@
     "src/hooks/useQuota.ts",
     "src/hooks/usePollConversationLink.ts",
     "src/hooks/useAnalyticsQuota.ts",
+    "src/hooks/useResultsAccess.ts",
     "src/components/GeminiChatInterface.tsx",
     "src/lib/settingsLogic.ts",
     "src/hooks/useAdvancedSettings.ts",
@@ -14,9 +15,14 @@
     "src/**/__tests__/*",
     "src/**/__tests__/**/*"
   ],
-  "exclude": ["node_modules"],
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
     "composite": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   }
 }

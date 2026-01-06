@@ -84,7 +84,8 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
     <button
       onClick={onClick}
       className={`relative overflow-hidden rounded-lg p-3 transition-all border-2 ${isButtonActive ? buttonConfig.bgColor : buttonConfig.bgColor.replace("bg-", "hover:bg-")}`}
-      data-testid="votebutton-button"
+      data-testid={`vote-button-${voteType}`}
+      aria-label={voteType === "yes" ? "Oui" : voteType === "no" ? "Non" : "Peut-être"}
     >
       <div className="flex flex-col items-center text-center relative z-10">
         {buttonConfig.icon}
