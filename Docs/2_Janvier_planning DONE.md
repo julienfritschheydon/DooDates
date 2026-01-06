@@ -55,4 +55,20 @@
     **Walkthrough**: See [walkthrough.md](file:///C:/Users/Julien%20Fritsch/.gemini/antigravity/brain/3dc55938-68b1-4d40-84e9-147be895e03e/walkthrough.md)
 
 ---
+    ### 2. Rate Limiting Tests (`rate-limiting-api-only.spec.ts`) 🔧 TODO
+
+    **Current Status**: 3 failures. Mocks are complex and failing due to JWT/backend simulation issues.
+
+    **Problem**: E2E tests are trying to validate backend Edge Function logic (rate limits) by mocking the network. This verifies the *mock*, not the backend.
+
+    **Restructuring Plan**:
+    - **Strategy**: **Hybrid Approach** (not full deletion).
+    - **Integration Tests**: Write robust integration tests for `useFreemiumQuota` and `QuizzService` using `vitest`.
+    - Test file: `src/services/__tests__/QuizzService.test.ts`
+    - Mock Supabase responses with realistic rate limit headers
+    - Validate quota calculation logic in isolation
+    - **E2E Smoke Test**: Keep **ONE** simple E2E test that verifies the UI displays the rate limit error message when quota is exceeded.
+    - Use `page.route()` to intercept and return a 429 response
+    - Verify error toast/modal appears with correct message
+    - **Why**: Rate limiting is deterministic logic based on headers/DB state. Most of it is better tested in isolation, but we keep one E2E test to ensure the UI correctly handles the error state.
 
