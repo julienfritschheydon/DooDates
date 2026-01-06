@@ -95,7 +95,7 @@ test.describe("UI Consistency and Navigation", () => {
 
     // Check "Tableau de bord" link
     await page.getByText("Tableau de bord").click();
-    await expect(page).toHaveURL(/.*date-polls.*dashboard/);
+    await expect(page).toHaveURL(/.*date.*dashboard/);
   });
 
   test("AICreationWorkspace Form Dashboard link points to correct dashboard", async ({ page }) => {
@@ -167,6 +167,6 @@ test.describe("UI Consistency and Navigation", () => {
     }
 
     await page.getByText("Tableau de bord").click();
-    await expect(page).toHaveURL(/.*form-polls/);
+    await expect(page).toHaveURL(/.*form/);
   });
 });

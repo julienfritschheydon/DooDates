@@ -1,9 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Calendar, CheckCircle2, FileText, ArrowRight, Sparkles, Brain } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  FileText,
+  ArrowRight,
+  Sparkles,
+  Brain,
+  Shield,
+} from "lucide-react";
 import { Footer } from "@/components/shared/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function MainLanding() {
+  const { user } = useAuth();
+  const isGuest = !user;
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden relative flex flex-col">
       {/* Background Gradients */}
@@ -24,6 +36,17 @@ export default function MainLanding() {
                 DooDates
               </span>
             </div>
+
+            {/* Guest Mode Indicator for RGPD Compliance */}
+            {isGuest && (
+              <div
+                data-testid="guest-mode-banner"
+                className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400 font-medium"
+              >
+                <Shield className="w-3 h-3" />
+                <span>Mode Invité</span>
+              </div>
+            )}
           </div>
         </div>
       </header>

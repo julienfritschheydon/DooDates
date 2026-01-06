@@ -193,7 +193,8 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         disabled={!canScrollPrev}
         onClick={scrollPrev}
         {...props}
-       data-testid="carousel-button">
+        data-testid="carousel-button"
+      >
         <ArrowLeft className="h-4 w-4" />
         <span className="sr-only">Previous slide</span>
       </Button>
@@ -221,7 +222,8 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         disabled={!canScrollNext}
         onClick={scrollNext}
         {...props}
-       data-testid="carousel-button">
+        data-testid="carousel-button"
+      >
         <ArrowRight className="h-4 w-4" />
         <span className="sr-only">Next slide</span>
       </Button>

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import FormEditor from "./FormEditor";
 import { GuestPollSuccessDialog } from "./GuestPollSuccessDialog";
+import { SafeguardSection } from "./SafeguardSection";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import {
   getAllPolls,
@@ -757,6 +758,7 @@ export default function FormPollCreator({
                 <CollapsibleTrigger
                   className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors"
                   role="button"
+                  data-testid="form-settings-button"
                 >
                   <div className="flex items-center gap-3">
                     <Settings className="w-5 h-5 text-gray-300" />
@@ -787,6 +789,13 @@ export default function FormPollCreator({
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* Safeguard for guest users (RGPD Compliance) */}
+              {!user && (
+                <div className="mt-8 pt-8 border-t border-gray-800">
+                  <SafeguardSection />
+                </div>
+              )}
             </div>
           </div>
         </div>

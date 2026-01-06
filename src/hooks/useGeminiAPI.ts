@@ -136,7 +136,11 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
         }
 
         // Échec de la génération
+        console.log(
+          `[useGeminiAPI] ❌ Poll generation failed. Raw error: "${pollResponse.error}", raw message: "${pollResponse.message}"`,
+        );
         const errorType = detectErrorType(pollResponse.error);
+        console.log(`[useGeminiAPI] 🔍 Detected error type: "${errorType}"`);
 
         if (errorType === "quota") {
           onQuotaExceededRef.current?.();
@@ -144,7 +148,13 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
           onNetworkErrorRef.current?.();
         }
 
-        const errorMessage = getErrorMessage(errorType);
+        // Prioriser le message d'erreur du backend s'il est disponible pour les quotas/rate limits
+        const errorMessage =
+          errorType === "quota" && pollResponse.message
+            ? pollResponse.message
+            : getErrorMessage(errorType);
+
+        console.log(`[useGeminiAPI] 💬 Final error message selected: "${errorMessage}"`);
         setError(errorMessage);
         setIsLoading(false);
 

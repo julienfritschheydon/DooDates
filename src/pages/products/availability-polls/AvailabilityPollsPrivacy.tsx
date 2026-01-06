@@ -13,7 +13,8 @@ export default function AvailabilityPollsPrivacy() {
             variant="ghost"
             onClick={() => navigate("/availability/dashboard")}
             className="mb-4"
-           data-testid="availabilitypollsprivacy-navigate">
+            data-testid="availabilitypollsprivacy-navigate"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au tableau de bord
           </Button>
@@ -139,7 +140,8 @@ export default function AvailabilityPollsPrivacy() {
               <Button
                 onClick={() => navigate("/availability/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
-               data-testid="availabilitypollsprivacy-grer-mes-donnes">
+                data-testid="availabilitypollsprivacy-grer-mes-donnes"
+              >
                 Gérer mes données
               </Button>
             </div>

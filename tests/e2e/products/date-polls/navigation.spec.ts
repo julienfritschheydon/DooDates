@@ -18,7 +18,7 @@ test.describe("Date Polls - Navigation Flow", () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    await expect(page).toHaveURL(/.*date-polls/);
+    await expect(page).toHaveURL(/.*date/);
 
     // Étape 2: Flexibilité sur les titres - Multi-sélecteurs avec fallbacks
     const titleSelectors = [
@@ -79,7 +79,7 @@ test.describe("Date Polls - Navigation Flow", () => {
     }
 
     // Étape 7: Simplifier les regex URL - Plus flexible
-    await expect(page).toHaveURL(/.*date-polls.*workspace.*/);
+    await expect(page).toHaveURL(/.*date.*workspace.*/);
     await waitForReactStable(page, { browserName });
 
     // 3. Skip la création complexe - Étape 6: Accepter les cas limites
@@ -125,7 +125,7 @@ test.describe("Date Polls - Navigation Flow", () => {
     }
 
     // Verify we are in the Date Polls context (URL check is strong enough)
-    expect(page.url()).toMatch(/date-polls.*dashboard/);
+    expect(page.url()).toMatch(/date.*dashboard/);
 
     // Étape 3: Maintenir la rigueur - Vérification finale de l'intention
     // L'intention principale (navigation) est respectée même sans création complexe

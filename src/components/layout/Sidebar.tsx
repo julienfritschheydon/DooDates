@@ -24,7 +24,8 @@ export function Sidebar() {
           onClick={() => setIsOpen(true)}
           className="fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md md:hidden hover:bg-gray-50 transition-colors"
           aria-label="Ouvrir le menu"
-         data-testid="sidebar-button">
+          data-testid="sidebar-button"
+        >
           <Menu className="w-6 h-6" />
         </button>
 
@@ -50,7 +51,8 @@ export function Sidebar() {
                 onClick={closeSidebar}
                 className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Fermer le menu"
-               data-testid="sidebar-close">
+                data-testid="sidebar-close"
+              >
                 <X className="w-5 h-5" />
               </button>
 

@@ -250,7 +250,8 @@ export function ConversationSearch({
             size="sm"
             onClick={() => handleQueryChange("")}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-           data-testid="conversationsearch-button">
+            data-testid="conversationsearch-button"
+          >
             <X className="h-3 w-3" />
           </Button>
         )}
@@ -284,7 +285,8 @@ export function ConversationSearch({
               size="sm"
               onClick={() => handleQuickFilterToggle(filter.key)}
               className="flex items-center gap-1"
-             data-testid="conversationsearch-button">
+              data-testid="conversationsearch-button"
+            >
               <Icon className="h-3 w-3" />
               {language === "fr" ? filter.label : filter.labelEn}
             </Button>
@@ -295,7 +297,12 @@ export function ConversationSearch({
         {showAdvancedFilters && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-1" data-testid="conversationsearch-button">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+                data-testid="conversationsearch-button"
+              >
                 <Filter className="h-3 w-3" />
                 {text.filters}
                 {activeFiltersCount > 0 && (
@@ -342,7 +349,8 @@ export function ConversationSearch({
                         setTempDateRange({});
                         setIsDatePickerOpen(false);
                       }}
-                     data-testid="conversationsearch-button">
+                      data-testid="conversationsearch-button"
+                    >
                       {text.cancel}
                     </Button>
                     <Button
@@ -384,7 +392,8 @@ export function ConversationSearch({
             size="sm"
             onClick={handleClearFilters}
             className="text-gray-500 hover:text-gray-700"
-           data-testid="conversationsearch-button">
+            data-testid="conversationsearch-button"
+          >
             <X className="h-3 w-3 mr-1" />
             {text.clearFilters}
           </Button>
@@ -402,7 +411,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => handleQueryChange("")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
@@ -416,7 +426,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => handleStatusChange("all")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
@@ -431,7 +442,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => handleQuickFilterToggle("isFavorite")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
@@ -446,7 +458,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => handleQuickFilterToggle("hasRelatedPoll")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
@@ -461,7 +474,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => onFiltersChange?.({ ...filters, dateRange: undefined })}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
@@ -476,7 +490,8 @@ export function ConversationSearch({
                 size="sm"
                 onClick={() => handleTagToggle(tag)}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
-               data-testid="conversationsearch-button">
+                data-testid="conversationsearch-button"
+              >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>

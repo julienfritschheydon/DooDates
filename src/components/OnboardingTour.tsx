@@ -67,7 +67,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg">
                 1
               </div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg pointer-events-none" data-testid="onboardingtour-button">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg pointer-events-none"
+                data-testid="onboardingtour-button"
+              >
                 <Sparkles className="w-5 h-5" />
                 <span>Créer avec IA</span>
               </button>
@@ -78,7 +81,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg">
                 2
               </div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none" data-testid="onboardingtour-button">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none"
+                data-testid="onboardingtour-button"
+              >
                 <Plus className="w-5 h-5" />
                 <span>Créer sans IA</span>
               </button>
@@ -89,7 +95,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg">
                 3
               </div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none" data-testid="onboardingtour-button">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none"
+                data-testid="onboardingtour-button"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -107,7 +116,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg">
                 4
               </div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none" data-testid="onboardingtour-button">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none"
+                data-testid="onboardingtour-button"
+              >
                 <DollarSign className="w-5 h-5" />
                 <span>Tarifs</span>
               </button>
@@ -118,7 +130,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg">
                 5
               </div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none" data-testid="onboardingtour-button">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] rounded-lg pointer-events-none"
+                data-testid="onboardingtour-button"
+              >
                 <Book className="w-5 h-5" />
                 <span>Documentation</span>
               </button>
@@ -450,7 +465,8 @@ export function OnboardingTour() {
             onClick={skipOnboarding}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Fermer le tour guidé"
-           data-testid="onboardingtour-button">
+            data-testid="onboardingtour-button"
+          >
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -519,7 +535,8 @@ export function OnboardingTour() {
               className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base transition-colors ${
                 isFirstStep ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
               }`}
-             data-testid="onboardingtour-button">
+              data-testid="onboardingtour-button"
+            >
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Précédent</span>
             </button>
@@ -529,7 +546,8 @@ export function OnboardingTour() {
               <button
                 onClick={skipOnboarding}
                 className="text-gray-500 hover:text-gray-700 font-medium text-sm sm:text-base transition-colors"
-               data-testid="onboardingtour-passer">
+                data-testid="onboardingtour-passer"
+              >
                 Passer
               </button>
             )}
@@ -538,7 +556,8 @@ export function OnboardingTour() {
             <button
               onClick={handleNext}
               className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-medium text-sm sm:text-base hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-             data-testid="onboardingtour-button">
+              data-testid="onboardingtour-button"
+            >
               {isLastStep ? "Commencer" : "Suivant"}
               {!isLastStep && <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>

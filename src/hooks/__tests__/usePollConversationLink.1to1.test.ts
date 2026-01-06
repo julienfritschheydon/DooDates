@@ -13,6 +13,25 @@ import type { Conversation } from "../../types/conversation";
 vi.mock("../useConversations");
 const mockUseConversations = vi.mocked(useConversations);
 
+// Mock logger and error handling
+vi.mock("@/lib/logger", () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+vi.mock("../lib/error-handling", () => ({
+  logError: vi.fn(),
+  handleError: vi.fn(),
+  ErrorFactory: {
+    create: vi.fn(),
+  },
+}));
+
+// Mock window.location
+const originalLocation = window.location;
+
 describe("usePollConversationLink - 1:1 Relations (Task 2.1)", () => {
   const mockUpdateConversation = {
     mutateAsync: vi.fn(),
@@ -24,11 +43,32 @@ describe("usePollConversationLink - 1:1 Relations (Task 2.1)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Reset window.location mock
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: {
+        ...originalLocation,
+        href: "http://localhost/",
+        searchParams: new URLSearchParams(),
+        toString: () => "http://localhost/",
+      },
+      writable: true,
+    });
+
     mockUseConversations.mockReturnValue({
       updateConversation: mockUpdateConversation,
       useConversation: mockUseConversation,
       conversations: { data: [] },
     } as any);
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: originalLocation,
+      writable: true,
+    });
   });
 
   describe("1:1 Link Creation", () => {

@@ -41,9 +41,7 @@ test.describe("Google Sign In Flow", () => {
 
   test("should handle auth errors gracefully", async ({ page }) => {
     // Simulate an error callback
-    await page.goto(
-      "/#error=access_denied&error_code=403&error_description=User+denied+access",
-    );
+    await page.goto("/#error=access_denied&error_code=403&error_description=User+denied+access");
 
     // Verify error message toast or alert
     const alert = page.locator('[role="alert"], .toast, .error-message');

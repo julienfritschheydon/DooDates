@@ -13,18 +13,48 @@ import { Page, expect } from "@playwright/test";
 import { getTestSupabaseClient } from "./supabase-test-helpers";
 
 /**
+ * Helper to dismiss onboarding if present
+ * This avoids needing to inject browserName and use navigateToWorkspace in all RGPD tests
+ */
+export async function dismissOnboarding(page: Page): Promise<void> {
+  try {
+    const skipButton = page
+      .locator(
+        '[data-testid="skip-intro"], button:has-text("Passer l\'intro"), button:has-text("Skip intro")',
+      )
+      .first();
+    if (await skipButton.isVisible({ timeout: 2000 })) {
+      await skipButton.click();
+      await page.waitForLoadState("networkidle", { timeout: 2000 }).catch(() => {});
+    }
+  } catch (e) {
+    // Ignore errors if button not found
+  }
+}
+
+/**
  * Get base path from current page URL
  * Handles cases where app is deployed with a base path like /
  */
 function getBasePath(page: Page): string {
   const url = page.url();
+  // Safe default for about:blank or empty URLs
+  if (url === "about:blank" || !url) return "";
+
   try {
     const urlObj = new URL(url);
+    // In local development, base path is ALWAYS empty
+    if (
+      urlObj.hostname === "localhost" ||
+      urlObj.hostname === "127.0.0.1" ||
+      urlObj.hostname === "[::1]" ||
+      urlObj.port === "8080" // Port based detection as backup
+    ) {
+      return "";
+    }
+    // For GitHub Pages or other subpath deployments
     const pathname = urlObj.pathname;
-    // Extract base path (e.g., /DooDates from /data-control)
-    const parts = pathname.split("/").filter((p) => p);
-    // If pathname starts with something other than the route, it's the base path
-    if (pathname.includes("/")) {
+    if (pathname.startsWith("/DooDates")) {
       return "/DooDates";
     }
     return "";
@@ -37,44 +67,80 @@ function getBasePath(page: Page): string {
  * Navigate to the data control page
  */
 export async function navigateToDataControl(page: Page): Promise<void> {
-  // Try to get base path from current page, or try common paths
-  const basePath = getBasePath(page) || "/DooDates";
+  // Capture browser logs to terminal for white screen debugging
+  page.on("console", (msg) => {
+    const text = msg.text();
+    if (text.includes("DEBUG") || text.includes("Error") || text.includes("CRITICAL")) {
+      console.log(`[BROWSER-${msg.type()}] ${text}`);
+    }
+  });
 
-  // Try navigating to data-control with base path
+  console.log(`[RGPD-DEBUG] Navigating to Data Control. Current URL: ${page.url()}`);
+  // Ensure we are not stuck on onboarding
+  await dismissOnboarding(page);
+
+  // Try to get base path from current page
+  const detectedBasePath = getBasePath(page);
+  console.log(`[RGPD-DEBUG] Detected basePath: "${detectedBasePath}"`);
+
+  // Try navigating to data-control with various path patterns
   const paths = [
-    `${basePath}/data-control`,
+    `${detectedBasePath}/data-control`,
     "/data-control",
-    "/data-control",
-    `${basePath}/date/data-control`,
-    "/date/data-control",
-    "/date/data-control",
+    // "/DooDates/data-control",
+    // "/date/data-control",
+    `${detectedBasePath}/date/data-control`,
   ];
 
-  let navigated = false;
-  for (const path of paths) {
-    try {
-      await page.goto(path, { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+  // deduplicate paths
+  const uniquePaths = Array.from(new Set(paths)).filter((p) => p);
 
-      // Check if we're on a data-control page
-      const currentUrl = page.url();
-      if (currentUrl.includes("/data-control")) {
+  let navigated = false;
+  for (const targetPath of uniquePaths) {
+    try {
+      console.log(`[RGPD-DEBUG] Attempting navigation to: ${targetPath}`);
+      await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 15000 });
+      await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => {});
+
+      const urlAfter = page.url();
+      const titleAfter = await page.title();
+      console.log(`[RGPD-DEBUG] Reached URL: ${urlAfter}, Title: "${titleAfter}"`);
+
+      // Check if we're on a data-control page (not a 404)
+      if (
+        urlAfter.includes("/data-control") &&
+        !titleAfter.includes("404") &&
+        titleAfter !== "Vite + React + TS" &&
+        titleAfter !== ""
+      ) {
         navigated = true;
+        console.log(`[RGPD-DEBUG] SUCCESS: Found Data Control at ${targetPath}`);
         break;
       }
-    } catch (error) {
-      // Try next path
+    } catch (error: any) {
+      console.warn(`[RGPD-DEBUG] Navigation to ${targetPath} failed: ${error.message}`);
       continue;
     }
   }
 
   if (!navigated) {
-    // Last resort: try with base path from page context
-    await page.goto("/date/data-control", {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+    const finalUrl = page.url();
+    const finalTitle = await page.title();
+    console.error(`[RGPD-DEBUG] ALL NAVIGATION ATTEMPTS FAILED.`);
+    console.error(`[RGPD-DEBUG] Final URL: ${finalUrl}, Final Title: "${finalTitle}"`);
+
+    // Attempt to capture screenshot for visual debugging
+    try {
+      const screenshotName = `rgpd-failure-${Date.now()}.png`;
+      await page.screenshot({ path: `test-results/${screenshotName}`, fullPage: true });
+      console.log(`[RGPD-DEBUG] Failure screenshot captured: test-results/${screenshotName}`);
+    } catch (e: any) {
+      console.error(`[RGPD-DEBUG] Could not capture screenshot: ${e.message}`);
+    }
+
+    throw new Error(
+      `Failed to navigate to Data Control page. Last URL: ${finalUrl}, Title: "${finalTitle}"`,
+    );
   }
 
   // Wait for page to be fully loaded
@@ -250,93 +316,84 @@ export async function verifyUserDataDeleted(userId: string): Promise<{
  * Note: Uses /date/settings as the default settings route
  */
 export async function navigateToSettings(page: Page): Promise<void> {
-  // Try to get base path from current page
-  const basePath = getBasePath(page) || "/DooDates";
+  // Capture browser logs for debugging
+  page.on("console", (msg) => {
+    const text = msg.text();
+    if (text.includes("DEBUG") || text.includes("Error") || text.includes("CRITICAL")) {
+      console.log(`[BROWSER-SETTINGS-${msg.type()}] ${text}`);
+    }
+  });
 
-  // Try navigating to date-polls/settings (the actual route)
-  const paths = [
-    `${basePath}/date/settings`,
-    "/date/settings",
-    "/date/settings",
-    `${basePath}/settings`,
-    "/settings",
-    "/settings",
-  ];
+  // Ensure we are not stuck on onboarding
+  await dismissOnboarding(page);
+
+  // Try to get base path from current page
+  const detectedBasePath = getBasePath(page);
+  const isLocal = !detectedBasePath;
+  console.log(`[SETTINGS-DEBUG] Detected basePath: "${detectedBasePath}" (Local: ${isLocal})`);
+
+  // Target paths for settings
+  const paths = [`${detectedBasePath}/date/settings`, "/date/settings"];
+
+  if (!isLocal) {
+    paths.push("/DooDates/date/settings");
+    paths.push("/DooDates/settings");
+  }
+
+  paths.push("/settings");
+  paths.push(`${detectedBasePath}/settings`);
+
+  // deduplicate paths
+  const uniquePaths = Array.from(new Set(paths)).filter((p) => p);
 
   let navigated = false;
-  let lastError: Error | null = null;
-
-  for (const path of paths) {
+  for (const targetPath of uniquePaths) {
     try {
-      await page.goto(path, { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+      console.log(`[SETTINGS-DEBUG] Attempting navigation to: ${targetPath}`);
+      await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 15000 });
+      await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => {});
 
-      // Check if we're on settings page by looking for the title or any settings-related content
-      const pageTitle = await page
-        .locator('[data-testid="settings-title"], h1, h2')
-        .first()
-        .textContent({ timeout: 5000 })
-        .catch(() => null);
-      if (pageTitle && pageTitle.match(/paramètres|settings/i)) {
-        navigated = true;
-        break;
-      }
+      const urlAfter = page.url();
+      const titleAfter = await page.title();
+      console.log(`[SETTINGS-DEBUG] Reached URL: ${urlAfter}, Title: "${titleAfter}"`);
 
-      // Also check URL and body content
-      const currentUrl = page.url();
-      if (currentUrl.includes("/settings") && !currentUrl.includes("404")) {
-        // Wait a bit more for content to load
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-        const titleAfterWait = await page
-          .locator('[data-testid="settings-title"], h1, h2')
-          .first()
-          .textContent({ timeout: 5000 })
-          .catch(() => null);
-        if (titleAfterWait && titleAfterWait.match(/paramètres|settings/i)) {
+      // Check if we're on settings page (not a 404 or white screen)
+      if (
+        urlAfter.includes("/settings") &&
+        !titleAfter.includes("404") &&
+        titleAfter !== "Vite + React + TS" &&
+        titleAfter !== ""
+      ) {
+        // Also check for "Paramètres" or "Settings" to be sure
+        const content = await page.textContent("body").catch(() => "");
+        if (content && content.match(/paramètres|settings/i)) {
           navigated = true;
-          break;
-        }
-
-        // Check body text as fallback
-        const bodyText = await page
-          .locator("body")
-          .textContent({ timeout: 2000 })
-          .catch(() => "");
-        if (bodyText && bodyText.match(/paramètres|settings/i)) {
-          navigated = true;
+          console.log(`[SETTINGS-DEBUG] SUCCESS: Found Settings via ${targetPath}`);
           break;
         }
       }
     } catch (error: any) {
-      lastError = error;
-      // Try next path
+      console.warn(`[SETTINGS-DEBUG] Failed to go to ${targetPath}: ${error.message}`);
       continue;
     }
   }
 
   if (!navigated) {
-    // Last resort: try with date-polls/settings and wait longer
-    try {
-      await page.goto("/date/settings", {
-        waitUntil: "networkidle",
-        timeout: 30000,
-      });
-      await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+    const finalUrl = page.url();
+    const finalTitle = await page.title();
+    console.error(`[SETTINGS-DEBUG] ALL NAVIGATION ATTEMPTS FAILED.`);
 
-      // Verify we're on the right page
-      const title = await page
-        .locator('[data-testid="settings-title"], h1, h2')
-        .first()
-        .textContent({ timeout: 10000 })
-        .catch(() => null);
-      if (!title || !title.match(/paramètres|settings/i)) {
-        throw new Error(`Settings page not loaded. Title: ${title}, URL: ${page.url()}`);
-      }
-    } catch (error: any) {
-      throw new Error(
-        `Failed to navigate to settings page: ${error.message || lastError?.message || "Unknown error"}`,
-      );
+    try {
+      const screenshotName = `rgpd-failure-settings-${Date.now()}.png`;
+      await page.screenshot({ path: `test-results/${screenshotName}`, fullPage: true });
+      console.log(`[SETTINGS-DEBUG] Failure screenshot captured: test-results/${screenshotName}`);
+    } catch (e: any) {
+      console.error(`[SETTINGS-DEBUG] Could not capture screenshot: ${e.message}`);
     }
+
+    throw new Error(
+      `Failed to navigate to Settings page. Last URL: ${finalUrl}, Title: "${finalTitle}"`,
+    );
   }
 
   // Wait for page to be fully loaded

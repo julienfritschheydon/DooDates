@@ -185,7 +185,8 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
               onClose();
             }}
             className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors"
-           data-testid="historypanel-navigate">
+            data-testid="historypanel-navigate"
+          >
             <Plus className="w-4 h-4" />
             <span>Créer sans IA</span>
           </button>
@@ -374,7 +375,8 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
-     data-testid="historypanel-button">
+      data-testid="historypanel-button"
+    >
       <div className="p-2 bg-[#0a0a0a] rounded-lg">
         <Icon className="w-4 h-4 text-gray-400" />
       </div>
@@ -417,7 +419,8 @@ function PollItem({ poll, onClick }: PollItemProps) {
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
-     data-testid="historypanel-button">
+      data-testid="historypanel-button"
+    >
       <div className="p-2 bg-[#0a0a0a] rounded-lg">
         <Icon className="w-4 h-4 text-gray-400" />
       </div>

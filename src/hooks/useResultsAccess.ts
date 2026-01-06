@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Poll } from "@/lib/pollStorage";
+import { Poll, getDeviceId } from "@/lib/pollStorage";
 
 export type ResultsAccessStatus =
   | { allowed: true }
@@ -29,19 +29,22 @@ export function useResultsAccess(
   }
 
   // Vérifier si l'utilisateur est le créateur
-  const isCreator = user?.id === poll.creator_id;
+  // Supporte à la fois l'utilisateur authentifié ET le créateur anonyme (via device ID)
+  const currentDeviceId = getDeviceId();
+  const isCreator = user?.id === poll.creator_id || poll.creator_id === currentDeviceId;
 
   // Mode "Créateur uniquement"
   if (visibility === "creator-only") {
-    if (!user) {
-      return {
-        allowed: false,
-        reason: "restricted",
-        message:
-          "Seul le créateur peut voir les résultats. Connectez-vous si vous êtes le créateur.",
-      };
-    }
     if (!isCreator) {
+      // Message différent selon si l'utilisateur est connecté ou non
+      if (!user && !currentDeviceId) {
+        return {
+          allowed: false,
+          reason: "restricted",
+          message:
+            "Seul le créateur peut voir les résultats. Connectez-vous si vous êtes le créateur.",
+        };
+      }
       return {
         allowed: false,
         reason: "not-creator",

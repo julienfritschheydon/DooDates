@@ -97,7 +97,8 @@ export function GuestPollSuccessDialog({
                 variant="outline"
                 onClick={handleCopy}
                 className="border-gray-700 hover:bg-gray-800 hover:text-white"
-               data-testid="guestpollsuccessdialog-button">
+                data-testid="guestpollsuccessdialog-button"
+              >
                 {isCopied ? (
                   <Check className="w-4 h-4 text-green-500" />
                 ) : (

@@ -137,7 +137,8 @@ export function AIProposalFeedback({ proposal, onFeedbackSent }: AIProposalFeedb
           <button
             onClick={() => setShowFeedbackForm(false)}
             className="text-gray-400 hover:text-gray-600"
-           data-testid="aiproposalfeedback-back">
+            data-testid="aiproposalfeedback-back"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -177,14 +178,16 @@ export function AIProposalFeedback({ proposal, onFeedbackSent }: AIProposalFeedb
             onClick={handleSendFeedback}
             disabled={isSending || selectedReasons.length === 0}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-           data-testid="aiproposalfeedback-back">
+            data-testid="aiproposalfeedback-back"
+          >
             <Send className="w-4 h-4" />
             {isSending ? "Envoi..." : "Envoyer le feedback"}
           </button>
           <button
             onClick={() => setShowFeedbackForm(false)}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-           data-testid="aiproposalfeedback-annuler">
+            data-testid="aiproposalfeedback-annuler"
+          >
             Annuler
           </button>
         </div>
@@ -199,7 +202,8 @@ export function AIProposalFeedback({ proposal, onFeedbackSent }: AIProposalFeedb
         className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
         title="Proposition correcte"
         aria-label="Thumb up"
-       data-testid="aiproposalfeedback-button">
+        data-testid="aiproposalfeedback-button"
+      >
         <ThumbsUp className="w-4 h-4" />
       </button>
       <button
@@ -207,7 +211,8 @@ export function AIProposalFeedback({ proposal, onFeedbackSent }: AIProposalFeedb
         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
         title="Proposition à améliorer"
         aria-label="Thumb down"
-       data-testid="aiproposalfeedback-button">
+        data-testid="aiproposalfeedback-button"
+      >
         <ThumbsDown className="w-4 h-4" />
       </button>
     </div>

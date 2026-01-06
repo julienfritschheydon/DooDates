@@ -166,7 +166,8 @@ const ChildHistory: React.FC = () => {
             <button
               onClick={() => navigate("/quizz/dashboard")}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white"
-             data-testid="childhistory-navigate">
+              data-testid="childhistory-navigate"
+            >
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div>
@@ -257,7 +258,8 @@ const ChildHistory: React.FC = () => {
           <button
             onClick={() => navigate("/quizz/history")}
             className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-           data-testid="childhistory-voir-tous-les-enfants">
+            data-testid="childhistory-voir-tous-les-enfants"
+          >
             Voir tous les enfants
           </button>
         </div>
@@ -273,7 +275,8 @@ const ChildHistory: React.FC = () => {
           <button
             onClick={() => navigate("/quizz/history")}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white"
-           data-testid="childhistory-navigate">
+            data-testid="childhistory-navigate"
+          >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-3 flex-1">

@@ -53,7 +53,8 @@ function ThemeCard({ theme, isSelected, onSelect }: ThemeCardProps) {
           ? "border-purple-500 bg-purple-900/20"
           : "border-gray-700 bg-gray-800/50 hover:border-gray-600 hover:bg-gray-800"
       }`}
-     data-testid="themeselector-button">
+      data-testid="themeselector-button"
+    >
       {/* Badge sélectionné */}
       {isSelected && (
         <div className="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">

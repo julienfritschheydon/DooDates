@@ -72,7 +72,8 @@ export default function AvailabilityPollsDataControl() {
             variant="ghost"
             onClick={() => navigate("/availability/dashboard")}
             className="mb-4"
-           data-testid="availabilitypollsdatacontrol-navigate">
+            data-testid="availabilitypollsdatacontrol-navigate"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au tableau de bord
           </Button>
@@ -107,7 +108,8 @@ export default function AvailabilityPollsDataControl() {
                 onClick={handleExportData}
                 disabled={isExporting}
                 className="bg-green-600 hover:bg-green-700"
-               data-testid="availabilitypollsdatacontrol-button">
+                data-testid="availabilitypollsdatacontrol-button"
+              >
                 <FileJson className="w-4 h-4 mr-2" />
                 {isExporting ? "Export en cours..." : "Exporter mes données"}
               </Button>
@@ -153,14 +155,16 @@ export default function AvailabilityPollsDataControl() {
               variant="ghost"
               onClick={() => navigate("/availability/privacy")}
               className="w-full justify-start"
-             data-testid="availabilitypollsdatacontrol-politique-de-confidentialit">
+              data-testid="availabilitypollsdatacontrol-politique-de-confidentialit"
+            >
               Politique de confidentialité
             </Button>
             <Button
               variant="ghost"
               onClick={() => navigate("/availability/settings")}
               className="w-full justify-start"
-             data-testid="availabilitypollsdatacontrol-paramtres-du-compte">
+              data-testid="availabilitypollsdatacontrol-paramtres-du-compte"
+            >
               Paramètres du compte
             </Button>
           </div>

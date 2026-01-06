@@ -511,7 +511,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   // Sinon, utiliser layout simple (style Gemini)
 
   return (
-    <div data-app-container className="flex flex-col h-screen">
+    <div data-app-container data-testid="app-container" className="flex flex-col h-screen">
       <main data-app-main className="flex-1 min-h-0 overflow-y-auto">
         {children}
       </main>
@@ -524,6 +524,7 @@ const App = () => {
 
   // Marquer le début du rendu
   React.useEffect(() => {
+    console.log(`[APP-DEBUG] App render complete. BASE_URL: "${import.meta.env.BASE_URL}"`);
     performanceAnalyzer.mark("App-Render-Complete", "rendering");
   }, []);
 
@@ -568,6 +569,7 @@ const App = () => {
                                 <Route path="/privacy" element={<Privacy />} />
                                 <Route path="/security" element={<Security />} />
                                 <Route path="/settings" element={<Settings />} />
+                                <Route path="/data-control" element={<DataControl />} />
                                 <Route path="/support-policy" element={<SupportPolicy />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/contact" element={<Contact />} />

@@ -66,7 +66,8 @@ export const CalendarConflictsPanel: React.FC<CalendarConflictsPanelProps> = ({
             onClick={onDismiss}
             className="text-gray-400 hover:text-white transition-colors"
             aria-label="Fermer"
-           data-testid="calendarconflictspanel-button">
+            data-testid="calendarconflictspanel-button"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -120,7 +121,8 @@ export const CalendarConflictsPanel: React.FC<CalendarConflictsPanelProps> = ({
                   <button
                     onClick={() => onRemoveSlot(conflict)}
                     className="text-sm text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-900/20"
-                   data-testid="calendarconflictspanel-retirer">
+                    data-testid="calendarconflictspanel-retirer"
+                  >
                     Retirer
                   </button>
                 </div>
@@ -135,7 +137,8 @@ export const CalendarConflictsPanel: React.FC<CalendarConflictsPanelProps> = ({
                           key={suggIdx}
                           onClick={() => onReplaceSlot(conflict, suggestion)}
                           className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded transition-colors"
-                         data-testid="calendarconflictspanel-button">
+                          data-testid="calendarconflictspanel-button"
+                        >
                           {suggestion.start} - {suggestion.end}
                         </button>
                       ))}

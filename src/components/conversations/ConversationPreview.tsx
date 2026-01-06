@@ -221,7 +221,8 @@ function ConversationHeader({
               size="sm"
               onClick={() => onViewPoll?.(conversation.relatedPollId!)}
               className="flex items-center gap-1"
-             data-testid="conversationpreview-button">
+              data-testid="conversationpreview-button"
+            >
               <ExternalLink className="h-3 w-3" />
               {text.viewPoll}
             </Button>
@@ -231,7 +232,8 @@ function ConversationHeader({
               size="sm"
               onClick={() => onResume?.(conversation.id)}
               className="flex items-center gap-1"
-             data-testid="conversationpreview-button">
+              data-testid="conversationpreview-button"
+            >
               <Play className="h-3 w-3" />
               {text.resume}
             </Button>
@@ -425,7 +427,8 @@ export function ConversationPreview({
                       onClick={handlePreviousMessage}
                       disabled={!canNavigatePrevious}
                       className="flex items-center gap-1"
-                     data-testid="conversationpreview-button">
+                      data-testid="conversationpreview-button"
+                    >
                       <ChevronLeft className="h-3 w-3" />
                       {text.previousMessage}
                     </Button>
@@ -435,7 +438,8 @@ export function ConversationPreview({
                       onClick={handleNextMessage}
                       disabled={!canNavigateNext || conversation.messageCount <= 1}
                       className="flex items-center gap-1"
-                     data-testid="conversationpreview-button">
+                      data-testid="conversationpreview-button"
+                    >
                       {text.nextMessage}
                       <ChevronRight className="h-3 w-3" />
                     </Button>
@@ -447,7 +451,8 @@ export function ConversationPreview({
                       size="sm"
                       onClick={handleScrollToTop}
                       className="flex items-center gap-1"
-                     data-testid="conversationpreview-button">
+                      data-testid="conversationpreview-button"
+                    >
                       <ArrowUp className="h-3 w-3" />
                       {text.scrollToTop}
                     </Button>
@@ -456,7 +461,8 @@ export function ConversationPreview({
                       size="sm"
                       onClick={handleScrollToBottom}
                       className="flex items-center gap-1"
-                     data-testid="conversationpreview-button">
+                      data-testid="conversationpreview-button"
+                    >
                       <ArrowDown className="h-3 w-3" />
                       {text.scrollToBottom}
                     </Button>

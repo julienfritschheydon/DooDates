@@ -63,7 +63,8 @@ export function PollLink({ pollId, pollType }: PollLinkProps) {
     <button
       onClick={() => navigate(getRoute())}
       className="text-blue-400 hover:text-blue-300 underline underline-offset-2 flex items-center gap-1 text-sm"
-     data-testid="polllink-navigate">
+      data-testid="polllink-navigate"
+    >
       <ExternalLink className="w-3 h-3" />
       Voir le sondage
     </button>

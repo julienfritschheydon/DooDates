@@ -1,15 +1,16 @@
 import { test, expect } from "@playwright/test";
-import { withConsoleGuard, PRODUCT_ROUTES } from "./utils";
+import { withConsoleGuard, PRODUCT_ROUTES, robustFill } from "./utils";
 import { setupTestEnvironment } from "./helpers/test-setup";
 import { authenticateUser } from "./helpers/auth-helpers";
 import { waitForReactStable, waitForNetworkIdle } from "./helpers/wait-helpers";
 import { getTimeouts } from "./config/timeouts";
 import { navigateToWorkspace, sendChatMessage } from "./helpers/chat-helpers";
 
-const mkLogger =
-  (scope: string) =>
-  (...parts: any[]) =>
+const mkLogger = (scope: string) => {
+  return (...parts: any[]) => {
     console.log(`[${scope}]`, ...parts);
+  };
+};
 
 /**
  * Test Ultra Simple Quizz : workflow complet de création et dashboard.
@@ -57,54 +58,37 @@ test.describe("DooDates - Test Ultra Simple Quizz", () => {
 
         // 1. Navigation workspace Quizz
         log("🛠️ Navigation vers le workspace Quizz");
-        await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: "domcontentloaded" });
+        await navigateToWorkspace(page, browserName, "quizz", { waitForChat: false });
         await waitForNetworkIdle(page, { browserName });
-        await expect(page).toHaveTitle(/);
+        // Title check removed as per user request (DooDates name changing)
         log("✅ App chargée");
 
-        // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
-        const chatInput = page.locator('[data-testid="chat-input"]');
-        const formTitle = page
-          .locator(
-            'input[placeholder*="titre" i], input[name*="title"], [data-testid="quizz-title"]',
-          )
-          .first();
+        // 2. Mode Formulaire manuel
+        log(`📝 Mode Formulaire - URL actuelle: ${page.url()}`);
 
-        const hasChatInput = await chatInput.isVisible({ timeout: 3000 }).catch(() => false);
-        const hasFormTitle = await formTitle.isVisible({ timeout: 3000 }).catch(() => false);
+        // Remplir le titre
+        const formTitle = page.locator('[data-testid="quiz-title-input"]').first();
+        await robustFill(formTitle, "Quizz Géographie - Test E2E");
 
-        if (hasChatInput) {
-          // Mode Chat IA
-          log("📝 Mode Chat IA détecté");
-          const prompt = "Crée un quizz avec 2 questions simples sur la géographie";
-          await sendChatMessage(page, prompt, { timeout: timeouts.element });
-          log("📨 Message envoyé");
+        // Ajouter une question
+        const addQuestionBtn = page.locator('[data-testid="add-question-button"]');
+        await addQuestionBtn.click();
 
-          // Attendre le bouton de création
-          const createButton = page
-            .locator(
-              '[data-testid="create-quizz-button"], [data-testid="create-poll-button"], button:has-text("Créer")',
-            )
-            .first();
-          await expect(createButton).toBeVisible({ timeout: timeouts.element * 2 });
-          await createButton.click({ force: true });
-        } else if (hasFormTitle) {
-          // Mode Formulaire manuel
-          log("📝 Mode Formulaire détecté");
-          await formTitle.fill("Quizz Géographie - Test E2E");
+        // Remplir la question
+        const questionInput = page.getByPlaceholder("Entrez la question...");
+        await robustFill(questionInput, "Quelle est la capitale de la France ?");
 
-          // Chercher et cliquer sur le bouton de création
-          const createButton = page
-            .locator(
-              'button:has-text("Créer"), button:has-text("Publier"), [data-testid="create-quizz-button"]',
-            )
-            .first();
-          await expect(createButton).toBeEnabled({ timeout: timeouts.element });
-          await createButton.click();
-        } else {
-          log("⚠️ Ni chat ni formulaire trouvé - vérification de la page");
-          // Prendre un screenshot pour debug et continuer vers le dashboard
-        }
+        // Remplir les options
+        const option1 = page.getByPlaceholder("✓ Bonne réponse");
+        await robustFill(option1, "Paris");
+
+        const option2 = page.getByPlaceholder("Option 2");
+        await robustFill(option2, "Londres");
+
+        // Chercher et cliquer sur le bouton de création
+        const createButton = page.locator('[data-testid="finalize-quizz"]');
+        await expect(createButton).toBeEnabled({ timeout: timeouts.element });
+        await createButton.click();
 
         await waitForReactStable(page, { browserName });
         await waitForNetworkIdle(page, { browserName });
@@ -128,7 +112,7 @@ test.describe("DooDates - Test Ultra Simple Quizz", () => {
         await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
         await waitForNetworkIdle(page, { browserName });
 
-        await expect(page).toHaveURL(/DooDates\/quizz\/dashboard\/?$/);
+        await expect(page).toHaveURL(/.*\/quizz\/dashboard\/?$/);
 
         // Vérifier contenu dashboard
         const dashboardContent = page

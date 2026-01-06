@@ -246,7 +246,8 @@ export default function QuizzResults() {
             <Button
               onClick={() => navigate("/quizz")}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-             data-testid="quizzresults-navigate">
+              data-testid="quizzresults-navigate"
+            >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Button>
             <div>
@@ -258,7 +259,8 @@ export default function QuizzResults() {
             onClick={refreshResults}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Rafraîchir les résultats"
-           data-testid="quizzresults-refresh">
+            data-testid="quizzresults-refresh"
+          >
             <RefreshCw className="w-5 h-5 text-gray-600" />
           </Button>
         </div>
@@ -277,7 +279,8 @@ export default function QuizzResults() {
                 <Button
                   onClick={copyQuizLink}
                   className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
-                 data-testid="quizzresults-button">
+                  data-testid="quizzresults-button"
+                >
                   {linkCopied ? (
                     <>
                       <CheckCircle className="w-4 h-4" />
@@ -293,7 +296,8 @@ export default function QuizzResults() {
                 <Button
                   onClick={() => setShowQRCode(!showQRCode)}
                   className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
-                 data-testid="quizzresults-button">
+                  data-testid="quizzresults-button"
+                >
                   <Share2 className="w-4 h-4" />
                   {showQRCode ? "Masquer QR" : "QR Code"}
                 </Button>
@@ -508,7 +512,8 @@ export default function QuizzResults() {
             <Button
               onClick={copyQuizLink}
               className="bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-amber-700 transition-colors"
-             data-testid="quizzresults-copier-le-lien-du-quiz">
+              data-testid="quizzresults-copier-le-lien-du-quiz"
+            >
               Copier le lien du quiz
             </Button>
           </div>

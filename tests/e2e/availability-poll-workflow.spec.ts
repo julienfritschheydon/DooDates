@@ -45,7 +45,7 @@ test.describe("Availability Poll Workflow - Navigation Essentielle", () => {
     await waitForNetworkIdle(page, { browserName });
 
     // Étape 7: Simplifier les regex URL
-    await expect(page).toHaveURL(/.*availability-polls.*workspace.*/);
+    await expect(page).toHaveURL(/.*availability.*workspace.*/);
 
     // Étape 11: Gérer les titres variables - Multi-approches
     const titleSelectors = [

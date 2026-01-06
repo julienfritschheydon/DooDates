@@ -88,6 +88,35 @@
 
 ## 🎯 **AJOUTS PLANNING SEMAINE PROCHAINE (6-12 Janvier)**
 
+**\* Failing access tests as skipped in because the app is not working**
+
+- form-poll-visibility-control.spec.ts
+- results-access-control.spec.ts
+- Review the app code first, fix the test next.
+  They are currently failing because they rely on an outdated UI structure (the "Paramètres avancés" button no longer exists).
+
+  Following the user's suggestion, I will refactor these tests to use "storage injection" instead of going through the full creation UI. This approach is already used in
+  form-poll-results-access.spec.ts
+  and is faster and more reliable.
+
+  Proposed Changes
+  [E2E Helpers]
+  poll-helpers.ts
+  Update
+  createPollInStorage
+  to support the "date" poll type.
+  [Tests]
+  results-access-control.spec.ts
+  Refactor "Creator Only", "Voters Only", and "Public" tests for Date Polls to use
+  createPollInStorage
+  .
+  Remove the outdated UI interaction steps.
+  Ensure the tests still verify the core access control logic (creator can see results, others are restricted based on settings).
+  Verification Plan
+  Automated Tests
+  Run the refactored tests: npx playwright test tests/e2e/results-access-control.spec.ts
+  Ensure all tests in that file pass.
+
 ### 🏗️ **API Dashboard Architecture (Nouveau)**
 
 **Priorité : Haute - Ajouté le 2 janvier 2026**

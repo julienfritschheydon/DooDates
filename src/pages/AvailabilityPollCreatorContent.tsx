@@ -209,7 +209,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                             }}
                             size="lg"
                             className="bg-green-600 hover:bg-green-700 text-white"
-                           data-testid="availabilitypollcreator-button">
+                            data-testid="availabilitypollcreator-button"
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Copier
                           </Button>
@@ -228,7 +229,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     onClick={() => navigate("/availability/dashboard")}
                     size="lg"
                     className="bg-green-600 hover:bg-green-700 text-white"
-                   data-testid="availabilitypollcreator-navigate">
+                    data-testid="availabilitypollcreator-navigate"
+                  >
                     <Check className="w-4 h-4 mr-2" />
                     Aller au Tableau de bord
                   </Button>
@@ -237,7 +239,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     size="lg"
                     variant="outline"
                     className="border-green-800 text-green-400 hover:bg-green-900/20"
-                   data-testid="availabilitypollcreator-navigate">
+                    data-testid="availabilitypollcreator-navigate"
+                  >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Voir le sondage
                   </Button>
@@ -252,7 +255,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                     size="sm"
                     variant="outline"
                     className="border-green-800 text-green-400 hover:bg-green-900/20"
-                   data-testid="availabilitypollcreator-crer-un-autre-sondage">
+                    data-testid="availabilitypollcreator-crer-un-autre-sondage"
+                  >
                     Créer un autre sondage
                   </Button>
                 </div>
@@ -355,7 +359,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 disabled={!title.trim()}
                 size="lg"
                 className="bg-green-600 hover:bg-green-700 text-white flex-1"
-               data-testid="availabilitypollcreator-button">
+                data-testid="availabilitypollcreator-button"
+              >
                 <Check className="w-4 h-4 mr-2" />
                 Créer le sondage
               </Button>
@@ -365,7 +370,8 @@ export const AvailabilityPollCreatorContent: React.FC<AvailabilityPollCreatorCon
                 size="sm"
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-700"
-               data-testid="availabilitypollcreator-enregistrer-le-brouillon">
+                data-testid="availabilitypollcreator-enregistrer-le-brouillon"
+              >
                 Enregistrer le brouillon
               </Button>
             </div>

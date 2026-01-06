@@ -434,7 +434,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
           <button
             onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}
             className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-amber-900/30 text-amber-400 rounded-lg hover:bg-amber-900/50 transition-colors"
-           data-testid="productdashboard-navigate">
+            data-testid="productdashboard-navigate"
+          >
             <Eye className="w-4 h-4" />
             Tester
           </button>
@@ -442,21 +443,24 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
             onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}
             className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-900/30 text-blue-400 rounded-lg hover:bg-blue-900/50 transition-colors"
             title="Voir les résultats"
-           data-testid="productdashboard-navigate">
+            data-testid="productdashboard-navigate"
+          >
             <BarChart3 className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleCopyQuizzLink(quiz.slug || quiz.id)}
             className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-gray-700/50 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors"
             title="Copier le lien"
-           data-testid="productdashboard-button">
+            data-testid="productdashboard-button"
+          >
             <Copy className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleQuizzDelete(quiz.id, quiz.title)}
             className="inline-flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50 transition-colors"
             title="Supprimer"
-           data-testid="productdashboard-button">
+            data-testid="productdashboard-button"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -535,28 +539,32 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                         onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/vote`)}
                         className="p-2 text-amber-400 hover:bg-amber-900/30 rounded-lg transition-colors"
                         title="Tester"
-                       data-testid="productdashboard-navigate">
+                        data-testid="productdashboard-navigate"
+                      >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => navigate(`/quizz/${quiz.slug || quiz.id}/results`)}
                         className="p-2 text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors"
                         title="Résultats"
-                       data-testid="productdashboard-navigate">
+                        data-testid="productdashboard-navigate"
+                      >
                         <BarChart3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleCopyQuizzLink(quiz.slug || quiz.id)}
                         className="p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors"
                         title="Copier le lien"
-                       data-testid="productdashboard-button">
+                        data-testid="productdashboard-button"
+                      >
                         <Copy className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleQuizzDelete(quiz.id, quiz.title)}
                         className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
                         title="Supprimer"
-                       data-testid="productdashboard-button">
+                        data-testid="productdashboard-button"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -593,7 +601,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
             <button
               onClick={() => setIsStatsOpen(!isStatsOpen)}
               className="w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300"
-             data-testid="productdashboard-button">
+              data-testid="productdashboard-button"
+            >
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 <span className="text-sm font-medium">Statistiques & Quotas</span>
@@ -671,7 +680,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                   className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
                   title="Voir le journal de consommation"
                   aria-label="Voir le journal de consommation"
-                 data-testid="productdashboard-navigate">
+                  data-testid="productdashboard-navigate"
+                >
                   <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">Journal</span>
                 </button>
@@ -681,7 +691,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                   className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.quotaHover}`}
                   title="Voir les quotas et tarifs"
                   aria-label="Voir les quotas et tarifs"
-                 data-testid="productdashboard-navigate">
+                  data-testid="productdashboard-navigate"
+                >
                   <Info className="w-4 h-4" />
                   <span className="hidden sm:inline">En savoir plus</span>
                   <ExternalLink className="w-3 h-3" />
@@ -743,7 +754,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
               <button
                 onClick={() => navigate(config.createRoute)}
                 className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${theme.button} focus:ring-${config.theme}-500`}
-               data-testid="productdashboard-navigate">
+                data-testid="productdashboard-navigate"
+              >
                 {config.emptyStateButtonLabel}
               </button>
             </div>
@@ -828,7 +840,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                 onClick={handleBulkDelete}
                 disabled={isDeleting}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-               data-testid="productdashboard-button">
+                data-testid="productdashboard-button"
+              >
                 <Trash2 className="w-4 h-4" />
                 {isDeleting ? "Suppression..." : "Supprimer"}
               </button>
@@ -836,7 +849,8 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                 onClick={clearSelection}
                 disabled={isDeleting}
                 className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-               data-testid="productdashboard-annuler">
+                data-testid="productdashboard-annuler"
+              >
                 Annuler
               </button>
             </div>

@@ -295,7 +295,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                 <button
                   onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-                 data-testid="multistepformvote-voir-les-rsultats">
+                  data-testid="multistepformvote-voir-les-rsultats"
+                >
                   Voir les résultats
                 </button>
               ) : (
@@ -307,7 +308,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
             <button
               onClick={() => navigate("/form")}
               className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-all border border-gray-300"
-             data-testid="multistepformvote-retour-laccueil">
+              data-testid="multistepformvote-retour-laccueil"
+            >
               Retour à l'accueil
             </button>
           </div>
@@ -428,7 +430,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-100 shadow-md hover:shadow-lg"
               }`}
-             data-testid="multistepformvote-button">
+              data-testid="multistepformvote-button"
+            >
               <ArrowLeft className="w-5 h-5" />
               Retour
             </button>
@@ -437,7 +440,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
               <button
                 onClick={handleSubmit}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-green-600 to-green-600 text-white hover:from-green-700 hover:to-green-700 shadow-md hover:shadow-lg"
-               data-testid="multistepformvote-button">
+                data-testid="multistepformvote-button"
+              >
                 <Check className="w-5 h-5" />
                 Soumettre
               </button>
@@ -450,7 +454,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                     ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
-               data-testid="multistepformvote-continuer">
+                data-testid="multistepformvote-continuer"
+              >
                 Continuer
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -463,7 +468,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                     ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
-               data-testid="multistepformvote-suivant-vos-coordonnes">
+                data-testid="multistepformvote-suivant-vos-coordonnes"
+              >
                 Suivant : Vos coordonnées
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -516,7 +522,8 @@ function QuestionRenderer({
                 ? "border-purple-600 bg-purple-50 shadow-md"
                 : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
             }`}
-           data-testid="multistepformvote-button">
+            data-testid="multistepformvote-button"
+          >
             <div className="flex items-center gap-3">
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
@@ -556,7 +563,8 @@ function QuestionRenderer({
                 ? "border-purple-600 bg-purple-50 shadow-md"
                 : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
             }`}
-           data-testid="multistepformvote-button">
+            data-testid="multistepformvote-button"
+          >
             <div className="flex items-center gap-3">
               <div
                 className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
@@ -620,7 +628,8 @@ function QuestionRenderer({
                   ? "border-purple-600 bg-purple-600 text-white shadow-lg scale-110"
                   : "border-gray-200 hover:border-purple-300 hover:bg-gray-50 text-gray-900"
               }`}
-             data-testid="multistepformvote-button">
+              data-testid="multistepformvote-button"
+            >
               {num}
             </button>
           ))}
@@ -651,7 +660,8 @@ function QuestionRenderer({
                   ? "border-purple-600 bg-purple-600 text-white shadow-lg scale-110"
                   : "border-gray-200 hover:border-purple-300 hover:bg-gray-50 text-gray-900"
               }`}
-             data-testid="multistepformvote-button">
+              data-testid="multistepformvote-button"
+            >
               {num}
             </button>
           ))}
@@ -720,7 +730,8 @@ function QuestionRenderer({
                             ? "border-purple-600 bg-purple-600"
                             : "border-gray-400 hover:border-purple-400 hover:bg-gray-50"
                         }`}
-                       data-testid="multistepformvote-button">
+                        data-testid="multistepformvote-button"
+                      >
                         {isSelected && <Check className="w-4 h-4 text-white mx-auto" />}
                       </button>
                     </td>

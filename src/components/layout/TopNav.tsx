@@ -26,7 +26,8 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuOpen, className }) => {
             onClick={onMenuOpen}
             className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
             aria-label="Ouvrir le menu"
-           data-testid="topnav-button">
+            data-testid="topnav-button"
+          >
             <Menu className="w-5 h-5" />
           </button>
         )}

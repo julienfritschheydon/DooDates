@@ -104,7 +104,8 @@ export const ProductList: React.FC = () => {
                   ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-200"
                   : ""
               }
-             data-testid="productlist-button">
+              data-testid="productlist-button"
+            >
               <Star className={`h-4 w-4 mr-2 ${state.filters.favorites ? "fill-current" : ""}`} />
               Favoris
             </Button>
@@ -254,7 +255,8 @@ export const ProductList: React.FC = () => {
               size="sm"
               disabled={state.pagination.page === 1}
               onClick={() => actions.setPagination({ page: state.pagination.page - 1 })}
-             data-testid="productlist-prcdent">
+              data-testid="productlist-prcdent"
+            >
               Précédent
             </Button>
 
@@ -265,7 +267,8 @@ export const ProductList: React.FC = () => {
               size="sm"
               disabled={state.pagination.page * state.pagination.limit >= state.pagination.total}
               onClick={() => actions.setPagination({ page: state.pagination.page + 1 })}
-             data-testid="productlist-suivant">
+              data-testid="productlist-suivant"
+            >
               Suivant
             </Button>
           </div>

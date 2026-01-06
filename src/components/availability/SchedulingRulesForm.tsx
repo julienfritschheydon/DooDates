@@ -387,7 +387,8 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                         }}
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white text-xs h-7 px-3"
-                       data-testid="schedulingrulesform-button">
+                        data-testid="schedulingrulesform-button"
+                      >
                         <Calendar className="w-3 h-3 mr-1.5" />
                         Connecter Google Calendar
                       </Button>

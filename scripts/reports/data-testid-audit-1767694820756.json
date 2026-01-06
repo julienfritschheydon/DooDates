@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-01-06T10:20:20.755Z",
+  "summary": {
+    "totalFiles": 914,
+    "totalButtons": 496,
+    "missingDataTestId": 1,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [
+    {
+      "type": "missing-data-testid",
+      "file": "src\\components\\products\\ProductButton.tsx",
+      "line": 24,
+      "index": 800,
+      "content": "<Button className={cn(roleClasses, className)} {...props} />...",
+      "button": "<Button className={cn(roleClasses, className)} {...props} />",
+      "suggestedTestId": "productbutton-button"
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "missing-data-testid",
+      "priority": "high",
+      "message": "1 boutons sans data-testid détectés",
+      "action": "Ajouter des data-testid pour préparer le multilingue"
+    }
+  ]
+}

@@ -28,7 +28,9 @@ export default function ResultsLayout({
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 relative">
-          <h1 className="text-3xl font-bold text-white">{title}</h1>
+          <h1 className="text-3xl font-bold text-white" data-testid="results-title">
+            {title}
+          </h1>
           {subtitle ? <div className="text-gray-400 mt-1">{subtitle}</div> : null}
           {onClose ? (
             <CloseButton absoluteTopRight ariaLabel="Fermer" iconSize={6} onClick={onClose} />

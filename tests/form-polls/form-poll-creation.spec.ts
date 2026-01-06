@@ -6,11 +6,12 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { navigateToWorkspace } from "../e2e/helpers/chat-helpers";
 
 test.describe("FormPoll Creation - Smoke Tests", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browserName }) => {
     // Navigation vers workspace pour initialiser le système
-    await page.goto("/form/workspace/form");
+    await navigateToWorkspace(page, browserName, "form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
   });
 
@@ -61,18 +62,19 @@ test.describe("FormPoll Creation - Smoke Tests", () => {
     }
   });
 
-  test("Smoke - Navigation depuis dashboard", async ({ page }) => {
+  test("Smoke - Navigation depuis dashboard", async ({ page, browserName }) => {
     // 1. Commencer par le dashboard
+    await navigateToWorkspace(page, browserName, "form");
     await page.goto("/dashboard");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 2. Naviguer vers le workspace FormPolls
-    await page.goto("/form/workspace/form");
+    await navigateToWorkspace(page, browserName, "form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Vérifier que la page de création est accessible
     const currentUrl = page.url();
-    expect(currentUrl).toContain("form-polls/workspace");
+    expect(currentUrl).toContain("form/workspace/form");
 
     console.log("✅ Navigation depuis dashboard fonctionnelle");
   });
@@ -118,12 +120,12 @@ test.describe("FormPoll Creation - Smoke Tests", () => {
     console.log("✅ localStorage création FormPoll fonctionnel");
   });
 
-  test("Smoke - Performance création FormPoll", async ({ page }) => {
+  test("Smoke - Performance création FormPoll", async ({ page, browserName }) => {
     // 1. Timer pour performance
     const startTime = Date.now();
 
     // 2. Navigation et chargement
-    await page.goto("/form/workspace/form");
+    await navigateToWorkspace(page, browserName, "form");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // 3. Simulation de création rapide

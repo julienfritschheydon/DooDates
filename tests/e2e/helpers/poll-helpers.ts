@@ -800,7 +800,7 @@ export async function createPollInStorage(
   pollData: {
     slug: string;
     title: string;
-    type: "form" | "availability";
+    type: "form" | "availability" | "date";
     resultsVisibility?: "creator-only" | "voters" | "public";
     questions?: any[];
     dates?: any[];
@@ -811,6 +811,12 @@ export async function createPollInStorage(
 
   await page.evaluate(
     ({ poll, deviceId }) => {
+      // Extraire les dates au format string pour settings.selectedDates
+      const selectedDates =
+        poll.type === "date" && poll.dates
+          ? poll.dates.map((d: any) => (typeof d === "string" ? d : d.date))
+          : [];
+
       const fullPoll = {
         id: poll.slug,
         slug: poll.slug,
@@ -821,14 +827,17 @@ export async function createPollInStorage(
         updated_at: new Date().toISOString(),
         creator_id: deviceId,
         resultsVisibility: poll.resultsVisibility || "creator-only",
-        dates: poll.dates || [],
+        dates: poll.dates || [], // Garder la structure riche pour d'autres usages potentiels
         questions: poll.questions || [],
+        settings: {
+          selectedDates: selectedDates,
+        },
       };
 
       const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       polls.push(fullPoll);
       localStorage.setItem("doodates_polls", JSON.stringify(polls));
-      localStorage.setItem("dd-device-id", deviceId);
+      localStorage.setItem("doodates_device_id", deviceId);
     },
     { poll: pollData, deviceId },
   );

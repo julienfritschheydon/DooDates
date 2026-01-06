@@ -445,7 +445,8 @@ const Calendar: React.FC<CalendarProps> = ({
                 onClick={() => handleDesktopMonthNav("prev")}
                 className="absolute left-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
                 aria-label="Mois précédent"
-               data-testid="calendar-back">
+                data-testid="calendar-back"
+              >
                 <ChevronLeft className="w-5 h-5 text-gray-300" />
               </button>
             </TooltipTrigger>
@@ -461,7 +462,8 @@ const Calendar: React.FC<CalendarProps> = ({
                 onClick={() => handleDesktopMonthNav("next")}
                 className="absolute right-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
                 aria-label="Mois suivant"
-               data-testid="calendar-back">
+                data-testid="calendar-back"
+              >
                 <ChevronRight className="w-5 h-5 text-gray-300" />
               </button>
             </TooltipTrigger>

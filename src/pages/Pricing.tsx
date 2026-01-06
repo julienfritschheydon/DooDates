@@ -95,7 +95,8 @@ export function PricingPage() {
                     ? "bg-blue-600 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                 }`}
-               data-testid="pricing-mensuel">
+                data-testid="pricing-mensuel"
+              >
                 Mensuel
               </button>
               <button
@@ -105,7 +106,8 @@ export function PricingPage() {
                     ? "bg-blue-600 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                 }`}
-               data-testid="pricing-annuel">
+                data-testid="pricing-annuel"
+              >
                 Annuel
                 <span className="ml-2 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full font-semibold">
                   Économisez 10%
@@ -232,7 +234,8 @@ export function PricingPage() {
                 variant="outline"
                 onClick={() => navigate("/settings")}
                 className="bg-white dark:bg-gray-800"
-               data-testid="pricing-activer-ma-cl-beta">
+                data-testid="pricing-activer-ma-cl-beta"
+              >
                 Activer ma clé beta
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -346,7 +349,8 @@ function PricingCard({
         variant={isCurrentPlan ? "secondary" : highlighted ? "default" : "outline"}
         onClick={onCTA}
         disabled={isCurrentPlan}
-       data-testid="pricing-button">
+        data-testid="pricing-button"
+      >
         {cta}
       </Button>
 

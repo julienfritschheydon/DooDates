@@ -181,7 +181,8 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
           disabled={loadingInsights}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           title="Régénérer les insights"
-         data-testid="pollanalyticspanel-button">
+          data-testid="pollanalyticspanel-button"
+        >
           <RefreshCw className={`w-4 h-4 ${loadingInsights ? "animate-spin" : ""}`} />
           Actualiser
         </button>
@@ -191,7 +192,8 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
       <button
         onClick={() => setShowInsights(!showInsights)}
         className="w-full flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors border border-purple-200 dark:border-purple-800"
-       data-testid="pollanalyticspanel-button">
+        data-testid="pollanalyticspanel-button"
+      >
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           <span className="font-semibold text-purple-900 dark:text-purple-100">
@@ -262,7 +264,8 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
         <button
           onClick={() => setShowInsights(true)}
           className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
-         data-testid="pollanalyticspanel-afficher-les-insights-automatiques">
+          data-testid="pollanalyticspanel-afficher-les-insights-automatiques"
+        >
           Afficher les insights automatiques
         </button>
       )}

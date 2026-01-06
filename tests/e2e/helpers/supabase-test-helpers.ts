@@ -38,13 +38,35 @@ export function getTestSupabaseClient(): SupabaseClient {
  */
 export async function createTestUser(email: string, password: string) {
   const supabase = getTestSupabaseClient();
+  let attempts = 0;
+  const maxAttempts = 3;
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  while (attempts < maxAttempts) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  return { data, error };
+    if (error) {
+      if (error.status === 429 && attempts < maxAttempts - 1) {
+        attempts++;
+        const waitTime = attempts * 5000; // 5s, 10s backoff
+        console.warn(
+          `[SUPABASE-DEBUG] Rate limit (429) for ${email}. Retrying in ${waitTime / 1000}s... (Attempt ${attempts}/${maxAttempts})`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
+      console.error(
+        `[SUPABASE-DEBUG] signUp error for ${email}: ${error.message} (${error.status})`,
+      );
+      return { data, error };
+    }
+
+    return { data, error };
+  }
+
+  return { data: null, error: new Error("Max registration attempts reached") };
 }
 
 /**

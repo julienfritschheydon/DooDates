@@ -69,7 +69,8 @@ export default function QuizzPollsDataControl() {
             variant="ghost"
             onClick={() => navigate("/quizz-polls/dashboard")}
             className="mb-4"
-           data-testid="quizzpollsdatacontrol-navigate">
+            data-testid="quizzpollsdatacontrol-navigate"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au tableau de bord
           </Button>
@@ -105,7 +106,8 @@ export default function QuizzPollsDataControl() {
                 onClick={handleExportData}
                 disabled={isExporting}
                 className="bg-green-600 hover:bg-green-700"
-               data-testid="quizzpollsdatacontrol-button">
+                data-testid="quizzpollsdatacontrol-button"
+              >
                 <FileJson className="w-4 h-4 mr-2" />
                 {isExporting ? "Export en cours..." : "Exporter mes données"}
               </Button>
@@ -151,14 +153,16 @@ export default function QuizzPollsDataControl() {
               variant="ghost"
               onClick={() => navigate("/quizz-polls/privacy")}
               className="w-full justify-start"
-             data-testid="quizzpollsdatacontrol-politique-de-confidentialit">
+              data-testid="quizzpollsdatacontrol-politique-de-confidentialit"
+            >
               Politique de confidentialité
             </Button>
             <Button
               variant="ghost"
               onClick={() => navigate("/quizz-polls/settings")}
               className="w-full justify-start"
-             data-testid="quizzpollsdatacontrol-paramtres-du-compte">
+              data-testid="quizzpollsdatacontrol-paramtres-du-compte"
+            >
               Paramètres du compte
             </Button>
           </div>

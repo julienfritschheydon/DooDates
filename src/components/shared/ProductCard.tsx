@@ -112,7 +112,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 e.stopPropagation();
                 onToggleFavorite();
               }}
-             data-testid="productcard-button">
+              data-testid="productcard-button"
+            >
               <Star className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
             </Button>
           )}

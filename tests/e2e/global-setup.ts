@@ -1015,6 +1015,62 @@ export async function setupAllMocks(page: Page) {
   await setupSupabaseEdgeFunctionMock(page);
   await setupBetaKeyMocks(page);
 
+  // Mock email sending Edge Function
+  await page.route(/.*\/functions\/v1\/send-email.*/, async (route: Route) => {
+    const request = route.request();
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    console.log("[E2E] Email mock: Email would be sent");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        messageId: "mock-email-" + Date.now(),
+      }),
+    });
+  });
+
+  // Mock quota-tracking Edge Function
+  await page.route(/.*\/functions\/v1\/quota-tracking.*/, async (route: Route) => {
+    const request = route.request();
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    console.log("[E2E] Quota tracking mock: Returning mock quota data");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        remaining: 950,
+        limit: 1000,
+        resetAt: Date.now() + 3600000,
+        success: true,
+      }),
+    });
+  });
+
   // Attendre que la page soit chargée avant d'accéder au localStorage
   await page.waitForLoadState("domcontentloaded");
 
@@ -1358,5 +1414,67 @@ export async function setupAllMocksContext(context: BrowserContext) {
         }),
       });
     }
+  });
+
+  // Mock quota-tracking Edge Function
+  await context.route(/.*\/functions\/v1\/quota-tracking.*/, async (route: Route) => {
+    const request = route.request();
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    console.log("[E2E-Context] Quota tracking mock: Returning mock quota data");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({
+        remaining: 950,
+        limit: 1000,
+        resetAt: Date.now() + 3600000,
+        success: true,
+      }),
+    });
+  });
+
+  // Mock email sending Edge Function
+  await context.route(/.*\/functions\/v1\/send-email.*/, async (route: Route) => {
+    const request = route.request();
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+        body: "",
+      });
+      return;
+    }
+
+    console.log("[E2E-Context] Email mock: Email would be sent");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({
+        success: true,
+        messageId: "mock-email-" + Date.now(),
+      }),
+    });
   });
 }

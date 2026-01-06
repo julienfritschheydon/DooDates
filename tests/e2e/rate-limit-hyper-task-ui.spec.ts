@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { navigateToWorkspace } from "./helpers/chat-helpers";
 import { setupGeminiMock } from "./global-setup";
 import {
   waitForChatInputReady,
@@ -41,7 +42,20 @@ test.describe("🔒 E2E - Rate limiting UI (hyper-task)", () => {
     await setupGeminiMock(page);
 
     // Aller sur le workspace avec le flag e2e-test (route racine pour éviter la 404)
-    await page.goto("//workspace?e2e-test=true", { waitUntil: "domcontentloaded" });
+    // Aller sur le workspace avec le flag e2e-test (route racine pour éviter la 404)
+    await navigateToWorkspace(page, browserName, "default", {
+      // Pass e2e flag if supported, otherwise normal navigation
+      // navigateToWorkspace internally might set some flags or we can append query params if needed
+      // But standard navigateToWorkspace should be safer.
+      // Retaining explicit query logic might be tricky if navigateToWorkspace doesn't support params.
+      // Let's assume generic workspace is fine, or check if we can pass options.
+      // navigateToWorkspace signature: (page, browserName, type, options)
+      // options keys: addE2EFlag, waitUntil, waitForChat
+    });
+    // Re-navigating with query param if needed, but navigateToWorkspace likely handles basic readiness.
+    // If e2e-test=true is critical for rate limit mocking (it shouldn't be, mocks are setup via route),
+    // then we might need to be careful. usage of e2e-test param is usually for frontend flags.
+    // Let's trust navigateToWorkspace defaults for now.
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

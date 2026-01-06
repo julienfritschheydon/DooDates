@@ -215,7 +215,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               aria-label="Effacer la recherche"
               title="Effacer la recherche"
-             data-testid="dashboardfilters-button">
+              data-testid="dashboardfilters-button"
+            >
               <X className="w-4 h-4" />
             </button>
           )}
@@ -279,7 +280,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         <button
           onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
           className="w-full flex items-center justify-between p-2 border border-gray-700 rounded-md bg-[#1e1e1e] text-gray-300"
-         data-testid="dashboardfilters-button">
+          data-testid="dashboardfilters-button"
+        >
           <span className="text-sm font-medium">Filtres & Options</span>
           <ChevronDown
             className={cn(
@@ -349,7 +351,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
                   : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
               }`}
-             data-testid="dashboardfilters-button">
+              data-testid="dashboardfilters-button"
+            >
               <Tag className="w-4 h-4" />
               Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
             </button>
@@ -428,7 +431,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
                   : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
               }`}
-             data-testid="dashboardfilters-button">
+              data-testid="dashboardfilters-button"
+            >
               <Folder className="w-4 h-4" />
               {selectedFolderId
                 ? folders.find((f) => f.id === selectedFolderId)?.name || "Dossier"
@@ -477,7 +481,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                         ? `${currentTheme.bg} text-white`
                         : "text-gray-300 hover:bg-[#2a2a2a]"
                     }`}
-                   data-testid="dashboardfilters-tous-les-dossiers">
+                    data-testid="dashboardfilters-tous-les-dossiers"
+                  >
                     Tous les dossiers
                   </button>
                   {folders.map((folder) => (
@@ -493,7 +498,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                           ? `${currentTheme.bg} text-white`
                           : "text-gray-300 hover:bg-[#2a2a2a]"
                       }`}
-                     data-testid="dashboardfilters-button">
+                      data-testid="dashboardfilters-button"
+                    >
                       <span>{folder.icon}</span>
                       <span>{folder.name}</span>
                     </button>
@@ -521,7 +527,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                     <button
                       onClick={() => toggleTag(tagName)}
                       className="hover:bg-black/20 rounded p-0.5"
-                     data-testid="dashboardfilters-button">
+                      data-testid="dashboardfilters-button"
+                    >
                       <X className="w-3 h-3" />
                     </button>
                   </span>

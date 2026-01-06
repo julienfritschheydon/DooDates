@@ -202,7 +202,8 @@ export function WeeklyTimeSlotsPicker({
                   variant="ghost"
                   size="sm"
                   className="text-gray-400 hover:text-white"
-                 data-testid="weeklytimeslotspicker-button">
+                  data-testid="weeklytimeslotspicker-button"
+                >
                   {isExpanded ? "Masquer" : "Afficher"}
                 </Button>
               </div>
@@ -256,7 +257,8 @@ export function WeeklyTimeSlotsPicker({
                                 : "bg-[#1e1e1e] text-gray-400 hover:bg-[#2a2a2a] border border-gray-700"
                             }`}
                             title={timeSlot.label}
-                           data-testid="weeklytimeslotspicker-button">
+                            data-testid="weeklytimeslotspicker-button"
+                          >
                             {timeSlot.label}
                           </button>
                         );

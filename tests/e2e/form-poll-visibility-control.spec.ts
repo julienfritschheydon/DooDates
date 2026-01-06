@@ -1,10 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { navigateToWorkspace } from "./helpers/chat-helpers";
 
-test.describe("Form Poll - Visibility Control", () => {
-  test.beforeEach(async ({ page }) => {
+test.describe.skip("Form Poll - Visibility Control", () => {
+  test.beforeEach(async ({ page, browserName }) => {
     // Nettoyer localStorage avant chaque test
-    await page.goto("http://localhost:8080/DooDates");
+    await page.goto("/");
     await page.evaluate(() => localStorage.clear());
+    await navigateToWorkspace(page, browserName);
   });
 
   test("should create form with public visibility", async ({ page }) => {

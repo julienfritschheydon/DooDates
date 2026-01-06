@@ -367,8 +367,6 @@ describe("PollAnalyticsService", () => {
       expect(logger.error).toHaveBeenCalled();
     });
 
-
-
     it("lève une erreur si le poll n'existe pas", async () => {
       // Le mock est déjà configuré pour retourner null pour "non-existent-poll"
       await expect(

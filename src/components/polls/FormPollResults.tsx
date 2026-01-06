@@ -268,7 +268,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 variant="link"
                 onClick={() => setShowComparisonDetails(!showComparisonDetails)}
                 className="text-sm font-medium mb-3"
-               data-testid="formpollresults-button">
+                data-testid="formpollresults-button"
+              >
                 {showComparisonDetails ? "Masquer les détails" : "Voir les détails"}
               </Button>
 

@@ -13,7 +13,8 @@ export default function QuizzPollsPrivacy() {
             variant="ghost"
             onClick={() => navigate("/quizz-polls/dashboard")}
             className="mb-4"
-           data-testid="quizzpollsprivacy-navigate">
+            data-testid="quizzpollsprivacy-navigate"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au tableau de bord
           </Button>
@@ -143,7 +144,8 @@ export default function QuizzPollsPrivacy() {
               <Button
                 onClick={() => navigate("/quizz-polls/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
-               data-testid="quizzpollsprivacy-grer-mes-donnes">
+                data-testid="quizzpollsprivacy-grer-mes-donnes"
+              >
                 Gérer mes données
               </Button>
             </div>

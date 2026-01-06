@@ -126,7 +126,8 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
           className="w-full relative"
           disabled={isGoogleSubmitting || loading}
           onClick={handleGoogleSignIn}
-         data-testid="signinform-button">
+          data-testid="signinform-button"
+        >
           {isGoogleSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <LazyIcon
             name="Chrome"
@@ -203,7 +204,8 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
               });
               // Ne pas empêcher la soumission du formulaire
             }}
-           data-testid="signinform-submit">
+            data-testid="signinform-submit"
+          >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Se connecter
           </Button>
@@ -217,7 +219,8 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
             variant="link"
             className="p-0 h-auto font-normal"
             onClick={onSwitchToSignUp}
-           data-testid="signinform-sinscrire">
+            data-testid="signinform-sinscrire"
+          >
             S'inscrire
           </Button>
         </div>

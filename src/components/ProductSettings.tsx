@@ -131,7 +131,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                   ? activeTabClasses[productType as keyof typeof activeTabClasses]
                   : "text-gray-400 hover:text-white hover:bg-gray-700"
               }`}
-             data-testid="productsettings-tabsettings">
+              data-testid="productsettings-tabsettings"
+            >
               <Settings className="w-4 h-4 inline mr-2" />
               Paramètres
             </button>
@@ -147,7 +148,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                   ? activeTabClasses[productType as keyof typeof activeTabClasses]
                   : "text-gray-400 hover:text-white hover:bg-gray-700"
               }`}
-             data-testid="productsettings-tabprivacy">
+              data-testid="productsettings-tabprivacy"
+            >
               <Shield className="w-4 h-4 inline mr-2" />
               Confidentialité
             </button>
@@ -163,7 +165,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                   ? activeTabClasses[productType as keyof typeof activeTabClasses]
                   : "text-gray-400 hover:text-white hover:bg-gray-700"
               }`}
-             data-testid="productsettings-tabdata">
+              data-testid="productsettings-tabdata"
+            >
               <FileText className="w-4 h-4 inline mr-2" />
               Mes Données
             </button>
@@ -345,7 +348,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                       <button
                         onClick={handleExportData}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors"
-                       data-testid="productsettings-button">
+                        data-testid="productsettings-button"
+                      >
                         <Download className="w-4 h-4 inline mr-2" />
                         Exporter mes données
                       </button>
@@ -372,7 +376,8 @@ export const ProductSettings: React.FC<ProductSettingsProps> = ({ productName, p
                       <button
                         onClick={handleDeleteData}
                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
-                       data-testid="productsettings-button">
+                        data-testid="productsettings-button"
+                      >
                         <Trash2 className="w-4 h-4 inline mr-2" />
                         Supprimer toutes mes données
                       </button>

@@ -95,7 +95,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
-           data-testid="authincentivemodal-button">
+            data-testid="authincentivemodal-button"
+          >
             <X className="w-5 h-5 text-gray-400" />
           </button>
 
@@ -144,7 +145,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
             <button
               onClick={onSignUp}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-             data-testid="authincentivemodal-button">
+              data-testid="authincentivemodal-button"
+            >
               <Crown className="w-4 h-4" />
               Créer un compte gratuit
             </button>
@@ -152,7 +154,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
             <button
               onClick={onSignIn}
               className="w-full bg-[#0a0a0a] hover:bg-[#2a2a2a] text-gray-300 font-medium py-3 px-4 rounded-lg transition-colors"
-             data-testid="authincentivemodal-jai-dj-un-compte">
+              data-testid="authincentivemodal-jai-dj-un-compte"
+            >
               J'ai déjà un compte
             </button>
           </div>

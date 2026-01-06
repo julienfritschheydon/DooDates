@@ -108,7 +108,8 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUp
           className="w-full relative"
           disabled={isGoogleSubmitting || loading}
           onClick={handleGoogleSignIn}
-         data-testid="signupform-button">
+          data-testid="signupform-button"
+        >
           {isGoogleSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <LazyIcon
             name="Chrome"
@@ -215,7 +216,12 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUp
             </Alert>
           )}
 
-          <Button type="submit" className="w-full" disabled={isSubmitting || loading} data-testid="signupform-submit">
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || loading}
+            data-testid="signupform-submit"
+          >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Créer mon compte
           </Button>
@@ -229,7 +235,8 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUp
             variant="link"
             className="p-0 h-auto font-normal"
             onClick={onSwitchToSignIn}
-           data-testid="signupform-se-connecter">
+            data-testid="signupform-se-connecter"
+          >
             Se connecter
           </Button>
         </div>

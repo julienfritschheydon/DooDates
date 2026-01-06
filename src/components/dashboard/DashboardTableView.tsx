@@ -503,7 +503,8 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                           className="p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation"
                           title="Résultats"
                           aria-label="Voir les résultats"
-                         data-testid="dashboardtableview-navigate">
+                          data-testid="dashboardtableview-navigate"
+                        >
                           <BarChart3 className="w-5 h-5 md:w-4 md:h-4" />
                         </button>
                         <button
@@ -514,7 +515,8 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                           className="p-2 md:p-2 lg:p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors touch-manipulation"
                           title="Voter"
                           aria-label="Voter"
-                         data-testid="dashboardtableview-navigate">
+                          data-testid="dashboardtableview-navigate"
+                        >
                           <Vote className="w-5 h-5 md:w-4 md:h-4" />
                         </button>
 
@@ -527,7 +529,8 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                               className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation"
                               onClick={(e) => e.stopPropagation()}
                               aria-label="Menu d'actions"
-                             data-testid="dashboardtableview-button">
+                              data-testid="dashboardtableview-button"
+                            >
                               <MoreVertical className="w-5 h-5 md:w-4 md:h-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -667,7 +670,8 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                             navigate(`/workspace/date?conversationId=${item.id}`);
                           }}
                           className={`px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 ${theme.primaryButton} text-white text-xs rounded transition-colors touch-manipulation`}
-                         data-testid="dashboardtableview-reprendre">
+                          data-testid="dashboardtableview-reprendre"
+                        >
                           Reprendre
                         </button>
 
@@ -680,7 +684,8 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                               className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 md:p-2 lg:p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 touch-manipulation"
                               onClick={(e) => e.stopPropagation()}
                               aria-label="Menu d'actions"
-                             data-testid="dashboardtableview-button">
+                              data-testid="dashboardtableview-button"
+                            >
                               <MoreVertical className="w-5 h-5 md:w-4 md:h-4" />
                             </Button>
                           </DropdownMenuTrigger>

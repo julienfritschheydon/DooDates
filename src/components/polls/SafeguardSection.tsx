@@ -57,17 +57,20 @@ export function SafeguardSection() {
         <div className="relative flex-1">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
+            type="email"
             placeholder="votre@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="pl-9 bg-[#0a0a0a] border-gray-700 h-9 text-sm text-white"
+            data-testid="guest-email-input"
           />
         </div>
         <Button
           size="sm"
           onClick={handleSaveEmail}
           className="bg-amber-600 hover:bg-amber-700 text-white h-9"
-         data-testid="safeguardsection-sauvegarder">
+          data-testid="safeguardsection-sauvegarder"
+        >
           Sauvegarder
         </Button>
       </div>

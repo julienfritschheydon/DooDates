@@ -31,7 +31,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   // Réduire les workers pour éviter les crashes de ressources en CI
-  workers: process.env.CI ? 1 : Math.min(2, Math.floor(os.cpus().length * 0.5)),
+  workers: 1, // Force 1 worker to avoid Supabase rate limiting and race conditions
   reporter: [
     ["html"],
     ["json", { outputFile: "test-results/results.json" }],

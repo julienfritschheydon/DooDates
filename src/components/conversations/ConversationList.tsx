@@ -392,14 +392,20 @@ export function ConversationList({
               size="sm"
               onClick={handleToggleFavorites}
               className="gap-2"
-             data-testid="conversationlist--favoris">
+              data-testid="conversationlist--favoris"
+            >
               ⭐ Favoris
             </Button>
 
             {/* Sort Options */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2" data-testid="conversationlist-button">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="conversationlist-button"
+                >
                   {sortOrder === "asc" ? (
                     <SortAsc className="h-4 w-4" />
                   ) : (
@@ -429,7 +435,8 @@ export function ConversationList({
                 size="sm"
                 onClick={handleClearFilters}
                 className="text-gray-500 hover:text-gray-700"
-               data-testid="conversationlist-effacer-filtres">
+                data-testid="conversationlist-effacer-filtres"
+              >
                 Effacer filtres
               </Button>
             )}

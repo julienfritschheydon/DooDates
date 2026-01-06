@@ -1156,7 +1156,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                     onClick={() => setShowDataInfo(false)}
                     className="text-gray-400 hover:text-gray-200 transition-colors p-1 rounded hover:bg-gray-800"
                     aria-label="Fermer"
-                   data-testid="geminichatinterface-button">
+                    data-testid="geminichatinterface-button"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>

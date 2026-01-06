@@ -44,10 +44,23 @@ const AnimatePresenceComponent = lazy(() =>
 // Helper pour extraire uniquement les props HTML valides (sans les props framer-motion)
 const getHtmlProps = <T extends Record<string, unknown>>(props: T): Record<string, unknown> => {
   const {
-    animate, initial, exit, variants, transition,
-    whileHover, whileTap, whileFocus, whileDrag, whileInView,
-    drag, dragConstraints, dragElastic, dragMomentum,
-    layout, layoutId, style, // style peut contenir MotionStyle
+    animate,
+    initial,
+    exit,
+    variants,
+    transition,
+    whileHover,
+    whileTap,
+    whileFocus,
+    whileDrag,
+    whileInView,
+    drag,
+    dragConstraints,
+    dragElastic,
+    dragMomentum,
+    layout,
+    layoutId,
+    style, // style peut contenir MotionStyle
     ...htmlProps
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = props as any;

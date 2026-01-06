@@ -36,11 +36,19 @@ if (import.meta.env.DEV || isE2ETestingEnvironment() || true) {
   };
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-    <App />
-  </ThemeProvider>,
-);
+console.log("[MAIN-DEBUG] Mounting React application...");
+
+try {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <App />
+    </ThemeProvider>,
+  );
+  console.log("[MAIN-DEBUG] React mount called successfully.");
+} catch (error) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error(`[MAIN-DEBUG] CRITICAL: Failed to mount React application: ${errorMessage}`);
+}
 
 // Fonction pour forcer le plein écran sur Android
 function forceFullscreenOnAndroid() {

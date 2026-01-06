@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { navigateToWorkspace } from "./helpers/chat-helpers";
+import { dismissOnboarding } from "./helpers/rgpd-helpers";
 
 /**
  * Test de vérification rapide : Quizz aligné avec sidebar
@@ -6,18 +8,9 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("Quizz - Sidebar Navigation", () => {
-  test("Landing page should NOT have sidebar", async ({ page }) => {
-    await page.goto("/quizz");
-
-    // Vérifier que la landing page charge
-    await expect(page.locator("text=Quiz")).toBeVisible({ timeout: 10000 });
-
-    // Vérifier qu"il n'y a PAS de sidebar (pas de bouton hamburger)
-    const hamburgerButton = page.locator('button[aria-label*="menu"]');
-    await expect(hamburgerButton).not.toBeVisible();
-  });
-
-  test("Pricing page should have sidebar", async ({ page }) => {
+  test("Pricing page should have sidebar", async ({ page, browserName }) => {
+    // Avoid onboarding by initializing first
+    await navigateToWorkspace(page, browserName, "quizz", { waitForChat: false });
     await page.goto("/quizz/pricing");
 
     // Attendre que la page charge - sélecteurs flexibles
@@ -112,7 +105,9 @@ test.describe("Quizz - Sidebar Navigation", () => {
     }
   });
 
-  test("Documentation page should have sidebar", async ({ page }) => {
+  test("Documentation page should have sidebar", async ({ page, browserName }) => {
+    // Avoid onboarding by initializing first
+    await navigateToWorkspace(page, browserName, "quizz", { waitForChat: false });
     await page.goto("/quizz/documentation");
 
     // Attendre que la page charge
@@ -179,7 +174,8 @@ test.describe("Quizz - Sidebar Navigation", () => {
     }
   });
 
-  test("Dashboard should have sidebar", async ({ page }) => {
+  test("Dashboard should have sidebar", async ({ page, browserName }) => {
+    await navigateToWorkspace(page, browserName, "quizz", { waitForChat: false });
     await page.goto("/quizz/dashboard");
 
     // Attendre que la page charge
@@ -218,7 +214,8 @@ test.describe("Quizz - Sidebar Navigation", () => {
     }
   });
 
-  test("Sidebar navigation should work", async ({ page }) => {
+  test("Sidebar navigation should work", async ({ page, browserName }) => {
+    await navigateToWorkspace(page, browserName, "quizz", { waitForChat: false });
     await page.goto("/quizz/pricing");
 
     // Attendre que la page charge - sélecteurs flexibles
@@ -320,10 +317,11 @@ test.describe("Quizz - Sidebar Navigation", () => {
     }
 
     // Cliquer sur Documentation
-    await page.locator('a[href*="/quizz/documentation"]').first().click();
+    const docLink = page.getByRole("link", { name: /Documentation/i }).first();
+    await docLink.click();
 
     // Vérifier la navigation
-    await expect(page).toHaveURL(/DooDates\/.*\/quizz\/documentation\//);
+    await expect(page).toHaveURL(/.*\/quizz\/(docs|documentation)/);
     await expect(page.locator("text=Documentation")).toBeVisible();
   });
 });

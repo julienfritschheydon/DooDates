@@ -21,7 +21,7 @@ test.describe("Mobile Voting UX", () => {
     await waitForNetworkIdle(page, { browserName });
 
     // Verify home page loads
-    await expect(page).toHaveTitle(/);
+    await expect(page).toHaveTitle(/DooDates/);
     await waitForElementReady(page, 'h1, [role="heading"]', {
       browserName,
       timeout: timeouts.element,
@@ -59,7 +59,7 @@ test.describe("Mobile Voting UX", () => {
     await waitForNetworkIdle(page, { browserName });
 
     // Verify home page loads
-    await expect(page).toHaveTitle(/);
+    await expect(page).toHaveTitle(/DooDates/);
     await waitForElementReady(page, 'h1, [role="heading"]', {
       browserName,
       timeout: timeouts.element,

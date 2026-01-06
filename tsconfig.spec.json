@@ -3,6 +3,7 @@
   "include": [
     "src/services/PollAnalyticsService.ts",
     "src/hooks/useQuota.ts",
+    "src/hooks/usePollConversationLink.ts",
     "src/hooks/useAnalyticsQuota.ts",
     "src/components/GeminiChatInterface.tsx",
     "src/lib/settingsLogic.ts",

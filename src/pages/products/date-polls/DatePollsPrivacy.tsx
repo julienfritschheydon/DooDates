@@ -147,7 +147,8 @@ export default function DatePollsPrivacy() {
               <Button
                 onClick={() => navigate("/date/data-control")}
                 className="bg-indigo-600 hover:bg-indigo-700"
-               data-testid="datepollsprivacy-grer-mes-donnes">
+                data-testid="datepollsprivacy-grer-mes-donnes"
+              >
                 Gérer mes données
               </Button>
             </div>

@@ -85,7 +85,7 @@ test.describe("DooDates - Test Ultra Simple 2 (avec helpers)", () => {
         // Les helpers enchaînent plusieurs actions → on marque le test comme lent pour Playwright.
         test.slow();
         // Sanity check: l'app doit charger correctement avant de lancer la suite.
-        await expect(page).toHaveTitle(/);
+        await expect(page).toHaveTitle(/DooDates/);
         console.log("✅ App chargée");
 
         // 🆕 UTILISATION DES HELPERS - Création complète du poll en UNE ligne !

@@ -1024,21 +1024,21 @@ export async function debugScreenshot(
  */
 export const PRODUCT_ROUTES = {
   datePoll: {
-    landing: "/date-polls",
+    landing: "/date",
     workspace: "/date/workspace/date",
     dashboard: "/date/dashboard",
     docs: "/date/docs",
     pricing: "/date/pricing",
   },
   formPoll: {
-    landing: "/form-polls",
+    landing: "/form",
     workspace: "/form/workspace/form",
     dashboard: "/form/dashboard",
     docs: "/form/docs",
     pricing: "/form/pricing",
   },
   availabilityPoll: {
-    landing: "/availability-polls",
+    landing: "/availability",
     workspace: "/availability/workspace/availability",
     dashboard: "/availability/dashboard",
     docs: "/availability/docs",
@@ -1046,7 +1046,7 @@ export const PRODUCT_ROUTES = {
   },
   quizz: {
     landing: "/quizz",
-    workspace: "/quizz/workspace",
+    workspace: "/quizz/create",
     dashboard: "/quizz/dashboard",
     docs: "/quizz/docs",
     pricing: "/quizz/pricing",

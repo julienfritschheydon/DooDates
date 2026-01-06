@@ -440,7 +440,7 @@ export const DataControl: React.FC = () => {
                 <button
                   onClick={handleExportData}
                   className="flex items-center justify-between p-6 bg-green-900/30 rounded-lg hover:bg-green-900/50 transition-colors group"
-                  data-testid="data-control-export"
+                  data-testid="export-data-button"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-800/50 rounded-full flex items-center justify-center">
@@ -461,7 +461,7 @@ export const DataControl: React.FC = () => {
                 <button
                   onClick={handleDeleteAccount}
                   className="flex items-center justify-between p-6 bg-red-900/30 rounded-lg hover:bg-red-900/50 transition-colors group"
-                  data-testid="data-control-delete"
+                  data-testid="delete-account-button"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-red-800/50 rounded-full flex items-center justify-center">

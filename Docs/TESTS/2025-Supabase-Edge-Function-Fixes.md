@@ -109,7 +109,7 @@ curl -X POST "https://[VOTRE_SUPABASE_URL]/functions/v1/hyper-task" \
 
 | Secret                   | Statut                | Utilisation    |
 | ------------------------ | --------------------- | -------------- |
-| `[DEPRECATED_KEY]`    | ✅ Présent (5 months) | Workflow tests |
+| `[DEPRECATED_KEY]`       | ✅ Présent (5 months) | Workflow tests |
 | `VITE_SUPABASE_URL`      | ✅ Présent (3 days)   | Workflow tests |
 | `VITE_SUPABASE_ANON_KEY` | ✅ Présent (3 days)   | Workflow tests |
 

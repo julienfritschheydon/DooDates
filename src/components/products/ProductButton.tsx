@@ -21,5 +21,7 @@ export const ProductButton: React.FC<ProductButtonProps> = ({
         ? "text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2"
         : "text-sm text-gray-400 hover:text-white transition-colors";
 
-  return <Button className={cn(roleClasses, className)} {...props} data-testid="productbutton-button" />;
+  return (
+    <Button className={cn(roleClasses, className)} {...props} data-testid="productbutton-button" />
+  );
 };

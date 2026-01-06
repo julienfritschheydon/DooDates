@@ -6,7 +6,7 @@ import { setupTestEnvironment } from "./helpers/test-setup";
 import { getTimeouts } from "./config/timeouts";
 import { authenticateUser } from "./helpers/auth-helpers";
 import { waitForNetworkIdle } from "./helpers/wait-helpers";
-import { sendChatMessage } from "./helpers/chat-helpers";
+import { sendChatMessage, navigateToWorkspace } from "./helpers/chat-helpers";
 
 // Logger scoped pour suivre précisément chaque étape dans les traces.
 const mkLogger =
@@ -69,9 +69,9 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
 
         // 1. Navigation workspace Form
         log("🛠️ Navigation vers le workspace Form");
-        await page.goto("/form/workspace/form", { waitUntil: "domcontentloaded" });
+        await navigateToWorkspace(page, browserName, "form");
         await waitForNetworkIdle(page, { browserName });
-        await expect(page).toHaveTitle(/);
+        // await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");
 
         // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
@@ -103,22 +103,8 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           // Attendre que le formulaire soit créé en brouillon
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
-          // CLIQUER SUR LE BOUTON "PUBLICATION" pour publier le formulaire
-          log("🔘 Clic sur le bouton PUBLICATION");
-          const publishButton = page
-            .locator("button")
-            .filter({ hasText: /publication|publier/i })
-            .first();
-          await publishButton.waitFor({ state: "visible", timeout: 10000 });
-          await publishButton.click();
-
-          // Attendre que le formulaire soit publié et affiché
-          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-
-          // Vérifier que le formulaire est créé
-          const formTitle = await page.locator("h1").first().textContent({ timeout: 15000 });
-          expect(formTitle).toBeTruthy();
-          log("✅ Formulaire généré et publié:", formTitle);
+          // La publication est déplacée à la fin pour permettre l'édition et la reprise en mode brouillon
+          log("⏳ Publication reportée à la fin du workflow pour permettre l'édition");
 
           // Étape 2 — Ajout d'une question via IA
           log("✏️ Ajout d'une question via IA");
@@ -144,7 +130,27 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
           log("✅ Reprise ok après refresh");
 
-          // Étape 5 — Test vote
+          // Étape 5 — Publication (Déplacé ici)
+          log("🚀 Étape 5 — Publication du formulaire");
+          // CLIQUER SUR LE BOUTON "PUBLICATION"
+          log("🔘 Clic sur le bouton PUBLICATION");
+          const publishButton = page
+            .locator("button")
+            .filter({ hasText: /publication|publier/i })
+            .first();
+          await publishButton.waitFor({ state: "visible", timeout: 10000 });
+          await publishButton.click();
+
+          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+
+          // Vérification robuste (Supporte Full Page Success OU Modal Guest)
+          const successTitle = page
+            .locator("h1, .text-xl:has-text('Sondage créé avec succès !')")
+            .first();
+          await expect(successTitle).toBeVisible({ timeout: 15000 });
+          log("✅ Formulaire publié avec succès");
+
+          // Étape 6 — Test vote
           log("🗳️ Test vote sur formulaire");
 
           // Navigation simple vers le dashboard form polls

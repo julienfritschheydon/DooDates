@@ -16,7 +16,7 @@ test.describe("Rate Limiting E2E", () => {
     console.log("🧪 DÉBUT TEST RATE LIMITING E2E - Version UI");
 
     // Naviguer vers l'application
-    await page.goto("/http://localhost:5173");
+    await page.goto("/");
 
     // Attendre que l'application charge
     await page.waitForSelector('[data-testid="app-container"]', { timeout: 10000 });

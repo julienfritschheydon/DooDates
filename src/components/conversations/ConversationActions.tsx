@@ -197,7 +197,8 @@ function RenameDialog({ isOpen, currentTitle, onClose, onConfirm, language }: Re
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !title.trim() || title.trim() === currentTitle}
-           data-testid="conversationactions-button">
+            data-testid="conversationactions-button"
+          >
             {isSubmitting ? text.saving : text.save}
           </Button>
         </DialogFooter>
@@ -529,7 +530,8 @@ export function ConversationActions({
                 size="sm"
                 onClick={action.onClick}
                 className="flex items-center gap-1"
-               data-testid="conversationactions-button">
+                data-testid="conversationactions-button"
+              >
                 <Icon className="h-3 w-3" />
                 {!compact && action.label}
               </Button>
@@ -593,7 +595,12 @@ export function ConversationActions({
     <div className={cn("flex items-center", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid="conversationactions-button">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            data-testid="conversationactions-button"
+          >
             <MoreHorizontal className="h-4 w-4" />
             <span className="sr-only">{text.moreActions}</span>
           </Button>

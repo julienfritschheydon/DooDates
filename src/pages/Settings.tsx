@@ -37,7 +37,8 @@ export const Settings: React.FC = () => {
               <button
                 onClick={() => navigate("/data-control")}
                 className="w-full flex items-center justify-between p-6 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all group border border-gray-700"
-               data-testid="settings-navigate">
+                data-testid="settings-navigate"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-900/50 rounded-full flex items-center justify-center group-hover:bg-blue-800/50 transition-colors">
                     <Shield className="w-6 h-6 text-blue-400" />

@@ -48,10 +48,10 @@ class DataTestIdAuditor {
 
     // Filtrage si option passée
     if (this.options.files) {
-      const filterList = this.options.files.split(",").map(f => f.trim().replace(/\\/g, "/"));
-      files = files.filter(file => {
+      const filterList = this.options.files.split(",").map((f) => f.trim().replace(/\\/g, "/"));
+      files = files.filter((file) => {
         const normalizedFile = file.replace(/\\/g, "/");
-        return filterList.some(filter => normalizedFile.includes(filter));
+        return filterList.some((filter) => normalizedFile.includes(filter));
       });
       console.log(`🎯 Mode filtré : ${files.length} fichiers conservés.`);
     }
@@ -253,9 +253,11 @@ class DataTestIdAuditor {
           if (currentContent === issue.button) {
             // Insérer le data-testid avant la fermeture de la balise ouvrante
             // On insère juste avant le dernier '>'
-            const fixedButton = issue.button.slice(0, -1) + ` data-testid="${issue.suggestedTestId}">`;
+            const fixedButton =
+              issue.button.slice(0, -1) + ` data-testid="${issue.suggestedTestId}">`;
 
-            content = content.substring(0, issue.index) +
+            content =
+              content.substring(0, issue.index) +
               fixedButton +
               content.substring(issue.index + issue.button.length);
 

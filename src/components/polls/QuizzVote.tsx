@@ -494,7 +494,8 @@ Réponds UNIQUEMENT en JSON:
           <Button
             onClick={() => navigate("/quizz")}
             className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-           data-testid="quizzvote-retour-aux-quiz">
+            data-testid="quizzvote-retour-aux-quiz"
+          >
             Retour aux quiz
           </Button>
         </div>
@@ -566,7 +567,8 @@ Réponds UNIQUEMENT en JSON:
                 )
               }
               className="w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white"
-             data-testid="quizzvote-voir-mon-historique-et-tous-mes-badges-">
+              data-testid="quizzvote-voir-mon-historique-et-tous-mes-badges-"
+            >
               Voir mon historique et tous mes badges →
             </Button>
           )}
@@ -583,7 +585,8 @@ Réponds UNIQUEMENT en JSON:
               }}
               size="lg"
               className="w-full flex items-center justify-center gap-2 bg-amber-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-amber-700 transition-colors active:scale-[0.98]"
-             data-testid="quizzvote-button">
+              data-testid="quizzvote-button"
+            >
               <RefreshCw className="w-5 h-5" />
               Recommencer
             </Button>
@@ -593,7 +596,8 @@ Réponds UNIQUEMENT en JSON:
               onClick={copyQuizLink}
               size="lg"
               className="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors active:scale-[0.98]"
-             data-testid="quizzvote-button">
+              data-testid="quizzvote-button"
+            >
               {linkCopied ? (
                 <>
                   <CheckCircle className="w-5 h-5 text-green-600" />
@@ -612,7 +616,8 @@ Réponds UNIQUEMENT en JSON:
               onClick={() => navigate(`/quizz/${slug}/results`)}
               size="lg"
               className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 px-6 rounded-xl font-medium hover:bg-blue-100 transition-colors"
-             data-testid="quizzvote-navigate">
+              data-testid="quizzvote-navigate"
+            >
               <BarChart3 className="w-5 h-5" />
               Voir les statistiques
             </Button>
@@ -622,7 +627,8 @@ Réponds UNIQUEMENT en JSON:
               size="sm"
               variant="ghost"
               className="w-full text-gray-500 py-3 hover:text-amber-600 hover:bg-amber-50 transition-colors"
-             data-testid="quizzvote-retour-aux-quiz">
+              data-testid="quizzvote-retour-aux-quiz"
+            >
               Retour aux quiz
             </Button>
           </div>
@@ -642,7 +648,8 @@ Réponds UNIQUEMENT en JSON:
               onClick={copyQuizLink}
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-amber-600 transition-colors"
               title="Copier le lien"
-             data-testid="quizzvote-button">
+              data-testid="quizzvote-button"
+            >
               {linkCopied ? (
                 <>
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -695,7 +702,8 @@ Réponds UNIQUEMENT en JSON:
                     "relative w-12 h-6 rounded-full transition-colors",
                     timerEnabled ? "bg-amber-500" : "bg-gray-300",
                   )}
-                 data-testid="quizzvote-button">
+                  data-testid="quizzvote-button"
+                >
                   <span
                     className={cn(
                       "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform",
@@ -727,7 +735,8 @@ Réponds UNIQUEMENT en JSON:
               onClick={() => setHasStarted(true)}
               size="lg"
               className="w-full bg-amber-600 text-white py-4 sm:py-5 px-6 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
-             data-testid="quizzvote-commencer-le-quiz">
+              data-testid="quizzvote-commencer-le-quiz"
+            >
               Commencer le quiz
               <ArrowRight className="w-5 h-5" />
             </Button>
@@ -837,7 +846,8 @@ Réponds UNIQUEMENT en JSON:
               <Button
                 onClick={handleNextQuestion}
                 className="w-full bg-amber-600 text-white py-5 sm:py-4 px-6 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
-               data-testid="quizzvote-button">
+                data-testid="quizzvote-button"
+              >
                 {isLastQuestion ? "Voir mes résultats" : "Question suivante"}
                 <ArrowRight className="w-5 h-5" />
               </Button>
@@ -859,7 +869,8 @@ Réponds UNIQUEMENT en JSON:
                           ? "border-amber-600 bg-amber-50 text-amber-700"
                           : "border-gray-200 hover:border-amber-300 text-gray-800",
                       )}
-                     data-testid="quizzvote-button">
+                      data-testid="quizzvote-button"
+                    >
                       <span className="font-medium text-gray-800 text-base sm:text-lg">
                         {option}
                       </span>
@@ -887,7 +898,8 @@ Réponds UNIQUEMENT en JSON:
                             ? "border-amber-600 bg-amber-50 text-amber-700"
                             : "border-gray-200 hover:border-amber-300 text-gray-800",
                         )}
-                       data-testid="quizzvote-button">
+                        data-testid="quizzvote-button"
+                      >
                         <div
                           className={cn(
                             "w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0",
@@ -915,7 +927,8 @@ Réponds UNIQUEMENT en JSON:
                             ? "border-amber-600 bg-amber-50 text-amber-700"
                             : "border-gray-200 hover:border-amber-300 text-gray-800",
                         )}
-                       data-testid="quizzvote-button">
+                        data-testid="quizzvote-button"
+                      >
                         {value ? "✓ Vrai" : "✗ Faux"}
                       </Button>
                     ))}
@@ -953,7 +966,8 @@ Réponds UNIQUEMENT en JSON:
                           title={
                             voiceRecognition.isListening ? "Arrêter la dictée" : "Dicter ma réponse"
                           }
-                         data-testid="quizzvote-button">
+                          data-testid="quizzvote-button"
+                        >
                           {voiceRecognition.isListening ? (
                             <MicOff className="w-5 h-5" />
                           ) : (
@@ -1009,7 +1023,8 @@ Réponds UNIQUEMENT en JSON:
                           title={
                             voiceRecognition.isListening ? "Arrêter la dictée" : "Dicter ma réponse"
                           }
-                         data-testid="quizzvote-button">
+                          data-testid="quizzvote-button"
+                        >
                           {voiceRecognition.isListening ? (
                             <MicOff className="w-5 h-5" />
                           ) : (
@@ -1049,7 +1064,8 @@ Réponds UNIQUEMENT en JSON:
                     ? "bg-amber-600 text-white hover:bg-amber-700"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed",
                 )}
-               data-testid="quizzvote-button">
+                data-testid="quizzvote-button"
+              >
                 {isChecking ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />

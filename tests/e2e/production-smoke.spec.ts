@@ -85,9 +85,9 @@ test.describe("🔥 Production Smoke Tests", () => {
    */
   test("Pages produits chargent correctement", async ({ page, browserName }) => {
     const products = [
-      { url: "/date-polls", title: /Sondages de Dates/i },
-      { url: "/form-polls", title: /Formulaires/i },
-      { url: "/availability-polls", title: /Sondages de Disponibilité/i },
+      { url: "/date", title: /Sondages de Dates/i },
+      { url: "/form", title: /Formulaires/i },
+      { url: "/availability", title: /Sondages de Disponibilité/i },
     ];
 
     for (const product of products) {
