@@ -686,6 +686,7 @@ Réponds UNIQUEMENT en JSON:
                 onChange={(e) => setRespondentName(e.target.value)}
                 className="w-full px-4 py-3 sm:py-4 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base text-gray-900"
                 placeholder="Ton prénom..."
+                data-testid="quizz-voter-name-input"
               />
             </div>
 

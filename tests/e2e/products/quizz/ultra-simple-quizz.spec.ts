@@ -29,159 +29,114 @@ test.describe("Quizz - Ultra Simple Workflow", () => {
     const currentUrl = page.url();
     console.log(`Current URL after navigation: ${currentUrl}`);
     await expect(page).toHaveURL(/.*quizz.*create/);
+    await page.screenshot({ path: `test-results/step-1-workspace.png` });
 
     const quizTitle = "Test Ultra Simple Quizz";
 
     // 2. Renseigner le titre du quiz
-    // Utilisation du data-testid fiable
     const titleInput = page.getByTestId("quiz-title-input");
     await expect(titleInput).toBeVisible({ timeout: 5000 });
     await titleInput.fill(quizTitle);
+    await page.screenshot({ path: `test-results/step-2-title-filled.png` });
 
     // 3. Ajouter une question minimale
     const addQuestionButton = page.getByTestId("add-question-button");
-    // S'assurer qu'on peut cliquer même si la liste est vide
     await expect(addQuestionButton).toBeVisible({ timeout: 5000 });
     await addQuestionButton.click();
 
     await waitForReactStable(page, { browserName });
 
-    // Remplir la question (premier champ input text dans la liste des questions)
-    // On cherche l'input de la question qui vient d'être ajoutée
+    // Remplir la question
     const questionInput = page.getByPlaceholder("Entrez la question...").first();
     await expect(questionInput).toBeVisible();
     await questionInput.fill("Quelle est la capitale de la France ?");
 
-    // Remplir les options (Option 1 et Option 2)
+    // Remplir les options
     const option1 = page.getByPlaceholder("✓ Bonne réponse").first();
     await option1.fill("Paris");
 
     const option2 = page.getByPlaceholder("Option 2").first();
     await option2.fill("Londres");
+    await page.screenshot({ path: `test-results/step-3-question-filled.png` });
 
     // 4. Sauvegarder / créer le quiz
     const saveButton = page.getByTestId("finalize-quizz");
     await expect(saveButton).toBeVisible();
-    await expect(saveButton).toBeEnabled(); // Doit être activé si tout est rempli
+    await expect(saveButton).toBeEnabled();
     await saveButton.click();
 
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
-    // Vérifier l'écran de succès ou la redirection
-    // Le code montre un écran de succès avec un bouton "Aller au Tableau de bord"
+    // 5. Success Screen & Direct Navigation to Vote
+    console.log("Looking for success screen...");
+    await page.screenshot({ path: `test-results/step-5-pre-success.png` });
+
     const successScreen = page.getByTestId("quiz-success-screen");
-    const isSuccessVisible = await successScreen.isVisible({ timeout: 5000 }).catch(() => false);
+    await expect(successScreen).toBeVisible({ timeout: 10000 });
+    console.log("✅ Success screen visible");
+    await page.screenshot({ path: `test-results/step-5-success-screen.png` });
 
-    if (isSuccessVisible) {
-      console.log("Success screen visible");
-      await page.getByTestId("quiz-go-to-dashboard").click();
-    } else {
-      // Fallback: navigation manuelle
-      console.log("Success screen not found, navigating manually to dashboard");
-      await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
+    console.log("Clicking 'Voir le quiz' to go directly to voting...");
+    const viewQuizButton = page.getByTestId("quiz-view-quiz");
+    await expect(viewQuizButton).toBeVisible();
+    await viewQuizButton.click();
+
+    // 6. Voting Flow
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    const votePageUrl = page.url();
+    console.log(`Current URL after clicking View Quiz: ${votePageUrl}`);
+    await page.screenshot({ path: `test-results/step-6-vote-page.png` });
+
+    // Verify we are on the vote page
+    await expect(page).toHaveURL(/.*\/vote$/);
+    await expect(page.getByText(quizTitle)).toBeVisible();
+
+    // 6.1 Name & Start
+    // Updated robust selector after QuizzVote.tsx update
+    const nameInput = page.getByTestId("quizz-voter-name-input");
+    if (await nameInput.isVisible()) {
+      console.log("Filling voter name...");
+      await nameInput.fill("Test Voter");
     }
 
-    await waitForNetworkIdle(page, { browserName });
+    console.log("Starting quiz...");
+    const startButton = page.getByTestId("quizzvote-commencer-le-quiz");
+    await startButton.click();
+
     await waitForReactStable(page, { browserName });
+    await page.screenshot({ path: `test-results/step-6-question-1.png` });
 
-    console.log(`Final URL: ${page.url()}`);
-    await expect(page).toHaveURL(/.*quizz.*dashboard.*/);
+    // 6.2 Answer Question
+    console.log(" answering question...");
+    await expect(page.getByText("Quelle est la capitale de la France ?")).toBeVisible();
 
-    // 5. Vérifier la présence du quiz dans le dashboard
-    // ProductDashboard utilise ProductSidebar et ProductDashboard components
-    // On cherche le titre du quiz dans les cartes
-    const quizCard = page.getByText(quizTitle).first();
-    await expect(quizCard).toBeVisible({ timeout: 10000 });
+    const parisButton = page.getByRole("button", { name: "Paris" }).first();
+    await parisButton.click();
 
-    console.log("✅ Quiz workflow test completed - Workspace → Dashboard");
+    const validateButton = page.getByRole("button", { name: "Valider ma réponse" });
+    await validateButton.click();
 
-    // 6. Navigate to Vote Page
-    // Extract slug from URL or assume it based on title/creation (simplified here by navigating from dashboard if possible, or using the share link)
-    // In this "ultra simple" test, we'll try to get the share link from the dashboard/edit page if possible,
-    // or just assume we can find it.
-
-    // Let's go back to the dashboard to find our quiz and get the public link
-    await page.goto(PRODUCT_ROUTES.quizz.dashboard, { waitUntil: "domcontentloaded" });
-    await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
+    await page.screenshot({ path: `test-results/step-6-feedback.png` });
 
-    // Click on the quiz to go to detail/edit
-    const quizCardToEdit = page.getByText(quizTitle).first();
-    await quizCardToEdit.click();
+    // 6.3 Feedback & Results
+    console.log("Verifying feedback...");
+    await expect(page.getByText("Correct !")).toBeVisible();
 
-    await waitForNetworkIdle(page, { browserName });
+    const nextButton = page.getByRole("button", { name: "Voir mes résultats" });
+    await nextButton.click();
+
+    // 7. Verify Final Results
     await waitForReactStable(page, { browserName });
+    await page.screenshot({ path: `test-results/step-7-results.png` });
+    console.log("Verifying final results...");
 
-    // Check if we are on the detail page
-    await expect(page).toHaveURL(/.*quizz\/[a-z0-9-]+$/);
+    await expect(page.getByText("Quiz terminé !")).toBeVisible();
+    await expect(page.getByText("100%")).toBeVisible();
 
-    // Get the current URL to extract slug
-    const detailUrl = page.url();
-    const slugMatch = detailUrl.match(/quizz\/([a-z0-9-]+)$/);
-    const slug = slugMatch ? slugMatch[1] : null;
-
-    if (slug) {
-      console.log(`Quiz slug found: ${slug}`);
-
-      // 7. Vote on the Quiz (Custom Logic for Quiz UI)
-      const voteUrl = `/quizz/${slug}/vote`; // Using relative URL to benefit from base URL
-      console.log(`Navigating to vote URL: ${voteUrl}`);
-
-      // Use a new context to simulate an incognito user if possible, but here we stay in same context for simplicity
-      // as "User B" or generic user.
-      await page.goto(voteUrl, { waitUntil: "domcontentloaded" });
-      await waitForNetworkIdle(page, { browserName });
-      await waitForReactStable(page, { browserName });
-
-      // Step 7.1: Welcome Screen & Name
-      await expect(page.getByText(quizTitle)).toBeVisible({ timeout: 10000 });
-
-      const nameInput = page.getByPlaceholder("Ton prénom...");
-      if (await nameInput.isVisible()) {
-        await nameInput.fill("Test Voter");
-      }
-
-      // Click "Commencer le quiz"
-      const startButton = page.getByTestId("quizzvote-commencer-le-quiz");
-      await expect(startButton).toBeVisible();
-      await startButton.click();
-
-      await waitForReactStable(page, { browserName });
-
-      // Step 7.2: Answer Question 1
-      // Verify question text
-      await expect(page.getByText("Quelle est la capitale de la France ?")).toBeVisible();
-
-      // Select "Paris" (Button with text "Paris")
-      const parisButton = page.getByRole("button", { name: "Paris" }).first();
-      await expect(parisButton).toBeVisible();
-      await parisButton.click();
-
-      // Verify selection visual state (amber-600 border/bg, simplified check)
-      // Click "Valider ma réponse"
-      const validateButton = page.getByRole("button", { name: "Valider ma réponse" });
-      await validateButton.click();
-
-      // Step 7.3: Feedback Screen
-      await waitForReactStable(page, { browserName });
-      await expect(page.getByText("Correct !")).toBeVisible();
-
-      // Click "Voir mes résultats" (since it's the last question)
-      const nextButton = page.getByRole("button", { name: "Voir mes résultats" });
-      await expect(nextButton).toBeVisible();
-      await nextButton.click();
-
-      // Step 8: Results Screen
-      await waitForReactStable(page, { browserName });
-      await expect(page.getByText("Quiz terminé !")).toBeVisible();
-
-      // Verify Score (100% or similar)
-      await expect(page.getByText("100%")).toBeVisible();
-
-      console.log("✅ Vote workflow completed successfully");
-    } else {
-      console.log("⚠️ Could not extract slug, skipping vote test");
-    }
+    console.log("✅ Quiz E2E workflow completed cleanly (Create -> Vote -> Results)");
   });
 });
