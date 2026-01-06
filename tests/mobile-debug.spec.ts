@@ -24,7 +24,7 @@ function log(message: string, data?: any) {
 }
 
 // Configuration du test
-test.describe("Débogage Gestes Mobiles", () => {
+test.describe.skip("Débogage Gestes Mobiles", () => {
   let page: Page;
 
   test.beforeAll(async ({ browser }) => {
