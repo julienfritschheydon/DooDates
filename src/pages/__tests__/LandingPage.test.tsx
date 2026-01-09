@@ -11,18 +11,27 @@ describe("LandingPage (Component Test)", () => {
       </BrowserRouter>,
     );
 
-    // Check for "Créer un sondage" link
-    const datePollLink = screen.getByRole("link", { name: /Créer un sondage/i });
+    // Check for "Créer un sondage" link (use getAllByRole since there are multiple)
+    const datePollLinks = screen.getAllByRole("link", { name: /Créer un sondage/i });
+    const datePollLink = datePollLinks.find(
+      (link) => link.getAttribute("href") === "/date/workspace/date",
+    );
     expect(datePollLink).toBeInTheDocument();
     expect(datePollLink).toHaveAttribute("href", "/date/workspace/date");
 
     // Check for "Créer un formulaire" link
-    const formPollLink = screen.getByRole("link", { name: /Créer un formulaire/i });
+    const formPollLinks = screen.getAllByRole("link", { name: /Créer un formulaire/i });
+    const formPollLink = formPollLinks.find(
+      (link) => link.getAttribute("href") === "/form/workspace/form",
+    );
     expect(formPollLink).toBeInTheDocument();
     expect(formPollLink).toHaveAttribute("href", "/form/workspace/form");
 
     // Check for "Créer une disponibilité" link
-    const availabilityPollLink = screen.getByRole("link", { name: /Créer une disponibilité/i });
+    const availabilityPollLinks = screen.getAllByRole("link", { name: /Créer une disponibilité/i });
+    const availabilityPollLink = availabilityPollLinks.find(
+      (link) => link.getAttribute("href") === "/availability/workspace/availability",
+    );
     expect(availabilityPollLink).toBeInTheDocument();
     expect(availabilityPollLink).toHaveAttribute("href", "/availability/workspace/availability");
   });
