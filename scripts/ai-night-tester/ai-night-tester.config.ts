@@ -23,7 +23,7 @@ export const config = {
   // Application settings
   app: {
     baseUrl: process.env.BASE_URL || "https://julienfritschheydon.github.io/DooDates",
-    startPages: ["/date", "/form", "/availability", "/quizz"],
+    startPages: ["/", "/date", "/date/workspace/date"],
   },
 
   // Test behavior

@@ -1,5 +1,5 @@
 {
-  "savedAt": "2025-12-24T22:14:26.730Z",
+  "savedAt": "2026-01-10T16:03:44.595Z",
   "elements": [
     [
       "7016088470bb",
@@ -60,9 +60,9 @@
         "selector": "a",
         "pageUrl": "/DooDates/",
         "text": "Sondages de DatesTrouvez la date parfaite pour vos réunions et événements en un clin d'œil.Découvrir",
-        "clickCount": 149,
+        "clickCount": 151,
         "firstInteraction": "2025-12-24T16:27:46.457Z",
-        "lastInteraction": "2025-12-24T22:13:54.078Z",
+        "lastInteraction": "2026-01-10T16:02:06.830Z",
         "wasSuccessful": true
       }
     ],
@@ -2530,9 +2530,9 @@
         "selector": "a:has-text(\"Sécurité\")",
         "pageUrl": "/DooDates/support-policy",
         "text": "Sécurité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:08:58.017Z",
-        "lastInteraction": "2025-12-24T18:08:58.017Z",
+        "lastInteraction": "2026-01-10T15:56:11.325Z",
         "wasSuccessful": true
       }
     ],
@@ -2543,9 +2543,9 @@
         "selector": "a:has-text(\"Politique de Support\")",
         "pageUrl": "/DooDates/security",
         "text": "Politique de Support",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:09:09.414Z",
-        "lastInteraction": "2025-12-24T18:09:09.414Z",
+        "lastInteraction": "2026-01-10T15:56:19.445Z",
         "wasSuccessful": true
       }
     ],
@@ -2647,9 +2647,9 @@
         "selector": "a:has-text(\"Confidentialité\")",
         "pageUrl": "/DooDates/support-policy",
         "text": "Confidentialité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:12:42.329Z",
-        "lastInteraction": "2025-12-24T18:12:42.329Z",
+        "lastInteraction": "2026-01-10T15:56:43.798Z",
         "wasSuccessful": true
       }
     ],
@@ -2777,9 +2777,9 @@
         "selector": "a:has-text(\"Confidentialité\")",
         "pageUrl": "/DooDates/terms",
         "text": "Confidentialité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:20:38.911Z",
-        "lastInteraction": "2025-12-24T18:20:38.911Z",
+        "lastInteraction": "2026-01-10T16:02:34.418Z",
         "wasSuccessful": true
       }
     ],
@@ -2998,9 +2998,9 @@
         "selector": "a:has-text(\"Support\")",
         "pageUrl": "/DooDates/security",
         "text": "Support",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:35:43.823Z",
-        "lastInteraction": "2025-12-24T18:35:43.823Z",
+        "lastInteraction": "2026-01-10T16:02:21.215Z",
         "wasSuccessful": true
       }
     ],
@@ -3011,9 +3011,9 @@
         "selector": "a:has-text(\"CGU\")",
         "pageUrl": "/DooDates/support-policy",
         "text": "CGU",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:35:56.206Z",
-        "lastInteraction": "2025-12-24T18:35:56.206Z",
+        "lastInteraction": "2026-01-10T16:02:29.054Z",
         "wasSuccessful": true
       }
     ],
@@ -4251,50 +4251,464 @@
         "lastInteraction": "2025-12-24T22:10:56.485Z",
         "wasSuccessful": true
       }
+    ],
+    [
+      "321214524823",
+      {
+        "selectorHash": "321214524823",
+        "selector": "button[data-testid=\"productsidebar-button\"]",
+        "pageUrl": "/DooDates/date",
+        "text": "Ouvrir le menu",
+        "clickCount": 7,
+        "firstInteraction": "2026-01-10T15:54:43.722Z",
+        "lastInteraction": "2026-01-10T16:01:11.965Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "eef4c7524c74",
+      {
+        "selectorHash": "eef4c7524c74",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls",
+        "text": "Return to Home",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:54:57.868Z",
+        "lastInteraction": "2026-01-10T15:54:57.868Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ddadcdf3e82d",
+      {
+        "selectorHash": "ddadcdf3e82d",
+        "selector": "a:has-text(\"Mes Sondages\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Mes Sondages",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:55:04.134Z",
+        "lastInteraction": "2026-01-10T15:55:04.134Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "fad155336e24",
+      {
+        "selectorHash": "fad155336e24",
+        "selector": "a:has-text(\"read the full documentation\")",
+        "pageUrl": "/",
+        "text": "read the full documentation",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T15:55:12.332Z",
+        "lastInteraction": "2026-01-10T16:01:42.515Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "4cba96af4a06",
+      {
+        "selectorHash": "4cba96af4a06",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls/dashboard",
+        "text": "Return to Home",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T15:55:14.551Z",
+        "lastInteraction": "2026-01-10T15:55:26.328Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ae9cbe325883",
+      {
+        "selectorHash": "ae9cbe325883",
+        "selector": "a:has-text(\"Tableau de bord\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Tableau de bord",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:55:20.633Z",
+        "lastInteraction": "2026-01-10T15:55:20.633Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "738188771d9f",
+      {
+        "selectorHash": "738188771d9f",
+        "selector": "a:has-text(\"@githubstatus\")",
+        "pageUrl": "/",
+        "text": "@githubstatus",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T15:55:24.207Z",
+        "lastInteraction": "2026-01-10T16:01:45.817Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b01206b2aec0",
+      {
+        "selectorHash": "b01206b2aec0",
+        "selector": "a:has-text(\"GitHub Status\")",
+        "pageUrl": "/",
+        "text": "GitHub Status",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:55:32.095Z",
+        "lastInteraction": "2026-01-10T15:55:32.095Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b4059bc7e81f",
+      {
+        "selectorHash": "b4059bc7e81f",
+        "selector": "a[aria-label=\"GitHub Facebook\"]",
+        "pageUrl": "/",
+        "text": "GitHub Facebook",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:55:59.807Z",
+        "lastInteraction": "2026-01-10T15:55:59.807Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0af2c54a0f53",
+      {
+        "selectorHash": "0af2c54a0f53",
+        "selector": "a:has-text(\"Support\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Support",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:56:02.978Z",
+        "lastInteraction": "2026-01-10T15:56:02.978Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "998e6aa05fb7",
+      {
+        "selectorHash": "998e6aa05fb7",
+        "selector": "button[data-testid=\"search\"]",
+        "pageUrl": "/fr/pages",
+        "text": "Rechercher ou demander àCopilot",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:56:38.269Z",
+        "lastInteraction": "2026-01-10T15:56:38.269Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "543f5ed5efc9",
+      {
+        "selectorHash": "543f5ed5efc9",
+        "selector": "button[aria-label=\"lundi 12 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "12",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T15:57:15.067Z",
+        "lastInteraction": "2026-01-10T15:57:15.067Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "6dd457b8cbf5",
+      {
+        "selectorHash": "6dd457b8cbf5",
+        "selector": "a[data-testid=\"create-date-poll\"]",
+        "pageUrl": "/DooDates/date",
+        "text": "Nouveau Sondage",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T16:01:07.594Z",
+        "lastInteraction": "2026-01-10T16:01:19.829Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d85d41368c6b",
+      {
+        "selectorHash": "d85d41368c6b",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/create/date",
+        "text": "Return to Home",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T16:01:22.546Z",
+        "lastInteraction": "2026-01-10T16:01:32.252Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7727b89ce635",
+      {
+        "selectorHash": "7727b89ce635",
+        "selector": "a:has-text(\"Documentation\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Documentation",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:01:29.369Z",
+        "lastInteraction": "2026-01-10T16:01:29.369Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "7e388693ed74",
+      {
+        "selectorHash": "7e388693ed74",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls/docs",
+        "text": "Return to Home",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:01:38.091Z",
+        "lastInteraction": "2026-01-10T16:01:38.091Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "5b5e03a6fd29",
+      {
+        "selectorHash": "5b5e03a6fd29",
+        "selector": "a:has-text(\"Sécurité\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Sécurité",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:02:14.106Z",
+        "lastInteraction": "2026-01-10T16:02:14.106Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "a94c09e1b8b2",
+      {
+        "selectorHash": "a94c09e1b8b2",
+        "selector": "a#:R5cm7mqn6:",
+        "pageUrl": "/fr/pages",
+        "text": "Création d’un site GitHub PagesVous pouvez créer un site GitHub Pages dans un dépôt nouveau ou exist",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:02:58.266Z",
+        "lastInteraction": "2026-01-10T16:02:58.266Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "0c3a6f830cf5",
+      {
+        "selectorHash": "0c3a6f830cf5",
+        "selector": "button[aria-label=\"mardi 13 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "13",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:03:12.357Z",
+        "lastInteraction": "2026-01-10T16:03:12.357Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "eb63690dfb4a",
+      {
+        "selectorHash": "eb63690dfb4a",
+        "selector": "button[aria-label=\"lundi 19 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "19",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:03:44.595Z",
+        "lastInteraction": "2026-01-10T16:03:44.595Z",
+        "wasSuccessful": false
+      }
     ]
   ],
   "pageVisits": [
-    ["/DooDates/date-polls", 519],
-    ["/DooDates/date-polls/list", 152],
-    ["/DooDates/", 168],
-    ["/DooDates/date-polls/dashboard", 308],
-    ["/DooDates/date-polls/workspace/date", 98],
-    ["/DooDates/date-polls/settings", 101],
-    ["/DooDates", 97],
-    ["/DooDates/date-polls/docs", 58],
-    ["/DooDates/date-polls/pricing", 18],
-    ["/DooDates/support-policy", 27],
-    ["/DooDates/security", 24],
-    ["/DooDates/privacy", 24],
-    ["/DooDates/settings", 11],
-    ["/DooDates/date-polls/data-control", 7],
-    ["/DooDates/date-polls/documentation", 11],
-    ["/DooDates/terms", 18],
-    ["/DooDates/contact", 15],
-    ["/DooDates/about", 12],
-    ["/DooDates/form-polls", 139],
-    ["/DooDates/form-polls/list", 15],
-    ["/DooDates/form-polls/dashboard", 230],
-    ["/DooDates/form-polls/workspace/form", 149],
-    ["/DooDates/form-polls/settings", 60],
-    ["/DooDates/form-polls/docs", 28],
-    ["/DooDates/availability-polls", 125],
-    ["/DooDates/form-polls/documentation", 6],
-    ["/DooDates/availability-polls/list", 10],
-    ["/DooDates/form-polls/pricing", 19],
-    ["/DooDates/quizz", 168],
-    ["/DooDates/quizz/history", 110],
-    ["/DooDates/availability-polls/dashboard", 158],
-    ["/DooDates/availability-polls/workspace/availability", 95],
-    ["/DooDates/quizz/dashboard", 32],
-    ["/DooDates/quizz/create", 170],
-    ["/DooDates/availability-polls/pricing", 13],
-    ["/DooDates/quizz/pricing", 8],
-    ["/DooDates/availability-polls/docs", 19],
-    ["/DooDates/availability-polls/settings", 31],
-    ["/DooDates/quizz/docs", 8],
-    ["/DooDates/workspace/availability", 5],
-    ["/DooDates/availability-polls/documentation", 1],
-    ["/DooDates/form-polls/documentation/advanced", 3]
+    [
+      "/DooDates/date-polls",
+      520
+    ],
+    [
+      "/DooDates/date-polls/list",
+      152
+    ],
+    [
+      "/DooDates/",
+      170
+    ],
+    [
+      "/DooDates/date-polls/dashboard",
+      310
+    ],
+    [
+      "/DooDates/date-polls/workspace/date",
+      98
+    ],
+    [
+      "/DooDates/date-polls/settings",
+      101
+    ],
+    [
+      "/DooDates",
+      97
+    ],
+    [
+      "/DooDates/date-polls/docs",
+      59
+    ],
+    [
+      "/DooDates/date-polls/pricing",
+      18
+    ],
+    [
+      "/DooDates/support-policy",
+      30
+    ],
+    [
+      "/DooDates/security",
+      26
+    ],
+    [
+      "/DooDates/privacy",
+      24
+    ],
+    [
+      "/DooDates/settings",
+      11
+    ],
+    [
+      "/DooDates/date-polls/data-control",
+      7
+    ],
+    [
+      "/DooDates/date-polls/documentation",
+      11
+    ],
+    [
+      "/DooDates/terms",
+      19
+    ],
+    [
+      "/DooDates/contact",
+      15
+    ],
+    [
+      "/DooDates/about",
+      12
+    ],
+    [
+      "/DooDates/form-polls",
+      139
+    ],
+    [
+      "/DooDates/form-polls/list",
+      15
+    ],
+    [
+      "/DooDates/form-polls/dashboard",
+      230
+    ],
+    [
+      "/DooDates/form-polls/workspace/form",
+      149
+    ],
+    [
+      "/DooDates/form-polls/settings",
+      60
+    ],
+    [
+      "/DooDates/form-polls/docs",
+      28
+    ],
+    [
+      "/DooDates/availability-polls",
+      125
+    ],
+    [
+      "/DooDates/form-polls/documentation",
+      6
+    ],
+    [
+      "/DooDates/availability-polls/list",
+      10
+    ],
+    [
+      "/DooDates/form-polls/pricing",
+      19
+    ],
+    [
+      "/DooDates/quizz",
+      168
+    ],
+    [
+      "/DooDates/quizz/history",
+      110
+    ],
+    [
+      "/DooDates/availability-polls/dashboard",
+      158
+    ],
+    [
+      "/DooDates/availability-polls/workspace/availability",
+      95
+    ],
+    [
+      "/DooDates/quizz/dashboard",
+      32
+    ],
+    [
+      "/DooDates/quizz/create",
+      170
+    ],
+    [
+      "/DooDates/availability-polls/pricing",
+      13
+    ],
+    [
+      "/DooDates/quizz/pricing",
+      8
+    ],
+    [
+      "/DooDates/availability-polls/docs",
+      19
+    ],
+    [
+      "/DooDates/availability-polls/settings",
+      31
+    ],
+    [
+      "/DooDates/quizz/docs",
+      8
+    ],
+    [
+      "/DooDates/workspace/availability",
+      5
+    ],
+    [
+      "/DooDates/availability-polls/documentation",
+      1
+    ],
+    [
+      "/DooDates/form-polls/documentation/advanced",
+      3
+    ],
+    [
+      "/DooDates/date",
+      14
+    ],
+    [
+      "/",
+      7
+    ],
+    [
+      "/githubstatus",
+      2
+    ],
+    [
+      "/fr/pages",
+      3
+    ],
+    [
+      "/DooDates/date/workspace/date",
+      4
+    ],
+    [
+      "/GitHub",
+      1
+    ],
+    [
+      "/DooDates/create/date",
+      2
+    ]
   ]
 }

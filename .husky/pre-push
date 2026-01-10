@@ -1,6 +1,12 @@
 #!/bin/sh
 echo "🚀 DooDates - Validation pre-push..."
 
+# Vérifier que les commandes nécessaires sont disponibles
+command -v npm >/dev/null 2>&1 || {
+  echo "⚠️ npm non trouvé dans PATH - Skip validation (CI fera les tests)"
+  exit 0
+}
+
 # Détection branche courante
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 
