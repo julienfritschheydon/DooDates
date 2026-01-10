@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-01-10T16:03:44.595Z",
+  "savedAt": "2026-01-10T16:39:09.453Z",
   "elements": [
     [
       "7016088470bb",
@@ -60,9 +60,9 @@
         "selector": "a",
         "pageUrl": "/DooDates/",
         "text": "Sondages de DatesTrouvez la date parfaite pour vos réunions et événements en un clin d'œil.Découvrir",
-        "clickCount": 151,
+        "clickCount": 183,
         "firstInteraction": "2025-12-24T16:27:46.457Z",
-        "lastInteraction": "2026-01-10T16:02:06.830Z",
+        "lastInteraction": "2026-01-10T16:37:34.749Z",
         "wasSuccessful": true
       }
     ],
@@ -346,9 +346,9 @@
         "selector": "a:has-text(\"security@doodates.com\")",
         "pageUrl": "/DooDates/support-policy",
         "text": "security@doodates.com",
-        "clickCount": 2,
+        "clickCount": 4,
         "firstInteraction": "2025-12-24T16:36:18.718Z",
-        "lastInteraction": "2025-12-24T16:36:25.569Z",
+        "lastInteraction": "2026-01-10T16:35:38.152Z",
         "wasSuccessful": true
       }
     ],
@@ -463,9 +463,9 @@
         "selector": "a:has-text(\"DDooDates\")",
         "pageUrl": "/DooDates/security",
         "text": "DDooDates",
-        "clickCount": 11,
+        "clickCount": 12,
         "firstInteraction": "2025-12-24T16:38:44.227Z",
-        "lastInteraction": "2025-12-24T18:36:31.792Z",
+        "lastInteraction": "2026-01-10T16:30:33.207Z",
         "wasSuccessful": true
       }
     ],
@@ -866,9 +866,9 @@
         "selector": "a:has-text(\"DDooDates\")",
         "pageUrl": "/DooDates/privacy",
         "text": "DDooDates",
-        "clickCount": 5,
+        "clickCount": 7,
         "firstInteraction": "2025-12-24T17:17:20.501Z",
-        "lastInteraction": "2025-12-24T18:17:48.089Z",
+        "lastInteraction": "2026-01-10T16:36:40.934Z",
         "wasSuccessful": true
       }
     ],
@@ -1009,9 +1009,9 @@
         "selector": "a:has-text(\"DDooDates\")",
         "pageUrl": "/DooDates/contact",
         "text": "DDooDates",
-        "clickCount": 3,
+        "clickCount": 4,
         "firstInteraction": "2025-12-24T17:21:24.727Z",
-        "lastInteraction": "2025-12-24T18:42:42.211Z",
+        "lastInteraction": "2026-01-10T16:37:21.030Z",
         "wasSuccessful": true
       }
     ],
@@ -2088,9 +2088,9 @@
         "selector": "a:has-text(\"Return to Home\")",
         "pageUrl": "/DooDates/availability-polls/list",
         "text": "Return to Home",
-        "clickCount": 10,
+        "clickCount": 11,
         "firstInteraction": "2025-12-24T17:51:32.978Z",
-        "lastInteraction": "2025-12-24T22:13:44.582Z",
+        "lastInteraction": "2026-01-10T16:22:09.166Z",
         "wasSuccessful": true
       }
     ],
@@ -2322,9 +2322,9 @@
         "selector": "a:has-text(\"Historique enfants\")",
         "pageUrl": "/DooDates/quizz",
         "text": "Historique enfants",
-        "clickCount": 20,
+        "clickCount": 21,
         "firstInteraction": "2025-12-24T17:59:41.430Z",
-        "lastInteraction": "2025-12-24T22:11:17.719Z",
+        "lastInteraction": "2026-01-10T16:22:03.360Z",
         "wasSuccessful": true
       }
     ],
@@ -2660,9 +2660,9 @@
         "selector": "a:has-text(\"Sécurité\")",
         "pageUrl": "/DooDates/privacy",
         "text": "Sécurité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:12:54.171Z",
-        "lastInteraction": "2025-12-24T18:12:54.171Z",
+        "lastInteraction": "2026-01-10T16:10:31.770Z",
         "wasSuccessful": true
       }
     ],
@@ -2790,9 +2790,9 @@
         "selector": "a:has-text(\"Confidentialité\")",
         "pageUrl": "/DooDates/privacy",
         "text": "Confidentialité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:20:54.083Z",
-        "lastInteraction": "2025-12-24T18:20:54.083Z",
+        "lastInteraction": "2026-01-10T16:36:16.380Z",
         "wasSuccessful": true
       }
     ],
@@ -2803,9 +2803,9 @@
         "selector": "a:has-text(\"CGU\")",
         "pageUrl": "/DooDates/privacy",
         "text": "CGU",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:21:07.885Z",
-        "lastInteraction": "2025-12-24T18:21:07.885Z",
+        "lastInteraction": "2026-01-10T16:36:35.473Z",
         "wasSuccessful": true
       }
     ],
@@ -2816,9 +2816,9 @@
         "selector": "a:has-text(\"CGU\")",
         "pageUrl": "/DooDates/terms",
         "text": "CGU",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:21:16.953Z",
-        "lastInteraction": "2025-12-24T18:21:16.953Z",
+        "lastInteraction": "2026-01-10T16:36:52.816Z",
         "wasSuccessful": true
       }
     ],
@@ -3024,9 +3024,9 @@
         "selector": "a:has-text(\"Contact\")",
         "pageUrl": "/DooDates/terms",
         "text": "Contact",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:36:08.667Z",
-        "lastInteraction": "2025-12-24T18:36:08.667Z",
+        "lastInteraction": "2026-01-10T16:37:08.180Z",
         "wasSuccessful": true
       }
     ],
@@ -3037,9 +3037,9 @@
         "selector": "a:has-text(\"Sécurité\")",
         "pageUrl": "/DooDates/contact",
         "text": "Sécurité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T18:36:17.012Z",
-        "lastInteraction": "2025-12-24T18:36:17.012Z",
+        "lastInteraction": "2026-01-10T16:30:22.661Z",
         "wasSuccessful": true
       }
     ],
@@ -3115,9 +3115,9 @@
         "selector": "a:has-text(\"Confidentialité\")",
         "pageUrl": "/DooDates/contact",
         "text": "Confidentialité",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2025-12-24T18:42:11.236Z",
-        "lastInteraction": "2025-12-24T18:42:11.236Z",
+        "lastInteraction": "2026-01-10T16:36:22.056Z",
         "wasSuccessful": true
       }
     ],
@@ -3661,9 +3661,9 @@
         "selector": "a:has-text(\"Contact\")",
         "pageUrl": "/DooDates/support-policy",
         "text": "Contact",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2025-12-24T19:52:08.623Z",
-        "lastInteraction": "2025-12-24T19:52:08.623Z",
+        "lastInteraction": "2026-01-10T16:36:03.037Z",
         "wasSuccessful": true
       }
     ],
@@ -3726,9 +3726,9 @@
         "selector": "a:has-text(\"Sécurité\")",
         "pageUrl": "/DooDates/security",
         "text": "Sécurité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T20:07:09.815Z",
-        "lastInteraction": "2025-12-24T20:07:09.815Z",
+        "lastInteraction": "2026-01-10T16:11:05.738Z",
         "wasSuccessful": true
       }
     ],
@@ -3739,9 +3739,9 @@
         "selector": "a:has-text(\"Confidentialité\")",
         "pageUrl": "/DooDates/security",
         "text": "Confidentialité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2025-12-24T20:07:19.263Z",
-        "lastInteraction": "2025-12-24T20:07:19.263Z",
+        "lastInteraction": "2026-01-10T16:35:54.908Z",
         "wasSuccessful": true
       }
     ],
@@ -4259,9 +4259,9 @@
         "selector": "button[data-testid=\"productsidebar-button\"]",
         "pageUrl": "/DooDates/date",
         "text": "Ouvrir le menu",
-        "clickCount": 7,
+        "clickCount": 39,
         "firstInteraction": "2026-01-10T15:54:43.722Z",
-        "lastInteraction": "2026-01-10T16:01:11.965Z",
+        "lastInteraction": "2026-01-10T16:39:06.225Z",
         "wasSuccessful": true
       }
     ],
@@ -4272,9 +4272,9 @@
         "selector": "a:has-text(\"Return to Home\")",
         "pageUrl": "/DooDates/date-polls",
         "text": "Return to Home",
-        "clickCount": 1,
+        "clickCount": 5,
         "firstInteraction": "2026-01-10T15:54:57.868Z",
-        "lastInteraction": "2026-01-10T15:54:57.868Z",
+        "lastInteraction": "2026-01-10T16:30:05.187Z",
         "wasSuccessful": true
       }
     ],
@@ -4285,9 +4285,9 @@
         "selector": "a:has-text(\"Mes Sondages\")",
         "pageUrl": "/DooDates/date",
         "text": "Mes Sondages",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2026-01-10T15:55:04.134Z",
-        "lastInteraction": "2026-01-10T15:55:04.134Z",
+        "lastInteraction": "2026-01-10T16:16:34.975Z",
         "wasSuccessful": true
       }
     ],
@@ -4298,10 +4298,10 @@
         "selector": "a:has-text(\"read the full documentation\")",
         "pageUrl": "/",
         "text": "read the full documentation",
-        "clickCount": 3,
+        "clickCount": 27,
         "firstInteraction": "2026-01-10T15:55:12.332Z",
-        "lastInteraction": "2026-01-10T16:01:42.515Z",
-        "wasSuccessful": true
+        "lastInteraction": "2026-01-10T16:30:25.296Z",
+        "wasSuccessful": false
       }
     ],
     [
@@ -4311,9 +4311,9 @@
         "selector": "a:has-text(\"Return to Home\")",
         "pageUrl": "/DooDates/date-polls/dashboard",
         "text": "Return to Home",
-        "clickCount": 2,
+        "clickCount": 6,
         "firstInteraction": "2026-01-10T15:55:14.551Z",
-        "lastInteraction": "2026-01-10T15:55:26.328Z",
+        "lastInteraction": "2026-01-10T16:21:49.236Z",
         "wasSuccessful": true
       }
     ],
@@ -4324,9 +4324,9 @@
         "selector": "a:has-text(\"Tableau de bord\")",
         "pageUrl": "/DooDates/date",
         "text": "Tableau de bord",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2026-01-10T15:55:20.633Z",
-        "lastInteraction": "2026-01-10T15:55:20.633Z",
+        "lastInteraction": "2026-01-10T16:21:37.297Z",
         "wasSuccessful": true
       }
     ],
@@ -4337,10 +4337,10 @@
         "selector": "a:has-text(\"@githubstatus\")",
         "pageUrl": "/",
         "text": "@githubstatus",
-        "clickCount": 2,
+        "clickCount": 18,
         "firstInteraction": "2026-01-10T15:55:24.207Z",
-        "lastInteraction": "2026-01-10T16:01:45.817Z",
-        "wasSuccessful": true
+        "lastInteraction": "2026-01-10T16:27:21.214Z",
+        "wasSuccessful": false
       }
     ],
     [
@@ -4350,10 +4350,10 @@
         "selector": "a:has-text(\"GitHub Status\")",
         "pageUrl": "/",
         "text": "GitHub Status",
-        "clickCount": 1,
+        "clickCount": 8,
         "firstInteraction": "2026-01-10T15:55:32.095Z",
-        "lastInteraction": "2026-01-10T15:55:32.095Z",
-        "wasSuccessful": true
+        "lastInteraction": "2026-01-10T16:22:35.155Z",
+        "wasSuccessful": false
       }
     ],
     [
@@ -4376,9 +4376,9 @@
         "selector": "a:has-text(\"Support\")",
         "pageUrl": "/DooDates/date",
         "text": "Support",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2026-01-10T15:56:02.978Z",
-        "lastInteraction": "2026-01-10T15:56:02.978Z",
+        "lastInteraction": "2026-01-10T16:35:15.003Z",
         "wasSuccessful": true
       }
     ],
@@ -4415,9 +4415,9 @@
         "selector": "a[data-testid=\"create-date-poll\"]",
         "pageUrl": "/DooDates/date",
         "text": "Nouveau Sondage",
-        "clickCount": 2,
+        "clickCount": 4,
         "firstInteraction": "2026-01-10T16:01:07.594Z",
-        "lastInteraction": "2026-01-10T16:01:19.829Z",
+        "lastInteraction": "2026-01-10T16:26:28.715Z",
         "wasSuccessful": true
       }
     ],
@@ -4428,9 +4428,9 @@
         "selector": "a:has-text(\"Return to Home\")",
         "pageUrl": "/DooDates/create/date",
         "text": "Return to Home",
-        "clickCount": 2,
+        "clickCount": 4,
         "firstInteraction": "2026-01-10T16:01:22.546Z",
-        "lastInteraction": "2026-01-10T16:01:32.252Z",
+        "lastInteraction": "2026-01-10T16:26:41.619Z",
         "wasSuccessful": true
       }
     ],
@@ -4441,9 +4441,9 @@
         "selector": "a:has-text(\"Documentation\")",
         "pageUrl": "/DooDates/date",
         "text": "Documentation",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2026-01-10T16:01:29.369Z",
-        "lastInteraction": "2026-01-10T16:01:29.369Z",
+        "lastInteraction": "2026-01-10T16:20:07.701Z",
         "wasSuccessful": true
       }
     ],
@@ -4454,9 +4454,9 @@
         "selector": "a:has-text(\"Return to Home\")",
         "pageUrl": "/DooDates/date-polls/docs",
         "text": "Return to Home",
-        "clickCount": 1,
+        "clickCount": 3,
         "firstInteraction": "2026-01-10T16:01:38.091Z",
-        "lastInteraction": "2026-01-10T16:01:38.091Z",
+        "lastInteraction": "2026-01-10T16:20:20.108Z",
         "wasSuccessful": true
       }
     ],
@@ -4467,9 +4467,9 @@
         "selector": "a:has-text(\"Sécurité\")",
         "pageUrl": "/DooDates/date",
         "text": "Sécurité",
-        "clickCount": 1,
+        "clickCount": 2,
         "firstInteraction": "2026-01-10T16:02:14.106Z",
-        "lastInteraction": "2026-01-10T16:02:14.106Z",
+        "lastInteraction": "2026-01-10T16:35:29.476Z",
         "wasSuccessful": true
       }
     ],
@@ -4480,9 +4480,9 @@
         "selector": "a#:R5cm7mqn6:",
         "pageUrl": "/fr/pages",
         "text": "Création d’un site GitHub PagesVous pouvez créer un site GitHub Pages dans un dépôt nouveau ou exist",
-        "clickCount": 1,
+        "clickCount": 4,
         "firstInteraction": "2026-01-10T16:02:58.266Z",
-        "lastInteraction": "2026-01-10T16:02:58.266Z",
+        "lastInteraction": "2026-01-10T16:13:28.009Z",
         "wasSuccessful": false
       }
     ],
@@ -4511,12 +4511,298 @@
         "lastInteraction": "2026-01-10T16:03:44.595Z",
         "wasSuccessful": false
       }
+    ],
+    [
+      "8412af1e59dc",
+      {
+        "selectorHash": "8412af1e59dc",
+        "selector": "a:has-text(\"Tarifs\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Tarifs",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:07:37.113Z",
+        "lastInteraction": "2026-01-10T16:26:38.833Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "1b70d9f84ead",
+      {
+        "selectorHash": "1b70d9f84ead",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls/pricing",
+        "text": "Return to Home",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:07:51.163Z",
+        "lastInteraction": "2026-01-10T16:26:47.923Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "9bf1deb17460",
+      {
+        "selectorHash": "9bf1deb17460",
+        "selector": "a:has-text(\"Sondages\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Sondages",
+        "clickCount": 4,
+        "firstInteraction": "2026-01-10T16:07:57.696Z",
+        "lastInteraction": "2026-01-10T16:29:53.819Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2973809a7f99",
+      {
+        "selectorHash": "2973809a7f99",
+        "selector": "a[aria-label=\"TikTok\"]",
+        "pageUrl": "/",
+        "text": "TikTok",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T16:08:44.236Z",
+        "lastInteraction": "2026-01-10T16:09:04.577Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "33e36be4c11e",
+      {
+        "selectorHash": "33e36be4c11e",
+        "selector": "a:has-text(\"Confidentialité\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Confidentialité",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:09:51.307Z",
+        "lastInteraction": "2026-01-10T16:37:13.177Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "606b6212663d",
+      {
+        "selectorHash": "606b6212663d",
+        "selector": "a:has-text(\"Paramètres\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Paramètres",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:10:00.762Z",
+        "lastInteraction": "2026-01-10T16:10:23.614Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "0c5d842f2186",
+      {
+        "selectorHash": "0c5d842f2186",
+        "selector": "a[aria-label=\"Accéder au fil d'actualité Pour toi de TikTok\"]",
+        "pageUrl": "/@github",
+        "text": "TikTok",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T16:10:11.143Z",
+        "lastInteraction": "2026-01-10T16:11:00.390Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "1f2726b3dad2",
+      {
+        "selectorHash": "1f2726b3dad2",
+        "selector": "a:has-text(\"Return to Home\")",
+        "pageUrl": "/DooDates/date-polls/settings",
+        "text": "Return to Home",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:10:42.711Z",
+        "lastInteraction": "2026-01-10T16:10:59.760Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "d4be1b1d7768",
+      {
+        "selectorHash": "d4be1b1d7768",
+        "selector": "a",
+        "pageUrl": "/@github",
+        "text": "play.google.com/store/apps/details?id=com.github.android",
+        "clickCount": 2,
+        "firstInteraction": "2026-01-10T16:11:49.072Z",
+        "lastInteraction": "2026-01-10T16:14:11.123Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "0ea3942d4c6e",
+      {
+        "selectorHash": "0ea3942d4c6e",
+        "selector": "button[aria-label=\"mardi 20 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "20",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:12:03.235Z",
+        "lastInteraction": "2026-01-10T16:12:03.235Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "336cc39ecde7",
+      {
+        "selectorHash": "336cc39ecde7",
+        "selector": "div[aria-label=\"Regarder en plein écran\"]",
+        "pageUrl": "/@github",
+        "text": "149.5KÉpinglé",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:12:35.971Z",
+        "lastInteraction": "2026-01-10T16:12:35.971Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "76dd5551505b",
+      {
+        "selectorHash": "76dd5551505b",
+        "selector": "button[aria-label=\"mercredi 14 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "14",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:13:35.004Z",
+        "lastInteraction": "2026-01-10T16:13:35.004Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "350cdfc1c38c",
+      {
+        "selectorHash": "350cdfc1c38c",
+        "selector": "a[aria-label=\"Accéder au fil d'actualité Pour toi de TikTok\"]",
+        "pageUrl": "/@github/video/7500365416619986209",
+        "text": "TikTok",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:14:16.081Z",
+        "lastInteraction": "2026-01-10T16:14:16.081Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "57fc77f05204",
+      {
+        "selectorHash": "57fc77f05204",
+        "selector": "button[data-testid=\"productsidebar-button\"]",
+        "pageUrl": "/DooDates/availability",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:21:08.231Z",
+        "lastInteraction": "2026-01-10T16:21:41.963Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "b7234f8f3890",
+      {
+        "selectorHash": "b7234f8f3890",
+        "selector": "button[data-testid=\"productsidebar-button\"]",
+        "pageUrl": "/DooDates/quizz",
+        "text": "Ouvrir le menu",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:21:12.225Z",
+        "lastInteraction": "2026-01-10T16:21:46.234Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "243b6f7aabbd",
+      {
+        "selectorHash": "243b6f7aabbd",
+        "selector": "a:has-text(\"Mes Disponibilités\")",
+        "pageUrl": "/DooDates/availability",
+        "text": "Mes Disponibilités",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:21:56.425Z",
+        "lastInteraction": "2026-01-10T16:21:56.425Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "6d9c5d4e8b81",
+      {
+        "selectorHash": "6d9c5d4e8b81",
+        "selector": "a:has-text(\"CGU\")",
+        "pageUrl": "/DooDates/date",
+        "text": "CGU",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:22:43.920Z",
+        "lastInteraction": "2026-01-10T16:22:43.920Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "ee7b1ca94053",
+      {
+        "selectorHash": "ee7b1ca94053",
+        "selector": "a:has-text(\"Contact\")",
+        "pageUrl": "/DooDates/date",
+        "text": "Contact",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:30:13.016Z",
+        "lastInteraction": "2026-01-10T16:30:13.016Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "41349078d85a",
+      {
+        "selectorHash": "41349078d85a",
+        "selector": "a:has-text(\"À propos\")",
+        "pageUrl": "/DooDates/date",
+        "text": "À propos",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:30:45.921Z",
+        "lastInteraction": "2026-01-10T16:30:45.921Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "c9fd039e88d3",
+      {
+        "selectorHash": "c9fd039e88d3",
+        "selector": "a:has-text(\"Commencer maintenant\")",
+        "pageUrl": "/DooDates/about",
+        "text": "Commencer maintenant",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:30:50.532Z",
+        "lastInteraction": "2026-01-10T16:30:50.532Z",
+        "wasSuccessful": true
+      }
+    ],
+    [
+      "2c5280203f01",
+      {
+        "selectorHash": "2c5280203f01",
+        "selector": "button[aria-label=\"lundi 26 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "26",
+        "clickCount": 3,
+        "firstInteraction": "2026-01-10T16:37:58.720Z",
+        "lastInteraction": "2026-01-10T16:38:35.201Z",
+        "wasSuccessful": false
+      }
+    ],
+    [
+      "94f913333b07",
+      {
+        "selectorHash": "94f913333b07",
+        "selector": "button[aria-label=\"mercredi 21 janvier 2026\"]",
+        "pageUrl": "/DooDates/date/workspace/date",
+        "text": "21",
+        "clickCount": 1,
+        "firstInteraction": "2026-01-10T16:39:03.410Z",
+        "lastInteraction": "2026-01-10T16:39:03.410Z",
+        "wasSuccessful": false
+      }
     ]
   ],
   "pageVisits": [
     [
       "/DooDates/date-polls",
-      520
+      524
     ],
     [
       "/DooDates/date-polls/list",
@@ -4524,11 +4810,11 @@
     ],
     [
       "/DooDates/",
-      170
+      202
     ],
     [
       "/DooDates/date-polls/dashboard",
-      310
+      314
     ],
     [
       "/DooDates/date-polls/workspace/date",
@@ -4536,7 +4822,7 @@
     ],
     [
       "/DooDates/date-polls/settings",
-      101
+      104
     ],
     [
       "/DooDates",
@@ -4544,23 +4830,23 @@
     ],
     [
       "/DooDates/date-polls/docs",
-      59
+      61
     ],
     [
       "/DooDates/date-polls/pricing",
-      18
+      21
     ],
     [
       "/DooDates/support-policy",
-      30
+      34
     ],
     [
       "/DooDates/security",
-      26
+      29
     ],
     [
       "/DooDates/privacy",
-      24
+      29
     ],
     [
       "/DooDates/settings",
@@ -4576,15 +4862,15 @@
     ],
     [
       "/DooDates/terms",
-      19
+      22
     ],
     [
       "/DooDates/contact",
-      15
+      19
     ],
     [
       "/DooDates/about",
-      12
+      13
     ],
     [
       "/DooDates/form-polls",
@@ -4620,7 +4906,7 @@
     ],
     [
       "/DooDates/availability-polls/list",
-      10
+      11
     ],
     [
       "/DooDates/form-polls/pricing",
@@ -4628,11 +4914,11 @@
     ],
     [
       "/DooDates/quizz",
-      168
+      173
     ],
     [
       "/DooDates/quizz/history",
-      110
+      111
     ],
     [
       "/DooDates/availability-polls/dashboard",
@@ -4684,23 +4970,23 @@
     ],
     [
       "/DooDates/date",
-      14
+      76
     ],
     [
       "/",
-      7
+      61
     ],
     [
       "/githubstatus",
-      2
+      5
     ],
     [
       "/fr/pages",
-      3
+      8
     ],
     [
       "/DooDates/date/workspace/date",
-      4
+      13
     ],
     [
       "/GitHub",
@@ -4708,7 +4994,19 @@
     ],
     [
       "/DooDates/create/date",
-      2
+      4
+    ],
+    [
+      "/@github",
+      6
+    ],
+    [
+      "/@github/video/7500365416619986209",
+      1
+    ],
+    [
+      "/DooDates/availability",
+      4
     ]
   ]
 }

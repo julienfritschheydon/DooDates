@@ -75,10 +75,10 @@ export function PollPreview({ poll }: PollPreviewProps) {
               <Link
                 to={
                   publishedPoll.type === "form"
-                    ? "/form-polls/dashboard"
+                    ? "/form/dashboard"
                     : publishedPoll.type === "availability"
-                      ? "/availability-polls/dashboard"
-                      : "/date-polls/dashboard"
+                      ? "/availability/dashboard"
+                      : "/date/dashboard"
                 }
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
                 data-testid="go-to-dashboard"

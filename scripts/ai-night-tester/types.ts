@@ -63,6 +63,17 @@ export interface LayoutIssue {
   selector?: string;
 }
 
+/** Performance metrics (Web Vitals) */
+export interface PerformanceMetrics {
+  FCP?: number; // First Contentful Paint (ms)
+  LCP?: number; // Largest Contentful Paint (ms)
+  FID?: number; // First Input Delay (ms)
+  CLS?: number; // Cumulative Layout Shift (score)
+  TTFB?: number; // Time to First Byte (ms)
+  loadTime?: number; // Total page load time (ms)
+  domContentLoaded?: number; // DOMContentLoaded event (ms)
+}
+
 /** Current state of the page */
 export interface PageState {
   url: string;
@@ -74,6 +85,7 @@ export interface PageState {
   accessibilityViolations: AccessibilityViolation[];
   layoutIssues: LayoutIssue[]; // NEW
   viewport?: Viewport; // NEW
+  performanceMetrics?: PerformanceMetrics; // NEW
   bodyText: string;
   timestamp: Date;
 }
@@ -194,6 +206,16 @@ export interface PageFeatureMap {
   lastVisited: Date;
 }
 
+/** Missing feature (regression detection) */
+export interface MissingFeature {
+  id: string;
+  text: string;
+  selector: string;
+  page: string;
+  lastSeen: Date;
+  category: DiscoveredFeature["category"];
+}
+
 /** Complete feature catalog for export */
 export interface FeatureCatalog {
   generatedAt: Date;
@@ -202,6 +224,8 @@ export interface FeatureCatalog {
   totalFeatures: number;
   uniqueFeatures: number;
   pages: PageFeatureMap[];
+  missingFeatures?: MissingFeature[]; // Features that disappeared since last run
+  newFeatures?: DiscoveredFeature[]; // Features discovered in this run
 }
 
 // ============================================================

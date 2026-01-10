@@ -23,7 +23,7 @@ export const config = {
   // Application settings
   app: {
     baseUrl: process.env.BASE_URL || "https://julienfritschheydon.github.io/DooDates",
-    startPages: ["/", "/date", "/date/workspace/date"],
+    startPages: ["/date", "/form", "/availability", "/quizz"],
   },
 
   // Test behavior
@@ -172,12 +172,34 @@ export const config = {
     {
       id: "date",
       name: "Sondages de Dates",
-      routes: ["/date", "/date/workspace/date", "/date/dashboard", "/date/settings", "/date/docs"],
+      routes: [
+        "/date",
+        "/date/workspace/date",
+        "/date/dashboard",
+        "/date/journal",
+        "/date/settings",
+        "/date/pricing",
+        "/date/docs",
+        "/date/privacy",
+        "/date/security",
+        "/date/data-control",
+      ],
     },
     {
       id: "form",
       name: "Formulaires",
-      routes: ["/form", "/form/workspace/form", "/form/dashboard", "/form/settings", "/form/docs"],
+      routes: [
+        "/form",
+        "/form/workspace/form",
+        "/form/dashboard",
+        "/form/journal",
+        "/form/settings",
+        "/form/pricing",
+        "/form/docs",
+        "/form/privacy",
+        "/form/security",
+        "/form/data-control",
+      ],
     },
     {
       id: "availability",
@@ -186,40 +208,38 @@ export const config = {
         "/availability",
         "/availability/workspace/availability",
         "/availability/dashboard",
+        "/availability/journal",
         "/availability/settings",
+        "/availability/pricing",
         "/availability/docs",
+        "/availability/privacy",
+        "/availability/security",
+        "/availability/data-control",
       ],
     },
     {
       id: "quizz",
       name: "Quiz",
-      routes: ["/quizz", "/quizz/create"],
+      routes: ["/quizz"],
     },
   ],
 
   // Routes to test (priority order) - flattened from productGroups
   priorityRoutes: [
-    // Landing pages
+    "/",
     "/date",
-    "/form",
-    "/availability",
-    // Workspaces
     "/date/workspace/date",
-    "/form/workspace/form",
-    "/availability/workspace/availability",
-    // Dashboards
     "/date/dashboard",
-    "/form/dashboard",
-    "/availability/dashboard",
-    // Settings
+    "/date/journal",
     "/date/settings",
-    "/form/settings",
-    "/availability/settings",
-    // Documentation
+    "/date/pricing",
     "/date/docs",
-    "/form/docs",
-    "/availability/docs",
-    // Quizz
+    "/form",
+    "/form/workspace/form",
+    "/form/dashboard",
+    "/availability",
+    "/availability/workspace/availability",
+    "/availability/dashboard",
     "/quizz",
   ],
 

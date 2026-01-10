@@ -13,15 +13,79 @@ import type {
   PageFeatureMap,
   FeatureCatalog,
   InteractiveElement,
+  MissingFeature,
 } from "./types";
 
 export class FeatureDiscovery {
   private pages: Map<string, PageFeatureMap> = new Map();
   private featureIdCounter = 0;
   private startTime: Date;
+  private catalogFilePath: string;
+  private previousCatalog: FeatureCatalog | null = null;
+  private newFeaturesInThisRun: Set<string> = new Set();
 
   constructor() {
     this.startTime = new Date();
+    this.catalogFilePath = path.join(config.output.reportsDir, "feature-catalog.json");
+    this.loadExistingCatalog();
+  }
+
+  /**
+   * Load existing catalog from disk if it exists
+   */
+  private loadExistingCatalog(): void {
+    if (fs.existsSync(this.catalogFilePath)) {
+      try {
+        const content = fs.readFileSync(this.catalogFilePath, "utf8");
+        const existing = JSON.parse(content);
+
+        // Store previous catalog for regression detection
+        this.previousCatalog = {
+          ...existing,
+          generatedAt: new Date(existing.generatedAt),
+          pages: existing.pages.map((p: any) => ({
+            ...p,
+            firstVisited: new Date(p.firstVisited),
+            lastVisited: new Date(p.lastVisited),
+            features: p.features.map((f: any) => ({
+              ...f,
+              firstSeen: new Date(f.firstSeen),
+              lastSeen: new Date(f.lastSeen),
+            })),
+          })),
+        };
+
+        // Restore pages and features
+        if (existing.pages) {
+          for (const page of existing.pages) {
+            this.pages.set(page.urlPath, {
+              ...page,
+              firstVisited: new Date(page.firstVisited),
+              lastVisited: new Date(page.lastVisited),
+              features: page.features.map((f: any) => ({
+                ...f,
+                firstSeen: new Date(f.firstSeen),
+                lastSeen: new Date(f.lastSeen),
+              })),
+            });
+
+            // Update feature ID counter
+            page.features.forEach((f: any) => {
+              const idNum = parseInt(f.id.replace("feat-", ""));
+              if (idNum > this.featureIdCounter) {
+                this.featureIdCounter = idNum;
+              }
+            });
+          }
+        }
+
+        console.log(
+          `📂 Loaded existing catalog: ${this.pages.size} pages, ${this.featureIdCounter} features`,
+        );
+      } catch (error) {
+        console.warn(`⚠️ Failed to load existing catalog, starting fresh:`, error);
+      }
+    }
   }
 
   /**
@@ -169,6 +233,9 @@ export class FeatureDiscovery {
           lastSeen: now,
         };
         page.features.push(feature);
+
+        // Track as new feature in this run
+        this.newFeaturesInThisRun.add(feature.id);
       }
     }
   }
@@ -189,9 +256,59 @@ export class FeatureDiscovery {
   }
 
   /**
-   * Build the complete feature catalog
+   * Detect missing features (regression detection)
    */
-  buildCatalog(): FeatureCatalog {
+  private detectMissingFeatures(): MissingFeature[] {
+    if (!this.previousCatalog) return [];
+
+    const missingFeatures: MissingFeature[] = [];
+    const currentFeatureIds = new Set<string>();
+
+    // Collect all current feature IDs
+    this.pages.forEach((page) => {
+      page.features.forEach((f) => currentFeatureIds.add(f.id));
+    });
+
+    // Find features that existed before but are missing now
+    this.previousCatalog.pages.forEach((page) => {
+      page.features.forEach((f) => {
+        if (!currentFeatureIds.has(f.id)) {
+          missingFeatures.push({
+            id: f.id,
+            text: f.text,
+            selector: f.selector,
+            page: page.urlPath,
+            lastSeen: new Date(f.lastSeen),
+            category: f.category,
+          });
+        }
+      });
+    });
+
+    return missingFeatures;
+  }
+
+  /**
+   * Get new features discovered in this run
+   */
+  private getNewFeatures(): DiscoveredFeature[] {
+    const newFeatures: DiscoveredFeature[] = [];
+
+    this.pages.forEach((page) => {
+      page.features.forEach((f) => {
+        if (this.newFeaturesInThisRun.has(f.id)) {
+          newFeatures.push(f);
+        }
+      });
+    });
+
+    return newFeatures;
+  }
+
+  /**
+   * Build the complete feature catalog with history
+   */
+  buildCatalog(): FeatureCatalog & { history?: any[] } {
     const pages = Array.from(this.pages.values()).sort((a, b) =>
       a.urlPath.localeCompare(b.urlPath),
     );
@@ -202,28 +319,90 @@ export class FeatureDiscovery {
     const uniqueTexts = new Set<string>();
     pages.forEach((p) => p.features.forEach((f) => uniqueTexts.add(f.text)));
 
-    return {
+    // Detect regressions and new features
+    const missingFeatures = this.detectMissingFeatures();
+    const newFeatures = this.getNewFeatures();
+
+    const catalog: any = {
       generatedAt: new Date(),
       duration: Date.now() - this.startTime.getTime(),
       totalPages: pages.length,
       totalFeatures,
       uniqueFeatures: uniqueTexts.size,
       pages,
+      missingFeatures: missingFeatures.length > 0 ? missingFeatures : undefined,
+      newFeatures: newFeatures.length > 0 ? newFeatures : undefined,
     };
+
+    // Load and append history from existing catalog
+    if (fs.existsSync(this.catalogFilePath)) {
+      try {
+        const existing = JSON.parse(fs.readFileSync(this.catalogFilePath, "utf8"));
+        catalog.history = existing.history || [];
+
+        // Add current run to history
+        catalog.history.push({
+          timestamp: new Date(),
+          duration: catalog.duration,
+          totalPages: catalog.totalPages,
+          totalFeatures: catalog.totalFeatures,
+          uniqueFeatures: catalog.uniqueFeatures,
+          missingFeaturesCount: missingFeatures.length,
+          newFeaturesCount: newFeatures.length,
+        });
+      } catch (error) {
+        catalog.history = [
+          {
+            timestamp: new Date(),
+            duration: catalog.duration,
+            totalPages: catalog.totalPages,
+            totalFeatures: catalog.totalFeatures,
+            uniqueFeatures: catalog.uniqueFeatures,
+            missingFeaturesCount: missingFeatures.length,
+            newFeaturesCount: newFeatures.length,
+          },
+        ];
+      }
+    } else {
+      catalog.history = [
+        {
+          timestamp: new Date(),
+          duration: catalog.duration,
+          totalPages: catalog.totalPages,
+          totalFeatures: catalog.totalFeatures,
+          uniqueFeatures: catalog.uniqueFeatures,
+          missingFeaturesCount: missingFeatures.length,
+          newFeaturesCount: newFeatures.length,
+        },
+      ];
+    }
+
+    return catalog;
   }
 
   /**
-   * Export catalog to JSON file
+   * Export catalog to single consolidated JSON file
    */
   exportToJSON(): string {
     const catalog = this.buildCatalog();
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").substring(0, 19);
-    const filePath = path.join(config.output.reportsDir, `feature-catalog-${timestamp}.json`);
 
-    fs.writeFileSync(filePath, JSON.stringify(catalog, null, 2));
-    console.log(`📦 Feature catalog exported: ${filePath}`);
+    fs.writeFileSync(this.catalogFilePath, JSON.stringify(catalog, null, 2));
+    console.log(`📦 Feature catalog updated: ${this.catalogFilePath}`);
+    console.log(`   📊 Total runs: ${catalog.history?.length || 1}`);
+    console.log(`   📄 Pages: ${catalog.totalPages}`);
+    console.log(`   🔧 Features: ${catalog.totalFeatures} (${catalog.uniqueFeatures} unique)`);
 
-    return filePath;
+    // Report regressions and new features
+    if (catalog.missingFeatures && catalog.missingFeatures.length > 0) {
+      console.log(
+        `   ⚠️  Missing features: ${catalog.missingFeatures.length} (potential regressions!)`,
+      );
+    }
+    if (catalog.newFeatures && catalog.newFeatures.length > 0) {
+      console.log(`   ✨ New features: ${catalog.newFeatures.length}`);
+    }
+
+    return this.catalogFilePath;
   }
 
   /**

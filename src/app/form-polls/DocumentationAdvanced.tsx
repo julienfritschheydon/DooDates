@@ -33,7 +33,7 @@ export default function FormPollsDocumentationAdvanced() {
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-purple-400 flex items-center justify-center">
                 <FileText className="w-5 h-5 text-white" />
               </div>
-              <Link to="/form-polls" className="text-xl font-bold text-purple-400">
+              <Link to="/form" className="text-xl font-bold text-purple-400">
                 Formulaires
               </Link>
             </div>

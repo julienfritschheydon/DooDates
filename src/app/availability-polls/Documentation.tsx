@@ -28,7 +28,7 @@ export default function AvailabilityPollsDocumentation() {
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center">
                 <CalendarClock className="w-5 h-5 text-white" />
               </div>
-              <Link to="/availability-polls" className="text-xl font-bold text-green-400">
+              <Link to="/availability" className="text-xl font-bold text-green-400">
                 Disponibilités
               </Link>
             </div>

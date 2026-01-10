@@ -11,7 +11,7 @@ export default function AvailabilityPollsPricing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link to="/availability-polls" className="text-2xl font-bold text-emerald-400">
+              <Link to="/availability" className="text-2xl font-bold text-emerald-400">
                 DooDates3
               </Link>
             </div>

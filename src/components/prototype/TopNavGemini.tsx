@@ -21,11 +21,11 @@ const TopNavGemini = () => {
   const getDocumentationUrl = () => {
     const pathname = location.pathname;
 
-    if (pathname.includes("/date-polls")) {
+    if (pathname.includes("/date")) {
       return "/docs/01-Guide-Demarrage-Rapide#sondages-de-dates";
-    } else if (pathname.includes("/form-polls")) {
+    } else if (pathname.includes("/form")) {
       return "/docs/01-Guide-Demarrage-Rapide#formulaires";
-    } else if (pathname.includes("/availability-polls")) {
+    } else if (pathname.includes("/availability")) {
       return "/docs/01-Guide-Demarrage-Rapide#sondages-de-disponibilite";
     } else if (pathname.includes("/quizz")) {
       return "/docs/01-Guide-Demarrage-Rapide#quizz";

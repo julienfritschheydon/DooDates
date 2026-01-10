@@ -67,7 +67,7 @@ export default function QuizzPollsDataControl() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("/quizz-polls/dashboard")}
+            onClick={() => navigate("/quizz/dashboard")}
             className="mb-4"
             data-testid="quizzpollsdatacontrol-navigate"
           >
@@ -151,7 +151,7 @@ export default function QuizzPollsDataControl() {
           <div className="space-y-2">
             <Button
               variant="ghost"
-              onClick={() => navigate("/quizz-polls/privacy")}
+              onClick={() => navigate("/quizz/privacy")}
               className="w-full justify-start"
               data-testid="quizzpollsdatacontrol-politique-de-confidentialit"
             >
@@ -159,7 +159,7 @@ export default function QuizzPollsDataControl() {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate("/quizz-polls/settings")}
+              onClick={() => navigate("/quizz/settings")}
               className="w-full justify-start"
               data-testid="quizzpollsdatacontrol-paramtres-du-compte"
             >

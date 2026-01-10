@@ -28,7 +28,7 @@ export default function DatePollsDocumentation() {
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-400 flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
-              <Link to="/date-polls" className="text-xl font-bold text-blue-400">
+              <Link to="/date" className="text-xl font-bold text-blue-400">
                 Sondages de Dates
               </Link>
             </div>

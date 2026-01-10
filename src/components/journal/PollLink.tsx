@@ -43,20 +43,8 @@ export function PollLink({ pollId, pollType }: PollLinkProps) {
     // (pollId peut être soit un ID soit un slug)
     const identifier = poll?.slug || pollId;
 
-    // Les date polls utilisent /poll/:slug/results (sans préfixe date-polls)
-    // Les autres types utilisent /:type-polls/:slug/results
-    if (baseType === "date") {
-      return `/poll/${identifier}/results`;
-    }
-
-    const productType =
-      baseType === "form"
-        ? "form-polls"
-        : baseType === "quizz"
-          ? "quizz-polls"
-          : "availability-polls";
-
-    return `/${productType}/${identifier}/results`;
+    // Tous les types utilisent /poll/:slug/results
+    return `/poll/${identifier}/results`;
   };
 
   return (

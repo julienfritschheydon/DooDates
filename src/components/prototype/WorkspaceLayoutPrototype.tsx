@@ -666,7 +666,7 @@ export function AICreationWorkspace() {
               <h1 className="text-xl font-medium text-white">DooDates</h1>
             </div>
             <button
-              onClick={() => navigate("/date-polls/workspace/date")}
+              onClick={() => navigate("/date/workspace/date")}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="Fermer"
               title="Fermer"

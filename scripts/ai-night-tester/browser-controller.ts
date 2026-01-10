@@ -15,6 +15,7 @@ import type {
   TestAction,
   AccessibilityViolation,
   Viewport,
+  PerformanceMetrics,
 } from "./types";
 import { AxeBuilder } from "@axe-core/playwright";
 
@@ -138,7 +139,20 @@ export class BrowserController {
   async navigate(url: string): Promise<void> {
     if (!this.page) throw new Error("Browser not initialized");
 
-    const fullUrl = url.startsWith("http") ? url : `${config.app.baseUrl}${url}`;
+    // Convert relative URLs to absolute
+    let fullUrl = url.startsWith("http") ? url : `${config.app.baseUrl}${url}`;
+
+    // Prevent navigation outside DooDates domain
+    const allowedDomain = "julienfritschheydon.github.io/DooDates";
+    const isRootGitHubPages =
+      fullUrl === "https://julienfritschheydon.github.io/" ||
+      fullUrl === "https://julienfritschheydon.github.io";
+    if (!fullUrl.includes(allowedDomain) || isRootGitHubPages) {
+      console.log(`🚫 Blocked navigation to external domain: ${fullUrl}`);
+      console.log(`   Redirecting to DooDates home instead`);
+      fullUrl = config.app.baseUrl;
+    }
+
     console.log(`📍 Navigating to: ${fullUrl}`);
 
     await this.page.goto(fullUrl, {
@@ -165,6 +179,20 @@ export class BrowserController {
 
     try {
       const element = this.page.locator(selector).first();
+
+      // Check if it's a link with external URL
+      const href = await element.getAttribute("href").catch(() => null);
+      if (href) {
+        const allowedDomain = "julienfritschheydon.github.io/DooDates";
+        const isExternal = href.startsWith("http") && !href.includes(allowedDomain);
+        const isRootGitHubPages =
+          href === "https://julienfritschheydon.github.io/" ||
+          href === "https://julienfritschheydon.github.io";
+        if (isExternal || isRootGitHubPages) {
+          console.log(`🚫 Blocked click on external link: ${href}`);
+          return false;
+        }
+      }
 
       // Check if element is enabled before trying to click
       const isEnabled = await element.isEnabled({ timeout: 2000 }).catch(() => false);
@@ -303,10 +331,102 @@ export class BrowserController {
   }
 
   /**
+   * Scroll page to discover all content
+   */
+  async scrollToDiscoverContent(): Promise<void> {
+    if (!this.page) return;
+
+    try {
+      // Get page height
+      const pageHeight = await this.page.evaluate(() => document.body.scrollHeight);
+      const viewportHeight = await this.page.evaluate(() => window.innerHeight);
+
+      // If page is taller than viewport, scroll progressively
+      if (pageHeight > viewportHeight) {
+        const scrollSteps = Math.ceil(pageHeight / viewportHeight);
+
+        for (let i = 0; i < scrollSteps; i++) {
+          await this.page.evaluate((step) => {
+            window.scrollTo({
+              top: step * window.innerHeight,
+              behavior: "smooth",
+            });
+          }, i);
+
+          // Wait for content to load
+          await this.page.waitForTimeout(300);
+        }
+
+        // Scroll back to top
+        await this.page.evaluate(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        await this.page.waitForTimeout(200);
+      }
+    } catch (error) {
+      console.warn("⚠️ Scroll discovery failed:", error);
+    }
+  }
+
+  /**
+   * Collect performance metrics (Web Vitals)
+   */
+  private async collectPerformanceMetrics(): Promise<PerformanceMetrics> {
+    if (!this.page) return {};
+
+    try {
+      return await this.page.evaluate(() => {
+        const metrics: any = {};
+
+        // Get Navigation Timing API metrics
+        const perfData = performance.getEntriesByType(
+          "navigation",
+        )[0] as PerformanceNavigationTiming;
+        if (perfData) {
+          metrics.TTFB = perfData.responseStart - perfData.requestStart;
+          metrics.domContentLoaded =
+            perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart;
+          metrics.loadTime = perfData.loadEventEnd - perfData.fetchStart;
+        }
+
+        // Get Paint Timing API metrics
+        const paintEntries = performance.getEntriesByType("paint");
+        const fcp = paintEntries.find((entry) => entry.name === "first-contentful-paint");
+        if (fcp) {
+          metrics.FCP = fcp.startTime;
+        }
+
+        // Get LCP (Largest Contentful Paint)
+        const lcpEntries = performance.getEntriesByType("largest-contentful-paint");
+        if (lcpEntries.length > 0) {
+          const lastLCP = lcpEntries[lcpEntries.length - 1] as any;
+          metrics.LCP = lastLCP.startTime;
+        }
+
+        // Get CLS (Cumulative Layout Shift)
+        const clsEntries = performance.getEntriesByType("layout-shift") as any[];
+        if (clsEntries.length > 0) {
+          metrics.CLS = clsEntries
+            .filter((entry) => !entry.hadRecentInput)
+            .reduce((sum, entry) => sum + entry.value, 0);
+        }
+
+        return metrics;
+      });
+    } catch (error) {
+      console.warn("⚠️ Performance metrics collection failed:", error);
+      return {};
+    }
+  }
+
+  /**
    * Get current page state
    */
   async getPageState(): Promise<PageState> {
     if (!this.page) throw new Error("Browser not initialized");
+
+    // Scroll to discover all content first
+    await this.scrollToDiscoverContent();
 
     const url = this.page.url();
     const title = await this.page.title();
@@ -323,8 +443,11 @@ export class BrowserController {
     // Accessibility Check
     const accessibilityViolations = await this.checkAccessibility();
 
-    // Layout Check (NEW)
+    // Layout Check
     const layoutIssues = await this.checkLayout();
+
+    // Performance Metrics
+    const performanceMetrics = await this.collectPerformanceMetrics();
 
     return {
       url,
@@ -335,6 +458,7 @@ export class BrowserController {
       accessibilityViolations,
       layoutIssues,
       viewport: this.currentViewport,
+      performanceMetrics,
       bodyText: bodyText.substring(0, 2000), // Limit text size
       timestamp: new Date(),
     };
