@@ -15,6 +15,43 @@
 
 ---
 
+
+Soucis à noter, vérifier et fixer:
+
+Quizz:
+
+- S'assurer que les réponses textes sont vérifier car mon test semble montrer que non
+- Quand on démarrer les réponses à un quizz le bouton copié le lien n'est pas utile et illisible
+- Du dashboard, il n'est pas possible de voir le détails des questions et réponses
+- si option durée illimité alors pas de compteur sur les réponses ça marche pas pour de vrai ?
+- statistiques sont restreintes alors que c'est nous le propriétaire, ca marche pas ?
+- la plupart des textes sur le quizz ne sont pas lisible, "
+
+Disponibilités
+- Revoir les options pour les disponibilités et ôter celles qui ne sont pas adaptées
+- Du point de vue du client, revoir l'expérience et surtout à la fin qu'est-ce qui se passe ? Le bouton retour non. Mais l'expérience du client nécessite plus de réfection. A noter pour Janvier après étude.
+- En mobile, l'UI dépasse en largeur
+- Masquer démasquer les horaires de disponibilité montre les heures du soir mais pas celle du matin
+
+
+AI
+
+- dans les experiénce mobile, il faut démarrer sur l'agent, pas sur le sondage, ou le formulaire
+
+Landing
+
+- quand on arrive du main landing on mobile, il semble qu'on arrive en mileu de la page de landing produit, et pas en haut
+
+Tous les produits
+- Afficher / Masquer le logo : afficher le logo Doodates et noter de mettre le vrai logo dans le futur sur le plannign de janvier, d'ailleurs il faut noter de les créer
+
+CI
+
+- faire un personnage spécial testeur qui regarde bien le code
+- Dois-je séparer totalement les repositoris et les tests par produit
+
+
+
 ### 📌 MERCREDI 8 JANVIER
 
 **Thème : 🧪 Tests Edge Cases**

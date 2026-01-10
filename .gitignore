@@ -219,3 +219,11 @@ src/hooks/__tests__/useConversations.favorites.test.ts
 
 # ggshield cache (contains sensitive secrets)
 .cache_ggshield
+
+# AI Night Tester temporary files
+scripts/ai-night-tester/reports/.global-memory.json
+scripts/ai-night-tester/reports/report-*.md
+scripts/ai-night-tester/reports/screenshots/*.png
+
+# Pre-commit audit reports
+scripts/reports/data-testid-audit-*.json
