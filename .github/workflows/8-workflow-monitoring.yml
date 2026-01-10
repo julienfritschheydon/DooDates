@@ -100,44 +100,6 @@ jobs:
           GITHUB_API_URL: ${{ github.api_url }}
         run: node scripts/monitor-workflow-failures.js
 
-      - name: 📤 Commit and push report
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Déterminer la branche cible
-          # Si déclenché par workflow_run, utiliser la branche du workflow déclencheur depuis l'événement
-          # Sinon, utiliser la branche par défaut
-          if [ -n "${{ github.event.workflow_run.head_branch }}" ]; then
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-          elif [ -n "${{ github.ref_name }}" ]; then
-            BRANCH="${{ github.ref_name }}"
-          else
-            BRANCH="main"
-          fi
-
-          echo "Branche cible: $BRANCH"
-
-          # S'assurer qu'on est sur la bonne branche et à jour
-          git fetch origin $BRANCH || git fetch origin main || git fetch origin develop
-          git checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH origin/$BRANCH 2>/dev/null || echo "⚠️ Impossible de checkout $BRANCH, utilisation de la branche actuelle"
-          git pull origin $BRANCH 2>/dev/null || true
-
-          # Ajouter les fichiers de monitoring
-          git add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true
-
-          if git diff --staged --quiet; then
-            echo "✅ Aucun changement détecté, rien à committer"
-          else
-            COMMIT_MESSAGE="docs: mise à jour du rapport de monitoring des workflows (run #${GITHUB_RUN_NUMBER:-local}) [skip ci]"
-            git commit -m "$COMMIT_MESSAGE"
-          fi
-
-          git push origin $BRANCH || {
-            echo "❌ Erreur lors du push, tentative avec HEAD"
-            git push origin HEAD:$BRANCH || echo "❌ Échec du push"
-          }
-
       - name: 📋 Display Report Summary
         if: always()
         run: |
