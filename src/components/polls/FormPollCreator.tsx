@@ -12,7 +12,6 @@ import {
   Settings,
 } from "lucide-react";
 import FormEditor from "./FormEditor";
-import { GuestPollSuccessDialog } from "./GuestPollSuccessDialog";
 import { SafeguardSection } from "./SafeguardSection";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import {
@@ -185,7 +184,6 @@ export default function FormPollCreator({
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
   const isFinalizingRef = useRef(false);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [finalizedPoll, setFinalizedPoll] = useState<Poll | undefined>(undefined);
 
   // Suggestion IA intelligente pour displayMode
@@ -668,9 +666,8 @@ export default function FormPollCreator({
 
       // Passer le poll sauvegardé complet (avec slug) au callback
       setFinalizedPoll(saved);
-      if (!user) {
-        setShowSuccessDialog(true);
-      } else if (onFinalize) {
+      // TOUJOURS utiliser onFinalize pour afficher la nouvelle page (unifié pour tous les utilisateurs)
+      if (onFinalize) {
         onFinalize(draft, saved);
       }
       logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
@@ -800,19 +797,6 @@ export default function FormPollCreator({
           </div>
         </div>
       </div>
-      <GuestPollSuccessDialog
-        isOpen={showSuccessDialog}
-        onClose={() => {
-          setShowSuccessDialog(false);
-          if (onFinalize && finalizedPoll) onFinalize(currentDraft, finalizedPoll);
-        }}
-        pollUrl={
-          finalizedPoll
-            ? `${window.location.origin}/form/${finalizedPoll.slug || finalizedPoll.id}`
-            : ""
-        }
-        pollTitle={finalizedPoll?.title || ""}
-      />
     </div>
   );
 }

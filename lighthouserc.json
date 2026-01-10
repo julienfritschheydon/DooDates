@@ -6,11 +6,11 @@
         "preset": "desktop"
       },
       "url": [
-        "http://localhost:4173/DooDates/",
-        "http://localhost:4173/DooDates/date-polls/dashboard",
-        "http://localhost:4173/DooDates/form-polls/dashboard",
-        "http://localhost:4173/DooDates/availability-polls/dashboard",
-        "http://localhost:4173/DooDates/quizz/dashboard"
+        "http://localhost:4173/",
+        "http://localhost:4173/date-polls/dashboard",
+        "http://localhost:4173/form-polls/dashboard",
+        "http://localhost:4173/availability-polls/dashboard",
+        "http://localhost:4173/quizz/dashboard"
       ]
     },
     "assert": {

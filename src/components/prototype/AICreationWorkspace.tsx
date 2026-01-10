@@ -83,6 +83,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { SafeguardSection } from "../polls/SafeguardSection";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
 function findRelatedConversation(poll: Poll): string | undefined {
@@ -490,6 +491,13 @@ export function AICreationWorkspace({
                   devrez vous connecter ou créer un compte.
                 </p>
               </div>
+
+              {/* Section Safeguard pour les utilisateurs non connectés */}
+              {!user && (
+                <div className="p-4 bg-blue-500/10 border border-blue-600/30 rounded-lg">
+                  <SafeguardSection />
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
