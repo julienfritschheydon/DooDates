@@ -66,7 +66,7 @@ test.describe("DooDates - Test Ultra Simple Dispo (Availability)", () => {
 
         // 1. Naviguer vers le workspace Availability
         log("🛠️ Navigation vers le workspace Availability");
-        await navigateToWorkspace(page, browserName, "date");
+        await navigateToWorkspace(page, browserName, "availability");
         await waitForNetworkIdle(page, { browserName });
         // await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");

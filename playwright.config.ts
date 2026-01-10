@@ -46,7 +46,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
     actionTimeout: 15000,
     // Sortie des traces et screenshots dans test-results/
-    video: "retain-on-failure",
+    video: "on",
   },
 
   projects: [

@@ -5,6 +5,7 @@
 
 import { Page, expect } from "@playwright/test";
 import { getTimeouts } from "../config/timeouts";
+import type { TestContext, BaseTestOptions } from "./test-context";
 
 /**
  * Attend qu'un élément soit prêt (visible + stable)
@@ -36,9 +37,23 @@ export async function waitForElementReady(
     first?: boolean; // Si true, utilise .first() pour éviter strict mode violation
   },
 ): Promise<ReturnType<Page["locator"]>> {
-  const timeouts = options?.browserName
-    ? getTimeouts(options.browserName)
-    : getTimeouts("chromium");
+  return waitForElementReadyWithContext({ page, browserName: "chromium" }, selector, options);
+}
+
+/**
+ * Version standardisée avec TestContext
+ */
+export async function waitForElementReadyWithContext(
+  context: TestContext,
+  selector: string,
+  options?: {
+    timeout?: number;
+    state?: "visible" | "attached" | "hidden";
+    first?: boolean; // Si true, utilise .first() pour éviter strict mode violation
+  } & BaseTestOptions,
+): Promise<ReturnType<Page["locator"]>> {
+  const { page, browserName } = context;
+  const timeouts = getTimeouts(browserName);
 
   const timeout = options?.timeout ?? timeouts.element;
   const state = options?.state ?? "visible";
@@ -95,9 +110,22 @@ export async function waitForNetworkIdle(
     idleTime?: number; // Temps d'inactivité requis (ms)
   },
 ): Promise<void> {
-  const timeouts = options?.browserName
-    ? getTimeouts(options.browserName)
-    : getTimeouts("chromium");
+  const browserName = (options?.browserName ?? "chromium") as "chromium" | "firefox" | "webkit";
+  return waitForNetworkIdleWithContext({ page, browserName }, options);
+}
+
+/**
+ * Version standardisée avec TestContext
+ */
+export async function waitForNetworkIdleWithContext(
+  context: TestContext,
+  options?: {
+    timeout?: number;
+    idleTime?: number; // Temps d'inactivité requis (ms)
+  } & BaseTestOptions,
+): Promise<void> {
+  const { page, browserName } = context;
+  const timeouts = getTimeouts(browserName);
 
   const timeout = options?.timeout ?? timeouts.network;
   const idleTime = options?.idleTime ?? 500;
@@ -107,10 +135,7 @@ export async function waitForNetworkIdle(
   // On se contente donc de s'assurer que le DOM est chargé, puis d'attendre
   // une courte période d'inactivité.
 
-  const isProblematicBrowser =
-    options?.browserName === "firefox" ||
-    options?.browserName === "webkit" ||
-    options?.browserName === "Mobile Safari";
+  const isProblematicBrowser = browserName === "firefox" || browserName === "webkit"; // webkit includes Safari and Mobile Safari
 
   if (isProblematicBrowser) {
     await page.waitForLoadState("domcontentloaded", { timeout });
@@ -155,9 +180,21 @@ export async function waitForReactStable(
     maxWaitTime?: number; // Temps maximum d'attente (ms)
   },
 ): Promise<void> {
-  const timeouts = options?.browserName
-    ? getTimeouts(options.browserName)
-    : getTimeouts("chromium");
+  const browserName = (options?.browserName ?? "chromium") as "chromium" | "firefox" | "webkit";
+  return waitForReactStableWithContext({ page, browserName }, options);
+}
+
+/**
+ * Version standardisée avec TestContext
+ */
+export async function waitForReactStableWithContext(
+  context: TestContext,
+  options?: {
+    maxWaitTime?: number; // Temps maximum d'attente (ms)
+  } & BaseTestOptions,
+): Promise<void> {
+  const { page, browserName } = context;
+  const timeouts = getTimeouts(browserName);
 
   const maxWaitTime = options?.maxWaitTime ?? timeouts.stability;
 

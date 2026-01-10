@@ -22,7 +22,7 @@ export const config = {
 
   // Application settings
   app: {
-    baseUrl: process.env.BASE_URL || "http://localhost:8080/DooDates",
+    baseUrl: process.env.BASE_URL || "https://julienfritschheydon.github.io/DooDates",
     startPages: ["/date-polls", "/form-polls", "/availability-polls", "/quizz"],
   },
 

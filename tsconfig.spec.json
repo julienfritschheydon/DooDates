@@ -10,6 +10,8 @@
     "src/lib/settingsLogic.ts",
     "src/hooks/useAdvancedSettings.ts",
     "src/pages/LandingPage.tsx",
+    "src/app/workspace/FormWorkspace.tsx",
+    "src/components/ui/toaster.tsx",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/**/__tests__/*",

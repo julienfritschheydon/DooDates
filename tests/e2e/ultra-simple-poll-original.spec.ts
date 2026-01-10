@@ -97,7 +97,8 @@ test.describe("DooDates - Test Ultra Simple 2 (avec helpers)", () => {
             title: "Test E2E Ultra Simple 2 (avec helpers)",
             mobileMode: isMobileBrowser,
             skipTimeSlots: true,
-            aiPrompt: "crée un sondage pour un déjeuner demain midi",
+            aiPrompt:
+              'Peux-tu créer un sondage "Test E2E Ultra Simple 2" avec trois dates espacées et quelques créneaux horaires ?',
           },
         );
 
@@ -126,7 +127,6 @@ test.describe("DooDates - Test Ultra Simple 2 (avec helpers)", () => {
           /Invalid JWT/i,
           /DooDates Error/i,
           /API_ERROR/i,
-          /ResizeObserver loop/i,
         ],
       },
     );

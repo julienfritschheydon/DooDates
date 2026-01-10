@@ -2,6 +2,7 @@ import { Page, expect } from "@playwright/test";
 import { waitForElementReady, waitForReactStable, waitForNetworkIdle } from "./wait-helpers";
 import { type BrowserName } from "./poll-core-helpers";
 import { safeIsVisible } from "./safe-helpers";
+import type { TestContext } from "./test-context";
 
 /**
  * Centralized helpers for Dashboard verification.
@@ -18,12 +19,25 @@ export interface VerifyDashboardPollOptions {
 
 /**
  * Standard robust verification for a poll in any dashboard.
+ * @deprecated Use verifyPollVisibilityWithContext instead. Migration in progress.
  */
 export async function verifyPollVisibility(
   page: Page,
   browserName: BrowserName,
   options: VerifyDashboardPollOptions,
 ): Promise<void> {
+  return verifyPollVisibilityWithContext({ page, browserName }, options);
+}
+
+/**
+ * Standard robust verification for a poll in any dashboard.
+ * Uses standardized TestContext interface.
+ */
+export async function verifyPollVisibilityWithContext(
+  context: TestContext,
+  options: VerifyDashboardPollOptions,
+): Promise<void> {
+  const { page, browserName } = context;
   const { route = "/dashboard", title, slug, visible = true, timeout = 10000 } = options;
 
   if (page.url().indexOf(route) === -1) {
@@ -35,10 +49,10 @@ export async function verifyPollVisibility(
 
   if (visible) {
     if (title) {
-      await verifyByTitle(page, browserName, title, timeout);
+      await verifyByTitle(context, title, timeout);
     }
     if (slug) {
-      await verifyBySlug(page, browserName, slug, timeout);
+      await verifyBySlug(context, slug, timeout);
     }
   } else {
     if (title) {
@@ -55,12 +69,8 @@ export async function verifyPollVisibility(
 /**
  * Internal helper to verify by title with robust waiting
  */
-async function verifyByTitle(
-  page: Page,
-  browserName: BrowserName,
-  title: string,
-  timeout: number,
-): Promise<void> {
+async function verifyByTitle(context: TestContext, title: string, timeout: number): Promise<void> {
+  const { page, browserName } = context;
   console.log(`[DASHBOARD] Searching for poll title: "${title}"`);
 
   // 1. Wait for any poll item to be ready
@@ -77,12 +87,8 @@ async function verifyByTitle(
 /**
  * Internal helper to verify by slug using the "Robust Scan" pattern
  */
-async function verifyBySlug(
-  page: Page,
-  browserName: BrowserName,
-  slug: string,
-  timeout: number,
-): Promise<void> {
+async function verifyBySlug(context: TestContext, slug: string, timeout: number): Promise<void> {
+  const { page, browserName } = context;
   console.log(`[DASHBOARD] Searching for poll slug: "${slug}"`);
 
   // 1. Scan poll-items count

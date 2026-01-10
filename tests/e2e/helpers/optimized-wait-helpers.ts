@@ -4,7 +4,14 @@
  */
 
 import { Page } from "@playwright/test";
-import { waitForElementReady, waitForNetworkIdle, waitForReactStable } from "./wait-helpers";
+import {
+  waitForElementReady,
+  waitForNetworkIdle,
+  waitForReactStable,
+  waitForElementReadyWithContext,
+  waitForNetworkIdleWithContext,
+  waitForReactStableWithContext,
+} from "./wait-helpers";
 import type { TestContext } from "./test-context";
 
 // Performance tracking for wait operations
@@ -218,13 +225,6 @@ class WaitPerformanceOptimizer {
 
 // Export singleton instance
 export const waitPerformanceOptimizer = WaitPerformanceOptimizer.getInstance();
-
-// Import the context-based functions
-import {
-  waitForElementReadyWithContext,
-  waitForNetworkIdleWithContext,
-  waitForReactStableWithContext,
-} from "./wait-helpers";
 
 /**
  * Optimized wait functions with performance tracking

@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-01-09T14:18:53.274Z",
+  "summary": {
+    "totalFiles": 922,
+    "totalButtons": 505,
+    "missingDataTestId": 0,
+    "inconsistentNames": 0,
+    "fixed": 0
+  },
+  "issues": [],
+  "recommendations": []
+}

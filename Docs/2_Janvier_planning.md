@@ -14,20 +14,6 @@
 4. **Marketing & Traffic** - SEO, social, stratégie de lancement
 
 ---
-### 📌 MARDI 7 JANVIER
-
-**Thème : 🧪 Tests Intégration**
-
-| Bloc        | Durée | Tâche                                                                      |
-| ----------- | ----- | -------------------------------------------------------------------------- |
-| 2h Critique | 2h    | **Tests intégration**                                                      |
-|             |       | - [ ] Tests flux complets (création → vote → résultats)                    |
-|             |       | - [ ] **Finaliser test E2E Quiz complet** (décommenter et corriger la fin) |
-|             |       | - [ ] Tests exports (CSV, PDF, JSON, Markdown)                             |
-|             |       | - [ ] Tests authentification                                               |
-|             |       | - [ ] Installation Sentry + tests alertes                                  |
-
----
 
 ### 📌 MERCREDI 8 JANVIER
 
@@ -35,11 +21,35 @@
 
 | Bloc        | Durée | Tâche                                              |
 | ----------- | ----- | -------------------------------------------------- |
+| 2h Critique | 2h    | **Tests intégration**                                                      |
+|             |       | - [X] **Finaliser test E2E Quiz complet** (décommenter et corriger la fin) |
+|             |       | - [ ] Tests flux complets (création → vote → résultats) ✅ EN COURS                    |
+|             |       | - [X] ultra-simple-poll.spec.ts: Flow complet création → dashboard → vote (✅ FIXÉ) |
+|             |       | - [ ] ultra-simple-dispo.spec.ts: Création → vote (disponibilités) → dashboard |
+|             |       | - [ ] ultra-simple-form.spec.ts: Création → vote (réponses formulaire) → résultats |
+|             |       | - [ ] ultra-simple-quizz.spec.ts: Création → vote (questions/réponses) → résultats |
+|             |       | 
+|             |       | **PARCOURS CLIENT END-TO-END SPÉCIFIQUES :**
+|             |       | 
+|             |       | **📅 Date Polls :** Création IA → Page vote (/vote/{slug}) → Swipe dates → Résultats (/poll/{slug}/results) → Dashboard |
+|             |       | **📝 Form Polls :** Création IA → Page vote (/vote/{slug}) → Formulaire multi-étapes → Confirmation → Résultats (/poll/{slug}/results) → Dashboard  
+|             |       | **📅 Availability Polls :** Création manuelle → Page vote (/vote/{slug}) → Sélection disponibilités → Parsing IA → Export ICS → Dashboard |
+|             |       | **🎯 Quizz :** Création manuelle → Page vote (/vote/{slug}) → Questions chronométrées → Score/badges → Résultats (/poll/{slug}/results) → Dashboard |
+|             |       | 
+|             |       | **DATA-TESTID ET SÉLECTEURS NÉCESSAIRES :**
+|             |       | 
+|             |       | **📅 Date Polls :** `[data-testid="send-message-button"]` → `[data-testid="vote-option"]` → `[data-testid="vote-results"]` → `[data-testid="dashboard-ready"]` |
+|             |       | **📝 Form Polls :** `[data-testid="send-message-button"]` → `[data-testid="form-submit"]` → `[data-testid="form-poll-results"]` → `[data-testid="form-dashboard"]` |
+|             |       | **📅 Availability Polls :** `[data-testid="availability-title"]` → `[data-testid="availability-vote-submit"]` → `[data-testid="availability-results"]` → `[data-testid="availability-dashboard"]` |
+|             |       | **🎯 Quizz :** `[data-testid="quiz-title-input"]` → `[data-testid="quizzvote-button"]` → `[data-testid="quizz-results"]` → `[data-testid="quizz-dashboard"]` |
 | 2h Critique | 2h    | **Tests cas limites**                              |
 |             |       | - [ ] Tests volumétrie (grands sondages)           |
 |             |       | - [ ] Tests concurrence (utilisateurs simultanés)  |
 |             |       | - [ ] Tests erreurs réseau                         |
-|             |       | - [ ] Rédaction posts Reddit/Social pour lancement |
+| 1h Fond     | 1h    | **Tests intégration**                                                      |
+|             |       | - [ ] Tests exports (CSV, PDF, JSON, Markdown)                             |
+|             |       | - [ ] Tests authentification                                               |
+|             |       | - [ ] Installation Sentry + tests alertes                                  |
 
 ---
 
@@ -55,7 +65,19 @@
 |             |       | - [ ] Tests erreurs utilisateur                  |
 |             |       | - [ ] Préparation email réseau personnel         |
 |             |       | - [ ] Configuration réponses automatiques                        |
+| 1h Fond     | 1h    | **Robustesse Selecteurs (Plan Sécurisé)**                                  |
+|             |       | - [ ] Évolution `auditor.cjs` : Support Inputs & Titres (Audit Only)       |
+|             |       | - [ ] Validation manuelle regex sur échantillon                            |
+|             |       | - [ ] Application par lots (Inputs d'abord)                                |
+Pour étendre la couverture aux Inputs et Titres sans risque de régression :
 
+1.  **Mode Audit Strict** : Le script ne modifiera rien par défaut. Il listera seulement les candidats.
+2.  **Scope Granulaire** : L'extension se fera par type (d'abord `Inputs`, puis `Titres`) et non globalement.
+3.  **Validation Regex** : Les regex seront testées sur un jeu de composants complexes (props multilignes, self-closing) avant déploiement.
+4.  **Batching & Review** :
+    *   Application par lots de 10 fichiers max.
+    *   Revue diff obligatoire (`git diff`).
+    *   Test compilation (`tsc`) immédiat après chaque lot.
 ---
 
 ### 📌 VENDREDI 10 JANVIER
@@ -113,11 +135,6 @@
 |             |       | - [ ] Brancher `handleUpgrade()` dans `Pricing.tsx` |
 |             |       | - [ ] Gérer retour paiement (succès/échec)          |
 | 1h Fond     | 1h    | **Tests manuels**                                   |
-|             |       | - [ ] Tester le flow complet en sandbox             |
-
----
-
-### 📌 JEUDI 16 JANVIER
 
 **Thème : 🔗 Webhook Paiements**
 
@@ -130,10 +147,7 @@
 | 1h Fond     | 1h    | **Logging & sécurité**                                   |
 |             |       | - [ ] Logger transactions dans table `transactions`      |
 |             |       | - [ ] Valider signature webhook                          |
-
----
-
-### 📌 VENDREDI 17 JANVIER
+|             |       | - [ ] Tester le flow complet en sandbox             |
 
 **Thème : 🔒 Finalisation Paiements**
 
@@ -146,6 +160,15 @@
 | 1h Fond     | 1h    | **Documentation**                                   |
 |             |       | - [ ] Documenter le flux paiement                   |
 |             |       | - [ ] Mettre à jour README si nécessaire            |
+
+---
+
+### 📌 JEUDI 16 JANVIER
+
+---
+
+### 📌 VENDREDI 17 JANVIER
+
 
 ---
 
@@ -165,10 +188,6 @@
 |             |       | - [ ] Étude : Comment stocker/afficher au mieux ?                       |
 |             |       | - [ ] Ajouter choix timezone lors de la création                        |
 
----
-
-### 📌 MARDI 21 JANVIER
-
 **Thème : 🛡️ Transparence, Legal & Timezone**
 
 | Bloc        | Durée | Tâche                                                          |
@@ -182,6 +201,10 @@
 
 ---
 
+### 📌 MARDI 21 JANVIER
+
+---
+
 ### 📌 MERCREDI 22 JANVIER
 
 **Thème : 💬 Témoignages & Crédibilité**
@@ -192,6 +215,7 @@
 |             |       | - [ ] Collecter 3-5 témoignages utilisateurs beta                   |
 |             |       | - [ ] Créer 2-3 mini-études de cas (`Docs/WEBSITE/TESTIMONIALS.md`) |
 |             |       | - [ ] Intégrer section témoignages sur landing page                 |
+|             |       | - [ ] Rédaction posts Reddit/Social pour lancement |
 | 1h Fond     | 1h    | **Crédibilité Avancée**                                             |
 |             |       | - [ ] **Audit de Sécurité & Confidentialité** (bug bounty interne)  |
 |             |       | - [ ] Ébauche **Documentation Technique Publique**                  |
@@ -421,3 +445,8 @@
 - Semaine 1 (2-3 jan) : Terminée avec revue complète
 - Semaine 2 (6-10 jan) : Focus Tests E2E 
 - Semaines 3-6 : **DÉCALÉES** d'une semaine (13 jan → 3 fév)
+
+---
+
+
+

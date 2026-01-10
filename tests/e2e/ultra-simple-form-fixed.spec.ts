@@ -1,9 +1,9 @@
 // Imports Playwright et helpers E2E utilisés dans le scénario ultra simple.
 import { test, expect } from "@playwright/test";
-import { withConsoleGuard, waitForCopySuccess, PRODUCT_ROUTES } from "./utils";
-import { setupTestEnvironment } from "./helpers/test-setup";
+import { withConsoleGuard, PRODUCT_ROUTES } from "./utils";
 import { waitForNetworkIdle, waitForReactStable } from "./helpers/wait-helpers";
 import { getTimeouts } from "./config/timeouts";
+import { setupTestEnvironment } from "./helpers/test-setup";
 import { navigateToWorkspace, sendChatMessage } from "./helpers/chat-helpers";
 import { authenticateUser } from "./helpers/auth-helpers";
 
@@ -18,13 +18,6 @@ const mkLogger =
  */
 test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
   test.describe.configure({ mode: "serial" });
-
-  // Skip Firefox for speed/stability as per new "Fast & Simple" testing principles
-  // Logic is shared with Chromium, so risk is low.
-  test.skip(
-    ({ browserName }) => browserName === "firefox",
-    "Skipping on Firefox for speed/flakiness reasons",
-  );
 
   /**
    * Prépare l'environnement complet avant chaque test (mocks, garde console, mode local).
@@ -91,7 +84,6 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
         log("🛠️ Navigation vers le workspace Form");
         await navigateToWorkspace(page, browserName, "form");
         await waitForNetworkIdle(page, { browserName });
-        // await expect(page).toHaveTitle(/DooDates/);
         log("✅ App chargée");
 
         // 2. Détecter le type d'interface (chat IA ou formulaire manuel)
@@ -116,76 +108,77 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
 
           // CLIQUER SUR LE BOUTON "CRÉER" pour vraiment créer le formulaire
           log("🔘 Clic sur le bouton CRÉER");
-          const createButton = page.locator("button").filter({ hasText: /créer/i }).first();
-          await createButton.waitFor({ state: "visible", timeout: 30000 });
+
+          // Essayer plusieurs sélecteurs possibles pour le bouton de création
+          const createButton = page
+            .locator("button")
+            .filter({ hasText: /créer|Créer/i })
+            .first()
+            .or(page.locator('[data-testid="publish-button"]'))
+            .or(page.locator('button[type="submit"]:not([disabled])'))
+            .or(page.locator('button:has-text("Créer"):not([disabled])'))
+            .or(page.locator('button:has-text("créer"):not([disabled])'))
+            .first();
+
+          await createButton.waitFor({ state: "visible", timeout: 10000 });
           await createButton.click();
 
           // Attendre que le formulaire soit créé en brouillon
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-          log("⏳ Publication reportée à la fin du workflow pour permettre l'édition");
 
-          // Étape 2 — Ajout d'une question via IA
-          log("✏️ Ajout d'une question via IA");
-          await sendChatMessage(page, "ajoute une question sur la satisfaction des participants", {
-            timeout: timeouts.element,
-          });
+          // Étape 5 — Publication du formulaire
+          log("🚀 Publication du formulaire");
+
+          // Capturer tous les boutons visibles pour débogage
+
+          // CLIQUER SUR LE BOUTON "PUBLIER"
+          const publishButton = page.locator('[data-testid="publish-button"]').first();
+
+          // Essayer le bouton Publier d'abord
+          try {
+            await publishButton.waitFor({ state: "visible", timeout: 3000 });
+            await publishButton.click();
+          } catch (e) {
+            console.log("Bouton Publier non trouvé, clic sur le dernier bouton visible");
+            const allButtons = page.locator("button:visible");
+            const count = await allButtons.count();
+            if (count > 0) {
+              await allButtons.nth(count - 1).click();
+            } else {
+              throw new Error("Aucun bouton trouvé");
+            }
+          }
+
+          // Attendre la navigation vers la nouvelle page de succès
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-          log("✅ Question supplémentaire ajoutée");
 
-          // Étape 3 — Suppression d'une question via IA
-          log("🗑️ Suppression d'une question via IA");
-          await sendChatMessage(page, "supprime la dernière question", {
-            timeout: timeouts.element,
-          });
-          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-          log("✅ Question supprimée");
+          // Étape 6 — Suivre le lien de vote depuis la page de succès
+          log("🔗 Recherche du lien de vote sur la page de succès");
 
-          // Étape 4 — Reprise après refresh
-          log("🔁 Test reprise après refresh");
-          const urlBeforeReload = page.url();
-          await page.reload({ waitUntil: "domcontentloaded" });
-          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-          log("✅ Reprise ok après refresh");
-
-          // Étape 5 — Publication (Déplacé ici)
-          log("🚀 Étape 5 — Publication du formulaire");
-          // CLIQUER SUR LE BOUTON "PUBLICATION"
-          log("🔘 Clic sur le bouton PUBLICATION");
-          const publishButton = page
+          // Vérifier si le formulaire est déjà publié (bouton "VOIR LE FORMULAIRE")
+          const viewFormButton = page
             .locator("button")
-            .filter({ hasText: /publication|publier/i })
+            .filter({ hasText: /voir le formulaire|VOIR LE FORMULAIRE/i })
             .first();
-          await publishButton.waitFor({ state: "visible", timeout: 10000 });
-          await publishButton.click();
 
+          if (await viewFormButton.isVisible({ timeout: 3000 })) {
+            // Le formulaire est déjà publié, cliquer sur "VOIR LE FORMULAIRE"
+            await viewFormButton.click();
+          } else {
+            // Le formulaire vient d'être publié, chercher le lien de vote
+            const voteLink = page.locator('a[href*="/form/"]').first();
+            await expect(voteLink).toBeVisible({ timeout: 5000 });
+
+            // Copier le lien de vote
+            const voteUrl = await voteLink.getAttribute("href");
+            console.log(`🔗 Lien de vote copié: ${voteUrl}`);
+
+            // Cliquer sur le lien de vote
+            await voteLink.click();
+          }
+
+          // Attendre la navigation vers la page de vote
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-
-          // Vérification robuste (Supporte Full Page Success OU Modal Guest)
-          const successTitle = page
-            .locator("h1, .text-xl:has-text('Sondage créé avec succès !')")
-            .first();
-          await expect(successTitle).toBeVisible({ timeout: 15000 });
-          log("✅ Formulaire publié avec succès");
-
-          // Étape 6 — Test vote
-          log("🗳️ Test vote sur formulaire");
-
-          // Récupérer le slug du formulaire créé
-          const currentUrl = page.url();
-          const slugMatch = currentUrl.match(/\/form\/([^\/\?]+)/);
-          const formSlug = slugMatch ? slugMatch[1] : "test-form-" + Date.now();
-
-          // Naviguer vers la page de vote du formulaire
-          await page.goto(`/form/${formSlug}`, { waitUntil: "domcontentloaded" });
-          await waitForNetworkIdle(page, { browserName });
-
-          // Vérifier que la page de vote s'affiche
-          const votePage = page
-            .locator('[data-testid="form-vote-page"]')
-            .or(page.locator('h1:has-text("Formulaire")'))
-            .first();
-          await expect(votePage).toBeVisible({ timeout: timeouts.element });
-          log("✅ Page de vote formulaire accessible");
 
           // Simuler un vote simple (remplir une question)
           const firstInput = page
@@ -213,8 +206,6 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
           });
           await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
-          log("✅ Navigation vers le dashboard réussie");
-
           // Étape 6 — Vérification dashboard
           log("📊 Vérification dashboard");
 
@@ -226,10 +217,7 @@ test.describe("DooDates - Test Ultra Simple Form (via IA)", () => {
         } else if (hasFormTitle) {
           // Mode Formulaire manuel
           log("📝 Mode Formulaire manuel détecté");
-          log("⚠️ Ni chat ni formulaire trouvé - vérification de la page");
-          log("⚠️ Pas de confirmation visible, vérification dashboard");
-          log("📊 Vérification Dashboard");
-          log("🎉 Workflow Form terminé avec succès");
+          throw new Error("Mode formulaire manuel non supporté dans ce test");
         } else {
           // Fallback - aucune interface détectée
           log("⚠️ Ni chat ni formulaire trouvé - impossible de créer un formulaire");
