@@ -23,7 +23,7 @@ export const config = {
   // Application settings
   app: {
     baseUrl: process.env.BASE_URL || "https://julienfritschheydon.github.io/DooDates",
-    startPages: ["/date-polls", "/form-polls", "/availability-polls", "/quizz"],
+    startPages: ["/date", "/form", "/availability", "/quizz"],
   },
 
   // Test behavior
@@ -100,17 +100,17 @@ export const config = {
   missions: [
     /* 
         {
-            id: 'create_date_poll',
+            id: 'create_date',
             name: 'Le Créateur (Sondage Dates)',
             personaId: 'power_user',
-            goal: 'Suis cette séquence logique : 1. Va sur "/date-polls". 2. Clique sur "Créer mon sondage". 3. Dans le chat, tape "Organiser un apéro vendredi soir". 4. Sélectionne 2 ou 3 dates sur le calendrier. 5. Clique sur "Continuer" jusqu\'à la page de partage.',
+            goal: 'Suis cette séquence logique : 1. Va sur "/date". 2. Clique sur "Créer mon sondage". 3. Dans le chat, tape "Organiser un apéro vendredi soir". 4. Sélectionne 2 ou 3 dates sur le calendrier. 5. Clique sur "Continuer" jusqu\'à la page de partage.',
             successCondition: '/poll/',
         },
         {
-            id: 'create_form_poll',
+            id: 'create_form',
             name: 'Le Créateur (Formulaire)',
             personaId: 'power_user',
-            goal: 'Suis cette séquence logique : 1. Va sur "/form-polls". 2. Clique sur "Créer un formulaire". 3. Tape "Questionnaire de satisfaction" dans le chat IA. 4. Clique sur "Ajouter" pour valider la création du formulaire. 5. Vérifie que les questions apparaissent.',
+            goal: 'Suis cette séquence logique : 1. Va sur "/form". 2. Clique sur "Créer un formulaire". 3. Tape "Questionnaire de satisfaction" dans le chat IA. 4. Clique sur "Ajouter" pour valider la création du formulaire. 5. Vérifie que les questions apparaissent.',
             successCondition: '/workspace/form',
         },
         */
@@ -130,10 +130,10 @@ export const config = {
             successCondition: 'Score',
         },
         {
-            id: 'create_availability_poll',
+            id: 'create_availability',
             name: 'Le Planificateur - Availability',
             personaId: 'power_user',
-            goal: '1. Go to /availability-polls/workspace/availability, 2. Fill title "Team Sync", 3. Add availability options, 4. Click "Créer le sondage", 5. Click "Voir le sondage" (Eye icon) to open poll, 6. Click "M\'inscrire comme participant" or fill name, 7. Select slots, 8. Click "Envoyer mes disponibilités".',
+            goal: '1. Go to /availability/workspace/availability, 2. Fill title "Team Sync", 3. Add availability options, 4. Click "Créer le sondage", 5. Click "Voir le sondage" (Eye icon) to open poll, 6. Click "M\'inscrire comme participant" or fill name, 7. Select slots, 8. Click "Envoyer mes disponibilités".',
             successCondition: '/poll/'
         },
         */
@@ -141,7 +141,7 @@ export const config = {
       id: "vote_flow_dashboard",
       name: "Le Votant - Dashboard",
       personaId: "new_user",
-      goal: '1. Go to /form-polls/dashboard, 2. Find a poll in the list (or create one if empty), 3. Click the "Tester" button (Eye icon) on a poll card, 4. Answer the questions, 5. Submit the form.',
+      goal: '1. Go to /form/dashboard, 2. Find a poll in the list (or create one if empty), 3. Click the "Tester" button (Eye icon) on a poll card, 4. Answer the questions, 5. Submit the form.',
       successCondition: "Merci",
     },
     {
@@ -172,34 +172,22 @@ export const config = {
     {
       id: "date",
       name: "Sondages de Dates",
-      routes: [
-        "/date-polls",
-        "/date-polls/workspace/date",
-        "/date-polls/dashboard",
-        "/date-polls/settings",
-        "/date-polls/docs",
-      ],
+      routes: ["/date", "/date/workspace/date", "/date/dashboard", "/date/settings", "/date/docs"],
     },
     {
       id: "form",
       name: "Formulaires",
-      routes: [
-        "/form-polls",
-        "/form-polls/workspace/form",
-        "/form-polls/dashboard",
-        "/form-polls/settings",
-        "/form-polls/docs",
-      ],
+      routes: ["/form", "/form/workspace/form", "/form/dashboard", "/form/settings", "/form/docs"],
     },
     {
       id: "availability",
       name: "Disponibilités",
       routes: [
-        "/availability-polls",
-        "/availability-polls/workspace/availability",
-        "/availability-polls/dashboard",
-        "/availability-polls/settings",
-        "/availability-polls/docs",
+        "/availability",
+        "/availability/workspace/availability",
+        "/availability/dashboard",
+        "/availability/settings",
+        "/availability/docs",
       ],
     },
     {
@@ -212,25 +200,25 @@ export const config = {
   // Routes to test (priority order) - flattened from productGroups
   priorityRoutes: [
     // Landing pages
-    "/date-polls",
-    "/form-polls",
-    "/availability-polls",
+    "/date",
+    "/form",
+    "/availability",
     // Workspaces
-    "/date-polls/workspace/date",
-    "/form-polls/workspace/form",
-    "/availability-polls/workspace/availability",
+    "/date/workspace/date",
+    "/form/workspace/form",
+    "/availability/workspace/availability",
     // Dashboards
-    "/date-polls/dashboard",
-    "/form-polls/dashboard",
-    "/availability-polls/dashboard",
+    "/date/dashboard",
+    "/form/dashboard",
+    "/availability/dashboard",
     // Settings
-    "/date-polls/settings",
-    "/form-polls/settings",
-    "/availability-polls/settings",
+    "/date/settings",
+    "/form/settings",
+    "/availability/settings",
     // Documentation
-    "/date-polls/docs",
-    "/form-polls/docs",
-    "/availability-polls/docs",
+    "/date/docs",
+    "/form/docs",
+    "/availability/docs",
     // Quizz
     "/quizz",
   ],
